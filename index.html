@@ -10,8 +10,8 @@
      makes the link, so no key is ever on this page. R2 deletes free/ after 3 days by itself.
      My transfers and Admin read the same database as RoarMe (supabase/transfer-panel.sql in alexisdigipro-hub/roarme).
      Plain HTML on GitHub Pages: no build step. -->
-<title>RoarTransfer · Send big files, up to 3 GB</title>
-<meta name="description" content="RoarTransfer: send files up to 3 GB with a link anyone can download for 3 days.">
+<title>RoarTransfer · Send large files – Free &amp; secure</title>
+<meta name="description" content="RoarTransfer: send large files – free &amp; secure. One link, up to 5 GB, by email or link.">
 <meta name="theme-color" content="#16181c">
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -76,6 +76,7 @@ main { flex: 1; display: grid; place-items: center; padding: 8px 16px 32px; }
 h1 { margin: 0; font-family: var(--disp); font-size: clamp(34px, 8vw, 48px); font-weight: 300; line-height: .98; letter-spacing: -.01em; text-wrap: balance; }
 h1 b { font-weight: 800; }
 .sub { margin: -6px 0 0; font-size: 15px; line-height: 1.55; color: var(--muted); }
+.tag { margin: -8px 0 0; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: #ff8f86; }
 
 /* sign in */
 .field { display: grid; gap: 6px; }
@@ -154,6 +155,7 @@ h1 b { font-weight: 800; }
 .center { text-align: center; }
 .note { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); text-align: center; }
 .note.warn { color: var(--warn); }
+.note.ok { color: #a6efc0; font-weight: 600; }
 .done-ic { justify-self: center; width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(180deg, #3fe07c, #1f9d52); box-shadow: 0 0 0 10px rgba(47,211,107,.12), 0 18px 44px rgba(47,211,107,.32); animation: pop .6s var(--ease) both; }
 .done-ic.fail { background: linear-gradient(180deg, #ff4a3d, #b50000); box-shadow: 0 0 0 10px rgba(212,0,0,.14); }
 .done-ic svg { width: 36px; height: 36px; }
@@ -171,13 +173,32 @@ h1 b { font-weight: 800; }
 #done-until svg { width: 17px; height: 17px; color: #7ee2a0; flex: none; }
 /* the download page (roartransfer.com/?t=…): the file, a preview for a video or a picture, the expiry in black
    (Alex, 21 Oct: "not yellow, I can't read it") and Download */
+/* the send options */
+.opts { display: grid; gap: 10px; }
+.seg.two { display: grid; grid-template-columns: 1fr 1fr; }
+.seg.two button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 12px; flex-direction: row; }
+.seg.two button svg { width: 16px; height: 16px; }
+#dur button { flex-direction: column; gap: 1px; } #dur small { font-size: 11px; font-weight: 500; color: var(--muted); } #dur .on small { color: var(--text); }
+.in { width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: 16px; background: rgba(0,0,0,.22); border: 1px solid var(--line-2); font-size: 15px; outline: none; resize: vertical; font-family: inherit; }
+.in:focus { border-color: rgba(255,90,80,.7); }
+.chk { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); cursor: pointer; padding: 2px 4px; }
+.chk input { width: 18px; height: 18px; accent-color: var(--red); }
+.pwrow { position: relative; } .pwrow .in { padding-right: 48px; }
+.eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; display: grid; place-items: center; }
+.eye svg { width: 18px; height: 18px; } .eye:hover { color: var(--text); }
+/* the title and message on the download page */
+.g-title { margin: 0; font-family: var(--disp); font-size: clamp(26px, 6vw, 36px); font-weight: 600; line-height: 1.1; text-align: center; }
+.g-msg { margin: 0; padding: 12px 16px; border-radius: 16px; background: rgba(255,255,255,.06); border: 1px solid var(--line); font-size: 14.5px; line-height: 1.55; white-space: pre-wrap; }
 .pv { width: 100%; max-height: 320px; border-radius: 18px; background: #000; object-fit: contain; }
 .until.exp { color: #111; background: rgba(255,255,255,.72); border-color: rgba(0,0,0,.15); font-weight: 600; }
 .get-ic { justify-self: center; width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.1); border: 1px solid var(--line-2); }
 .get-ic svg { width: 34px; height: 34px; }
 
 footer { padding: 0 16px calc(20px + env(safe-area-inset-bottom)); text-align: center; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--dim); }
-footer a { color: var(--muted); text-decoration: none; } footer a:hover { color: var(--text); }
+footer a { color: var(--muted); text-decoration: none; font-size: 12px; } footer a:hover { color: var(--text); }
+/* POWERED BY above the studio's address (Alex, 21 Oct) */
+footer { display: grid; gap: 3px; justify-items: center; }
+footer .pw { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--dim); }
 .wait { justify-self: center; width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(255,255,255,.14); border-top-color: var(--red-hi); animation: spin .9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -260,6 +281,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <symbol id="i-timer" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/></g></symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><path d="m4 12 16-8-6 16-2.5-6.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
   <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7.5 7.5 12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></g></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/></g></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></g></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></g></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14"/></g></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.5A6.5 6.5 0 0 1 21.5 20"/></g></symbol>
   <symbol id="i-box" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></g></symbol>
@@ -273,7 +297,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <a class="mark" href="./" aria-label="RoarTransfer"><i><svg><use href="#i-up"/></svg></i><b>Roar<span>Transfer</span></b></a>
   <a class="credit" id="credit" target="_blank" rel="noopener" hidden><span><small data-t="cr">A still from</small><b id="credit-t"></b></span></a>
   <div class="end">
-    <a class="more" href="https://themadlions.com/lab/roartransfer/" target="_blank" rel="noopener" data-t="more">What is it?</a>
+    <a class="more" href="https://themadlions.com/lab/roartransfer/" target="_blank" rel="noopener" data-t="more">About Us</a>
     <div class="who" id="who" hidden><span id="who-mail"></span><button type="button" id="out" data-t="out">Sign out</button></div>
     <div class="lang" role="group" aria-label="Language">
       <button type="button" data-lang="en">EN</button>
@@ -296,7 +320,16 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <!-- a download link (?t=…): no account needed -->
   <div class="card" id="v-get" hidden>
     <p class="sub center" id="get-sub" data-t="gt.sub" style="margin:0">Someone sent you a file with RoarTransfer.</p>
+    <p class="g-title" id="get-title" hidden></p>
+    <p class="g-msg" id="get-msg" hidden></p>
     <span class="wait" id="get-wait" aria-label="Loading"></span>
+    <form class="opts" id="get-pwf" hidden>
+      <span class="get-ic"><svg><use href="#i-lock"/></svg></span>
+      <p class="sub center" id="get-pwh" style="margin:0"></p>
+      <div class="pwrow"><input class="in" id="get-pw" type="password" autocomplete="off"><button type="button" class="eye" id="get-eye" aria-label="Show"><svg><use href="#i-eye"/></svg></button></div>
+      <p class="err" id="get-pwe" hidden></p>
+      <button type="submit" class="pill main" id="get-pwgo"><span></span></button>
+    </form>
     <span class="get-ic" id="get-ic" hidden><svg><use href="#i-timer"/></svg></span>
     <h1 class="center" id="get-h" hidden></h1>
     <p class="note" id="get-n" hidden></p>
@@ -311,7 +344,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <!-- signed out -->
   <form class="card" id="v-in" hidden>
     <h1 data-t="in.title" data-html>Big files, <b>one link</b>.</h1>
-    <p class="sub" data-t="in.sub">Up to 3 GB, kept for 3 days, for anyone with the link. Sign in with your RoarMe account to send.</p>
+    <p class="tag" data-t="tag">Send large files – Free &amp; secure</p>
+    <p class="sub" data-t="in.sub">One link for anyone, by email or to copy. Up to 5 GB. Sign in with your RoarMe account to send.</p>
     <div class="field"><label for="em" data-t="in.email">Email</label><input id="em" type="email" autocomplete="username" required inputmode="email"></div>
     <div class="field"><label for="pw" data-t="in.pass">Password</label><input id="pw" type="password" autocomplete="current-password" required></div>
     <p class="err" id="in-err" hidden></p>
@@ -324,6 +358,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <!-- pick files -->
   <div class="card" id="v-pick" hidden>
     <h1 data-t="pk.title" data-html>Send <b>big files</b>.</h1>
+    <p class="tag" data-t="tag">Send large files – Free &amp; secure</p>
     <button type="button" class="drop" id="drop">
       <span class="ic"><svg><use href="#i-up"/></svg></span>
       <span class="t"><b id="drop-b" data-t="pk.drop">Drop your files here</b><small id="drop-s" data-t="pk.or">or click to choose them</small></span>
@@ -331,10 +366,17 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <input type="file" id="pick" multiple hidden>
     <ul class="files" id="list" hidden></ul>
     <div class="meter" id="meter" hidden><span class="bar"><i id="meter-i"></i></span><small id="meter-t"></small></div>
-    <div class="facts">
-      <span><i><svg><use href="#i-up"/></svg></i><b>3 GB</b><small data-t="pk.f1">per transfer</small></span>
-      <span><i><svg><use href="#i-timer"/></svg></i><b data-t="pk.f2b">3 days</b><small id="f-until"></small></span>
-      <span><i><svg><use href="#i-link"/></svg></i><b data-t="pk.f3b">Link</b><small data-t="pk.f3">for anyone, no account</small></span>
+    <!-- how it goes (Alex, 21 Oct): by email or as a link, a title and a message, how long it stays, a password, and
+         an email to you when someone downloads -->
+    <div class="opts" id="opts" hidden>
+      <div class="seg two" id="mode"><button type="button" data-m="mail"><svg><use href="#i-mail"/></svg><span data-t="op.mail">Email</span></button><button type="button" data-m="link" class="on"><svg><use href="#i-link"/></svg><span data-t="op.link">Link</span></button></div>
+      <input class="in" id="op-to" type="text" inputmode="email" autocomplete="off" hidden>
+      <input class="in" id="op-title" type="text" maxlength="120" autocomplete="off">
+      <textarea class="in" id="op-msg" rows="3" maxlength="2000"></textarea>
+      <div class="seg two" id="dur"><button type="button" data-d="1"><b data-t="op.d1">1 day</b><small data-t="op.d1s">up to 5 GB</small></button><button type="button" data-d="3" class="on"><b data-t="op.d3">3 days</b><small data-t="op.d3s">up to 3 GB</small></button></div>
+      <label class="chk"><input type="checkbox" id="op-notify" checked><span data-t="op.notify">Email me when it is downloaded</span></label>
+      <div class="pwrow"><input class="in" id="op-pw" type="password" autocomplete="new-password" maxlength="100"><button type="button" class="eye" id="op-eye" aria-label="Show"><svg><use href="#i-eye"/></svg></button></div>
+      <p class="err" id="op-err" hidden></p>
     </div>
     <button type="button" class="pill main" id="go" hidden><span id="go-t" data-t="pk.go">Transfer</span><svg><use href="#i-send"/></svg></button>
   </div>
@@ -352,6 +394,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <span class="done-ic" id="done-ic"><svg><use href="#i-check"/></svg></span>
     <h1 class="center" id="done-h"></h1>
     <span class="until" id="done-until"><svg><use href="#i-timer"/></svg><span></span></span>
+    <p class="note ok" id="done-mailed" hidden></p>
     <p class="err" id="done-err" hidden></p>
     <ul class="files" id="done-list"></ul>
     <div class="row" id="done-acts">
@@ -403,7 +446,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   </div>
 </main>
 
-<footer><a href="https://themadlions.com/lab/roartransfer/" target="_blank" rel="noopener" data-t="ft">RoarTransfer · by The Mad Lions</a></footer>
+<footer><small class="pw">Powered by</small><a href="https://www.themadlions.com" target="_blank" rel="noopener">www.themadlions.com</a></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
@@ -413,7 +456,11 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   var KEY = 'sb_publishable_7mQ3e0NH5lCmdoIKx2-FUA_EgCoXx9X'
   var BUCKET = 'roar-transfers'
   var MAX = 3 * 1024 * 1024 * 1024
-  var DAYS = 3
+  var DAYS = 3, mode = 'link'
+  // Free (Alex, 21 Oct): 1 day up to 5 GB, or 3 days up to 3 GB
+  var GB = 1024 * 1024 * 1024
+  var lim = function () { return DAYS === 1 ? 5 * GB : 3 * GB }
+  var limG = function () { return DAYS === 1 ? 5 : 3 }
   var PIECE = 6 * 1024 * 1024
   var TUS = URL_.replace('.supabase.co', '.storage.supabase.co') + '/storage/v1/upload/resumable'
   // the download page every RoarTransfer link opens (RoarMe's ?t=, src/transfer.jsx TransferPage)
@@ -425,16 +472,15 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 
   var EL = {
     'out': 'Αποσύνδεση',
-    'in.title': 'Μεγάλα αρχεία, <b>ένας σύνδεσμος</b>.', 'in.sub': 'Ως 3 GB, για 3 μέρες, για όποιον έχει τον σύνδεσμο. Συνδέσου με τον λογαριασμό σου στο RoarMe για να στείλεις.',
+    'in.title': 'Μεγάλα αρχεία, <b>ένας σύνδεσμος</b>.', 'in.sub': 'Ένας σύνδεσμος για όποιον θες, με email ή για αντιγραφή. Ως 5 GB. Συνδέσου με τον λογαριασμό σου στο RoarMe για να στείλεις.', 'tag': 'Στείλε μεγάλα αρχεία – Δωρεάν & με ασφάλεια',
     'in.email': 'Email', 'in.pass': 'Κωδικός', 'in.go': 'Σύνδεση',
     'in.hub': 'Βάλε το email και τον κωδικό σου από το <b>RoarMe</b>. Μπαίνεις με το THEMADLIONS Hub ή δεν έχεις ακόμα λογαριασμό; <a href="https://alexisdigipro-hub.github.io/roarme/" target="_blank" rel="noopener">Άνοιξε το RoarMe</a> για να φτιάξεις λογαριασμό ή κωδικό.',
     'gt.sub': 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', 'gt.go': 'Λήψη', 'gt.send': 'Στείλε κι εσύ αρχεία',
     'pk.title': 'Στείλε <b>μεγάλα αρχεία</b>.', 'pk.drop': 'Άφησε τα αρχεία σου εδώ', 'pk.or': 'ή πάτα για να τα διαλέξεις',
-    'pk.f1': 'ανά αποστολή', 'pk.f2b': '3 μέρες', 'pk.f3b': 'Link','pk.f3': 'για όλους, χωρίς λογαριασμό', 'pk.go': 'Αποστολή',
+    'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.notify': 'Στείλε μου email όταν κατέβει',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
-    'cr': 'Ένα καρέ από', 'more': 'Τι είναι;',
-    'ft': 'RoarTransfer · από τους The Mad Lions',
+    'cr': 'Ένα καρέ από', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες με RoarTransfer: από εδώ, από το RoarMail και στις συνομιλίες σου. Ο σύνδεσμος ισχύει 3 μέρες, η λίστα μένει.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
@@ -443,7 +489,11 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   }
   var W = {
     en: {
-      more: 'Add more', more2: 'or drop them here', of: 'of 3 GB', file: 'file', files: 'files', over: 'Over 3 GB', tooBig: 'over 3 GB',
+      more: 'Add more', more2: 'or drop them here', of: function (g) { return 'of ' + g + ' GB' }, file: 'file', files: 'files', over: function (g) { return 'Over ' + g + ' GB' }, tooBig: function (g) { return 'over ' + g + ' GB' },
+      to: 'Send to: emails, separated by commas', title: 'Title (optional)', msg: 'Your message (optional)', pw: 'Password (optional)',
+      noTo: 'Add at least one email to send to.', badTo: function (e) { return 'This does not look like an email: ' + e },
+      mailed: function (n) { return n === 1 ? 'Sent by email to 1 person.' : 'Sent by email to ' + n + ' people.' }, unmailed: 'Some emails could not be sent:',
+      gFrom: function (n) { return n + ' sent you' }, gLocked: 'This transfer has a password', gPw: 'Password', gOpen: 'Open', gWrong: 'Wrong password, try again.',
       until: 'until', sent: 'uploaded', sentOne: 'Uploaded!', sentMany: function (n) { return n + ' files uploaded!' }, none: 'Nothing was uploaded',
       left: 'Anyone with the link can download until', copy: 'Copy link', copied: 'Copied', allCopied: 'All links copied', cant: 'Could not copy',
       bad: 'Wrong email or password.', offline: 'Could not reach RoarMe. Check the connection and try again.',
@@ -460,13 +510,17 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       active: 'Active', expired: 'Expired', stoppedT: 'Stopped', deleted: 'Deleted in the chat',
       daysLeft: function (n) { return n + ' days left' }, hLeft: function (n) { return n + ' h left' }, minLeft: function (n) { return n + ' min left' },
       byLink: 'by link', group: 'a group', dm: 'a one-to-one chat',
-      stop: 'Stop', stopT: 'Stop the link now and delete the file',
-      stopAsk: function (n) { return 'Stop "' + n + '" now? The link stops working and the file is deleted. This cannot be undone.' },
+      stop: 'Delete', stopT: 'Delete the file and its link now',
+      stopAsk: function (n) { return 'Delete "' + n + '" now? The file and its link are gone for good.' },
       noneYet: 'Nothing sent yet. What you send shows up here.', noneFound: 'Nothing matches.', noneAll: 'No transfers yet.',
       only: 'Only', everyone: 'Everyone', k_video: 'Video', k_image: 'Pictures', k_audio: 'Audio', k_other: 'Other'
     },
     el: {
-      more: 'Πρόσθεσε κι άλλα', more2: 'ή άφησέ τα εδώ', of: 'από 3 GB', file: 'αρχείο', files: 'αρχεία', over: 'Πάνω από 3 GB', tooBig: 'πάνω από 3 GB',
+      more: 'Πρόσθεσε κι άλλα', more2: 'ή άφησέ τα εδώ', of: function (g) { return 'από ' + g + ' GB' }, file: 'αρχείο', files: 'αρχεία', over: function (g) { return 'Πάνω από ' + g + ' GB' }, tooBig: function (g) { return 'πάνω από ' + g + ' GB' },
+      to: 'Προς: email, χωρισμένα με κόμμα', title: 'Τίτλος (προαιρετικό)', msg: 'Το μήνυμά σου (προαιρετικό)', pw: 'Κωδικός (προαιρετικό)',
+      noTo: 'Γράψε τουλάχιστον ένα email παραλήπτη.', badTo: function (e) { return 'Αυτό δεν μοιάζει με email: ' + e },
+      mailed: function (n) { return n === 1 ? 'Στάλθηκε με email σε 1 άτομο.' : 'Στάλθηκε με email σε ' + n + ' άτομα.' }, unmailed: 'Κάποια email δεν στάλθηκαν:',
+      gFrom: function (n) { return 'Ο/Η ' + n + ' σου έστειλε' }, gLocked: 'Αυτή η αποστολή έχει κωδικό', gPw: 'Κωδικός', gOpen: 'Άνοιγμα', gWrong: 'Λάθος κωδικός, δοκίμασε ξανά.',
       until: 'ως', sent: 'ανέβηκαν', sentOne: 'Ανέβηκε!', sentMany: function (n) { return 'Ανέβηκαν ' + n + ' αρχεία!' }, none: 'Δεν ανέβηκε τίποτα',
       left: 'Όποιος έχει τον σύνδεσμο μπορεί να κατεβάσει ως', copy: 'Αντιγραφή', copied: 'Αντιγράφηκε', allCopied: 'Αντιγράφηκαν όλοι', cant: 'Δεν αντιγράφηκε',
       bad: 'Λάθος email ή κωδικός.', offline: 'Δεν βρέθηκε το RoarMe. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
@@ -483,8 +537,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       active: 'Ενεργό', expired: 'Έληξε', stoppedT: 'Σταμάτησε', deleted: 'Σβήστηκε στη συνομιλία',
       daysLeft: function (n) { return 'μένουν ' + n + ' μέρες' }, hLeft: function (n) { return 'μένουν ' + n + ' ώρες' }, minLeft: function (n) { return 'μένουν ' + n + ' λεπτά' },
       byLink: 'με σύνδεσμο', group: 'μια ομάδα', dm: 'μια προσωπική συνομιλία',
-      stop: 'Διακοπή', stopT: 'Σταμάτα τον σύνδεσμο τώρα και σβήσε το αρχείο',
-      stopAsk: function (n) { return 'Να σταματήσει το "' + n + '" τώρα; Ο σύνδεσμος δεν θα δουλεύει και το αρχείο σβήνεται. Δεν γίνεται αναίρεση.' },
+      stop: 'Διαγραφή', stopT: 'Σβήσε τώρα το αρχείο και τον σύνδεσμό του',
+      stopAsk: function (n) { return 'Να σβηστεί το "' + n + '" τώρα; Το αρχείο και ο σύνδεσμός του χάνονται οριστικά.' },
       noneYet: 'Δεν έχεις στείλει τίποτα ακόμα. Ό,τι στέλνεις εμφανίζεται εδώ.', noneFound: 'Δεν βρέθηκε τίποτα.', noneAll: 'Καμία αποστολή ακόμα.',
       only: 'Μόνο', everyone: 'Όλοι', k_video: 'Βίντεο', k_image: 'Εικόνες', k_audio: 'Ήχος', k_other: 'Άλλα'
     }
@@ -565,27 +619,46 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     paint()
   }
   function paint() {
-    $('f-until').textContent = w('until') + ' ' + day(Date.now() + DAYS * 864e5)
+    var MAX = lim()
     var t = total(), over = t > MAX, has = files.length > 0
+    $('opts').hidden = !has
+    $('op-to').hidden = mode !== 'mail'
+    $('op-to').placeholder = w('to'); $('op-title').placeholder = w('title'); $('op-msg').placeholder = w('msg'); $('op-pw').placeholder = w('pw')
     $('drop').classList.toggle('has', has)
     $('drop-b').textContent = has ? w('more') : (lang === 'el' ? EL['pk.drop'] : EN['pk.drop'])
     $('drop-s').textContent = has ? w('more2') : (lang === 'el' ? EL['pk.or'] : EN['pk.or'])
     $('list').hidden = !has; $('meter').hidden = !has; $('go').hidden = !has
     $('list').innerHTML = files.map(function (f, n) {
-      return '<li><span class="fi"><svg><use href="#' + icon(f.type) + '"/></svg></span><span class="ft"><b>' + esc(f.name) + '</b><small' + (f.size > MAX ? ' class="bad"' : '') + '>' + size(f.size) + (f.size > MAX ? ' · ' + w('tooBig') : '') + '</small></span>'
+      return '<li><span class="fi"><svg><use href="#' + icon(f.type) + '"/></svg></span><span class="ft"><b>' + esc(f.name) + '</b><small' + (f.size > MAX ? ' class="bad"' : '') + '>' + size(f.size) + (f.size > MAX ? ' · ' + w('tooBig')(limG()) : '') + '</small></span>'
         + '<button type="button" class="x" data-n="' + n + '" aria-label="' + w('remove') + '"><svg><use href="#i-x"/></svg></button></li>'
     }).join('')
     $('meter').classList.toggle('over', over)
     $('meter-i').style.width = Math.min(100, t / MAX * 100) + '%'
-    $('meter-t').innerHTML = '<b>' + size(t) + '</b> ' + w('of') + ' · ' + files.length + ' ' + (files.length === 1 ? w('file') : w('files'))
+    $('meter-t').innerHTML = '<b>' + size(t) + '</b> ' + w('of')(limG()) + ' · ' + files.length + ' ' + (files.length === 1 ? w('file') : w('files'))
     $('go').disabled = over
-    $('go-t').textContent = over ? w('over') : (lang === 'el' ? EL['pk.go'] : EN['pk.go'])
+    $('go-t').textContent = over ? w('over')(limG()) : (lang === 'el' ? EL['pk.go'] : EN['pk.go'])
     if (view === 'v-done') paintDone()
     if (view === 'v-mine') paintMine()
     if (view === 'v-admin') { paintStats(); paintAdmList() }
     if (view === 'v-get') paintGet()
   }
   $('list').addEventListener('click', function (e) { var b = e.target.closest('.x'); if (b) { files.splice(+b.dataset.n, 1); paint() } })
+  $('mode').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-m]'); if (!b) return
+    mode = b.dataset.m
+    $('mode').querySelectorAll('[data-m]').forEach(function (x) { x.classList.toggle('on', x === b) })
+    $('op-err').hidden = true; paint()
+    if (mode === 'mail') $('op-to').focus()
+  })
+  $('dur').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-d]'); if (!b) return
+    DAYS = +b.dataset.d
+    $('dur').querySelectorAll('[data-d]').forEach(function (x) { x.classList.toggle('on', x === b) })
+    paint()
+  })
+  $('op-to').addEventListener('input', function () { $('op-err').hidden = true })
+  $('op-eye').addEventListener('click', function () { $('op-pw').type = $('op-pw').type === 'password' ? 'text' : 'password' })
+  var emails = function () { return $('op-to').value.split(/[\s,;]+/).map(function (e) { return e.trim() }).filter(Boolean) }
   $('drop').addEventListener('click', function () { $('pick').click() })
   $('pick').addEventListener('change', function (e) { add(e.target.files); e.target.value = '' })
   var drop = $('drop')
@@ -597,7 +670,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   window.addEventListener('drop', function (e) { e.preventDefault(); if (view === 'v-pick') add(e.dataTransfer && e.dataTransfer.files) })
 
   // ---- send: each file in 16 MB pieces straight to Cloudflare R2, three at a time; a piece that fails is tried again ----
-  var busy = false, stopped = false, xhrs = [], link = ''
+  var busy = false, stopped = false, xhrs = [], link = '', mailed = 0
   var sent = [], errs = []
   var C = 2 * Math.PI * 56
   $('ring').style.strokeDasharray = C
@@ -632,7 +705,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   }
   var wait = function (ms) { return new Promise(function (ok) { setTimeout(ok, ms) }) }
   async function upOne(f, before) {
-    var made = await bridge({ action: 'create', name: f.name || 'file', size: f.size, type: f.type || '' })
+    var made = await bridge({ action: 'create', name: f.name || 'file', size: f.size, type: f.type || '', days: DAYS })
     var n = Math.max(1, Math.ceil(f.size / PART)), next = 1
     var urls = {}, etags = {}, loaded = {}
     var sum = function () { var t = 0; for (var k in loaded) t += loaded[k]; return t }
@@ -676,11 +749,17 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       throw e
     }
     var parts = Object.keys(etags).map(function (k) { return { n: +k, etag: etags[k] } })
-    var fin = await bridge({ action: 'complete', key: made.key, uploadId: made.uploadId, parts: parts, name: f.name || 'file', size: f.size, type: f.type || '' })
+    var fin = await bridge({ action: 'complete', key: made.key, uploadId: made.uploadId, parts: parts, name: f.name || 'file', size: f.size, type: f.type || '', days: DAYS })
     return { name: f.name, size: fin.size || f.size, type: f.type, token: fin.token, url: PAGE + '?t=' + fin.token, expires: fin.expires }
   }
   $('go').addEventListener('click', async function () {
-    if (!files.length || total() > MAX || busy) return
+    if (!files.length || total() > lim() || busy) return
+    // by email: at least one address, and all of them must look right
+    $('op-err').hidden = true
+    if (mode === 'mail') {
+      var list = emails(), bad = list.filter(function (e) { return !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(e) })
+      if (!list.length || bad.length) { $('op-err').textContent = !list.length ? w('noTo') : w('badTo')(bad[0]); $('op-err').hidden = false; return }
+    }
     busy = true; stopped = false; sent = []; errs = []
     $('up-n').classList.remove('warn')
     show('v-up'); progress(0)
@@ -695,9 +774,15 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       before += f.size; progress(before)
     }
     // one link for everything that went up, one file or many
-    link = ''
+    link = ''; mailed = 0
     if (sent.length) {
-      try { var bun = await bridge({ action: 'bundle', tokens: sent.map(function (m) { return m.token }) }); link = PAGE + '?t=' + bun.token }
+      try {
+        var bun = await bridge({ action: 'bundle', tokens: sent.map(function (m) { return m.token }), title: $('op-title').value, message: $('op-msg').value,
+          recipients: mode === 'mail' ? emails() : [], password: $('op-pw').value, notify: $('op-notify').checked })
+        link = PAGE + '?t=' + bun.token
+        mailed = bun.mailed || 0
+        if (bun.mailErrors && bun.mailErrors.length) errs.push(w('unmailed') + ' ' + bun.mailErrors.join(', '))
+      }
       catch (e) { if (sent.length === 1) link = sent[0].url; else errs.push(e.message) }
     }
     busy = false
@@ -718,6 +803,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (ok) { var ms = new Date(sent[0].expires).getTime(); $('done-until').querySelector('span').textContent = w('left') + ' ' + day(ms) + ' ' + hour(ms) }
     $('done-err').hidden = !errs.length; $('done-err').textContent = errs.join(' · ')
     $('done-acts').hidden = !(ok && link)
+    $('done-mailed').hidden = !mailed; $('done-mailed').textContent = mailed ? w('mailed')(mailed) : ''
     $('done-link').textContent = link
     $('done-list').hidden = !ok
     $('done-list').innerHTML = sent.map(function (m) {
@@ -731,7 +817,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     else done(false)
   }
   $('copy-all').addEventListener('click', function () { if (link) copy(link, $('copy-all'), w('copied')) })
-  $('again').addEventListener('click', function () { files = []; sent = []; errs = []; show('v-pick'); paint() })
+  $('again').addEventListener('click', function () { files = []; sent = []; errs = []; $('op-to').value = ''; $('op-title').value = ''; $('op-msg').value = ''; $('op-pw').value = ''; show('v-pick'); paint() })
 
   // ---- the panels (Alex, 21 Oct): My transfers for everyone, Admin for the admin (supabase/transfer-panel.sql) ----
   var mine = null, mineF = 'all'
@@ -781,7 +867,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var by = withWho ? '<i class="dl">' + esc(nameOf(m)) + '</i>' + (m.email && m.username ? '<i>' + esc(m.email) + '</i>' : '') : ''
     var acts = ''
     if (on && m.token) acts += '<button type="button" class="cp" data-cp="' + n + '"><svg><use href="#i-link"/></svg><span>' + w('copy') + '</span></button>'
-    if (on && m.source === 'link') acts += '<button type="button" class="cp stop" data-stop="' + n + '" title="' + esc(w('stopT')) + '"><svg><use href="#i-x"/></svg><span>' + w('stop') + '</span></button>'
+    if (on && m.source === 'link') acts += '<button type="button" class="cp stop" data-stop="' + n + '" title="' + esc(w('stopT')) + '"><svg><use href="#i-trash"/></svg><span>' + w('stop') + '</span></button>'
     return '<li class="tx' + (on ? '' : ' off') + '"><span class="fi"><svg><use href="#' + icon(m.type) + '"/></svg></span>'
       + '<span class="ft"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b><small>' + sz(m.size) + ' · ' + when(m.created_at) + ' · ' + esc(where(m)) + '</small>'
       + '<span class="chips">' + by + st + counts + '</span></span>' + (acts ? '<span class="acts">' + acts + '</span>' : '') + '</li>'
@@ -834,7 +920,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('mine-facts').innerHTML = tile('i-up', fmtN(mine.length), w('tTransfers')) + tile('i-file', sz(sum(mine, 'size')), w('tSent'))
       + tile('i-timer', fmtN(act.length), w('tActive') + (act.length ? ' · ' + sz(sum(act, 'size')) : ''))
       + tile('i-down', fmtN(sum(mine, 'downloads')), w('tDownloads') + ' · ' + w('opensN')(sum(mine, 'opens')))
-    var shown = filt(mine, mineF, $('mine-q').value)
+    var shown = filt(mine.filter(function (m) { return !m.stopped }), mineF, $('mine-q').value)
     $('mine-list').innerHTML = shown.length ? shown.map(function (m) { return row(m, mine.indexOf(m), false) }).join('') : note(mine.length ? w('noneFound') : w('noneYet'))
   }
   segs('mine-seg', function (f) { mineF = f; paintMine() })
@@ -919,9 +1005,29 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     document.body.appendChild(a); a.click(); a.remove()
     countHit(f.token, true)
   }
+  var getPw = ''
+  function load() {
+    $('get-wait').hidden = false
+    fetch(URL_ + '/functions/v1/roar-transfer-get?t=' + encodeURIComponent(getToken) + (getPw ? '&p=' + encodeURIComponent(getPw) : ''))
+      .then(function (r) { return r.json() })
+      .then(function (d) { got = d; if (!d.error) countHit(getToken, false); paintGet() })
+      .catch(function () { got = { error: 'offline' }; paintGet() })
+  }
   function paintGet() {
     if (!got) return
     $('get-wait').hidden = true
+    // who sent it and the title; with a password, only those until the password is right
+    $('get-title').hidden = !got.title; $('get-title').textContent = got.title || ''
+    $('get-msg').hidden = !got.message; $('get-msg').textContent = got.message || ''
+    var locked = got.error === 'password'
+    $('get-pwf').hidden = !locked
+    if (locked) {
+      ;['get-ic', 'get-h', 'get-n', 'get-list', 'get-exp', 'get-go', 'get-vid', 'get-img'].forEach(function (id) { $(id).hidden = true })
+      $('get-sub').hidden = !got.from; $('get-sub').textContent = got.from ? w('gFrom')(got.from) : ''
+      $('get-pwh').textContent = w('gLocked'); $('get-pw').placeholder = w('gPw'); $('get-pwgo').querySelector('span').textContent = w('gOpen')
+      $('get-pwe').hidden = !got.wrong; $('get-pwe').textContent = w('gWrong')
+      return
+    }
     var bad = !!got.error
     $('get-ic').hidden = !bad; $('get-h').hidden = !bad; $('get-n').hidden = !bad
     $('get-sub').hidden = bad
@@ -940,7 +1046,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (vid && one.view && !$('get-vid').src) $('get-vid').src = one.view
     if (img && one.view && !$('get-img').src) $('get-img').src = one.view
     $('get-vid').hidden = !(vid && one.view); $('get-img').hidden = !(img && one.view)
-    $('get-sub').textContent = gotFiles.length > 1 ? w('gSubMany')(gotFiles.length, size(gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0))) : w('gSubOne')
+    $('get-sub').textContent = got.from
+      ? w('gFrom')(got.from) + (gotFiles.length > 1 ? ' ' + gotFiles.length + ' ' + w('files') + ' · ' + size(gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0)) : '')
+      : gotFiles.length > 1 ? w('gSubMany')(gotFiles.length, size(gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0))) : w('gSubOne')
     $('get-list').innerHTML = gotFiles.map(function (f, n) {
       return '<li><span class="fi"><svg><use href="#' + icon(f.type || '') + '"/></svg></span><span class="ft"><b>' + esc(f.name || 'file') + '</b><small>' + size(f.size) + '</small></span>'
         + (gotFiles.length > 1 ? '<a class="dl" href="' + esc(f.url) + '" download="' + esc(f.name || '') + '" data-n="' + n + '" title="' + esc(w('gOne')) + '" aria-label="' + esc(w('gOne')) + '"><svg><use href="#i-down"/></svg></a>' : '') + '</li>'
@@ -960,10 +1068,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       for (var i = 0; i < gotFiles.length; i++) { fetchFile(gotFiles[i]); await new Promise(function (ok) { setTimeout(ok, 1200) }) }
     })
     $('get-list').addEventListener('click', function (e) { var a = e.target.closest('.dl'); if (a) countHit(gotFiles[+a.dataset.n].token, true) })
-    fetch(URL_ + '/functions/v1/roar-transfer-get?t=' + encodeURIComponent(getToken))
-      .then(function (r) { return r.json() })
-      .then(function (d) { got = d; if (!d.error) countHit(getToken, false); paintGet() })
-      .catch(function () { got = { error: 'offline' }; paintGet() })
+    $('get-pwf').addEventListener('submit', function (e) { e.preventDefault(); getPw = $('get-pw').value; if (getPw) { $('get-pwf').hidden = true; load() } })
+    $('get-eye').addEventListener('click', function () { $('get-pw').type = $('get-pw').type === 'password' ? 'text' : 'password' })
+    load()
   }
 
   // one of Alex's pictures behind the card, a new one each visit (Alex, 20 Oct; kept here in stills/, nothing from
