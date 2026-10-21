@@ -320,7 +320,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <a class="mark" href="./" aria-label="RoarTransfer by The Mad Lions"><b>Roar<span>Transfer</span></b><small class="by">By The<strong>Mad</strong>Lions</small></a>
   <a class="credit" id="credit" target="_blank" rel="noopener" hidden><span><small data-t="cr">A still from</small><b id="credit-t"></b></span></a>
   <div class="end">
-    <a class="more" href="https://themadlions.com/lab/roartransfer/" target="_blank" rel="noopener" data-t="more">About Us</a>
+    <a class="more" href="about/" data-t="more">About Us</a>
     <button type="button" class="more in" id="signin" hidden data-t="sgn">Sign in</button>
     <div class="who" id="who" hidden><span id="who-mail"></span><button type="button" id="out" data-t="out">Sign out</button></div>
     <div class="lang" role="group" aria-label="Language">
@@ -371,6 +371,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <h1 data-t="in.title" data-html>Big files, <b>one link</b>.</h1>
     <p class="tag" data-t="tag">Send large files – Free &amp; secure</p>
     <p class="sub" id="in-sub"></p>
+    <div class="field" id="nm-f" hidden><label for="nm" data-t="in.name">Your name</label><input id="nm" type="text" autocomplete="name" maxlength="80"></div>
     <div class="field"><label for="em" data-t="in.email">Email</label><input id="em" type="email" autocomplete="username" required inputmode="email"></div>
     <div class="field"><label for="pw" data-t="in.pass">Password</label><input id="pw" type="password" autocomplete="current-password" required minlength="6"></div>
     <p class="err" id="in-err" hidden></p>
@@ -378,9 +379,17 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <button class="pill main" type="submit" id="in-go"><span id="in-go-t"></span></button>
     <p class="agree" data-t="agree" data-html>By continuing you accept the <a href="terms/">Terms</a> and the <a href="privacy/">Privacy Policy</a>.</p>
     <!-- sign in, or make an account right here (Alex, 21 Oct: "no link to RoarMe, put a sign up") -->
-    <div class="alt"><p><span id="in-q"></span> <a href="#" id="in-switch"></a></p></div>
+    <div class="alt"><p><span id="in-q"></span> <a href="#" id="in-switch"></a></p><p id="in-forgot-p"><a href="#" id="in-forgot" data-t="in.forgot">Forgot password?</a></p></div>
     <!-- FastTransfer (Alex, 21 Oct): sending without an account, from the sign-in card -->
     <button type="button" class="fast" id="in-guest"><b>Fast<span>Transfer</span></b><small data-t="in.fast">No account needed: a link for 24 hours, up to 1 GB</small></button>
+  </form>
+
+  <!-- a new password, from RoarTransfer's reset email (roartransfer-auth, ?reset=) -->
+  <form class="card" id="v-pw" hidden>
+    <h1 data-t="pw.title" data-html>A new <b>password</b>.</h1>
+    <div class="field"><label for="npw" data-t="pw.label">New password</label><input id="npw" type="password" autocomplete="new-password" required minlength="6"></div>
+    <p class="err" id="pw-err" hidden></p>
+    <button class="pill main" type="submit" id="pw-go"><span data-t="pw.go">Save and sign in</span></button>
   </form>
 
   <!-- pick files -->
@@ -512,7 +521,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.notify': 'Στείλε μου email όταν κατέβει',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
-    'cr': 'Ένα καρέ από', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'in.fast': 'Χωρίς λογαριασμό: σύνδεσμος για 24 ώρες, ως 1 GB', 'more': 'Σχετικά με εμάς',
+    'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'in.fast': 'Χωρίς λογαριασμό: σύνδεσμος για 24 ώρες, ως 1 GB', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες με RoarTransfer: από εδώ, από το RoarMail και στις συνομιλίες σου. Ο σύνδεσμος ισχύει 3 μέρες, η λίστα μένει.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
@@ -531,7 +540,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       bad: 'Wrong email or password.', offline: 'Could not reach RoarTransfer. Check the connection and try again.',
       inSub: 'Sign in to send by email too, up to 5 GB, for up to 3 days.', upSub: 'Make a free account to send files up to 5 GB.',
       inGo: 'Sign in', upGo: 'Create account', inQ: 'No account yet?', upQ: 'Already have an account?', inSw: 'Sign up', upSw: 'Sign in',
-      upMail: 'Almost there: open the email we just sent you to confirm your account, then sign in here.', upShort: 'The password needs at least 6 characters.', upTaken: 'There is already an account with this email. Sign in instead.',
+      upMail: 'Almost there: open the email we just sent you and press Confirm my account. It brings you back here, signed in.', upShort: 'The password needs at least 6 characters.', upTaken: 'There is already an account with this email. Sign in instead.',
       off: 'RoarTransfer is not open to this account yet.', stopped: 'Stopped.', leave: 'Files are still uploading.',
       mailSub: 'Files for you (RoarTransfer)', mailBody: 'Download them here, until', remove: 'Remove',
       gExpires: 'Expires', gGo: 'Download', gAll: 'Download all files', gOne: 'Download this file', gSubOne: 'Someone sent you a file with RoarTransfer.', gSubMany: function (n, t) { return 'Someone sent you ' + n + ' files with RoarTransfer · ' + t }, gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are kept 3 days. Ask for it to be sent again.',
@@ -552,7 +561,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       gOut: 'You used today\'s 3 free transfers. <a href="#" data-up>Sign up free</a> to keep sending, up to 5 GB.',
       limit: 'You used today\'s 3 free transfers. Sign up free to keep sending.',
       repAsk: 'Report this transfer: what is wrong with it? (optional)', repDone: 'Thanks, we will look at it.',
-      only: 'Only', everyone: 'Everyone', guestN: 'Guest', k_video: 'Video', k_image: 'Pictures', k_audio: 'Audio', k_other: 'Other'
+      only: 'Only', everyone: 'Everyone', guestN: 'Guest',
+      wait: 'Too many tries. Wait a few minutes and try again.', badMail: 'This does not look like an email.', unconf: 'Confirm your email first: open the email we sent you.', forgotMail: 'Write your email above, then press Forgot password.', resetSent: 'If there is an account with this email, a link to choose a new password is on its way.', linkOld: 'This link has expired or was already used. Try again.', k_video: 'Video', k_image: 'Pictures', k_audio: 'Audio', k_other: 'Other'
     },
     el: {
       more: 'Πρόσθεσε κι άλλα', more2: 'ή άφησέ τα εδώ', of: function (g) { return 'από ' + g + ' GB' }, file: 'αρχείο', files: 'αρχεία', over: function (g) { return 'Πάνω από ' + g + ' GB' }, tooBig: function (g) { return 'πάνω από ' + g + ' GB' },
@@ -565,7 +575,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       bad: 'Λάθος email ή κωδικός.', offline: 'Δεν βρέθηκε το RoarTransfer. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
       inSub: 'Συνδέσου για να στέλνεις και με email, ως 5 GB, για ως 3 μέρες.', upSub: 'Φτιάξε δωρεάν λογαριασμό για να στέλνεις αρχεία ως 5 GB.',
       inGo: 'Σύνδεση', upGo: 'Δημιουργία λογαριασμού', inQ: 'Δεν έχεις λογαριασμό;', upQ: 'Έχεις ήδη λογαριασμό;', inSw: 'Εγγραφή', upSw: 'Σύνδεση',
-      upMail: 'Σχεδόν έτοιμο: άνοιξε το email που σου στείλαμε για να επιβεβαιώσεις τον λογαριασμό σου και μετά συνδέσου εδώ.', upShort: 'Ο κωδικός θέλει τουλάχιστον 6 χαρακτήρες.', upTaken: 'Υπάρχει ήδη λογαριασμός με αυτό το email. Συνδέσου.',
+      upMail: 'Σχεδόν έτοιμο: άνοιξε το email που σου στείλαμε και πάτα Confirm my account. Σε φέρνει πίσω εδώ, συνδεδεμένο.', upShort: 'Ο κωδικός θέλει τουλάχιστον 6 χαρακτήρες.', upTaken: 'Υπάρχει ήδη λογαριασμός με αυτό το email. Συνδέσου.',
       off: 'Το RoarTransfer δεν είναι ακόμα ανοιχτό σε αυτόν τον λογαριασμό.', stopped: 'Διακόπηκε.', leave: 'Τα αρχεία ανεβαίνουν ακόμα.',
       mailSub: 'Αρχεία για σένα (RoarTransfer)', mailBody: 'Κατέβασέ τα εδώ, ως', remove: 'Αφαίρεση',
       gExpires: 'Λήγει', gGo: 'Λήψη', gAll: 'Λήψη όλων των αρχείων', gOne: 'Λήψη αυτού του αρχείου', gSubOne: 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', gSubMany: function (n, t) { return 'Κάποιος σου έστειλε ' + n + ' αρχεία με το RoarTransfer · ' + t }, gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer μένουν 3 μέρες. Ζήτα να σου το ξαναστείλουν.',
@@ -586,7 +596,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       gOut: 'Χρησιμοποίησες τις 3 δωρεάν αποστολές της ημέρας. <a href="#" data-up>Κάνε δωρεάν εγγραφή</a> για να συνεχίσεις, ως 5 GB.',
       limit: 'Χρησιμοποίησες τις 3 δωρεάν αποστολές της ημέρας. Κάνε δωρεάν εγγραφή για να συνεχίσεις.',
       repAsk: 'Αναφορά αυτής της αποστολής: τι πρόβλημα έχει; (προαιρετικό)', repDone: 'Ευχαριστούμε, θα το δούμε.',
-      only: 'Μόνο', everyone: 'Όλοι', guestN: 'Επισκέπτης', k_video: 'Βίντεο', k_image: 'Εικόνες', k_audio: 'Ήχος', k_other: 'Άλλα'
+      only: 'Μόνο', everyone: 'Όλοι', guestN: 'Επισκέπτης',
+      wait: 'Πολλές προσπάθειες. Περίμενε λίγα λεπτά και δοκίμασε ξανά.', badMail: 'Αυτό δεν μοιάζει με email.', unconf: 'Επιβεβαίωσε πρώτα το email σου: άνοιξε το email που σου στείλαμε.', forgotMail: 'Γράψε το email σου πάνω και πάτα Ξέχασα τον κωδικό.', resetSent: 'Αν υπάρχει λογαριασμός με αυτό το email, έρχεται σύνδεσμος για νέο κωδικό.', linkOld: 'Ο σύνδεσμος έληξε ή χρησιμοποιήθηκε ήδη. Δοκίμασε ξανά.', k_video: 'Βίντεο', k_image: 'Εικόνες', k_audio: 'Ήχος', k_other: 'Άλλα'
     }
   }
   var lang = 'en'
@@ -618,7 +629,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   var sb = window.supabase.createClient(URL_, KEY, { auth: { storageKey: 'roarme-auth-2', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } })
   var user = null
 
-  var views = ['v-wait', 'v-get', 'v-in', 'v-pick', 'v-up', 'v-done', 'v-mine', 'v-admin']
+  var views = ['v-wait', 'v-get', 'v-in', 'v-pw', 'v-pick', 'v-up', 'v-done', 'v-mine', 'v-admin']
   // a download link (?t=…) shows only the file, signed in or not
   // roartransfer.com/<token> (Alex, 21 Oct: links as short as they can be; 404.html brings it here as ?t=) or ?t=<token>
   var getToken = new URLSearchParams(location.search).get('t') || (location.pathname.match(/^\/([A-Za-z0-9]{6,32})\/?$/) || [])[1] || ''
@@ -633,9 +644,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (SEND[v]) { sendView = v; if (tab !== 'send') return }
     view = v
     views.forEach(function (id) { $(id).hidden = id !== v })
-    $('who').hidden = !user || v === 'v-in'
+    $('who').hidden = !user || v === 'v-in' || v === 'v-pw'
     $('signin').hidden = !!user || v === 'v-in' || v === 'v-wait'
-    $('tabs').hidden = !user || v === 'v-in' || v === 'v-wait'
+    $('tabs').hidden = !user || v === 'v-in' || v === 'v-wait' || v === 'v-pw'
     document.querySelectorAll('#tabs [data-go]').forEach(function (b) { b.classList.toggle('on', b.dataset.go === tab) })
   }
 
@@ -647,6 +658,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('in-q').textContent = w(signUp ? 'upQ' : 'inQ')
     $('in-switch').textContent = w(signUp ? 'upSw' : 'inSw')
     $('pw').autocomplete = signUp ? 'new-password' : 'current-password'
+    $('nm-f').hidden = !signUp; $('in-forgot-p').hidden = signUp
   }
   $('in-switch').addEventListener('click', function (e) { e.preventDefault(); signUp = !signUp; $('in-err').hidden = true; $('in-ok').hidden = true; paintIn() })
   $('v-in').addEventListener('submit', function (e) {
@@ -659,16 +671,52 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       $('in-go').disabled = false
       if (r.error) {
         var m = r.error.message || ''
-        err.textContent = /already|registered|exists/i.test(m) ? w('upTaken') : /invalid/i.test(m) ? w('bad') : /fetch|network/i.test(m) ? w('offline') : m
+        err.textContent = /already|registered|exists/i.test(m) ? w('upTaken') : /not confirmed/i.test(m) ? w('unconf') : /invalid/i.test(m) ? w('bad') : /fetch|network/i.test(m) ? w('offline') : m
         err.hidden = false; return
       }
       // a new account that has to be confirmed by email first
       if (signUp && !(r.data && r.data.session)) { $('in-ok').textContent = w('upMail'); $('in-ok').hidden = false; signUp = false; paintIn() }
     }
+    // a new account goes through RoarTransfer's own function: its email, its look, its link back here (?confirm=)
     var call = signUp
-      ? sb.auth.signUp({ email: email, password: pass, options: { emailRedirectTo: 'https://roartransfer.com/' } })
+      ? authFn({ action: 'signup', email: email, password: pass, name: $('nm').value }).then(function (d) {
+          return d.ok ? { data: { session: null } } : { error: { message: d.error === 'taken' ? 'already' : d.error === 'wait' ? w('wait') : d.error === 'email' ? w('badMail') : d.error || '' } }
+        })
       : sb.auth.signInWithPassword({ email: email, password: pass })
     call.then(done).catch(function () { $('in-go').disabled = false; err.textContent = w('offline'); err.hidden = false })
+  })
+  function authFn(body) {
+    return fetch(URL_ + '/functions/v1/roartransfer-auth', { method: 'POST', headers: { apikey: KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return { error: 'Error ' + r.status } }) })
+  }
+  $('in-forgot').addEventListener('click', function (e) {
+    e.preventDefault()
+    var err = $('in-err'), email = $('em').value.trim(); err.hidden = true; $('in-ok').hidden = true
+    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) { err.textContent = w('forgotMail'); err.hidden = false; $('em').focus(); return }
+    authFn({ action: 'reset', email: email }).then(function (d) {
+      if (d.ok) { $('in-ok').textContent = w('resetSent'); $('in-ok').hidden = false } else { err.textContent = d.error === 'wait' ? w('wait') : w('offline'); err.hidden = false }
+    }).catch(function () { err.textContent = w('offline'); err.hidden = false })
+  })
+  // the links in RoarTransfer's own emails: ?confirm= signs in the new account, ?reset= asks for a new password
+  var qs = new URLSearchParams(location.search), confirmT = qs.get('confirm'), resetT = qs.get('reset')
+  if (confirmT || resetT) try { history.replaceState(null, '', location.pathname) } catch (e) {}
+  if (confirmT) sb.auth.verifyOtp({ token_hash: confirmT, type: 'signup' }).then(function (r) {
+    if (r.error) { show('v-in'); $('in-err').textContent = w('linkOld'); $('in-err').hidden = false }
+  })
+  if (resetT) sb.auth.verifyOtp({ token_hash: resetT, type: 'recovery' }).then(function (r) {
+    if (r.error) { show('v-in'); $('in-err').textContent = w('linkOld'); $('in-err').hidden = false } else { resetting = true; show('v-pw'); $('npw').focus() }
+  })
+  var resetting = !!resetT
+  $('v-pw').addEventListener('submit', function (e) {
+    e.preventDefault()
+    var p = $('npw').value; $('pw-err').hidden = true
+    if (p.length < 6) { $('pw-err').textContent = w('upShort'); $('pw-err').hidden = false; return }
+    $('pw-go').disabled = true
+    sb.auth.updateUser({ password: p }).then(function (r) {
+      $('pw-go').disabled = false
+      if (r.error) { $('pw-err').textContent = r.error.message; $('pw-err').hidden = false; return }
+      resetting = false; $('npw').value = ''; signedIn()
+    })
   })
   $('out').addEventListener('click', function () { if (busy) return; sb.auth.signOut() })
   sb.auth.onAuthStateChange(function (ev, session) {
@@ -677,6 +725,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     user = session && session.user || null
     $('who-mail').textContent = user ? user.email || '' : ''
     if (!user) { isAdmin = false; mine = null; adm.stats = adm.list = adm.who = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) show('v-in'); loadGuest() }
+    else if (resetting) { $('who').hidden = true }
     else if (view === 'v-wait' || view === 'v-in' || was !== user.id) { $('pw').value = ''; signedIn() }
     else $('who').hidden = false
   })
