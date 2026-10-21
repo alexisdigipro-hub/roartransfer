@@ -115,6 +115,11 @@ main { row-gap: 18px; align-content: center; }
 .fast b { font-family: Jost, var(--disp); font-size: 19px; font-weight: 200; letter-spacing: .02em; text-transform: uppercase; color: #fff; }
 .fast b span { font-weight: 900; }
 .fast small { font-size: 12.5px; color: var(--muted); }
+.get-foot { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 2px; font-size: 12.5px; }
+.get-foot a { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,.82); text-decoration: none; font-weight: 600; }
+.get-foot a:hover { color: #fff; } .get-foot a svg { width: 13px; height: 13px; }
+.get-foot .dot { color: var(--dim); }
+.get-foot .rep { margin: 0; padding: 0; }
 .rep { align-self: center; border: 0; background: none; padding: 4px 8px; font: inherit; font-size: 12px; color: var(--muted); }
 .rep:disabled { text-decoration: none; cursor: default; }
 
@@ -385,8 +390,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <!-- on an iPhone or iPad: Save to Photos through the share sheet ("Save Video" / "Save Image"), Alex 22 Oct -->
     <button type="button" class="pill main" id="get-photos" hidden><svg><use href="#i-down"/></svg><span></span></button>
     <a class="pill main" id="get-go" hidden><svg><use href="#i-down"/></svg><span data-t="gt.go">Download</span></a>
-    <a class="pill sm" href="./" id="get-send"><span data-t="gt.send">Send your own files</span></a>
-    <button type="button" class="rep" id="get-rep" data-t="rep">Report abuse</button>
+    <!-- under the download, quietly (Alex, 22 Oct): not a second big button -->
+    <div class="get-foot">
+      <a href="./" id="get-send"><svg><use href="#i-send"/></svg><span data-t="gt.send">Send your own files</span></a>
+      <span class="dot">·</span>
+      <button type="button" class="rep" id="get-rep" data-t="rep">Report abuse</button>
+    </div>
   </div>
 
   <!-- signed out -->
