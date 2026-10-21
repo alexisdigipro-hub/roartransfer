@@ -96,6 +96,11 @@ h1 b { font-weight: 800; }
 .gnote b { color: var(--text); }
 .gnote a, .rep { color: var(--text); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .gnote.out { border-color: rgba(255,90,80,.45); background: rgba(212,0,0,.14); }
+.fast { display: grid; gap: 3px; justify-items: center; width: 100%; padding: 13px 18px; border-radius: 22px; cursor: pointer; font: inherit; color: var(--text); background: rgba(255,255,255,.08); border: 1px solid var(--glass-edge); transition: background .2s; }
+.fast:hover { background: rgba(255,255,255,.15); }
+.fast b { font-family: Jost, var(--disp); font-size: 19px; font-weight: 200; letter-spacing: .02em; text-transform: uppercase; color: #fff; }
+.fast b span { font-weight: 900; }
+.fast small { font-size: 12.5px; color: var(--muted); }
 .rep { align-self: center; border: 0; background: none; padding: 4px 8px; font: inherit; font-size: 12px; color: var(--muted); }
 .rep:disabled { text-decoration: none; cursor: default; }
 
@@ -365,7 +370,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <p class="note ok" id="in-ok" hidden></p>
     <button class="pill main" type="submit" id="in-go"><span id="in-go-t"></span></button>
     <!-- sign in, or make an account right here (Alex, 21 Oct: "no link to RoarMe, put a sign up") -->
-    <div class="alt"><p><span id="in-q"></span> <a href="#" id="in-switch"></a></p><p><a href="#" id="in-guest" data-t="in.guest">Send without an account</a></p></div>
+    <div class="alt"><p><span id="in-q"></span> <a href="#" id="in-switch"></a></p></div>
+    <!-- FastTransfer (Alex, 21 Oct): sending without an account, from the sign-in card -->
+    <button type="button" class="fast" id="in-guest"><b>Fast<span>Transfer</span></b><small data-t="in.fast">No account needed: a link for 24 hours, up to 1 GB</small></button>
   </form>
 
   <!-- pick files -->
@@ -495,7 +502,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.notify': 'Στείλε μου email όταν κατέβει',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
-    'cr': 'Ένα καρέ από', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'in.guest': 'Αποστολή χωρίς λογαριασμό', 'more': 'Σχετικά με εμάς',
+    'cr': 'Ένα καρέ από', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'in.fast': 'Χωρίς λογαριασμό: σύνδεσμος για 24 ώρες, ως 1 GB', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες με RoarTransfer: από εδώ, από το RoarMail και στις συνομιλίες σου. Ο σύνδεσμος ισχύει 3 μέρες, η λίστα μένει.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
@@ -603,8 +610,11 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 
   var views = ['v-wait', 'v-get', 'v-in', 'v-pick', 'v-up', 'v-done', 'v-mine', 'v-admin']
   // a download link (?t=…) shows only the file, signed in or not
-  var getToken = new URLSearchParams(location.search).get('t') || ''
-  var getting = /^[A-Za-z0-9]{10,32}$/.test(getToken)
+  // roartransfer.com/<token> (Alex, 21 Oct: links as short as they can be; 404.html brings it here as ?t=) or ?t=<token>
+  var getToken = new URLSearchParams(location.search).get('t') || (location.pathname.match(/^\/([A-Za-z0-9]{6,32})\/?$/) || [])[1] || ''
+  var getting = /^[A-Za-z0-9]{6,32}$/.test(getToken)
+  // and the address bar shows the short one again
+  if (getting && location.hostname === 'roartransfer.com' && location.search) try { history.replaceState(null, '', '/' + getToken + location.hash) } catch (e) {}
   var view = 'v-wait'
   // the Send tab remembers where it is (pick, sending, done), so an upload goes on while My transfers is open
   var SEND = { 'v-pick': 1, 'v-up': 1, 'v-done': 1 }
@@ -656,11 +666,11 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var was = user && user.id
     user = session && session.user || null
     $('who-mail').textContent = user ? user.email || '' : ''
-    if (!user) { isAdmin = false; mine = null; adm.stats = adm.list = adm.who = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) { show(view === 'v-in' ? 'v-in' : sendView === 'v-done' ? 'v-pick' : sendView); paint(); loadGuest() } }
+    if (!user) { isAdmin = false; mine = null; adm.stats = adm.list = adm.who = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) show('v-in'); loadGuest() }
     else if (view === 'v-wait' || view === 'v-in' || was !== user.id) { $('pw').value = ''; signedIn() }
     else $('who').hidden = false
   })
-  sb.auth.getSession().then(function (r) { if (!r.data.session && !getting) { show('v-pick'); paint(); loadGuest() } })
+  sb.auth.getSession().then(function (r) { if (!r.data.session && !getting) { show('v-in'); loadGuest() } })
   // without an account: how many of today's transfers are left
   function loadGuest() { if (user) return; bridge({ action: 'guest' }).then(function (d) { guestLeft = d.left; paint() }).catch(function () {}) }
   function toIn(up) { signUp = !!up; $('in-err').hidden = true; $('in-ok').hidden = true; paintIn(); show('v-in') }
@@ -815,7 +825,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     }
     var parts = Object.keys(etags).map(function (k) { return { n: +k, etag: etags[k] } })
     var fin = await bridge({ action: 'complete', key: made.key, uploadId: made.uploadId, parts: parts, name: f.name || 'file', size: f.size, type: f.type || '', days: DAYS })
-    return { name: f.name, size: fin.size || f.size, type: f.type, token: fin.token, url: PAGE + '?t=' + fin.token, expires: fin.expires }
+    return { name: f.name, size: fin.size || f.size, type: f.type, token: fin.token, url: PAGE + fin.token, expires: fin.expires }
   }
   $('go').addEventListener('click', async function () {
     if (!files.length || total() > lim() || busy) return
@@ -845,7 +855,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       try {
         var bun = await bridge({ action: 'bundle', tokens: sent.map(function (m) { return m.token }), title: $('op-title').value, message: $('op-msg').value,
           recipients: mode === 'mail' ? emails() : [], password: $('op-pw').value, notify: $('op-notify').checked })
-        link = PAGE + '?t=' + bun.token
+        link = PAGE + bun.token
         mailed = bun.mailed || 0
         if (bun.mailErrors && bun.mailErrors.length) errs.push(w('unmailed') + ' ' + bun.mailErrors.join(', '))
       }
@@ -957,7 +967,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   function rowActs(listId, get, reload) {
     $(listId).addEventListener('click', async function (e) {
       var c = e.target.closest('[data-cp]'), s = e.target.closest('[data-stop]')
-      if (c) { copy(PAGE + '?t=' + get()[+c.dataset.cp].token, c, w('copied')); return }
+      if (c) { copy(PAGE + get()[+c.dataset.cp].token, c, w('copied')); return }
       if (!s) return
       var m = get()[+s.dataset.stop]
       if (!window.confirm(w('stopAsk')(m.name))) return
