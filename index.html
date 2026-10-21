@@ -101,8 +101,6 @@ h1 b { font-weight: 800; }
 .gnote a, .rep { color: var(--text); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .gnote.out { border-color: rgba(255,90,80,.45); background: rgba(212,0,0,.14); }
 main { row-gap: 18px; align-content: center; }
-/* on a computer the offer stands beside the sign-in card */
-@media (min-width: 1000px) { main.two { grid-template-columns: min(520px, 100%) 340px; column-gap: 22px; justify-content: center; align-content: center; } main.two .offer { width: 340px; } }
 .offer { gap: 12px; text-align: center; justify-items: center; background: linear-gradient(165deg, rgba(212,0,0,.22), rgba(20,22,26,.5) 60%); border-color: rgba(255,110,100,.35); }
 .offer .badge { font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; padding: 5px 11px; border-radius: 999px; background: var(--red, #d40000); color: #fff; box-shadow: 0 8px 22px rgba(212,0,0,.35); }
 .offer .nm { font-family: Jost, var(--disp); font-size: 30px; font-weight: 200; letter-spacing: .02em; text-transform: uppercase; color: #fff; line-height: 1; }
@@ -394,7 +392,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <div class="alt"><p><span id="in-q"></span> <a href="#" id="in-switch"></a></p><p id="in-forgot-p"><a href="#" id="in-forgot" data-t="in.forgot">Forgot password?</a></p></div>
   </form>
 
-  <!-- FastTransfer (Alex, 21 Oct): out of the sign-in card, on its own as an offer: no account, what you get, one button -->
+  <!-- FastTransfer (Alex, 21 Oct): out of the sign-in card, under it as wide as it, an offer: no account, what you get, one button -->
   <div class="card offer" id="v-fast" hidden>
     <span class="badge" data-t="of.badge">No account</span>
     <b class="nm">Fast<span>Transfer</span></b>
@@ -671,7 +669,6 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('who').hidden = !user || v === 'v-in' || v === 'v-pw'
     $('signin').hidden = !!user || v === 'v-in' || v === 'v-wait'
     $('v-fast').hidden = v !== 'v-in'
-    document.querySelector('main').classList.toggle('two', v === 'v-in')
     $('tabs').hidden = !user || v === 'v-in' || v === 'v-wait' || v === 'v-pw'
     document.querySelectorAll('#tabs [data-go]').forEach(function (b) { b.classList.toggle('on', b.dataset.go === tab) })
   }
