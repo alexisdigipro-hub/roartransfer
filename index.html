@@ -162,6 +162,12 @@ h1 b { font-weight: 800; }
 .until svg { width: 14px; height: 14px; }
 /* until when the link works, the thing to remember after an upload (Alex, 21 Oct: "stronger, maybe another colour") */
 #done-until { padding: 10px 16px; font-family: var(--sans); font-size: 14.5px; font-weight: 700; color: #fff; background: rgba(47,211,107,.16); border-color: rgba(47,211,107,.5); box-shadow: 0 8px 26px rgba(47,211,107,.14); text-align: center; }
+/* one link for the whole upload (Alex, 21 Oct): shown whole, then Copy link */
+#done-acts { flex-direction: column; }
+.linkbox { display: block; padding: 12px 16px; border-radius: 16px; background: rgba(0,0,0,.25); border: 1px solid var(--line-2); font-family: var(--mono); font-size: 13px; color: var(--text); text-align: center; word-break: break-all; user-select: all; }
+.files li .dl { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--glass-edge); background: var(--glass); }
+.files li .dl:hover { background: rgba(255,255,255,.12); }
+.files li .dl svg { width: 16px; height: 16px; }
 #done-until svg { width: 17px; height: 17px; color: #7ee2a0; flex: none; }
 /* the download page (roartransfer.com/?t=…): the file, a preview for a video or a picture, the expiry in black
    (Alex, 21 Oct: "not yellow, I can't read it") and Download */
@@ -349,9 +355,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <p class="err" id="done-err" hidden></p>
     <ul class="files" id="done-list"></ul>
     <div class="row" id="done-acts">
-      <button type="button" class="pill main" id="copy-all"><svg><use href="#i-link"/></svg><span data-t="dn.all">Copy all links</span></button>
-      <button type="button" class="pill" id="share" hidden><svg><use href="#i-share"/></svg><span data-t="dn.share">Share</span></button>
-      <a class="pill" id="mail"><svg><use href="#i-mail"/></svg><span data-t="dn.mail">Email</span></a>
+      <span class="linkbox" id="done-link"></span>
+      <button type="button" class="pill main" id="copy-all"><svg><use href="#i-link"/></svg><span data-t="dn.all">Copy link</span></button>
     </div>
     <button type="button" class="pill" id="again"><span data-t="dn.again">Send more files</span></button>
   </div>
@@ -427,7 +432,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'pk.title': 'Στείλε <b>μεγάλα αρχεία</b>.', 'pk.drop': 'Άφησε τα αρχεία σου εδώ', 'pk.or': 'ή πάτα για να τα διαλέξεις',
     'pk.f1': 'ανά αποστολή', 'pk.f2b': '3 μέρες', 'pk.f3b': 'Link','pk.f3': 'για όλους, χωρίς λογαριασμό', 'pk.go': 'Αποστολή',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
-    'dn.all': 'Αντιγραφή όλων', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
+    'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
     'cr': 'Ένα καρέ από', 'more': 'Τι είναι;',
     'ft': 'RoarTransfer · από τους The Mad Lions',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
@@ -444,7 +449,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       bad: 'Wrong email or password.', offline: 'Could not reach RoarMe. Check the connection and try again.',
       off: 'RoarTransfer is not open to this account yet.', stopped: 'Stopped.', leave: 'Files are still uploading.',
       mailSub: 'Files for you (RoarTransfer)', mailBody: 'Download them here, until', remove: 'Remove',
-      gExpires: 'Expires', gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are kept 3 days. Ask for it to be sent again.',
+      gExpires: 'Expires', gGo: 'Download', gAll: 'Download all files', gOne: 'Download this file', gSubOne: 'Someone sent you a file with RoarTransfer.', gSubMany: function (n, t) { return 'Someone sent you ' + n + ' files with RoarTransfer · ' + t }, gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are kept 3 days. Ask for it to be sent again.',
       gBad: 'This link does not work', gBadN: 'Check that the whole link was copied.', gOff: 'Could not reach RoarTransfer', gOffN: 'Check the connection and try again.',
       find: 'Search by file or chat', findAdm: 'File, person, email or chat',
       tTransfers: 'transfers', tSent: 'sent in all', tActive: 'active now', tDownloads: 'downloads', tSenders: 'people sending',
@@ -467,7 +472,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       bad: 'Λάθος email ή κωδικός.', offline: 'Δεν βρέθηκε το RoarMe. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
       off: 'Το RoarTransfer δεν είναι ακόμα ανοιχτό σε αυτόν τον λογαριασμό.', stopped: 'Διακόπηκε.', leave: 'Τα αρχεία ανεβαίνουν ακόμα.',
       mailSub: 'Αρχεία για σένα (RoarTransfer)', mailBody: 'Κατέβασέ τα εδώ, ως', remove: 'Αφαίρεση',
-      gExpires: 'Λήγει', gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer μένουν 3 μέρες. Ζήτα να σου το ξαναστείλουν.',
+      gExpires: 'Λήγει', gGo: 'Λήψη', gAll: 'Λήψη όλων των αρχείων', gOne: 'Λήψη αυτού του αρχείου', gSubOne: 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', gSubMany: function (n, t) { return 'Κάποιος σου έστειλε ' + n + ' αρχεία με το RoarTransfer · ' + t }, gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer μένουν 3 μέρες. Ζήτα να σου το ξαναστείλουν.',
       gBad: 'Αυτός ο σύνδεσμος δεν δουλεύει', gBadN: 'Έλεγξε ότι αντιγράφηκε ολόκληρος ο σύνδεσμος.', gOff: 'Δεν βρέθηκε το RoarTransfer', gOffN: 'Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
       find: 'Αναζήτηση σε αρχεία ή συνομιλίες', findAdm: 'Αρχείο, άτομο, email ή συνομιλία',
       tTransfers: 'αποστολές', tSent: 'στάλθηκαν συνολικά', tActive: 'ενεργές τώρα', tDownloads: 'λήψεις', tSenders: 'άτομα που στέλνουν',
@@ -592,7 +597,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   window.addEventListener('drop', function (e) { e.preventDefault(); if (view === 'v-pick') add(e.dataTransfer && e.dataTransfer.files) })
 
   // ---- send: each file in 16 MB pieces straight to Cloudflare R2, three at a time; a piece that fails is tried again ----
-  var busy = false, stopped = false, xhrs = []
+  var busy = false, stopped = false, xhrs = [], link = ''
   var sent = [], errs = []
   var C = 2 * Math.PI * 56
   $('ring').style.strokeDasharray = C
@@ -672,7 +677,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     }
     var parts = Object.keys(etags).map(function (k) { return { n: +k, etag: etags[k] } })
     var fin = await bridge({ action: 'complete', key: made.key, uploadId: made.uploadId, parts: parts, name: f.name || 'file', size: f.size, type: f.type || '' })
-    return { name: f.name, size: fin.size || f.size, type: f.type, url: PAGE + '?t=' + fin.token, expires: fin.expires }
+    return { name: f.name, size: fin.size || f.size, type: f.type, token: fin.token, url: PAGE + '?t=' + fin.token, expires: fin.expires }
   }
   $('go').addEventListener('click', async function () {
     if (!files.length || total() > MAX || busy) return
@@ -689,6 +694,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       }
       before += f.size; progress(before)
     }
+    // one link for everything that went up, one file or many
+    link = ''
+    if (sent.length) {
+      try { var bun = await bridge({ action: 'bundle', tokens: sent.map(function (m) { return m.token }) }); link = PAGE + '?t=' + bun.token }
+      catch (e) { if (sent.length === 1) link = sent[0].url; else errs.push(e.message) }
+    }
     busy = false
     if (stopped && !sent.length) { show('v-pick'); paint(); return }
     if (stopped) errs.push(w('stopped'))
@@ -698,7 +709,6 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   window.addEventListener('beforeunload', function (e) { if (busy) { e.preventDefault(); e.returnValue = w('leave') } })
 
   // ---- done ----
-  function linksText() { return sent.map(function (m) { return m.name + ' (' + size(m.size) + ')\n' + m.url }).join('\n\n') }
   function paintDone() {
     var ok = sent.length > 0
     $('done-ic').classList.toggle('fail', !ok)
@@ -707,17 +717,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('done-until').hidden = !ok
     if (ok) { var ms = new Date(sent[0].expires).getTime(); $('done-until').querySelector('span').textContent = w('left') + ' ' + day(ms) + ' ' + hour(ms) }
     $('done-err').hidden = !errs.length; $('done-err').textContent = errs.join(' · ')
-    $('done-acts').hidden = !ok
+    $('done-acts').hidden = !(ok && link)
+    $('done-link').textContent = link
     $('done-list').hidden = !ok
-    $('done-list').innerHTML = sent.map(function (m, n) {
-      return '<li class="sent"><span class="fi"><svg><use href="#' + icon(m.type) + '"/></svg></span><span class="ft"><b>' + esc(m.name) + '</b><small>' + size(m.size) + '</small></span>'
-        + '<button type="button" class="cp" data-n="' + n + '"><svg><use href="#i-link"/></svg><span>' + w('copy') + '</span></button></li>'
+    $('done-list').innerHTML = sent.map(function (m) {
+      return '<li class="sent"><span class="fi"><svg><use href="#' + icon(m.type) + '"/></svg></span><span class="ft"><b>' + esc(m.name) + '</b><small>' + size(m.size) + '</small></span></li>'
     }).join('')
-    if (ok) {
-      var ms2 = new Date(sent[0].expires).getTime()
-      $('mail').href = 'mailto:?subject=' + encodeURIComponent(w('mailSub')) + '&body=' + encodeURIComponent(w('mailBody') + ' ' + day(ms2) + ' ' + hour(ms2) + ':\n\n' + linksText())
-      $('share').hidden = !navigator.share
-    }
   }
   function copy(text, btn, word) {
     var label = btn.querySelector('span'), was = label.textContent
@@ -725,9 +730,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { done(true) }, function () { done(false) })
     else done(false)
   }
-  $('done-list').addEventListener('click', function (e) { var b = e.target.closest('.cp'); if (b) copy(sent[+b.dataset.n].url, b, w('copied')) })
-  $('copy-all').addEventListener('click', function () { copy(sent.length === 1 ? sent[0].url : linksText(), $('copy-all'), w('allCopied')) })
-  $('share').addEventListener('click', function () { navigator.share({ title: 'RoarTransfer', text: linksText() }).catch(function () {}) })
+  $('copy-all').addEventListener('click', function () { if (link) copy(link, $('copy-all'), w('copied')) })
   $('again').addEventListener('click', function () { files = []; sent = []; errs = []; show('v-pick'); paint() })
 
   // ---- the panels (Alex, 21 Oct): My transfers for everyone, Admin for the admin (supabase/transfer-panel.sql) ----
@@ -906,9 +909,15 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 
   // ---- the download page (?t=…): name, size, a preview, the expiry, Download; opens and downloads are counted
   // for the sender's panel (keepalive: the click starts the file at once and an ordinary request would be dropped) ----
-  var got = null
-  function countHit(dl) {
-    fetch(URL_ + '/rest/v1/rpc/roar_transfer_hit', { method: 'POST', keepalive: true, headers: { apikey: KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ t: getToken, dl: dl }) }).catch(function () {})
+  var got = null, gotFiles = []
+  function countHit(t, dl) {
+    fetch(URL_ + '/rest/v1/rpc/roar_transfer_hit', { method: 'POST', keepalive: true, headers: { apikey: KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ t: t, dl: dl }) }).catch(function () {})
+  }
+  function fetchFile(f) {
+    var a = document.createElement('a')
+    a.href = f.url; a.setAttribute('download', f.name || ''); a.rel = 'noopener'
+    document.body.appendChild(a); a.click(); a.remove()
+    countHit(f.token, true)
   }
   function paintGet() {
     if (!got) return
@@ -924,22 +933,36 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       $('get-vid').hidden = true; $('get-img').hidden = true
       return
     }
-    var vid = /^video\//.test(got.type || ''), img = /^image\//.test(got.type || '')
-    if (vid && got.view && !$('get-vid').src) $('get-vid').src = got.view
-    if (img && got.view && !$('get-img').src) $('get-img').src = got.view
-    $('get-vid').hidden = !(vid && got.view); $('get-img').hidden = !(img && got.view)
-    $('get-list').innerHTML = '<li><span class="fi"><svg><use href="#' + icon(got.type || '') + '"/></svg></span><span class="ft"><b>' + esc(got.name || 'file') + '</b><small>' + size(got.size) + '</small></span></li>'
+    // one file (an older link) or the whole upload (one link for many)
+    gotFiles = got.files || [{ token: getToken, name: got.name, size: got.size, type: got.type, url: got.url, view: got.view }]
+    var one = gotFiles.length === 1 ? gotFiles[0] : null
+    var vid = one && /^video\//.test(one.type || ''), img = one && /^image\//.test(one.type || '')
+    if (vid && one.view && !$('get-vid').src) $('get-vid').src = one.view
+    if (img && one.view && !$('get-img').src) $('get-img').src = one.view
+    $('get-vid').hidden = !(vid && one.view); $('get-img').hidden = !(img && one.view)
+    $('get-sub').textContent = gotFiles.length > 1 ? w('gSubMany')(gotFiles.length, size(gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0))) : w('gSubOne')
+    $('get-list').innerHTML = gotFiles.map(function (f, n) {
+      return '<li><span class="fi"><svg><use href="#' + icon(f.type || '') + '"/></svg></span><span class="ft"><b>' + esc(f.name || 'file') + '</b><small>' + size(f.size) + '</small></span>'
+        + (gotFiles.length > 1 ? '<a class="dl" href="' + esc(f.url) + '" download="' + esc(f.name || '') + '" data-n="' + n + '" title="' + esc(w('gOne')) + '" aria-label="' + esc(w('gOne')) + '"><svg><use href="#i-down"/></svg></a>' : '') + '</li>'
+    }).join('')
     var ms = new Date(got.expires).getTime()
     $('get-exp').querySelector('span').textContent = w('gExpires') + ' ' + day(ms) + ' ' + hour(ms)
-    $('get-go').href = got.url
-    $('get-go').setAttribute('download', got.name || '')
+    $('get-go').querySelector('span').textContent = gotFiles.length > 1 ? w('gAll') : w('gGo')
+    $('get-go').href = one ? one.url : '#'
+    if (one) $('get-go').setAttribute('download', one.name || ''); else $('get-go').removeAttribute('download')
   }
   if (getting) {
     show('v-get')
-    $('get-go').addEventListener('click', function () { countHit(true) })
+    // Download all: one file after the other, a moment apart, so the browser takes each one
+    $('get-go').addEventListener('click', async function (e) {
+      if (gotFiles.length === 1) { countHit(gotFiles[0].token, true); return }
+      e.preventDefault()
+      for (var i = 0; i < gotFiles.length; i++) { fetchFile(gotFiles[i]); await new Promise(function (ok) { setTimeout(ok, 1200) }) }
+    })
+    $('get-list').addEventListener('click', function (e) { var a = e.target.closest('.dl'); if (a) countHit(gotFiles[+a.dataset.n].token, true) })
     fetch(URL_ + '/functions/v1/roar-transfer-get?t=' + encodeURIComponent(getToken))
       .then(function (r) { return r.json() })
-      .then(function (d) { got = d; if (!d.error) countHit(false); paintGet() })
+      .then(function (d) { got = d; if (!d.error) countHit(getToken, false); paintGet() })
       .catch(function () { got = { error: 'offline' }; paintGet() })
   }
 
