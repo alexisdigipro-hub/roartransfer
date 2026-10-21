@@ -569,7 +569,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       upMail: 'Almost there: open the email we just sent you and press Confirm my account. It brings you back here, signed in.', upShort: 'The password needs at least 6 characters.', upTaken: 'There is already an account with this email. Sign in instead.',
       off: 'RoarTransfer is not open to this account yet.', stopped: 'Stopped.', leave: 'Files are still uploading.',
       mailSub: 'Files for you (RoarTransfer)', mailBody: 'Download them here, until', remove: 'Remove',
-      phSave: 'Save to Photos', phPrep: function (p) { return 'Preparing… ' + p + '%' }, phReady: 'Tap to save to Photos', phDone: 'Saved? Save again', phFiles: 'Download to Files', phFail: 'Could not prepare it for Photos. Use Download to Files instead.',
+      phSave: 'Save to Photos', phPrep: function (p) { return 'Preparing… ' + p + '%' }, phReady: 'Tap to save to Photos', phDone: 'Saved? Save again', phFiles: 'Download to Files', phFail: 'Could not prepare it for Photos. Download it to Files instead?',
       gExpires: 'Expires', gGo: 'Download', gAll: 'Download all files', gOne: 'Download this file', gSubOne: 'Someone sent you a file with RoarTransfer.', gSubMany: function (n, t) { return 'Someone sent you ' + n + ' files with RoarTransfer · ' + t }, gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are kept 3 days. Ask for it to be sent again.',
       gBad: 'This link does not work', gBadN: 'Check that the whole link was copied.', gOff: 'Could not reach RoarTransfer', gOffN: 'Check the connection and try again.',
       find: 'Search by file or chat', findAdm: 'File, person, email or chat',
@@ -605,7 +605,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       upMail: 'Σχεδόν έτοιμο: άνοιξε το email που σου στείλαμε και πάτα Confirm my account. Σε φέρνει πίσω εδώ, συνδεδεμένο.', upShort: 'Ο κωδικός θέλει τουλάχιστον 6 χαρακτήρες.', upTaken: 'Υπάρχει ήδη λογαριασμός με αυτό το email. Συνδέσου.',
       off: 'Το RoarTransfer δεν είναι ακόμα ανοιχτό σε αυτόν τον λογαριασμό.', stopped: 'Διακόπηκε.', leave: 'Τα αρχεία ανεβαίνουν ακόμα.',
       mailSub: 'Αρχεία για σένα (RoarTransfer)', mailBody: 'Κατέβασέ τα εδώ, ως', remove: 'Αφαίρεση',
-      phSave: 'Αποθήκευση στις Φωτογραφίες', phPrep: function (p) { return 'Ετοιμάζεται… ' + p + '%' }, phReady: 'Πάτα για αποθήκευση στις Φωτογραφίες', phDone: 'Αποθηκεύτηκε; Ξανά', phFiles: 'Λήψη στα Αρχεία', phFail: 'Δεν ετοιμάστηκε για τις Φωτογραφίες. Χρησιμοποίησε τη Λήψη στα Αρχεία.',
+      phSave: 'Αποθήκευση στις Φωτογραφίες', phPrep: function (p) { return 'Ετοιμάζεται… ' + p + '%' }, phReady: 'Πάτα για αποθήκευση στις Φωτογραφίες', phDone: 'Αποθηκεύτηκε; Ξανά', phFiles: 'Λήψη στα Αρχεία', phFail: 'Δεν ετοιμάστηκε για τις Φωτογραφίες. Να κατέβει στα Αρχεία;',
       gExpires: 'Λήγει', gGo: 'Λήψη', gAll: 'Λήψη όλων των αρχείων', gOne: 'Λήψη αυτού του αρχείου', gSubOne: 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', gSubMany: function (n, t) { return 'Κάποιος σου έστειλε ' + n + ' αρχεία με το RoarTransfer · ' + t }, gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer μένουν 3 μέρες. Ζήτα να σου το ξαναστείλουν.',
       gBad: 'Αυτός ο σύνδεσμος δεν δουλεύει', gBadN: 'Έλεγξε ότι αντιγράφηκε ολόκληρος ο σύνδεσμος.', gOff: 'Δεν βρέθηκε το RoarTransfer', gOffN: 'Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
       find: 'Αναζήτηση σε αρχεία ή συνομιλίες', findAdm: 'Αρχείο, άτομο, email ή συνομιλία',
@@ -1185,9 +1185,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   function paintPhotos() {
     var on = canPhotos()
     $('get-photos').hidden = !on
-    $('get-go').classList.toggle('main', !on)
+    if (on) $('get-go').hidden = true
     if (!on) return
-    $('get-go').querySelector('span').textContent = w('phFiles')
     var b = $('get-photos'), t = b.querySelector('span')
     b.disabled = ph.state === 'loading'
     t.textContent = ph.state === 'loading' ? w('phPrep')(ph.pct) : ph.state === 'ready' ? w('phReady') : ph.state === 'done' ? w('phDone') : w('phSave')
@@ -1198,8 +1197,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var total = gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0) || 1, got = 0, out = []
     try {
       for (var i = 0; i < gotFiles.length; i++) {
-        var f = gotFiles[i], r = await fetch(f.view || f.url)
-        if (!r.ok || !r.body) throw new Error('fetch')
+        // the download address, not the one the preview already loaded: Safari reuses that one without CORS and refuses it
+        var f = gotFiles[i], r = await fetch(f.url, { mode: 'cors', cache: 'no-store', credentials: 'omit' })
+        if (!r.ok || !r.body) throw new Error('HTTP ' + r.status)
         var rd = r.body.getReader(), parts = []
         for (;;) {
           var c = await rd.read(); if (c.done) break
@@ -1208,9 +1208,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
         }
         out.push(new File(parts, f.name || 'file', { type: f.type || r.headers.get('content-type') || 'application/octet-stream' }))
       }
-      if (!navigator.canShare({ files: out })) throw new Error('share')
+      if (!navigator.canShare({ files: out })) throw new Error('canShare')
       ph.files = out; ph.state = 'ready'
-    } catch (e) { ph.state = 'idle'; ph.files = null; alert(w('phFail')) }
+    } catch (e) {
+      ph.state = 'idle'; ph.files = null; paintPhotos()
+      if (confirm(w('phFail') + '\n(' + ((e && (e.name + ': ' + e.message)) || 'error') + ')')) gotFiles.forEach(function (f) { fetchFile(f) })
+      return
+    }
     paintPhotos()
   }
   $('get-photos').addEventListener('click', function () {
@@ -1218,7 +1222,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (ph.state !== 'ready') return
     navigator.share({ files: ph.files }).then(function () {
       ph.state = 'done'; gotFiles.forEach(function (f) { countHit(f.token, true) }); paintPhotos()
-    }).catch(function (e) { if (e && e.name !== 'AbortError') alert(w('phFail')) })
+    }).catch(function (e) { if (e && e.name !== 'AbortError' && confirm(w('phFail') + '\n(' + e.name + ')')) gotFiles.forEach(function (f) { fetchFile(f) }) })
   })
   var getPw = '', autoDl = location.hash === '#dl'
   function load() {
