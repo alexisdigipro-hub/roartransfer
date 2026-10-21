@@ -88,6 +88,16 @@ h1 b { font-weight: 800; }
 .alt { display: grid; gap: 8px; padding-top: 4px; border-top: 1px solid var(--line); }
 .alt p { margin: 10px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
 .alt a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+/* without an account (Alex, 21 Oct): what it gets, and the way to more */
+.top .more { white-space: nowrap; }
+.top button.more { border: 0; cursor: pointer; font-family: inherit; }
+.top .more.in { display: inline-flex; }
+.gnote { margin: -4px 0 0; padding: 10px 14px; border-radius: 16px; background: rgba(255,255,255,.06); border: 1px solid var(--glass-edge); font-size: 13px; line-height: 1.5; color: var(--muted); text-align: center; }
+.gnote b { color: var(--text); }
+.gnote a, .rep { color: var(--text); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.gnote.out { border-color: rgba(255,90,80,.45); background: rgba(212,0,0,.14); }
+.rep { align-self: center; border: 0; background: none; padding: 4px 8px; font: inherit; font-size: 12px; color: var(--muted); }
+.rep:disabled { text-decoration: none; cursor: default; }
 
 /* pills */
 .pill { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 50px; padding: 0 24px; border-radius: 999px; font-size: 15.5px; font-weight: 650; border: 1px solid var(--glass-edge); background: var(--glass); cursor: pointer; text-decoration: none; transition: transform .3s var(--ease), background .2s, filter .2s, opacity .2s; }
@@ -299,6 +309,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <a class="credit" id="credit" target="_blank" rel="noopener" hidden><span><small data-t="cr">A still from</small><b id="credit-t"></b></span></a>
   <div class="end">
     <a class="more" href="https://themadlions.com/lab/roartransfer/" target="_blank" rel="noopener" data-t="more">About Us</a>
+    <button type="button" class="more in" id="signin" hidden data-t="sgn">Sign in</button>
     <div class="who" id="who" hidden><span id="who-mail"></span><button type="button" id="out" data-t="out">Sign out</button></div>
     <div class="lang" role="group" aria-label="Language">
       <button type="button" data-lang="en">EN</button>
@@ -340,6 +351,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <span class="until exp" id="get-exp" hidden><svg><use href="#i-timer"/></svg><span></span></span>
     <a class="pill main" id="get-go" hidden><svg><use href="#i-down"/></svg><span data-t="gt.go">Download</span></a>
     <a class="pill sm" href="./" id="get-send"><span data-t="gt.send">Send your own files</span></a>
+    <button type="button" class="rep" id="get-rep" data-t="rep">Report abuse</button>
   </div>
 
   <!-- signed out -->
@@ -353,13 +365,14 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <p class="note ok" id="in-ok" hidden></p>
     <button class="pill main" type="submit" id="in-go"><span id="in-go-t"></span></button>
     <!-- sign in, or make an account right here (Alex, 21 Oct: "no link to RoarMe, put a sign up") -->
-    <div class="alt"><p><span id="in-q"></span> <a href="#" id="in-switch"></a></p></div>
+    <div class="alt"><p><span id="in-q"></span> <a href="#" id="in-switch"></a></p><p><a href="#" id="in-guest" data-t="in.guest">Send without an account</a></p></div>
   </form>
 
   <!-- pick files -->
   <div class="card" id="v-pick" hidden>
     <h1 data-t="pk.title" data-html>Send <b>big files</b>.</h1>
     <p class="tag" data-t="tag">Send large files – Free &amp; secure</p>
+    <p class="gnote" id="guest-n" hidden></p>
     <button type="button" class="drop" id="drop">
       <span class="ic"><svg><use href="#i-up"/></svg></span>
       <span class="t"><b id="drop-b" data-t="pk.drop">Drop your files here</b><small id="drop-s" data-t="pk.or">or click to choose them</small></span>
@@ -460,8 +473,10 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   var DAYS = 3, mode = 'link'
   // Free (Alex, 21 Oct): 1 day up to 5 GB, or 3 days up to 3 GB
   var GB = 1024 * 1024 * 1024
-  var lim = function () { return DAYS === 1 ? 5 * GB : 3 * GB }
-  var limG = function () { return DAYS === 1 ? 5 : 3 }
+  // without an account (Alex, 21 Oct): link only, 24 hours, up to 1 GB, 3 transfers a day (roartransfer-r2 GUEST)
+  var lim = function () { return !user ? GB : DAYS === 1 ? 5 * GB : 3 * GB }
+  var limG = function () { return !user ? 1 : DAYS === 1 ? 5 : 3 }
+  var guestLeft = null
   var PIECE = 6 * 1024 * 1024
   var TUS = URL_.replace('.supabase.co', '.storage.supabase.co') + '/storage/v1/upload/resumable'
   // the download page every RoarTransfer link opens (RoarMe's ?t=, src/transfer.jsx TransferPage)
@@ -480,7 +495,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.notify': 'Στείλε μου email όταν κατέβει',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
-    'cr': 'Ένα καρέ από', 'more': 'Σχετικά με εμάς',
+    'cr': 'Ένα καρέ από', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'in.guest': 'Αποστολή χωρίς λογαριασμό', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες με RoarTransfer: από εδώ, από το RoarMail και στις συνομιλίες σου. Ο σύνδεσμος ισχύει 3 μέρες, η λίστα μένει.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
@@ -497,7 +512,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       until: 'until', sent: 'uploaded', sentOne: 'Uploaded!', sentMany: function (n) { return n + ' files uploaded!' }, none: 'Nothing was uploaded',
       left: 'Anyone with the link can download until', copy: 'Copy link', copied: 'Copied', allCopied: 'All links copied', cant: 'Could not copy',
       bad: 'Wrong email or password.', offline: 'Could not reach RoarTransfer. Check the connection and try again.',
-      inSub: 'One link for anyone, by email or to copy. Up to 5 GB. Sign in to send.', upSub: 'Make a free account to send files up to 5 GB.',
+      inSub: 'Sign in to send by email too, up to 5 GB, for up to 3 days.', upSub: 'Make a free account to send files up to 5 GB.',
       inGo: 'Sign in', upGo: 'Create account', inQ: 'No account yet?', upQ: 'Already have an account?', inSw: 'Sign up', upSw: 'Sign in',
       upMail: 'Almost there: open the email we just sent you to confirm your account, then sign in here.', upShort: 'The password needs at least 6 characters.', upTaken: 'There is already an account with this email. Sign in instead.',
       off: 'RoarTransfer is not open to this account yet.', stopped: 'Stopped.', leave: 'Files are still uploading.',
@@ -516,7 +531,11 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       stop: 'Delete', stopT: 'Delete the file and its link now',
       stopAsk: function (n) { return 'Delete "' + n + '" now? The file and its link are gone for good.' },
       noneYet: 'Nothing sent yet. What you send shows up here.', noneFound: 'Nothing matches.', noneAll: 'No transfers yet.',
-      only: 'Only', everyone: 'Everyone', k_video: 'Video', k_image: 'Pictures', k_audio: 'Audio', k_other: 'Other'
+      gNote: function (n) { return '<b>No account needed:</b> a link for 24 hours, up to 1 GB, 3 transfers a day' + (n == null ? '' : ' (' + n + ' left today)') + '. <a href="#" data-up>Sign up free</a> for email, up to 5 GB and 3 days.' },
+      gOut: 'You used today\'s 3 free transfers. <a href="#" data-up>Sign up free</a> to keep sending, up to 5 GB.',
+      limit: 'You used today\'s 3 free transfers. Sign up free to keep sending.',
+      repAsk: 'Report this transfer: what is wrong with it? (optional)', repDone: 'Thanks, we will look at it.',
+      only: 'Only', everyone: 'Everyone', guestN: 'Guest', k_video: 'Video', k_image: 'Pictures', k_audio: 'Audio', k_other: 'Other'
     },
     el: {
       more: 'Πρόσθεσε κι άλλα', more2: 'ή άφησέ τα εδώ', of: function (g) { return 'από ' + g + ' GB' }, file: 'αρχείο', files: 'αρχεία', over: function (g) { return 'Πάνω από ' + g + ' GB' }, tooBig: function (g) { return 'πάνω από ' + g + ' GB' },
@@ -527,7 +546,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       until: 'ως', sent: 'ανέβηκαν', sentOne: 'Ανέβηκε!', sentMany: function (n) { return 'Ανέβηκαν ' + n + ' αρχεία!' }, none: 'Δεν ανέβηκε τίποτα',
       left: 'Όποιος έχει τον σύνδεσμο μπορεί να κατεβάσει ως', copy: 'Αντιγραφή', copied: 'Αντιγράφηκε', allCopied: 'Αντιγράφηκαν όλοι', cant: 'Δεν αντιγράφηκε',
       bad: 'Λάθος email ή κωδικός.', offline: 'Δεν βρέθηκε το RoarTransfer. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
-      inSub: 'Ένας σύνδεσμος για όποιον θες, με email ή για αντιγραφή. Ως 5 GB. Συνδέσου για να στείλεις.', upSub: 'Φτιάξε δωρεάν λογαριασμό για να στέλνεις αρχεία ως 5 GB.',
+      inSub: 'Συνδέσου για να στέλνεις και με email, ως 5 GB, για ως 3 μέρες.', upSub: 'Φτιάξε δωρεάν λογαριασμό για να στέλνεις αρχεία ως 5 GB.',
       inGo: 'Σύνδεση', upGo: 'Δημιουργία λογαριασμού', inQ: 'Δεν έχεις λογαριασμό;', upQ: 'Έχεις ήδη λογαριασμό;', inSw: 'Εγγραφή', upSw: 'Σύνδεση',
       upMail: 'Σχεδόν έτοιμο: άνοιξε το email που σου στείλαμε για να επιβεβαιώσεις τον λογαριασμό σου και μετά συνδέσου εδώ.', upShort: 'Ο κωδικός θέλει τουλάχιστον 6 χαρακτήρες.', upTaken: 'Υπάρχει ήδη λογαριασμός με αυτό το email. Συνδέσου.',
       off: 'Το RoarTransfer δεν είναι ακόμα ανοιχτό σε αυτόν τον λογαριασμό.', stopped: 'Διακόπηκε.', leave: 'Τα αρχεία ανεβαίνουν ακόμα.',
@@ -546,7 +565,11 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       stop: 'Διαγραφή', stopT: 'Σβήσε τώρα το αρχείο και τον σύνδεσμό του',
       stopAsk: function (n) { return 'Να σβηστεί το "' + n + '" τώρα; Το αρχείο και ο σύνδεσμός του χάνονται οριστικά.' },
       noneYet: 'Δεν έχεις στείλει τίποτα ακόμα. Ό,τι στέλνεις εμφανίζεται εδώ.', noneFound: 'Δεν βρέθηκε τίποτα.', noneAll: 'Καμία αποστολή ακόμα.',
-      only: 'Μόνο', everyone: 'Όλοι', k_video: 'Βίντεο', k_image: 'Εικόνες', k_audio: 'Ήχος', k_other: 'Άλλα'
+      gNote: function (n) { return '<b>Χωρίς λογαριασμό:</b> σύνδεσμος για 24 ώρες, ως 1 GB, 3 αποστολές τη μέρα' + (n == null ? '' : ' (σου μένουν ' + n + ' σήμερα)') + '. <a href="#" data-up>Κάνε δωρεάν εγγραφή</a> για email, ως 5 GB και 3 μέρες.' },
+      gOut: 'Χρησιμοποίησες τις 3 δωρεάν αποστολές της ημέρας. <a href="#" data-up>Κάνε δωρεάν εγγραφή</a> για να συνεχίσεις, ως 5 GB.',
+      limit: 'Χρησιμοποίησες τις 3 δωρεάν αποστολές της ημέρας. Κάνε δωρεάν εγγραφή για να συνεχίσεις.',
+      repAsk: 'Αναφορά αυτής της αποστολής: τι πρόβλημα έχει; (προαιρετικό)', repDone: 'Ευχαριστούμε, θα το δούμε.',
+      only: 'Μόνο', everyone: 'Όλοι', guestN: 'Επισκέπτης', k_video: 'Βίντεο', k_image: 'Εικόνες', k_audio: 'Ήχος', k_other: 'Άλλα'
     }
   }
   var lang = 'en'
@@ -591,6 +614,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     view = v
     views.forEach(function (id) { $(id).hidden = id !== v })
     $('who').hidden = !user || v === 'v-in'
+    $('signin').hidden = !!user || v === 'v-in' || v === 'v-wait'
     $('tabs').hidden = !user || v === 'v-in' || v === 'v-wait'
     document.querySelectorAll('#tabs [data-go]').forEach(function (b) { b.classList.toggle('on', b.dataset.go === tab) })
   }
@@ -632,11 +656,17 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var was = user && user.id
     user = session && session.user || null
     $('who-mail').textContent = user ? user.email || '' : ''
-    if (!user) { isAdmin = false; mine = null; adm.stats = adm.list = adm.who = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) show('v-in') }
+    if (!user) { isAdmin = false; mine = null; adm.stats = adm.list = adm.who = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) { show(view === 'v-in' ? 'v-in' : sendView === 'v-done' ? 'v-pick' : sendView); paint(); loadGuest() } }
     else if (view === 'v-wait' || view === 'v-in' || was !== user.id) { $('pw').value = ''; signedIn() }
     else $('who').hidden = false
   })
-  sb.auth.getSession().then(function (r) { if (!r.data.session && !getting) show('v-in') })
+  sb.auth.getSession().then(function (r) { if (!r.data.session && !getting) { show('v-pick'); paint(); loadGuest() } })
+  // without an account: how many of today's transfers are left
+  function loadGuest() { if (user) return; bridge({ action: 'guest' }).then(function (d) { guestLeft = d.left; paint() }).catch(function () {}) }
+  function toIn(up) { signUp = !!up; $('in-err').hidden = true; $('in-ok').hidden = true; paintIn(); show('v-in') }
+  $('signin').addEventListener('click', function () { if (!busy) toIn(false) })
+  $('in-guest').addEventListener('click', function (e) { e.preventDefault(); show('v-pick'); paint() })
+  $('guest-n').addEventListener('click', function (e) { if (e.target.closest('[data-up]')) { e.preventDefault(); if (!busy) toIn(true) } })
 
   // ---- pick ----
   var files = []
@@ -649,6 +679,11 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var MAX = lim()
     var t = total(), over = t > MAX, has = files.length > 0
     $('opts').hidden = !has
+    var g = !user
+    if (g && mode === 'mail') { mode = 'link'; $('mode').querySelectorAll('[data-m]').forEach(function (x) { x.classList.toggle('on', x.dataset.m === 'link') }) }
+    $('mode').hidden = g; $('dur').hidden = g; $('op-notify').parentNode.hidden = g
+    $('guest-n').hidden = !g; $('guest-n').classList.toggle('out', g && guestLeft === 0)
+    if (g) $('guest-n').innerHTML = guestLeft === 0 ? w('gOut') : w('gNote')(guestLeft)
     $('op-to').hidden = mode !== 'mail'
     $('op-to').placeholder = w('to'); $('op-title').placeholder = w('title'); $('op-msg').placeholder = w('msg'); $('op-pw').placeholder = w('pw')
     $('drop').classList.toggle('has', has)
@@ -711,10 +746,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   // a call to the bridge, signed in
   async function bridge(body) {
     var r0 = await sb.auth.getSession(); var s0 = r0.data.session
-    if (!s0) throw new Error('signed-out')
-    var r = await fetch(FN, { method: 'POST', headers: { Authorization: 'Bearer ' + s0.access_token, apikey: KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    // without an account the bridge still answers, within the free limits
+    var hd = { apikey: KEY, 'Content-Type': 'application/json' }
+    if (s0) hd.Authorization = 'Bearer ' + s0.access_token
+    var r = await fetch(FN, { method: 'POST', headers: hd, body: JSON.stringify(body) })
     var d = {}; try { d = await r.json() } catch (e) {}
-    if (!r.ok) throw Object.assign(new Error(d.error === 'signed-out' ? 'signed-out' : d.error || ('Error ' + r.status)), { fatal: r.status < 500 })
+    if (!r.ok) throw Object.assign(new Error(d.limit ? w('limit') : d.error === 'signed-out' ? 'signed-out' : d.error || ('Error ' + r.status)), { fatal: r.status < 500, limit: !!d.limit })
     return d
   }
   function put(url, body, onUp) {
@@ -797,6 +834,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       var f = files[i]
       try { sent.push(await upOne(f, before)) } catch (e) {
         if (stopped || e.message === 'cancelled') break
+        if (e.limit) { errs.push(e.message); guestLeft = 0; break }
         errs.push(f.name + ': ' + (e.message === 'offline' ? w('offline') : e.message === 'signed-out' ? w('bad') : e.message))
       }
       before += f.size; progress(before)
@@ -814,6 +852,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       catch (e) { if (sent.length === 1) link = sent[0].url; else errs.push(e.message) }
     }
     busy = false
+    loadGuest()
     if (stopped && !sent.length) { show('v-pick'); paint(); return }
     if (stopped) errs.push(w('stopped'))
     show('v-done'); paintDone()
@@ -877,7 +916,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   var when = function (iso) { return new Date(iso).toLocaleDateString(loc(), { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + hour(new Date(iso).getTime()) }
   var dayD = function (d) { return new Date(d + 'T12:00:00').toLocaleDateString(loc(), { day: 'numeric', month: 'short' }) }
   var live = function (m) { return !m.stopped && !m.deleted && new Date(m.expires).getTime() > Date.now() }
-  var nameOf = function (u) { return u.display_name || (u.username ? '@' + u.username : u.email || '?') }
+  var nameOf = function (u) { return u.display_name || (u.username ? '@' + u.username : u.email || (u.user_id || u.id ? '?' : w('guestN'))) }
   var sum = function (l, k) { return l.reduce(function (n, m) { return n + Number(m[k] || 0) }, 0) }
   function leftText(ms) { var h = ms / 36e5; return h >= 36 ? w('daysLeft')(Math.round(h / 24)) : h >= 1 ? w('hLeft')(Math.round(h)) : w('minLeft')(Math.max(1, Math.round(h * 60))) }
   function where(m) { return m.source === 'link' ? w('byLink') : m.room_kind === 'group' ? (m.room_title || w('group')) : w('dm') }
@@ -1097,6 +1136,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     })
     $('get-list').addEventListener('click', function (e) { var a = e.target.closest('.getdl'); if (a) countHit(gotFiles[+a.dataset.n].token, true) })
     $('get-pwf').addEventListener('submit', function (e) { e.preventDefault(); getPw = $('get-pw').value; if (getPw) { $('get-pwf').hidden = true; load() } })
+    // Report abuse (Alex, 21 Oct): anyone can flag a transfer; the admins get an email (roartransfer-r2 'report')
+    $('get-rep').addEventListener('click', function () {
+      var why = window.prompt(w('repAsk'), ''); if (why == null) return
+      var b = $('get-rep'); b.disabled = true
+      bridge({ action: 'report', token: getToken, reason: why }).then(function () { b.textContent = w('repDone') }).catch(function () { b.disabled = false })
+    })
     $('get-eye').addEventListener('click', function () { $('get-pw').type = $('get-pw').type === 'password' ? 'text' : 'password' })
     load()
   }
