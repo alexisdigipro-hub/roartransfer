@@ -55,7 +55,10 @@ svg { display: block; }
 
 /* top bar */
 .top { display: flex; align-items: center; gap: 12px; padding: calc(14px + env(safe-area-inset-top)) clamp(16px, 4vw, 40px) 14px; }
-.mark { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+.mark { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 6px; text-decoration: none; }
+/* BY THEMADLIONS under the wordmark (Alex, 21 Oct), MAD bold, small */
+.mark .by { font-family: Jost, var(--disp); font-size: 10.5px; font-weight: 300; letter-spacing: .26em; text-transform: uppercase; color: rgba(255,255,255,.72); line-height: 1; padding-left: 1px; }
+.mark .by strong { font-weight: 800; color: #fff; }
 .mark i { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(180deg, #ff4a3d, #b50000); box-shadow: 0 8px 22px rgba(212,0,0,.35); }
 .mark i svg { width: 19px; height: 19px; }
 .mark b { font-family: Jost, var(--disp); font-size: 26px; font-weight: 200; letter-spacing: .02em; text-transform: uppercase; color: #fff; line-height: 1; }
@@ -77,6 +80,7 @@ main { flex: 1; display: grid; place-items: center; padding: 8px 16px 32px; }
 h1 { margin: 0; font-family: var(--disp); font-size: clamp(34px, 8vw, 48px); font-weight: 300; line-height: .98; letter-spacing: -.01em; text-wrap: balance; }
 h1 b { font-weight: 800; }
 .sub { margin: -6px 0 0; font-size: 15px; line-height: 1.55; color: var(--muted); }
+#v-pick > h1, #v-in > h1, #v-pick > .tag, #v-in > .tag { text-align: center; }
 .tag { margin: -8px 0 0; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: #ff8f86; }
 
 /* sign in */
@@ -214,6 +218,9 @@ footer { padding: 0 16px calc(20px + env(safe-area-inset-bottom)); text-align: c
 footer a { color: #fff; text-decoration: none; font-family: Jost, var(--sans); font-size: 14px; font-weight: 500; letter-spacing: .04em; opacity: .9; } footer a:hover { opacity: 1; }
 /* POWERED BY above the studio's address (Alex, 21 Oct) */
 footer { display: grid; gap: 3px; justify-items: center; }
+footer .legal { display: flex; gap: 16px; margin-top: 8px; }
+footer .legal a { font-family: var(--sans); font-size: 11.5px; font-weight: 500; letter-spacing: 0; color: rgba(255,255,255,.6); opacity: 1; } footer .legal a:hover { color: #fff; }
+.agree { margin: -4px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--dim); text-align: center; } .agree a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
 footer .pw { font-family: Jost, var(--sans); font-size: 10px; font-weight: 600; letter-spacing: .28em; text-transform: uppercase; color: rgba(255,255,255,.75); }
 .wait { justify-self: center; width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(255,255,255,.14); border-top-color: var(--red-hi); animation: spin .9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -310,7 +317,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 <div class="bg" id="bg" aria-hidden="true"><img id="bg-img" alt=""></div>
 
 <header class="top">
-  <a class="mark" href="./" aria-label="RoarTransfer"><b>Roar<span>Transfer</span></b></a>
+  <a class="mark" href="./" aria-label="RoarTransfer by The Mad Lions"><b>Roar<span>Transfer</span></b><small class="by">By The<strong>Mad</strong>Lions</small></a>
   <a class="credit" id="credit" target="_blank" rel="noopener" hidden><span><small data-t="cr">A still from</small><b id="credit-t"></b></span></a>
   <div class="end">
     <a class="more" href="https://themadlions.com/lab/roartransfer/" target="_blank" rel="noopener" data-t="more">About Us</a>
@@ -369,6 +376,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <p class="err" id="in-err" hidden></p>
     <p class="note ok" id="in-ok" hidden></p>
     <button class="pill main" type="submit" id="in-go"><span id="in-go-t"></span></button>
+    <p class="agree" data-t="agree" data-html>By continuing you accept the <a href="terms/">Terms</a> and the <a href="privacy/">Privacy Policy</a>.</p>
     <!-- sign in, or make an account right here (Alex, 21 Oct: "no link to RoarMe, put a sign up") -->
     <div class="alt"><p><span id="in-q"></span> <a href="#" id="in-switch"></a></p></div>
     <!-- FastTransfer (Alex, 21 Oct): sending without an account, from the sign-in card -->
@@ -399,6 +407,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       <div class="pwrow"><input class="in" id="op-pw" type="password" autocomplete="new-password" maxlength="100"><button type="button" class="eye" id="op-eye" aria-label="Show"><svg><use href="#i-eye"/></svg></button></div>
       <p class="err" id="op-err" hidden></p>
     </div>
+    <p class="agree" id="go-agree" hidden data-t="agree" data-html>By continuing you accept the <a href="terms/">Terms</a> and the <a href="privacy/">Privacy Policy</a>.</p>
     <button type="button" class="pill main" id="go" hidden><span id="go-t" data-t="pk.go">Transfer</span><svg><use href="#i-send"/></svg></button>
   </div>
 
@@ -467,7 +476,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   </div>
 </main>
 
-<footer><small class="pw">Powered by</small><a href="https://www.themadlions.com" target="_blank" rel="noopener">www.themadlions.com</a></footer>
+<footer><small class="pw">Powered by</small><a href="https://www.themadlions.com" target="_blank" rel="noopener">www.themadlions.com</a>
+  <nav class="legal"><a href="privacy/" data-t="lg.priv">Privacy Policy</a><a href="terms/" data-t="lg.terms">Terms of Service</a></nav></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
@@ -502,7 +512,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.notify': 'Στείλε μου email όταν κατέβει',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
-    'cr': 'Ένα καρέ από', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'in.fast': 'Χωρίς λογαριασμό: σύνδεσμος για 24 ώρες, ως 1 GB', 'more': 'Σχετικά με εμάς',
+    'cr': 'Ένα καρέ από', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'in.fast': 'Χωρίς λογαριασμό: σύνδεσμος για 24 ώρες, ως 1 GB', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες με RoarTransfer: από εδώ, από το RoarMail και στις συνομιλίες σου. Ο σύνδεσμος ισχύει 3 μέρες, η λίστα μένει.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
@@ -699,7 +709,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('drop').classList.toggle('has', has)
     $('drop-b').textContent = has ? w('more') : (lang === 'el' ? EL['pk.drop'] : EN['pk.drop'])
     $('drop-s').textContent = has ? w('more2') : (lang === 'el' ? EL['pk.or'] : EN['pk.or'])
-    $('list').hidden = !has; $('meter').hidden = !has; $('go').hidden = !has
+    $('list').hidden = !has; $('meter').hidden = !has; $('go').hidden = !has; $('go-agree').hidden = !has
     $('list').innerHTML = files.map(function (f, n) {
       return '<li><span class="fi"><svg><use href="#' + icon(f.type) + '"/></svg></span><span class="ft"><b>' + esc(f.name) + '</b><small' + (f.size > MAX ? ' class="bad"' : '') + '>' + size(f.size) + (f.size > MAX ? ' · ' + w('tooBig')(limG()) : '') + '</small></span>'
         + '<button type="button" class="x" data-n="' + n + '" aria-label="' + w('remove') + '"><svg><use href="#i-x"/></svg></button></li>'
