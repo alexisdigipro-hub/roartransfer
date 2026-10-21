@@ -58,8 +58,9 @@ svg { display: block; }
 .mark { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
 .mark i { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(180deg, #ff4a3d, #b50000); box-shadow: 0 8px 22px rgba(212,0,0,.35); }
 .mark i svg { width: 19px; height: 19px; }
-.mark b { font-family: var(--disp); font-size: 21px; font-weight: 800; letter-spacing: -.01em; }
-.mark b span { color: var(--red-hi); }
+.mark b { font-family: Jost, var(--disp); font-size: 26px; font-weight: 200; letter-spacing: .02em; text-transform: uppercase; color: #fff; line-height: 1; }
+/* the wordmark (Alex, 21 Oct): white capitals, ROAR thin and TRANSFER heavy, in Jost */
+.mark b span { font-weight: 900; color: #fff; letter-spacing: .01em; }
 .top .end { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .lang { display: flex; padding: 3px; border-radius: 999px; background: var(--glass); border: 1px solid var(--glass-edge); }
 .lang button { border: 0; background: transparent; cursor: pointer; padding: 6px 11px; border-radius: 999px; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--muted); }
@@ -195,10 +196,10 @@ h1 b { font-weight: 800; }
 .get-ic svg { width: 34px; height: 34px; }
 
 footer { padding: 0 16px calc(20px + env(safe-area-inset-bottom)); text-align: center; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--dim); }
-footer a { color: var(--muted); text-decoration: none; font-size: 12px; } footer a:hover { color: var(--text); }
+footer a { color: #fff; text-decoration: none; font-family: Jost, var(--sans); font-size: 14px; font-weight: 500; letter-spacing: .04em; opacity: .9; } footer a:hover { opacity: 1; }
 /* POWERED BY above the studio's address (Alex, 21 Oct) */
 footer { display: grid; gap: 3px; justify-items: center; }
-footer .pw { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--dim); }
+footer .pw { font-family: Jost, var(--sans); font-size: 10px; font-weight: 600; letter-spacing: .28em; text-transform: uppercase; color: rgba(255,255,255,.75); }
 .wait { justify-self: center; width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(255,255,255,.14); border-top-color: var(--red-hi); animation: spin .9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -260,7 +261,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 
 @media (max-width: 700px) { .credit, .top .more { display: none; } }
 @media (max-width: 480px) {
-  .top .mark b { font-size: 18px; }
+  .top .mark b { font-size: 20px; }
   .who { max-width: 40vw; padding-left: 10px; }
   .facts { gap: 6px; } .facts span { padding: 10px; min-width: 0; } .facts b { font-size: 16px; overflow-wrap: anywhere; }
   .card { border-radius: 26px; }
@@ -294,7 +295,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 <div class="bg" id="bg" aria-hidden="true"><img id="bg-img" alt=""></div>
 
 <header class="top">
-  <a class="mark" href="./" aria-label="RoarTransfer"><i><svg><use href="#i-up"/></svg></i><b>Roar<span>Transfer</span></b></a>
+  <a class="mark" href="./" aria-label="RoarTransfer"><b>Roar<span>Transfer</span></b></a>
   <a class="credit" id="credit" target="_blank" rel="noopener" hidden><span><small data-t="cr">A still from</small><b id="credit-t"></b></span></a>
   <div class="end">
     <a class="more" href="https://themadlions.com/lab/roartransfer/" target="_blank" rel="noopener" data-t="more">About Us</a>
