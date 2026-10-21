@@ -1167,12 +1167,16 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     document.body.appendChild(a); a.click(); a.remove()
     countHit(f.token, true)
   }
-  var getPw = ''
+  var getPw = '', autoDl = location.hash === '#dl'
   function load() {
     $('get-wait').hidden = false
     fetch(URL_ + '/functions/v1/roar-transfer-get?t=' + encodeURIComponent(getToken) + (getPw ? '&p=' + encodeURIComponent(getPw) : ''))
       .then(function (r) { return r.json() })
-      .then(function (d) { got = d; if (!d.error) countHit(getToken, false); paintGet() })
+      .then(function (d) {
+        got = d; if (!d.error) countHit(getToken, false); paintGet()
+        // Download in the email (roartransfer.com/<token>#dl, Alex 21 Oct): the download starts by itself, once
+        if (!d.error && autoDl) { autoDl = false; try { history.replaceState(null, '', location.pathname + location.search) } catch (e) {} setTimeout(function () { $('get-go').click() }, 400) }
+      })
       .catch(function () { got = { error: 'offline' }; paintGet() })
   }
   function paintGet() {
