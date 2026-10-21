@@ -115,6 +115,8 @@ main { row-gap: 18px; align-content: center; }
 .fast b { font-family: Jost, var(--disp); font-size: 19px; font-weight: 200; letter-spacing: .02em; text-transform: uppercase; color: #fff; }
 .fast b span { font-weight: 900; }
 .fast small { font-size: 12.5px; color: var(--muted); }
+.chips i.bad { color: #ffb4ad; border-color: rgba(255,90,80,.4); background: rgba(212,0,0,.14); }
+h2 .cnt { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.1); vertical-align: middle; margin-left: 6px; }
 .get-foot { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 2px; font-size: 12.5px; }
 .get-foot a { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,.82); text-decoration: none; font-weight: 600; }
 .get-foot a:hover { color: #fff; } .get-foot a svg { width: 13px; height: 13px; }
@@ -518,6 +520,10 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
         <ul class="files top-list" id="adm-top"></ul>
       </div>
     </div>
+    <!-- every account (Alex, 22 Oct): who signed up on RoarTransfer or sent from it, and each one's numbers -->
+    <h2><span data-t="ad.acc">Accounts</span> <span class="cnt" id="adm-acc-n"></span></h2>
+    <p class="sub" id="adm-acc-sum" style="margin:-6px 0 0"></p>
+    <ul class="files top-list" id="adm-acc"></ul>
     <h2 data-t="ad.all">Every transfer</h2>
     <div class="bar2">
       <div class="seg" id="adm-seg"><button type="button" class="on" data-f="all" data-t="f.all">All</button><button type="button" data-f="on" data-t="f.on">Active</button><button type="button" data-f="off" data-t="f.off">Expired</button></div>
@@ -570,7 +576,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες με RoarTransfer: από εδώ, από το RoarMail και στις συνομιλίες σου. Ο σύνδεσμος ισχύει 3 μέρες, η λίστα μένει.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
-    'ad.days': 'Τελευταίες 30 μέρες', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
+    'ad.days': 'Τελευταίες 30 μέρες', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
   }
   var W = {
     en: {
@@ -607,6 +613,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       limit: 'You used today\'s 3 free transfers. Sign up free to keep sending.',
       repAsk: 'Report this transfer: what is wrong with it? (optional)', repDone: 'Thanks, we will look at it.',
       only: 'Only', everyone: 'Everyone', guestN: 'Guest',
+      accSum: function (w7, sent, unc) { return w7 + ' new this week · ' + sent + ' have sent · ' + unc + ' not confirmed yet' }, joined: 'Joined', unconfC: 'Not confirmed', lastSent: 'last sent', lastIn: 'last in', noAcc: 'No accounts yet.',
       wait: 'Too many tries. Wait a few minutes and try again.', badMail: 'This does not look like an email.', unconf: 'Confirm your email first: open the email we sent you.', forgotMail: 'Write your email above, then press Forgot password.', resetSent: 'If there is an account with this email, a link to choose a new password is on its way.', linkOld: 'This link has expired or was already used. Try again.', k_video: 'Video', k_image: 'Pictures', k_audio: 'Audio', k_other: 'Other'
     },
     el: {
@@ -643,6 +650,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       limit: 'Χρησιμοποίησες τις 3 δωρεάν αποστολές της ημέρας. Κάνε δωρεάν εγγραφή για να συνεχίσεις.',
       repAsk: 'Αναφορά αυτής της αποστολής: τι πρόβλημα έχει; (προαιρετικό)', repDone: 'Ευχαριστούμε, θα το δούμε.',
       only: 'Μόνο', everyone: 'Όλοι', guestN: 'Επισκέπτης',
+      accSum: function (w7, sent, unc) { return w7 + ' νέοι αυτή την εβδομάδα · ' + sent + ' έχουν στείλει · ' + unc + ' δεν επιβεβαίωσαν ακόμα' }, joined: 'Εγγραφή', unconfC: 'Χωρίς επιβεβαίωση', lastSent: 'τελευταία αποστολή', lastIn: 'τελευταία σύνδεση', noAcc: 'Κανένας λογαριασμός ακόμα.',
       wait: 'Πολλές προσπάθειες. Περίμενε λίγα λεπτά και δοκίμασε ξανά.', badMail: 'Αυτό δεν μοιάζει με email.', unconf: 'Επιβεβαίωσε πρώτα το email σου: άνοιξε το email που σου στείλαμε.', forgotMail: 'Γράψε το email σου πάνω και πάτα Ξέχασα τον κωδικό.', resetSent: 'Αν υπάρχει λογαριασμός με αυτό το email, έρχεται σύνδεσμος για νέο κωδικό.', linkOld: 'Ο σύνδεσμος έληξε ή χρησιμοποιήθηκε ήδη. Δοκίμασε ξανά.', k_video: 'Βίντεο', k_image: 'Εικόνες', k_audio: 'Ήχος', k_other: 'Άλλα'
     }
   }
@@ -771,7 +779,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var was = user && user.id
     user = session && session.user || null
     $('who-mail').textContent = user ? user.email || '' : ''
-    if (!user) { isAdmin = false; mine = null; adm.stats = adm.list = adm.who = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) show('v-in'); loadGuest() }
+    if (!user) { isAdmin = false; mine = null; adm.stats = adm.list = adm.who = adm.acc = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) show('v-in'); loadGuest() }
     else if (resetting) { $('who').hidden = true }
     else if (view === 'v-wait' || view === 'v-in' || was !== user.id) { $('pw').value = ''; signedIn() }
     else $('who').hidden = false
@@ -817,7 +825,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('go-t').textContent = over ? w('over')(limG()) : (lang === 'el' ? EL['pk.go'] : EN['pk.go'])
     if (view === 'v-done') paintDone()
     if (view === 'v-mine') paintMine()
-    if (view === 'v-admin') { paintStats(); paintAdmList() }
+    if (view === 'v-admin') { paintStats(); paintAcc(); paintAdmList() }
     if (view === 'v-get') paintGet()
     paintIn()
   }
@@ -1031,6 +1039,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   var sz = function (n) { return Number(n) > 0 ? size(Number(n)) : '0' }
   var when = function (iso) { return new Date(iso).toLocaleDateString(loc(), { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + hour(new Date(iso).getTime()) }
   var dayD = function (d) { return new Date(d + 'T12:00:00').toLocaleDateString(loc(), { day: 'numeric', month: 'short' }) }
+  var dayT = function (d) { return new Date(d).toLocaleDateString(loc(), { day: 'numeric', month: 'short' }) }
   var live = function (m) { return !m.stopped && !m.deleted && new Date(m.expires).getTime() > Date.now() }
   var nameOf = function (u) { return u.display_name || (u.username ? '@' + u.username : u.email || (u.user_id || u.id ? '?' : w('guestN'))) }
   var sum = function (l, k) { return l.reduce(function (n, m) { return n + Number(m[k] || 0) }, 0) }
@@ -1117,6 +1126,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (!isAdmin) return
     $('adm-err').hidden = true
     sb.rpc('roar_admin_transfer_stats').then(function (r) { if (r.error) admErr(r.error.message); else { adm.stats = r.data; paintStats() } })
+    sb.rpc('roar_admin_transfer_accounts').then(function (r) { if (r.error) admErr(r.error.message); else { adm.acc = r.data || []; paintAcc() } })
     loadAdmList(false)
   }
   function loadAdmList(next) {
@@ -1154,6 +1164,25 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
         + '<span class="chips"><i class="dl">' + sz(u.bytes) + '</i><i>' + w('nTransfers')(Number(u.n)) + '</i><i>' + w('dls')(Number(u.downloads)) + '</i></span></span></li>'
     }).join('') : note(w('noneAll'))
   }
+  function paintAcc() {
+    var a = adm.acc
+    if (!a) { $('adm-acc').innerHTML = loading; $('adm-acc-n').textContent = ''; $('adm-acc-sum').textContent = ''; return }
+    var week = Date.now() - 7 * 864e5
+    $('adm-acc-n').textContent = fmtN(a.length)
+    $('adm-acc-sum').textContent = w('accSum')(a.filter(function (u) { return new Date(u.created_at).getTime() > week }).length, a.filter(function (u) { return Number(u.n) > 0 }).length, a.filter(function (u) { return !u.confirmed }).length)
+    $('adm-acc').innerHTML = a.length ? a.map(function (u, n) {
+      return '<li data-acc="' + n + '">' + av(u) + '<span class="ft"><b>' + esc(nameOf(u)) + '</b><small>' + esc(u.email || '') + '</small>'
+        + '<span class="chips"><i>' + w('joined') + ' ' + dayT(u.created_at) + '</i>' + (u.confirmed ? '' : '<i class="bad">' + w('unconfC') + '</i>')
+        + '<i class="dl">' + w('nTransfers')(Number(u.n)) + '</i>' + (Number(u.n) ? '<i>' + sz(u.bytes) + '</i><i>' + w('dls')(Number(u.downloads)) + '</i><i>' + w('lastSent') + ' ' + dayT(u.last) + '</i>' : '')
+        + (u.last_sign_in_at ? '<i>' + w('lastIn') + ' ' + dayT(u.last_sign_in_at) + '</i>' : '') + '</span></span></li>'
+    }).join('') : note(w('noAcc'))
+  }
+  // a tap on an account shows only its transfers below
+  $('adm-acc').addEventListener('click', function (e) {
+    var li = e.target.closest('[data-acc]'); if (!li || !adm.acc) return
+    adm.who = adm.acc[+li.dataset.acc]; adm.list = null; paintAdmList(); loadAdmList(false)
+    $('adm-list').scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
   function paintAdmList() {
     $('adm-q').placeholder = w('findAdm')
     $('adm-who').hidden = !adm.who
