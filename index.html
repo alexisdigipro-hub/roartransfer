@@ -167,9 +167,9 @@ h1 b { font-weight: 800; }
 /* one link for the whole upload (Alex, 21 Oct): shown whole, then Copy link */
 #done-acts { flex-direction: column; }
 .linkbox { display: block; padding: 12px 16px; border-radius: 16px; background: rgba(0,0,0,.25); border: 1px solid var(--line-2); font-family: var(--mono); font-size: 13px; color: var(--text); text-align: center; word-break: break-all; user-select: all; }
-.files li .dl { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--glass-edge); background: var(--glass); }
-.files li .dl:hover { background: rgba(255,255,255,.12); }
-.files li .dl svg { width: 16px; height: 16px; }
+.files li .getdl { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--glass-edge); background: var(--glass); }
+.files li .getdl:hover { background: rgba(255,255,255,.12); }
+.files li .getdl svg { width: 16px; height: 16px; }
 #done-until svg { width: 17px; height: 17px; color: #7ee2a0; flex: none; }
 /* the download page (roartransfer.com/?t=…): the file, a preview for a video or a picture, the expiry in black
    (Alex, 21 Oct: "not yellow, I can't read it") and Download */
@@ -1051,7 +1051,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       : gotFiles.length > 1 ? w('gSubMany')(gotFiles.length, size(gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0))) : w('gSubOne')
     $('get-list').innerHTML = gotFiles.map(function (f, n) {
       return '<li><span class="fi"><svg><use href="#' + icon(f.type || '') + '"/></svg></span><span class="ft"><b>' + esc(f.name || 'file') + '</b><small>' + size(f.size) + '</small></span>'
-        + (gotFiles.length > 1 ? '<a class="dl" href="' + esc(f.url) + '" download="' + esc(f.name || '') + '" data-n="' + n + '" title="' + esc(w('gOne')) + '" aria-label="' + esc(w('gOne')) + '"><svg><use href="#i-down"/></svg></a>' : '') + '</li>'
+        + (gotFiles.length > 1 ? '<a class="getdl" href="' + esc(f.url) + '" download="' + esc(f.name || '') + '" data-n="' + n + '" title="' + esc(w('gOne')) + '" aria-label="' + esc(w('gOne')) + '"><svg><use href="#i-down"/></svg></a>' : '') + '</li>'
     }).join('')
     var ms = new Date(got.expires).getTime()
     $('get-exp').querySelector('span').textContent = w('gExpires') + ' ' + day(ms) + ' ' + hour(ms)
@@ -1067,7 +1067,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       e.preventDefault()
       for (var i = 0; i < gotFiles.length; i++) { fetchFile(gotFiles[i]); await new Promise(function (ok) { setTimeout(ok, 1200) }) }
     })
-    $('get-list').addEventListener('click', function (e) { var a = e.target.closest('.dl'); if (a) countHit(gotFiles[+a.dataset.n].token, true) })
+    $('get-list').addEventListener('click', function (e) { var a = e.target.closest('.getdl'); if (a) countHit(gotFiles[+a.dataset.n].token, true) })
     $('get-pwf').addEventListener('submit', function (e) { e.preventDefault(); getPw = $('get-pw').value; if (getPw) { $('get-pwf').hidden = true; load() } })
     $('get-eye').addEventListener('click', function () { $('get-pw').type = $('get-pw').type === 'password' ? 'text' : 'password' })
     load()
