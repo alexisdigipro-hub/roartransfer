@@ -695,6 +695,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var d = lang === 'el' ? EL : EN
     nodes.forEach(function (n) { var v = d[n.dataset.t]; if (v == null) v = EN[n.dataset.t]; if (n.hasAttribute('data-html')) n.innerHTML = v; else n.textContent = v })
     document.documentElement.lang = lang
+    document.querySelectorAll('a.more').forEach(function (a) { a.href = lang === 'el' ? 'el/' : 'about/' })
     document.querySelectorAll('.lang button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === lang) })
     try { localStorage.setItem('roartransfer.lang', lang) } catch (e) {}
     paint()

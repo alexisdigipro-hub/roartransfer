@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-page-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -13,9 +13,14 @@
      The pictures behind it are roartransfer.com's own stills. EN and GR, the same switch as the main site. -->
 <title>RoarTransfer · Send large files free & secure, up to 5 GB · by The Mad Lions</title>
 <link rel="canonical" href="https://roartransfer.com/about/">
+<link rel="alternate" hreflang="en" href="https://roartransfer.com/about/">
+<link rel="alternate" hreflang="el" href="https://roartransfer.com/el/">
+<link rel="alternate" hreflang="x-default" href="https://roartransfer.com/about/">
 <meta name="description" content="RoarTransfer by The Mad Lions: send large files free and secure. Up to 5 GB with one short link, by email or as a link, with a password and an email when it is downloaded. No account needed to download.">
 <meta name="theme-color" content="#101114">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="el_GR">
 <meta property="og:site_name" content="RoarTransfer">
 <meta property="og:title" content="RoarTransfer · Send large files, free &amp; secure">
 <meta property="og:description" content="Up to 5 GB, one short link, a password if you want, and an email the moment it is downloaded. Then it deletes itself.">
@@ -199,6 +204,7 @@ h2 b { font-weight: 800; }
 
 /* safe */
 .safe { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(30px, 5vw, 80px); align-items: start; }
+.grid.g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .safe .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .legal { margin-top: 26px; display: flex; gap: 10px; flex-wrap: wrap; }
 
@@ -231,7 +237,7 @@ footer > span { margin-left: auto; }
   .hero { grid-template-columns: minmax(0, 1fr); }
   .hero h1 { font-size: clamp(48px, 9vw, 96px); }
   .hero .card { max-width: 520px; }
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid, .grid.g3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .plans, .where { grid-template-columns: minmax(0, 1fr); }
   .recv, .safe, .sec-h { grid-template-columns: minmax(0, 1fr); }
@@ -239,7 +245,7 @@ footer > span { margin-left: auto; }
 @media (max-width: 700px) {
   .home .wordmark, .home .sep { display: none; }
   .bar .end .pill { display: none; }
-  .grid, .safe .grid, .steps, .facts { grid-template-columns: minmax(0, 1fr); }
+  .grid, .grid.g3, .safe .grid, .steps, .facts { grid-template-columns: minmax(0, 1fr); }
   .hero h1 { font-size: 10.6vw; white-space: normal; }
   .hero > * { min-width: 0; }
   .until { text-align: center; }
@@ -271,6 +277,11 @@ footer > span { margin-left: auto; }
   <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4.5 6v6c0 4.5 3.2 7.8 7.5 9 4.3-1.2 7.5-4.5 7.5-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></g></symbol>
   <symbol id="i-flag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></g></symbol>
   <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2.5 4.5 13.5H11l-1 8 8.5-11H12z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></g></symbol>
+  <symbol id="i-brief" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M9 7.5V5.5h6v2M3.5 12.5h17"/></g></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></g></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></g></symbol>
+  <symbol id="i-grad" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c0 1.5 2.5 3 5.5 3s5.5-1.5 5.5-3V11"/></g></symbol>
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </defs></svg>
 
@@ -333,7 +344,7 @@ footer > span { margin-left: auto; }
 <section id="why">
   <div class="sec-h">
     <div><p class="idx rv" data-t="why.idx">01 · Why RoarTransfer</p><h2 class="rv" data-t="why.title" data-html>Everything a big file <b>needs</b>. Nothing it doesn’t.</h2></div>
-    <p class="sub rv" data-t="why.sub">Made by a film production house for the day after the shoot: rushes, a cut, the master, the sound. Files too big for email and too important to lose on the way.</p>
+    <p class="sub rv" data-t="why.sub">Made by a film production house, for everyone who works with big files: videos, photos, designs, sound, presentations. Files too big for email and too important to lose on the way.</p>
   </div>
   <div class="grid">
     <article class="tile rv"><span class="ic"><svg><use href="#i-link"/></svg></span><h3 data-t="u1.t">One short link for everything</h3><p data-t="u1.p">Drop ten files or one: they all go under a single link, six characters long. Easy to paste, easy to read out over the phone.</p></article>
@@ -347,9 +358,17 @@ footer > span { margin-left: auto; }
   </div>
 </section>
 
+<section id="who">
+  <div class="sec-h">
+    <div><p class="idx rv" data-t="who.idx">02 · Who it is for</p><h2 class="rv" data-t="who.title" data-html>For everyone who sends <b>big files</b>.</h2></div>
+    <p class="sub rv" data-t="who.sub">If it is too big for email, it is for RoarTransfer.</p>
+  </div>
+  <div class="grid g3"><article class="tile rv" style="--d:0.00s"><span class="ic"><svg><use href="#i-play"/></svg></span><h3 data-t="w0.t">Editors and productions</h3><p data-t="w0.p">Rushes, cuts and masters to the client, the colourist or the sound studio, as they are.</p></article><article class="tile rv" style="--d:0.05s"><span class="ic"><svg><use href="#i-cam"/></svg></span><h3 data-t="w1.t">Photographers</h3><p data-t="w1.p">A whole shoot in full resolution, RAW or JPEG, with one link. The client sees the pictures right on the page.</p></article><article class="tile rv" style="--d:0.10s"><span class="ic"><svg><use href="#i-brief"/></svg></span><h3 data-t="w2.t">Companies and offices</h3><p data-t="w2.p">Presentations, reports, catalogues and backups to clients and partners, with a password and an email when they are downloaded.</p></article><article class="tile rv" style="--d:0.00s"><span class="ic"><svg><use href="#i-pen"/></svg></span><h3 data-t="w3.t">Designers and architects</h3><p data-t="w3.p">Artwork, print files, renders and plans that are far too big for an email attachment.</p></article><article class="tile rv" style="--d:0.05s"><span class="ic"><svg><use href="#i-music"/></svg></span><h3 data-t="w4.t">Musicians and sound</h3><p data-t="w4.p">Stems, mixes and masters in lossless quality, to the studio, the label or the band.</p></article><article class="tile rv" style="--d:0.10s"><span class="ic"><svg><use href="#i-grad"/></svg></span><h3 data-t="w5.t">Students and teachers</h3><p data-t="w5.p">Projects, portfolios and course material, free, with no account needed to download.</p></article></div>
+</section>
+
 <section id="how">
   <div class="sec-h">
-    <div><p class="idx rv" data-t="how.idx">02 · How it works</p><h2 class="rv" data-t="how.title" data-html>Three steps. <b>That’s it.</b></h2></div>
+    <div><p class="idx rv" data-t="how.idx">03 · How it works</p><h2 class="rv" data-t="how.title" data-html>Three steps. <b>That’s it.</b></h2></div>
     <p class="sub rv" data-t="how.sub">No app to install. It works in the browser, on a computer or a phone.</p>
   </div>
   <div class="steps">
@@ -363,7 +382,7 @@ footer > span { margin-left: auto; }
   <div class="ph" style="background-image:url('../stills/corridor.webp')"></div>
   <div class="recv">
     <div>
-      <p class="idx rv" data-t="rc.idx">03 · For the person receiving it</p>
+      <p class="idx rv" data-t="rc.idx">04 · For the person receiving it</p>
       <h2 class="rv" data-t="rc.title" data-html>One page. <b>One button.</b></h2>
       <ul class="ticks">
         <li class="rv"><i><svg><use href="#i-check"/></svg></i><span data-t="rc.1" data-html><b>No account, no app.</b> They open the link and download.</span></li>
@@ -390,7 +409,7 @@ footer > span { margin-left: auto; }
 
 <section id="plans">
   <div class="sec-h">
-    <div><p class="idx rv" data-t="pl.idx">04 · Plans</p><h2 class="rv" data-t="pl.title" data-html>Free. <b>Really.</b></h2></div>
+    <div><p class="idx rv" data-t="pl.idx">05 · Plans</p><h2 class="rv" data-t="pl.title" data-html>Free. <b>Really.</b></h2></div>
     <p class="sub rv" data-t="pl.sub">Try it in ten seconds without an account, or sign up free for the full RoarTransfer.</p>
   </div>
   <div class="plans">
@@ -435,7 +454,7 @@ footer > span { margin-left: auto; }
 
 <section id="where">
   <div class="sec-h">
-    <div><p class="idx rv" data-t="wh.idx">05 · Everywhere</p><h2 class="rv" data-t="wh.title" data-html>On its own, <b>or where you already work</b>.</h2></div>
+    <div><p class="idx rv" data-t="wh.idx">06 · Everywhere</p><h2 class="rv" data-t="wh.title" data-html>On its own, <b>or where you already work</b>.</h2></div>
   </div>
   <div class="where">
     <a class="rv" href="../"><span class="rm"><span class="a">Roar</span><span class="b">Transfer</span></span><p data-t="wh.1">roartransfer.com, in any browser, on a computer or a phone.</p><span class="go">roartransfer.com →</span></a>
@@ -447,7 +466,7 @@ footer > span { margin-left: auto; }
 <section id="safe">
   <div class="safe">
     <div>
-      <p class="idx rv" data-t="sf.idx">06 · Safe</p>
+      <p class="idx rv" data-t="sf.idx">07 · Safe</p>
       <h2 class="rv" data-t="sf.title" data-html>Only who has <b>the link</b>.</h2>
       <p class="sub rv" style="margin-top:22px" data-t="sf.sub">A RoarTransfer link is private: it is not listed anywhere, not searchable, and it ends by itself. Add a password and even the link alone is not enough.</p>
       <div class="legal rv">
@@ -466,7 +485,7 @@ footer > span { margin-left: auto; }
 
 <section id="faq">
   <div class="sec-h">
-    <div><p class="idx rv" data-t="fq.idx">07 · Questions</p><h2 class="rv" data-t="fq.title" data-html>Good to <b>know</b>.</h2></div>
+    <div><p class="idx rv" data-t="fq.idx">08 · Questions</p><h2 class="rv" data-t="fq.title" data-html>Good to <b>know</b>.</h2></div>
   </div>
   <div class="faq">
     <details class="rv"><summary data-t="q1">Is RoarTransfer really free?</summary><p data-t="a1">Yes. FastTransfer and the RoarTransfer account are free, with no ads. A paid Pro plan with bigger transfers and longer links is coming, for those who need more.</p></details>
@@ -513,8 +532,8 @@ footer > span { margin-left: auto; }
     'hero.note': 'Χωρίς διαφημίσεις · χωρίς λογαριασμό για τη λήψη · από κινηματογραφιστές στην Αθήνα',
     'm.up': 'Ανέβηκαν 3 αρχεία!', 'm.until': 'Όποιος έχει τον σύνδεσμο μπορεί να κατεβάσει ως Παρ 23 Οκτ 21:40', 'm.copy': 'Αντιγραφή link',
     'fa.1': 'δωρεάν, σε μία αποστολή, χωρίς συμπίεση', 'fa.2': 'χαρακτήρες, όλος ο σύνδεσμος: <code>roartransfer.com/a7Kx2m</code>', 'fa.3': 'λογαριασμοί για να το κατεβάσουν', 'fa.d': 'μέρες', 'fa.4': 'και μετά σβήνεται μόνο του, ή σβήσ’ το όποτε θες',
-    'why.idx': '01 · Γιατί RoarTransfer', 'why.title': 'Ό,τι χρειάζεται ένα μεγάλο αρχείο. <b>Τίποτα παραπάνω.</b>',
-    'why.sub': 'Το φτιάξαμε ως εταιρεία παραγωγής για την επομένη του γυρίσματος: rushes, ένα μοντάζ, το master, ο ήχος. Αρχεία πολύ μεγάλα για email και πολύ σημαντικά για να χαθούν στον δρόμο.',
+    'why.idx': '01 · Γιατί RoarTransfer', 'who.idx': '02 · Για ποιον είναι', 'who.title': 'Για όποιον στέλνει <b>μεγάλα αρχεία</b>.', 'who.sub': 'Αν είναι πολύ μεγάλο για email, είναι για το RoarTransfer.', 'w0.t': 'Μοντέρ και παραγωγές', 'w0.p': 'Rushes, μοντάζ και masters στον πελάτη, στον colorist ή στο στούντιο ήχου, όπως είναι.', 'w1.t': 'Φωτογράφοι', 'w1.p': 'Ολόκληρη φωτογράφιση σε πλήρη ανάλυση, RAW ή JPEG, με έναν σύνδεσμο. Ο πελάτης βλέπει τις φωτογραφίες μέσα στη σελίδα.', 'w2.t': 'Εταιρείες και γραφεία', 'w2.p': 'Παρουσιάσεις, αναφορές, κατάλογοι και αντίγραφα σε πελάτες και συνεργάτες, με κωδικό και email όταν κατέβουν.', 'w3.t': 'Γραφίστες και αρχιτέκτονες', 'w3.p': 'Μακέτες, αρχεία εκτύπωσης, renders και σχέδια, πολύ μεγάλα για συνημμένο σε email.', 'w4.t': 'Μουσικοί και ηχολήπτες', 'w4.p': 'Stems, μίξεις και masters χωρίς απώλειες, στο στούντιο, στη δισκογραφική ή στο συγκρότημα.', 'w5.t': 'Φοιτητές και εκπαιδευτικοί', 'w5.p': 'Εργασίες, portfolio και υλικό μαθημάτων, δωρεάν, χωρίς λογαριασμό για τη λήψη.',  'why.title': 'Ό,τι χρειάζεται ένα μεγάλο αρχείο. <b>Τίποτα παραπάνω.</b>',
+    'why.sub': 'Το φτιάξαμε ως εταιρεία παραγωγής, για όποιον δουλεύει με μεγάλα αρχεία: βίντεο, φωτογραφίες, σχέδια, ήχο, παρουσιάσεις. Αρχεία πολύ μεγάλα για email και πολύ σημαντικά για να χαθούν στον δρόμο.',
     'u1.t': 'Ένας κοντός σύνδεσμος για όλα', 'u1.p': 'Δέκα αρχεία ή ένα: όλα πάνε κάτω από έναν σύνδεσμο, έξι χαρακτήρων. Εύκολος να τον επικολλήσεις, εύκολος να τον πεις στο τηλέφωνο.',
     'u2.t': 'Με email, ή σαν σύνδεσμος', 'u2.p': 'Γράψε τα email τους και το RoarTransfer το στέλνει για σένα, με τον τίτλο και το μήνυμά σου. Ή απλώς αντέγραψε τον σύνδεσμο και μοιράσ’ τον όπου θες.',
     'u3.t': 'Κλείδωσέ το με κωδικό', 'u3.p': 'Βάλε κωδικό και δεν φαίνεται τίποτα, ούτε τα ονόματα των αρχείων, ώσπου να τον γράψουν. Κρατάμε μόνο ένα αποτύπωμά του, ποτέ τον ίδιο τον κωδικό.',
@@ -523,30 +542,30 @@ footer > span { margin-left: auto; }
     'u6.t': 'Αντέχει την κακή σύνδεση', 'u6.p': 'Τα αρχεία ανεβαίνουν σε κομμάτια των 16 MB, τρία μαζί. Ένα κομμάτι που αποτυγχάνει ξαναστέλνεται, έτσι μια πεσμένη σύνδεση κοστίζει δευτερόλεπτα, όχι όλο το ανέβασμα.',
     'u7.t': 'Σβήνεται μόνο του', 'u7.p': 'Διαλέγεις 1 ή 3 μέρες. Όταν τελειώσει ο χρόνος, ο σύνδεσμος σταματά και το αρχείο σβήνεται. Το μετάνιωσες; Σβήσ’ το τώρα, από τις Αποστολές μου.',
     'u8.t': 'Χωρίς διαφημίσεις, χωρίς παρακολούθηση', 'u8.p': 'Κανένα banner πριν τη λήψη, κανένας tracker στη σελίδα, τίποτα δεν πουλιέται. Τα αρχεία είναι δικά σου και δεν τα ανοίγουμε ποτέ.',
-    'how.idx': '02 · Πώς δουλεύει', 'how.title': 'Τρία βήματα. <b>Τέλος.</b>', 'how.sub': 'Δεν χρειάζεται εφαρμογή. Δουλεύει στον browser, σε υπολογιστή ή κινητό.',
+    'how.idx': '03 · Πώς δουλεύει', 'how.title': 'Τρία βήματα. <b>Τέλος.</b>', 'how.sub': 'Δεν χρειάζεται εφαρμογή. Δουλεύει στον browser, σε υπολογιστή ή κινητό.',
     's1.t': 'Ρίξε τα αρχεία σου', 's1.p': 'Σύρ’ τα μέσα ή διάλεξέ τα. Μια μπάρα δείχνει πόσο από τα 5 GB πιάνουν πριν τα στείλεις.',
     's2.t': 'Διάλεξε πώς φεύγει', 's2.p': 'Email ή σύνδεσμος, τίτλος και μήνυμα, 1 ή 3 μέρες, κωδικός και email όταν κατέβει. Όλα προαιρετικά.',
     's3.t': 'Μοιράσου έναν σύνδεσμο', 's3.p': '«Ανέβηκε!» και ένας κοντός σύνδεσμος για αντιγραφή, ή ότι έφυγε το email. Κλείσε τη σελίδα, τελείωσες.',
-    'rc.idx': '03 · Για όποιον το παραλαμβάνει', 'rc.title': 'Μία σελίδα. <b>Ένα κουμπί.</b>',
+    'rc.idx': '04 · Για όποιον το παραλαμβάνει', 'rc.title': 'Μία σελίδα. <b>Ένα κουμπί.</b>',
     'rc.1': '<b>Χωρίς λογαριασμό, χωρίς εφαρμογή.</b> Ανοίγουν τον σύνδεσμο και κατεβάζουν.',
     'rc.2': '<b>Ποιος το έστειλε και γιατί</b>: το όνομά σου, ο τίτλος και το μήνυμά σου, πάνω πάνω.',
     'rc.3': '<b>Το βλέπουν πριν το κατεβάσουν</b>: ένα βίντεο ή μια εικόνα παίζει μέσα στη σελίδα.',
     'rc.4': '<b>Λήψη όλων των αρχείων</b> με ένα πάτημα, ή ένα ένα.',
     'rc.5': '<b>Κάτι δεν πάει καλά;</b> Η αναφορά κατάχρησης υπάρχει σε κάθε σελίδα λήψης.',
     'm.from': 'Ο Alex Konstantinidis σου έστειλε', 'm.msg': 'Τα rushes από χθες βράδυ. Ο ήχος είναι στο wav. Πάρε με όταν τα δεις!', 'm.exp': 'Λήγει Παρ 23 Οκτ 21:40', 'm.all': 'Λήψη όλων των αρχείων', 'm.rep': 'Αναφορά κατάχρησης',
-    'pl.idx': '04 · Πακέτα', 'pl.title': 'Δωρεάν. <b>Στ’ αλήθεια.</b>', 'pl.sub': 'Δοκίμασέ το σε δέκα δευτερόλεπτα χωρίς λογαριασμό, ή κάνε δωρεάν εγγραφή για όλο το RoarTransfer.',
+    'pl.idx': '05 · Πακέτα', 'pl.title': 'Δωρεάν. <b>Στ’ αλήθεια.</b>', 'pl.sub': 'Δοκίμασέ το σε δέκα δευτερόλεπτα χωρίς λογαριασμό, ή κάνε δωρεάν εγγραφή για όλο το RoarTransfer.',
     'pl.f.pr': 'χωρίς λογαριασμό', 'pl.f.who': 'Για ένα γρήγορο αρχείο, τώρα.', 'pl.f.1': 'Ως 1 GB ανά αποστολή', 'pl.f.2': 'Σύνδεσμος για 24 ώρες', 'pl.f.3': '3 αποστολές τη μέρα', 'pl.f.4': 'Τίτλος, μήνυμα και κωδικός', 'pl.f.go': 'Αποστολή χωρίς λογαριασμό',
     'pl.a.pr': 'δωρεάν λογαριασμός', 'pl.a.who': 'Όλα, για όποιον κάνει εγγραφή.', 'pl.a.1': 'Ως 5 GB για 1 μέρα, ή 3 GB για 3 μέρες', 'pl.a.2': 'Το στέλνουμε με email για σένα, ή σαν σύνδεσμο', 'pl.a.3': 'Τίτλος, μήνυμα και κωδικός', 'pl.a.4': 'Email όταν κατέβει', 'pl.a.5': 'Αποστολές μου: ανοίγματα, λήψεις, διαγραφή όποτε θες', 'pl.a.go': 'Δωρεάν εγγραφή',
     'pl.p.soon': 'Έρχεται σύντομα', 'pl.p.who': 'Για παραγωγές που στέλνουν κάθε μέρα.', 'pl.p.1': 'Μεγαλύτερες αποστολές', 'pl.p.2': 'Σύνδεσμοι που κρατούν ως 30 μέρες', 'pl.p.3': 'Ό,τι έχει ο δωρεάν λογαριασμός', 'pl.p.go': 'Πες μου όταν είναι έτοιμο',
-    'wh.idx': '05 · Παντού', 'wh.title': 'Μόνο του, <b>ή εκεί που ήδη δουλεύεις</b>.', 'wh.go': 'Γνώρισέ το →',
+    'wh.idx': '06 · Παντού', 'wh.title': 'Μόνο του, <b>ή εκεί που ήδη δουλεύεις</b>.', 'wh.go': 'Γνώρισέ το →',
     'wh.1': 'roartransfer.com, σε οποιονδήποτε browser, σε υπολογιστή ή κινητό.', 'wh.2': 'Μεγάλα αρχεία σε κάθε συνομιλία: περνούν από το RoarTransfer και φτάνουν σαν ένας κοντός σύνδεσμος.', 'wh.3': 'Ένα συνημμένο πολύ μεγάλο για email φεύγει σαν σύνδεσμος RoarTransfer.',
-    'sf.idx': '06 · Ασφάλεια', 'sf.title': 'Μόνο όποιος έχει <b>τον σύνδεσμο</b>.', 'sf.sub': 'Ένας σύνδεσμος RoarTransfer είναι ιδιωτικός: δεν εμφανίζεται πουθενά, δεν βρίσκεται με αναζήτηση και λήγει μόνος του. Με κωδικό, ούτε ο σύνδεσμος μόνος του αρκεί.',
+    'sf.idx': '07 · Ασφάλεια', 'sf.title': 'Μόνο όποιος έχει <b>τον σύνδεσμο</b>.', 'sf.sub': 'Ένας σύνδεσμος RoarTransfer είναι ιδιωτικός: δεν εμφανίζεται πουθενά, δεν βρίσκεται με αναζήτηση και λήγει μόνος του. Με κωδικό, ούτε ο σύνδεσμος μόνος του αρκεί.',
     'sf.priv': 'Πολιτική Απορρήτου', 'sf.terms': 'Όροι Χρήσης',
     'sf.1t': 'Κρυπτογραφημένο στη διαδρομή', 'sf.1p': 'Κάθε ανέβασμα και κάθε λήψη γίνεται μέσω HTTPS, κατευθείαν ανάμεσα στον browser σου και την αποθήκευση.',
     'sf.2t': 'Ιδιωτικό από την αρχή', 'sf.2p': 'Οι διευθύνσεις λήψης είναι υπογεγραμμένες και κρατούν μία ώρα. Κανείς δεν μπορεί να ψάξει ή να μαντέψει τα αρχεία.',
     'sf.3t': 'Σβήνεται, δεν αρχειοθετείται', 'sf.3p': 'Όταν τελειώσει μια αποστολή, τα αρχεία της σβήνονται από την αποθήκευση. Δεν κρατάμε αντίγραφα.',
     'sf.4t': 'Καθαρό', 'sf.4p': 'Τα όρια χωρίς λογαριασμό κόβουν την κατάχρηση, και κάθε σελίδα λήψης μπορεί να μας στείλει αναφορά.',
-    'fq.idx': '07 · Ερωτήσεις', 'fq.title': 'Καλό να <b>ξέρεις</b>.',
+    'fq.idx': '08 · Ερωτήσεις', 'fq.title': 'Καλό να <b>ξέρεις</b>.',
     'q1': 'Είναι στ’ αλήθεια δωρεάν το RoarTransfer;', 'a1': 'Ναι. Το FastTransfer και ο λογαριασμός RoarTransfer είναι δωρεάν, χωρίς διαφημίσεις. Έρχεται και πακέτο Pro με μεγαλύτερες αποστολές και συνδέσμους που κρατούν περισσότερο, για όποιον χρειάζεται κάτι παραπάνω.',
     'q2': 'Πόσο μεγάλη μπορεί να είναι μια αποστολή;', 'a2': 'Ως 5 GB για 1 μέρα, ή ως 3 GB για 3 μέρες, με δωρεάν λογαριασμό. Χωρίς λογαριασμό, ως 1 GB για 24 ώρες, 3 αποστολές τη μέρα.',
     'q3': 'Χρειάζεται λογαριασμό όποιος το παραλαμβάνει;', 'a3': 'Όχι. Ανοίγει τον σύνδεσμο, βλέπει ποιος το έστειλε και κατεβάζει. Τίποτα για εγκατάσταση, καμία εγγραφή.',
@@ -568,10 +587,14 @@ footer > span { margin-left: auto; }
     document.querySelectorAll('.lang button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === l) })
     try { localStorage.setItem('roartransfer.lang', l) } catch (e) {}
   }
-  document.querySelectorAll('.lang button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.dataset.lang) }) })
-  var saved = 'en'
-  try { saved = localStorage.getItem('roartransfer.lang') || 'en' } catch (e) {}
-  setLang(saved)
+  // one page per language (Alex, 22 Oct: a Greek page for search): /about/ is English, /el/ Greek; the switch goes to the other
+  var PAGE_LANG = document.documentElement.getAttribute('data-page-lang') || 'en'
+  document.querySelectorAll('.lang button').forEach(function (b) { b.addEventListener('click', function () {
+    if (b.dataset.lang === PAGE_LANG) return
+    try { localStorage.setItem('roartransfer.lang', b.dataset.lang) } catch (e) {}
+    location.href = b.dataset.lang === 'el' ? '../el/' : '../about/'
+  }) })
+  setLang(PAGE_LANG)
   var bar = document.getElementById('bar')
   var onScroll = function () { bar.classList.toggle('solid', window.scrollY > 30) }
   window.addEventListener('scroll', onScroll, { passive: true }); onScroll()
