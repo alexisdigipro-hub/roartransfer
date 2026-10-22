@@ -116,15 +116,12 @@ h1 b { font-weight: 800; }
 .gnote a, .rep { color: var(--text); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .gnote.out { border-color: rgba(255,90,80,.45); background: rgba(212,0,0,.14); }
 main { row-gap: 18px; align-content: center; }
-.offer { gap: 12px; text-align: center; justify-items: center; background: linear-gradient(165deg, rgba(212,0,0,.22), rgba(20,22,26,.5) 60%); border-color: rgba(255,110,100,.35); }
-.offer .badge { font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; padding: 5px 11px; border-radius: 999px; background: var(--red, #d40000); color: #fff; box-shadow: 0 8px 22px rgba(212,0,0,.35); }
-.offer .nm { font-family: Jost, var(--disp); font-size: 30px; font-weight: 200; letter-spacing: .02em; text-transform: uppercase; color: #fff; line-height: 1; }
+.offer { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 14px 14px 14px 22px; border-radius: 24px; background: linear-gradient(170deg, rgba(43,48,56,.36), rgba(20,22,26,.46)); border-color: rgba(255,255,255,.16); box-shadow: 0 30px 70px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.1); }
+.offer .nm { display: block; font-family: Jost, var(--disp); font-size: 19px; font-weight: 200; letter-spacing: .03em; text-transform: uppercase; color: #fff; line-height: 1; }
 .offer .nm span { font-weight: 900; }
-.offer .of-who { margin: -2px 0 0; font-size: 14px; color: var(--muted); }
-.offer ul { list-style: none; margin: 4px 0 6px; padding: 0; display: grid; gap: 9px; text-align: left; }
-.offer li { display: flex; gap: 10px; align-items: center; font-size: 14.5px; }
-.offer li svg { width: 17px; height: 17px; flex: none; color: #7ee2a0; }
-.offer .pill { width: 100%; }
+.offer .of-who { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
+.offer .of-who i { display: inline-block; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: var(--red, #d40000); vertical-align: 1px; }
+.offer .pill { height: 42px; padding: 0 18px; font-size: 14px; }
 .fast { display: grid; gap: 3px; justify-items: center; width: 100%; margin-top: 28px; padding: 13px 18px; border-radius: 22px; cursor: pointer; font: inherit; color: var(--text); background: rgba(255,255,255,.08); border: 1px solid var(--glass-edge); transition: background .2s; }
 .fast:hover { background: rgba(255,255,255,.15); }
 .fast b { font-family: Jost, var(--disp); font-size: 19px; font-weight: 200; letter-spacing: .02em; text-transform: uppercase; color: #fff; }
@@ -449,18 +446,10 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <div class="alt"><p><span id="in-q"></span> <a href="#" id="in-switch"></a></p><p id="in-forgot-p"><a href="#" id="in-forgot" data-t="in.forgot">Forgot password?</a></p></div>
   </form>
 
-  <!-- FastTransfer (Alex, 21 Oct): out of the sign-in card, under it as wide as it, an offer: no account, what you get, one button -->
+  <!-- FastTransfer (Alex, 21 Oct; one slim line since 22 Oct, "smaller and more minimal"): under the sign-in card, as wide as it -->
   <div class="card offer" id="v-fast" hidden>
-    <span class="badge" data-t="of.badge">No account</span>
-    <b class="nm">Fast<span>Transfer</span></b>
-    <p class="of-who" data-t="of.who">For a quick file, right now.</p>
-    <ul>
-      <li><svg><use href="#i-check"/></svg><span data-t="of.1">Up to 1 GB a transfer</span></li>
-      <li><svg><use href="#i-check"/></svg><span data-t="of.2">A link for 24 hours</span></li>
-      <li><svg><use href="#i-check"/></svg><span data-t="of.3">3 transfers a day</span></li>
-      <li><svg><use href="#i-check"/></svg><span data-t="of.4">Title, message and password</span></li>
-    </ul>
-    <button type="button" class="pill" id="in-guest"><svg><use href="#i-send"/></svg><span data-t="of.go">Send without an account</span></button>
+    <div><b class="nm">Fast<span>Transfer</span></b><p class="of-who"><i></i><span data-t="of.line">No account · 1 GB · 24 hours · 3 a day</span></p></div>
+    <button type="button" class="pill" id="in-guest"><svg><use href="#i-send"/></svg><span data-t="of.go">Send</span></button>
   </div>
 
   <!-- a new password, from RoarTransfer's reset email (roartransfer-auth, ?reset=) -->
@@ -607,7 +596,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.notify': 'Στείλε μου email όταν κατέβει',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
-    'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'of.badge': 'Χωρίς λογαριασμό', 'of.who': 'Για ένα γρήγορο αρχείο, τώρα.', 'of.1': 'Ως 1 GB ανά αποστολή', 'of.2': 'Σύνδεσμος για 24 ώρες', 'of.3': '3 αποστολές τη μέρα', 'of.4': 'Τίτλος, μήνυμα και κωδικός', 'of.go': 'Αποστολή χωρίς λογαριασμό', 'more': 'Σχετικά με εμάς',
+    'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · 1 GB · 24 ώρες · 3 τη μέρα', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες με RoarTransfer: από εδώ, από το RoarMail και στις συνομιλίες σου. Ο σύνδεσμος ισχύει 3 μέρες, η λίστα μένει.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
