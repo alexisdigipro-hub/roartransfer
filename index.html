@@ -481,6 +481,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       <textarea class="in" id="op-msg" rows="3" maxlength="2000"></textarea>
       <div class="seg two" id="dur"><button type="button" data-d="1"><b data-t="op.d1">1 day</b><small data-t="op.d1s">up to 5 GB</small></button><button type="button" data-d="3" class="on"><b data-t="op.d3">3 days</b><small data-t="op.d3s">up to 3 GB</small></button></div>
       <label class="chk"><input type="checkbox" id="op-notify" checked><span data-t="op.notify">Email me when it is downloaded</span></label>
+      <!-- the admin alone (Alex, 22 Oct): the file is kept only in the hub's pCloud, the link stays a roartransfer.com one -->
+      <label class="chk" id="op-pc-row" hidden><input type="checkbox" id="op-pc"><span data-t="op.pc">Keep it only in my pCloud</span></label>
       <div class="pwrow"><input class="in" id="op-pw" type="password" autocomplete="new-password" maxlength="100"><button type="button" class="eye" id="op-eye" aria-label="Show"><svg><use href="#i-eye"/></svg></button></div>
       <p class="err" id="op-err" hidden></p>
     </div>
@@ -502,6 +504,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <h1 class="center" id="done-h"></h1>
     <span class="until" id="done-until"><svg><use href="#i-timer"/></svg><span></span></span>
     <p class="note ok" id="done-mailed" hidden></p>
+    <p class="note" id="done-pc" hidden></p>
     <p class="err" id="done-err" hidden></p>
     <ul class="files" id="done-list"></ul>
     <div class="row" id="done-acts">
@@ -593,7 +596,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'in.email': 'Email', 'in.pass': 'Κωδικός', 'in.go': 'Σύνδεση',
     'gt.sub': 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', 'gt.go': 'Λήψη', 'gt.send': 'Στείλε κι εσύ αρχεία', 'gb.t': 'Το πήρες; Σειρά σου.', 'gb.p': 'Στείλε κι εσύ μεγάλα αρχεία δωρεάν, ως 5 GB, με έναν κοντό σύνδεσμο. Ως 1 GB χωρίς λογαριασμό.', 'gb.go': 'Στείλε αρχεία δωρεάν',
     'pk.title': 'Στείλε <b>μεγάλα αρχεία</b>.', 'pk.drop': 'Άφησε τα αρχεία σου εδώ', 'pk.or': 'ή πάτα για να τα διαλέξεις',
-    'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.notify': 'Στείλε μου email όταν κατέβει',
+    'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.notify': 'Στείλε μου email όταν κατέβει', 'op.pc': 'Να μείνει μόνο στο pCloud μου',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
     'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · 1 GB · 24 ώρες · 3 τη μέρα', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
@@ -1009,12 +1012,44 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     }
     busy = false
     loadGuest()
+    if (isAdmin && $('op-pc').checked && sent.length && !stopped) toPcloud(sent.slice())
     if (stopped && !sent.length) { show('v-pick'); paint(); return }
     if (stopped) errs.push(w('stopped'))
     show('v-done'); paintDone()
   })
   $('stop').addEventListener('click', function () { stopped = true; xhrs.slice().forEach(function (x) { x.abort() }) })
-  window.addEventListener('beforeunload', function (e) { if (busy) { e.preventDefault(); e.returnValue = w('leave') } })
+  window.addEventListener('beforeunload', function (e) { if (busy || pcBusy) { e.preventDefault(); e.returnValue = w('leave') } })
+
+  // ---- only in my pCloud (Alex, 22 Oct; the admin alone) ----
+  // the files went up to R2 as usual; pCloud now fetches each one itself (Edge Function roar-pcloud, through the hub),
+  // and once a file is whole in pCloud its link points there and the copy in R2 is deleted. The page stays open meanwhile.
+  var pcBusy = false
+  try { $('op-pc').addEventListener('change', function () { try { localStorage.setItem('rt-pcloud', $('op-pc').checked ? '1' : '0') } catch (e) {} }) } catch (e) {}
+  function pcNote(t, bad) { var n = $('done-pc'); n.hidden = !t; n.textContent = t || ''; n.classList.toggle('ok', !bad && /^(In|Στο)/.test(t)); n.classList.toggle('err', !!bad) }
+  async function pcCall(body) {
+    var r = await sb.functions.invoke('roar-pcloud', { body: body })
+    var d = r.data || {}
+    if (r.error && !d.error) { try { d = await r.error.context.json() } catch (e) { d = { error: r.error.message } } }
+    if (d.error) throw new Error(d.error)
+    return d
+  }
+  async function toPcloud(list) {
+    pcBusy = true
+    var el = lang === 'el', where = ''
+    pcNote(el ? 'Μεταφέρεται στο pCloud σου… άφησε τη σελίδα ανοιχτή.' : 'Moving it to your pCloud… keep this page open.')
+    try {
+      for (var i = 0; i < list.length; i++) where = (await pcCall({ token: list[i].token })).path || where
+      var left = list.map(function (m) { return m.token }), until = Date.now() + 60 * 60e3
+      while (left.length && Date.now() < until) {
+        await new Promise(function (ok) { setTimeout(ok, 6000) })
+        for (var k = left.length - 1; k >= 0; k--) { var c = await pcCall({ action: 'check', token: left[k], only: true }); if (c.done) left.splice(k, 1) }
+        if (left.length) pcNote((el ? 'Μεταφέρεται στο pCloud σου… ' : 'Moving it to your pCloud… ') + (list.length - left.length) + '/' + list.length)
+      }
+      if (left.length) throw new Error(el ? 'Το pCloud αργεί. Το link δουλεύει κανονικά από το RoarTransfer.' : 'pCloud is taking long. The link still works from RoarTransfer.')
+      pcNote((el ? 'Στο pCloud σου μόνο: ' : 'In your pCloud only: ') + String(where).replace(/^\//, '').replace(/\/[^/]*$/, ''))
+    } catch (e) { pcNote('pCloud: ' + e.message, true) }
+    pcBusy = false
+  }
 
   // ---- done ----
   function paintDone() {
@@ -1040,7 +1075,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     else done(false)
   }
   $('copy-all').addEventListener('click', function () { if (link) copy(link, $('copy-all'), w('copied')) })
-  $('again').addEventListener('click', function () { files = []; sent = []; errs = []; $('op-to').value = ''; $('op-title').value = ''; $('op-msg').value = ''; $('op-pw').value = ''; show('v-pick'); paint() })
+  $('again').addEventListener('click', function () { pcNote(''); files = []; sent = []; errs = []; $('op-to').value = ''; $('op-title').value = ''; $('op-msg').value = ''; $('op-pw').value = ''; show('v-pick'); paint() })
 
   // ---- the panels (Alex, 21 Oct): My transfers for everyone, Admin for the admin (supabase/transfer-panel.sql) ----
   var mine = null, mineF = 'all'
@@ -1053,6 +1088,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     sb.rpc('roar_is_admin').then(function (r) {
       isAdmin = r.data === true
       $('tab-admin').hidden = !isAdmin
+      $('op-pc-row').hidden = !isAdmin
+      try { $('op-pc').checked = isAdmin && localStorage.getItem('rt-pcloud') === '1' } catch (e) {}
       if (isAdmin && h === 'admin') go('admin')
     })
   }
@@ -1318,10 +1355,31 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     }).catch(function (e) { if (e && e.name !== 'AbortError' && confirm(w('phFail') + '\n(' + e.name + ')')) gotFiles.forEach(function (f) { fetchFile(f) }) })
   })
   var getPw = '', autoDl = location.hash === '#dl'
+  // a file kept only in pCloud (Alex, 22 Oct): pCloud's direct address works only for the browser that asks for it,
+  // so the page asks pCloud's public API itself, without a Referer (pCloud refuses a foreign one), for the download
+  // address and, for a video or a picture, one to show it
+  async function pcResolve(d) {
+    var one = async function (f) {
+      if (!f || !f.pcloud) return
+      var ask = async function (dl) {
+        var r = await fetch('https://' + f.pcloud.host + '/getpublinkdownload?code=' + encodeURIComponent(f.pcloud.code) + (dl ? '&forcedownload=1' : ''), { referrerPolicy: 'no-referrer' })
+        var j = await r.json()
+        return j.result === 0 && j.hosts && j.hosts.length ? 'https://' + j.hosts[0] + j.path : ''
+      }
+      try {
+        var u = await ask(true)
+        if (u) f.url = u
+        if (/^(video|image|audio)\//.test(f.type || '')) f.view = await ask(false)
+      } catch (e) { /* the pCloud page itself stays as url */ }
+    }
+    if (d && !d.error) { await one(d); if (d.files) await Promise.all(d.files.map(one)) }
+    return d
+  }
   function load() {
     $('get-wait').hidden = false
     fetch(URL_ + '/functions/v1/roar-transfer-get?t=' + encodeURIComponent(getToken) + (getPw ? '&p=' + encodeURIComponent(getPw) : ''))
       .then(function (r) { return r.json() })
+      .then(pcResolve)
       .then(function (d) {
         got = d; if (!d.error) countHit(getToken, false); paintGet()
         // Download in the email (roartransfer.com/<token>#dl, Alex 21 Oct): the download starts by itself, once
