@@ -1,53 +1,53 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1932 1932">
-  <!-- RoarMe's icon in the Simba look (Alex, 18 Oct): the same five strokes, on graphite glass with a lit top
-       and a red glow, as the app itself -->
+  <!-- RoarTransfer's icon (Alex, 22 Oct 2026): RoarMe's five red strokes held in a cloud of thick liquid glass, on
+       RoarMe's graphite tile. Glass: a lit rim, a top sheen, the strokes' red light caught inside, a soft shadow under it,
+       and three specks of light rising: the files going up. -->
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#3a4049"/>
-      <stop offset=".55" stop-color="#1f2328"/>
-      <stop offset="1" stop-color="#15171b"/>
-    </linearGradient>
-    <radialGradient id="lit" cx="50%" cy="-8%" r="75%">
-      <stop offset="0" stop-color="#7a828e" stop-opacity=".55"/>
-      <stop offset="1" stop-color="#7a828e" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="glow" cx="50%" cy="54%" r="46%">
-      <stop offset="0" stop-color="#d40000" stop-opacity=".42"/>
-      <stop offset=".55" stop-color="#d40000" stop-opacity=".12"/>
-      <stop offset="1" stop-color="#d40000" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ff4a3d"/>
-      <stop offset=".5" stop-color="#e00a00"/>
-      <stop offset="1" stop-color="#b50000"/>
-    </linearGradient>
-    <linearGradient id="edge" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffffff" stop-opacity=".28"/>
-      <stop offset=".35" stop-color="#ffffff" stop-opacity=".07"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity=".04"/>
-    </linearGradient>
-    <filter id="bloom" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="38"/>
-    </filter>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b414a"/><stop offset=".5" stop-color="#1e2227"/><stop offset="1" stop-color="#121418"/></linearGradient>
+    <radialGradient id="lit" cx="50%" cy="-10%" r="80%"><stop offset="0" stop-color="#8a929e" stop-opacity=".5"/><stop offset="1" stop-color="#8a929e" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glow" cx="50%" cy="58%" r="48%"><stop offset="0" stop-color="#e00a00" stop-opacity=".45"/><stop offset=".6" stop-color="#d40000" stop-opacity=".1"/><stop offset="1" stop-color="#d40000" stop-opacity="0"/></radialGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5a4d"/><stop offset=".5" stop-color="#ea1206"/><stop offset="1" stop-color="#b80000"/></linearGradient>
+    <linearGradient id="tileEdge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset=".3" stop-color="#fff" stop-opacity=".07"/><stop offset="1" stop-color="#fff" stop-opacity=".04"/></linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1"><stop offset=".08" stop-color="#ffffff" stop-opacity=".30"/><stop offset=".55" stop-color="#ffffff" stop-opacity=".09"/><stop offset="1" stop-color="#ffffff" stop-opacity=".05"/></linearGradient>
+    <linearGradient id="under" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+    <linearGradient id="rim" gradientUnits="userSpaceOnUse" x1="500" y1="500" x2="1400" y2="1400"><stop offset="0" stop-color="#ffffff" stop-opacity="1"/><stop offset=".45" stop-color="#ffffff" stop-opacity=".35"/><stop offset=".75" stop-color="#ffb3ad" stop-opacity=".3"/><stop offset="1" stop-color="#ffffff" stop-opacity=".7"/></linearGradient>
+    <radialGradient id="sheen" cx="50%" cy="0%" r="70%"><stop offset="0" stop-color="#ffffff" stop-opacity=".75"/><stop offset=".6" stop-color="#ffffff" stop-opacity=".12"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="speck" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#ffd2cc" stop-opacity=".9"/><stop offset="1" stop-color="#ff3b2f" stop-opacity="0"/></radialGradient>
+    <filter id="b60" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="60"/></filter>
+    <filter id="b30" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="30"/></filter>
+    <filter id="b10" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+    <filter id="ring" x="-10%" y="-10%" width="120%" height="120%"><feMorphology in="SourceAlpha" operator="erode" radius="13" result="in"/><feComposite in="SourceGraphic" in2="in" operator="out"/></filter>
+    <filter id="ringIn" x="-10%" y="-10%" width="120%" height="120%"><feMorphology in="SourceAlpha" operator="erode" radius="40" result="in"/><feComposite in="SourceGraphic" in2="in" operator="out"/><feGaussianBlur stdDeviation="16"/></filter>
+    <mask id="cloud" maskUnits="userSpaceOnUse" x="0" y="0" width="1932" height="1932"><g fill="#fff"><circle cx="650" cy="1095" r="262"/><circle cx="944" cy="862" r="362"/><circle cx="1292" cy="1028" r="290"/><rect x="398" y="1050" width="1184" height="318" rx="159"/></g></mask>
+    <mask id="rimM" maskUnits="userSpaceOnUse" x="0" y="0" width="1932" height="1932"><g fill="#fff" filter="url(#ring)"><circle cx="650" cy="1095" r="262"/><circle cx="944" cy="862" r="362"/><circle cx="1292" cy="1028" r="290"/><rect x="398" y="1050" width="1184" height="318" rx="159"/></g></mask>
+    <mask id="innerM" maskUnits="userSpaceOnUse" x="0" y="0" width="1932" height="1932"><g mask="url(#cloud)"><g fill="#fff" filter="url(#ringIn)"><circle cx="650" cy="1095" r="262"/><circle cx="944" cy="862" r="362"/><circle cx="1292" cy="1028" r="290"/><rect x="398" y="1050" width="1184" height="318" rx="159"/></g></g></mask>
     <clipPath id="tile"><rect width="1932" height="1932" rx="430"/></clipPath>
   </defs>
   <g clip-path="url(#tile)">
     <rect width="1932" height="1932" fill="url(#bg)"/>
     <rect width="1932" height="1932" fill="url(#lit)"/>
     <rect width="1932" height="1932" fill="url(#glow)"/>
-    <!-- the strokes' soft red light under them -->
-    <g fill="#ff1a0d" opacity=".55" filter="url(#bloom)" transform="translate(964 966) rotate(-23.6)">
-      <rect x="-489" y="-279" width="192" height="754" rx="18"/><rect x="-289" y="-488" width="192" height="754" rx="18"/><rect x="-92" y="-349" width="192" height="754" rx="18"/><rect x="104" y="-272" width="192" height="754" rx="18"/><rect x="304" y="-481" width="192" height="754" rx="18"/>
+    <!-- the cloud's shadow on the tile, and the red light it throws down -->
+    <ellipse cx="990" cy="1470" rx="600" ry="70" fill="#000" opacity=".55" filter="url(#b30)"/>
+    <ellipse cx="980" cy="1300" rx="430" ry="150" fill="#ff1a0d" opacity=".28" filter="url(#b60)"/>
+    <!-- the glass -->
+    <g mask="url(#cloud)">
+      <rect width="1932" height="1932" fill="#0d0f12" opacity=".35"/>
+      <g fill="#ff1a0d" opacity=".9" filter="url(#b60)" transform="translate(972 1040) scale(.42) rotate(-23.6)"><rect x="-489" y="-279" width="192" height="754" rx="22"/><rect x="-289" y="-488" width="192" height="754" rx="22"/><rect x="-92" y="-349" width="192" height="754" rx="22"/><rect x="104" y="-272" width="192" height="754" rx="22"/><rect x="304" y="-481" width="192" height="754" rx="22"/></g>
+      <rect width="1932" height="1932" fill="url(#body)"/>
+      <g fill="url(#red)" transform="translate(972 1040) scale(.42) rotate(-23.6)"><rect x="-489" y="-279" width="192" height="754" rx="22"/><rect x="-289" y="-488" width="192" height="754" rx="22"/><rect x="-92" y="-349" width="192" height="754" rx="22"/><rect x="104" y="-272" width="192" height="754" rx="22"/><rect x="304" y="-481" width="192" height="754" rx="22"/></g>
+      <g fill="none" stroke="#ffd6d1" stroke-opacity=".55" stroke-width="10" transform="translate(972 1040) scale(.42) rotate(-23.6)"><rect x="-486" y="-276" width="180" height="742" rx="19"/><rect x="-286" y="-485" width="180" height="742" rx="19"/><rect x="-89" y="-346" width="180" height="742" rx="19"/><rect x="107" y="-269" width="180" height="742" rx="19"/><rect x="307" y="-478" width="180" height="742" rx="19"/></g>
+      <g fill="#ffffff" opacity=".18" transform="translate(972 1040) scale(.42) rotate(-23.6)"><rect x="-489" y="-279" width="60" height="754" rx="22"/><rect x="-289" y="-488" width="60" height="754" rx="22"/><rect x="-92" y="-349" width="60" height="754" rx="22"/><rect x="104" y="-272" width="60" height="754" rx="22"/><rect x="304" y="-481" width="60" height="754" rx="22"/></g>
+      <rect width="1932" height="1932" fill="url(#under)"/>
+      <ellipse cx="930" cy="560" rx="520" ry="230" fill="url(#sheen)" opacity=".7"/>
     </g>
-    <!-- the strokes -->
-    <g fill="url(#red)" transform="translate(964 966) rotate(-23.6)">
-      <rect x="-489" y="-279" width="192" height="754" rx="18"/><rect x="-289" y="-488" width="192" height="754" rx="18"/><rect x="-92" y="-349" width="192" height="754" rx="18"/><rect x="104" y="-272" width="192" height="754" rx="18"/><rect x="304" y="-481" width="192" height="754" rx="18"/>
-    </g>
-    <!-- a lit edge on each stroke -->
-    <g fill="none" stroke="#ffb3ad" stroke-opacity=".35" stroke-width="6" transform="translate(964 966) rotate(-23.6)">
-      <rect x="-486" y="-276" width="186" height="748" rx="16"/><rect x="-286" y="-485" width="186" height="748" rx="16"/><rect x="-89" y="-346" width="186" height="748" rx="16"/><rect x="107" y="-269" width="186" height="748" rx="16"/><rect x="307" y="-478" width="186" height="748" rx="16"/>
-    </g>
+    <!-- thick glass: light caught along the inside of the edge, then the bright rim -->
+    <rect width="1932" height="1932" fill="#ffffff" opacity=".22" mask="url(#innerM)"/>
+    <rect width="1932" height="1932" fill="url(#rim)" mask="url(#rimM)"/>
+    <!-- three specks of light rising off the top: the files going up -->
+    <circle cx="944" cy="400" r="40" fill="url(#speck)"/>
+    <circle cx="1020" cy="285" r="28" fill="url(#speck)" opacity=".8"/>
+    <circle cx="955" cy="190" r="18" fill="url(#speck)" opacity=".6"/>
   </g>
-  <!-- the glass edge of the tile, brighter at the top -->
-  <rect x="5" y="5" width="1922" height="1922" rx="425" fill="none" stroke="url(#edge)" stroke-width="10"/>
+  <rect x="5" y="5" width="1922" height="1922" rx="425" fill="none" stroke="url(#tileEdge)" stroke-width="10"/>
 </svg>
