@@ -138,6 +138,12 @@ h2 .cnt { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 
 .store .meter.over .bar i { background: #ff3b2f; }
 .store .meter.warn .bar i { background: #e5a33a; }
 .store .hint { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--dim); }
+/* after the download (Alex, 22 Oct: every person who receives can become one who sends) */
+.get-back { display: grid; gap: 12px; justify-items: center; text-align: center; padding: 20px 18px; border-radius: 24px; background: linear-gradient(165deg, rgba(212,0,0,.18), rgba(255,255,255,.04) 70%); border: 1px solid rgba(255,90,80,.3); animation: gbIn .6s cubic-bezier(.16,1,.3,1); }
+.get-back b { font-size: 17px; font-weight: 750; color: #fff; }
+.get-back p { margin: -4px 0 0; font-size: 13.5px; line-height: 1.5; color: rgba(255,255,255,.75); }
+.get-back .pill { width: 100%; }
+@keyframes gbIn { from { opacity: 0; transform: translateY(10px) scale(.98); } }
 .get-foot { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 2px; font-size: 12.5px; }
 .get-foot a { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,.82); text-decoration: none; font-weight: 600; }
 .get-foot a:hover { color: #fff; } .get-foot a svg { width: 13px; height: 13px; }
@@ -413,6 +419,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <!-- on an iPhone or iPad: Save to Photos through the share sheet ("Save Video" / "Save Image"), Alex 22 Oct -->
     <button type="button" class="pill main" id="get-photos" hidden><svg><use href="#i-down"/></svg><span></span></button>
     <a class="pill main" id="get-go" hidden><svg><use href="#i-down"/></svg><span data-t="gt.go">Download</span></a>
+    <!-- after the download: send files back (Alex, 22 Oct) -->
+    <div class="get-back" id="get-back" hidden>
+      <b data-t="gb.t">Got it? Your turn.</b>
+      <p data-t="gb.p">Send your own big files free, up to 5 GB, with one short link. No account needed for 1 GB.</p>
+      <a class="pill main" href="./"><svg><use href="#i-send"/></svg><span data-t="gb.go">Send files free</span></a>
+    </div>
     <!-- under the download, quietly (Alex, 22 Oct): not a second big button -->
     <div class="get-foot">
       <a href="./" id="get-send"><svg><use href="#i-send"/></svg><span data-t="gt.send">Send your own files</span></a>
@@ -590,7 +602,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'out': 'Αποσύνδεση',
     'in.title': 'Μεγάλα αρχεία, <b>ένας σύνδεσμος</b>.', 'tag': 'Στείλε μεγάλα αρχεία – Δωρεάν & με ασφάλεια',
     'in.email': 'Email', 'in.pass': 'Κωδικός', 'in.go': 'Σύνδεση',
-    'gt.sub': 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', 'gt.go': 'Λήψη', 'gt.send': 'Στείλε κι εσύ αρχεία',
+    'gt.sub': 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', 'gt.go': 'Λήψη', 'gt.send': 'Στείλε κι εσύ αρχεία', 'gb.t': 'Το πήρες; Σειρά σου.', 'gb.p': 'Στείλε κι εσύ μεγάλα αρχεία δωρεάν, ως 5 GB, με έναν κοντό σύνδεσμο. Ως 1 GB χωρίς λογαριασμό.', 'gb.go': 'Στείλε αρχεία δωρεάν',
     'pk.title': 'Στείλε <b>μεγάλα αρχεία</b>.', 'pk.drop': 'Άφησε τα αρχεία σου εδώ', 'pk.or': 'ή πάτα για να τα διαλέξεις',
     'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.notify': 'Στείλε μου email όταν κατέβει',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
@@ -1313,7 +1325,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (ph.state === 'idle' || ph.state === 'done') { prepPhotos(); return }
     if (ph.state !== 'ready') return
     navigator.share({ files: ph.files }).then(function () {
-      ph.state = 'done'; gotFiles.forEach(function (f) { countHit(f.token, true) }); paintPhotos()
+      ph.state = 'done'; gotFiles.forEach(function (f) { countHit(f.token, true) }); paintPhotos(); sendBack()
     }).catch(function (e) { if (e && e.name !== 'AbortError' && confirm(w('phFail') + '\n(' + e.name + ')')) gotFiles.forEach(function (f) { fetchFile(f) }) })
   })
   var getPw = '', autoDl = location.hash === '#dl'
@@ -1376,15 +1388,21 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (one) $('get-go').setAttribute('download', one.name || ''); else $('get-go').removeAttribute('download')
     paintPhotos()
   }
+  // after a download, a card that invites them to send their own (Alex, 22 Oct), a moment later so it does not jump
+  function sendBack() {
+    if (!$('get-back').hidden) return
+    setTimeout(function () { $('get-back').hidden = false; $('get-send').hidden = true; $('get-send').nextElementSibling.hidden = true }, 1500)
+  }
   if (getting) {
     show('v-get')
     // Download all: one file after the other, a moment apart, so the browser takes each one
     $('get-go').addEventListener('click', async function (e) {
+      sendBack()
       if (gotFiles.length === 1) { countHit(gotFiles[0].token, true); return }
       e.preventDefault()
       for (var i = 0; i < gotFiles.length; i++) { fetchFile(gotFiles[i]); await new Promise(function (ok) { setTimeout(ok, 1200) }) }
     })
-    $('get-list').addEventListener('click', function (e) { var a = e.target.closest('.getdl'); if (a) countHit(gotFiles[+a.dataset.n].token, true) })
+    $('get-list').addEventListener('click', function (e) { var a = e.target.closest('.getdl'); if (a) { countHit(gotFiles[+a.dataset.n].token, true); sendBack() } })
     $('get-pwf').addEventListener('submit', function (e) { e.preventDefault(); getPw = $('get-pw').value; if (getPw) { $('get-pwf').hidden = true; load() } })
     // Report abuse (Alex, 21 Oct): anyone can flag a transfer; the admins get an email (roartransfer-r2 'report')
     $('get-rep').addEventListener('click', function () {
