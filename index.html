@@ -10,10 +10,25 @@
      makes the link, so no key is ever on this page. R2 deletes free/ after 3 days by itself.
      My transfers and Admin read the same database as RoarMe (supabase/transfer-panel.sql in alexisdigipro-hub/roarme).
      Plain HTML on GitHub Pages: no build step. -->
-<title>RoarTransfer · Send large files – Free &amp; secure</title>
-<meta name="description" content="RoarTransfer: send large files – free &amp; secure. One link, up to 5 GB, by email or link.">
+<title>RoarTransfer · Send large files free &amp; secure, up to 5 GB</title>
+<meta name="description" content="Send large files free and secure with RoarTransfer: up to 5 GB with one short link, by email or link, password optional. No account needed to download.">
+<link rel="canonical" href="https://roartransfer.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RoarTransfer">
+<meta property="og:title" content="RoarTransfer · Send large files free &amp; secure, up to 5 GB">
+<meta property="og:description" content="Send large files free and secure with RoarTransfer: up to 5 GB with one short link, by email or link, password optional. No account needed to download.">
+<meta property="og:url" content="https://roartransfer.com/">
+<meta property="og:image" content="https://roartransfer.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="RoarTransfer by The Mad Lions: send large files, free and secure">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="RoarTransfer · Send large files free &amp; secure, up to 5 GB">
+<meta name="twitter:description" content="Send large files free and secure with RoarTransfer: up to 5 GB with one short link, by email or link, password optional. No account needed to download.">
+<meta name="twitter:image" content="https://roartransfer.com/og.jpg">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebApplication", "@id": "https://roartransfer.com/#app", "name": "RoarTransfer", "alternateName": "Roar Transfer", "url": "https://roartransfer.com/", "image": "https://roartransfer.com/og.jpg", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any (web browser)", "browserRequirements": "Requires a modern web browser", "inLanguage": ["en", "el"], "description": "Send large files free and secure: up to 5 GB with one short link, by email or as a link, with an optional password and an email when it is downloaded. No account needed to download.", "featureList": ["Up to 5 GB per transfer, free", "One short link for all files", "Send by email or as a link", "Optional password", "Email when it is downloaded", "Files delete themselves after 1 to 3 days", "No account needed to download", "FastTransfer: send without an account, up to 1 GB"], "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "publisher": {"@type": "Organization", "@id": "https://themadlions.com/#org", "name": "The Mad Lions", "url": "https://themadlions.com/", "logo": "https://roartransfer.com/icon-512.png"}}, {"@type": "WebSite", "@id": "https://roartransfer.com/#site", "name": "RoarTransfer", "url": "https://roartransfer.com/", "publisher": {"@id": "https://themadlions.com/#org"}}, {"@type": "Organization", "@id": "https://themadlions.com/#org", "name": "The Mad Lions", "url": "https://themadlions.com/", "logo": "https://roartransfer.com/icon-512.png"}]}</script>
 <meta name="theme-color" content="#16181c">
-<meta name="robots" content="noindex">
+<meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="icon" href="icon.svg?v=2" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -701,6 +716,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   // roartransfer.com/<token> (Alex, 21 Oct: links as short as they can be; 404.html brings it here as ?t=) or ?t=<token>
   var getToken = new URLSearchParams(location.search).get('t') || (location.pathname.match(/^\/([A-Za-z0-9]{6,32})\/?$/) || [])[1] || ''
   var getting = /^[A-Za-z0-9]{6,32}$/.test(getToken)
+  // a download page is private: never in search results (Alex, 22 Oct: SEO for the rest of the site)
+  if (getting) { var rb = document.querySelector('meta[name="robots"]'); if (rb) rb.content = 'noindex, nofollow' }
   // and the address bar shows the short one again
   if (getting && location.hostname === 'roartransfer.com' && location.search) try { history.replaceState(null, '', '/' + getToken + location.hash) } catch (e) {}
   var view = 'v-wait'
