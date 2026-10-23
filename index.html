@@ -230,6 +230,21 @@ h2 .cnt { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 
 #done-until { padding: 10px 16px; font-family: var(--sans); font-size: 14.5px; font-weight: 700; color: #fff; background: rgba(47,211,107,.16); border-color: rgba(47,211,107,.5); box-shadow: 0 8px 26px rgba(47,211,107,.14); text-align: center; }
 /* one link for the whole upload (Alex, 21 Oct): shown whole, then Copy link */
 #done-acts { flex-direction: column; }
+.pro { display: grid; gap: 10px; margin-top: 4px; padding: 16px; border-radius: 20px; background: rgba(255,255,255,.04); border: 1px solid var(--line); }
+.pro-h { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
+.badge { padding: 3px 9px; border-radius: 999px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; color: #1a1205; background: linear-gradient(135deg, #ffd27a, #ff9f43); }
+.pro .row .linkbox { flex: 1 1 240px; }
+.pro-ed { display: grid; gap: 8px; }
+.slug { display: flex; align-items: center; border-radius: 999px; background: rgba(0,0,0,.25); border: 1px solid var(--line-2); padding: 0 6px 0 16px; font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.slug input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--text); font: inherit; padding: 12px 8px 12px 0; outline: none; }
+.pro-sub { margin: 6px 2px 0; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.got-msg { display: block; margin-top: 3px; font-size: 12.5px; color: var(--text); opacity: .85; white-space: pre-wrap; word-break: break-word; }
+#dr-done { display: grid; gap: 14px; justify-items: center; }
+#dr-form { display: grid; gap: 18px; } #dr-go { justify-self: center; }
+.pro .note { margin: 0; text-align: left; }
+.pro .pill { flex: 0 0 auto; padding: 10px 18px; font-size: 13.5px; white-space: nowrap; }
+.pro .files .pill { padding: 8px 14px; }
+#v-drop > h1 { text-align: center; }
 .linkbox { display: block; padding: 12px 16px; border-radius: 16px; background: rgba(0,0,0,.25); border: 1px solid var(--line-2); font-family: var(--mono); font-size: 13px; color: var(--text); text-align: center; word-break: break-all; user-select: all; }
 .files li .getdl { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--glass-edge); background: var(--glass); }
 .files li .getdl:hover { background: rgba(255,255,255,.12); }
@@ -506,6 +521,33 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <button type="button" class="pill main" id="go" hidden><span id="go-t" data-t="pk.go">Transfer</span><svg><use href="#i-send"/></svg></button>
   </div>
 
+  <!-- Receive files (Alex, 23 Oct, Pro): roartransfer.com/u/<name>, where anyone sends files to a Pro without an account -->
+  <div class="card" id="v-drop" hidden>
+    <h1 id="dr-h"></h1>
+    <p class="sub center" id="dr-sub"></p>
+    <div id="dr-form">
+      <button type="button" class="drop" id="dr-drop">
+        <span class="ic"><svg><use href="#i-up"/></svg></span>
+        <span class="t"><b id="dr-b"></b><small id="dr-s"></small></span>
+      </button>
+      <input type="file" id="dr-pick" multiple hidden>
+      <ul class="files" id="dr-list" hidden></ul>
+      <div class="opts" id="dr-opts" hidden>
+        <input class="in" id="dr-from" type="text" maxlength="80" autocomplete="name">
+        <input class="in" id="dr-mail" type="email" maxlength="200" autocomplete="email" inputmode="email">
+        <textarea class="in" id="dr-msg" rows="3" maxlength="2000"></textarea>
+        <p class="err" id="dr-err" hidden></p>
+      </div>
+      <p class="agree" id="dr-agree" hidden data-t="agree" data-html>By continuing you accept the <a href="terms/">Terms</a> and the <a href="privacy/">Privacy Policy</a>.</p>
+      <button type="button" class="pill main" id="dr-go" hidden><span></span><svg><use href="#i-send"/></svg></button>
+    </div>
+    <div class="center" id="dr-done" hidden>
+      <span class="done-ic"><svg><use href="#i-check"/></svg></span>
+      <p class="sub" id="dr-ok"></p>
+      <button type="button" class="pill" id="dr-again"><span></span></button>
+    </div>
+  </div>
+
   <!-- sending -->
   <div class="card center" id="v-up" hidden>
     <div class="ring"><svg viewBox="0 0 128 128" aria-hidden="true"><circle class="tr" cx="64" cy="64" r="56"/><circle class="fl" id="ring" cx="64" cy="64" r="56"/></svg><b id="pct">0%</b></div>
@@ -535,6 +577,20 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <h1 data-t="mn.title" data-html>My <b>transfers</b>.</h1>
     <p class="sub" data-t="mn.sub">Everything you sent, from here, RoarMail and your chats. Links last 1 to 7 days.</p>
     <div class="facts f4" id="mine-facts"></div>
+    <!-- Pro (Alex, 23 Oct): Receive files, the page where anyone sends you files without an account, and what came in -->
+    <div class="pro" id="pro" hidden>
+      <div class="pro-h"><b class="badge">PRO</b><span id="pro-h"></span></div>
+      <p class="note" id="pro-n"></p>
+      <div class="row"><span class="linkbox" id="pro-link"></span><button type="button" class="pill main" id="pro-copy"><svg><use href="#i-link"/></svg><span></span></button><button type="button" class="pill" id="pro-edit"><span></span></button></div>
+      <div class="pro-ed" id="pro-ed" hidden>
+        <input class="in" id="pro-name" type="text" maxlength="80" autocomplete="off">
+        <label class="slug"><span>roartransfer.com/u/</span><input id="pro-slug" type="text" maxlength="30" autocomplete="off" spellcheck="false"></label>
+        <button type="button" class="pill main" id="pro-save"><span></span></button>
+        <p class="err" id="pro-err" hidden></p>
+      </div>
+      <p class="pro-sub" id="pro-got"></p>
+      <ul class="files tall" id="pro-list"></ul>
+    </div>
     <div class="bar2">
       <div class="seg" id="mine-seg"><button type="button" class="on" data-f="all" data-t="f.all">All</button><button type="button" data-f="on" data-t="f.on">Active</button><button type="button" data-f="off" data-t="f.off">Expired</button></div>
       <input class="find" id="mine-q" type="search" autocomplete="off">
@@ -732,11 +788,15 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   var sb = window.supabase.createClient(URL_, KEY, { auth: { storageKey: 'roarme-auth-2', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } })
   var user = null
 
-  var views = ['v-wait', 'v-get', 'v-in', 'v-pw', 'v-pick', 'v-up', 'v-done', 'v-mine', 'v-admin']
+  var views = ['v-wait', 'v-get', 'v-in', 'v-pw', 'v-drop', 'v-pick', 'v-up', 'v-done', 'v-mine', 'v-admin']
   // a download link (?t=…) shows only the file, signed in or not
   // roartransfer.com/<token> (Alex, 21 Oct: links as short as they can be; 404.html brings it here as ?t=) or ?t=<token>
   var getToken = new URLSearchParams(location.search).get('t') || (location.pathname.match(/^\/([A-Za-z0-9]{6,32})\/?$/) || [])[1] || ''
   var getting = /^[A-Za-z0-9]{6,32}$/.test(getToken)
+  // a Pro's Receive-files page (Alex, 23 Oct): roartransfer.com/u/<name> (404.html brings it here as ?u=<name>)
+  var dropSlug = getting ? '' : (new URLSearchParams(location.search).get('u') || (location.pathname.match(/^\/u\/([A-Za-z0-9-]{3,30})\/?$/) || [])[1] || '').toLowerCase()
+  var dropping = /^[a-z0-9-]{3,30}$/.test(dropSlug)
+  if (dropping && location.hostname === 'roartransfer.com' && location.search) try { history.replaceState(null, '', '/u/' + dropSlug + location.hash) } catch (e) {}
   // a download page is private: never in search results (Alex, 22 Oct: SEO for the rest of the site)
   if (getting) { var rb = document.querySelector('meta[name="robots"]'); if (rb) rb.content = 'noindex, nofollow' }
   // and the address bar shows the short one again
@@ -749,10 +809,10 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (SEND[v]) { sendView = v; if (tab !== 'send') return }
     view = v
     views.forEach(function (id) { $(id).hidden = id !== v })
-    $('who').hidden = !user || v === 'v-in' || v === 'v-pw'
-    $('signin').hidden = !!user || v === 'v-in' || v === 'v-wait'
+    $('who').hidden = !user || v === 'v-in' || v === 'v-pw' || dropping
+    $('signin').hidden = !!user || v === 'v-in' || v === 'v-wait' || dropping
     $('v-fast').hidden = v !== 'v-in'
-    $('tabs').hidden = !user || v === 'v-in' || v === 'v-wait' || v === 'v-pw'
+    $('tabs').hidden = !user || v === 'v-in' || v === 'v-wait' || v === 'v-pw' || dropping
     document.querySelectorAll('#tabs [data-go]').forEach(function (b) { b.classList.toggle('on', b.dataset.go === tab) })
   }
 
@@ -826,7 +886,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   })
   $('out').addEventListener('click', function () { if (busy) return; sb.auth.signOut() })
   sb.auth.onAuthStateChange(function (ev, session) {
-    if (getting) { user = session && session.user || null; return }
+    if (getting || dropping) { user = session && session.user || null; return }
     var was = user && user.id
     user = session && session.user || null
     $('who-mail').textContent = user ? user.email || '' : ''
@@ -835,7 +895,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     else if (view === 'v-wait' || view === 'v-in' || was !== user.id) { $('pw').value = ''; signedIn() }
     else $('who').hidden = false
   })
-  sb.auth.getSession().then(function (r) { if (!r.data.session && !getting) { show('v-in'); loadGuest() } })
+  sb.auth.getSession().then(function (r) { if (!r.data.session && !getting && !dropping) { show('v-in'); loadGuest() } })
   // without an account: how many of today's transfers are left
   function loadGuest() { if (user) return; bridge({ action: 'guest' }).then(function (d) { guestLeft = d.left; paint() }).catch(function () {}) }
   function toIn(up) { signUp = !!up; $('in-err').hidden = true; $('in-ok').hidden = true; paintIn(); show('v-in') }
@@ -875,7 +935,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('go').disabled = over
     $('go-t').textContent = over ? w('over')(limG()) : (lang === 'el' ? EL['pk.go'] : EN['pk.go'])
     if (view === 'v-done') paintDone()
-    if (view === 'v-mine') paintMine()
+    if (view === 'v-mine') { paintMine(); paintPro() }
+    if (view === 'v-drop') paintDrop()
     if (view === 'v-admin') { paintStats(); paintStore(); paintAcc(); paintAdmList() }
     if (view === 'v-get') paintGet()
     paintIn()
@@ -905,7 +966,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   drop.addEventListener('drop', function (e) { e.preventDefault(); drop.classList.remove('over'); add(e.dataTransfer && e.dataTransfer.files) })
   // a file dropped anywhere on the page counts too, instead of the browser opening it
   window.addEventListener('dragover', function (e) { e.preventDefault() })
-  window.addEventListener('drop', function (e) { e.preventDefault(); if (view === 'v-pick') add(e.dataTransfer && e.dataTransfer.files) })
+  window.addEventListener('drop', function (e) { e.preventDefault(); if (view === 'v-pick') add(e.dataTransfer && e.dataTransfer.files); else if (view === 'v-drop' && !inb.done && !inb.gone) dropAdd(e.dataTransfer && e.dataTransfer.files) })
 
   // ---- send: each file in 16 MB pieces straight to Cloudflare R2, three at a time; a piece that fails is tried again ----
   var busy = false, stopped = false, xhrs = [], link = '', mailed = 0
@@ -945,7 +1006,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   }
   var wait = function (ms) { return new Promise(function (ok) { setTimeout(ok, ms) }) }
   async function upOne(f, before) {
-    var made = await bridge({ action: 'create', name: f.name || 'file', size: f.size, type: f.type || '', days: DAYS })
+    var made = await bridge({ action: 'create', name: f.name || 'file', size: f.size, type: f.type || '', days: DAYS, inbox: dropping ? dropSlug : undefined })
     var n = Math.max(1, Math.ceil(f.size / PART)), next = 1
     var urls = {}, etags = {}, loaded = {}
     var sum = function () { var t = 0; for (var k in loaded) t += loaded[k]; return t }
@@ -955,7 +1016,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
         if (!signing) {
           var want = []
           for (var k = i; k <= Math.min(n, i + 19); k++) if (!urls[k] && !etags[k]) want.push(k)
-          signing = bridge({ action: 'sign', key: made.key, uploadId: made.uploadId, parts: want })
+          signing = bridge({ action: 'sign', key: made.key, uploadId: made.uploadId, parts: want, inbox: dropping ? dropSlug : undefined })
             .then(function (got) { for (var q in got.urls) urls[q] = got.urls[q] })
             .finally(function () { signing = null })
         }
@@ -985,11 +1046,11 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       }
     }
     try { await Promise.all([worker(), worker(), worker()]) } catch (e) {
-      bridge({ action: 'abort', key: made.key, uploadId: made.uploadId }).catch(function () {})
+      bridge({ action: 'abort', key: made.key, uploadId: made.uploadId, inbox: dropping ? dropSlug : undefined }).catch(function () {})
       throw e
     }
     var parts = Object.keys(etags).map(function (k) { return { n: +k, etag: etags[k] } })
-    var fin = await bridge({ action: 'complete', key: made.key, uploadId: made.uploadId, parts: parts, name: f.name || 'file', size: f.size, type: f.type || '', days: DAYS })
+    var fin = await bridge({ action: 'complete', key: made.key, uploadId: made.uploadId, parts: parts, name: f.name || 'file', size: f.size, type: f.type || '', days: DAYS, inbox: dropping ? dropSlug : undefined })
     return { name: f.name, size: fin.size || f.size, type: f.type, token: fin.token, url: PAGE + fin.token, expires: fin.expires }
   }
   $('go').addEventListener('click', async function () {
@@ -1189,6 +1250,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       if (r.error) { $('mine-err').textContent = r.error.message; $('mine-err').hidden = false; return }
       $('mine-err').hidden = true; mine = r.data || []; paintMine()
     })
+    loadPro()
   }
   function paintMine() {
     $('mine-q').placeholder = w('find')
@@ -1477,6 +1539,130 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     })
     $('get-eye').addEventListener('click', function () { $('get-pw').type = $('get-pw').type === 'password' ? 'text' : 'password' })
     load()
+  }
+
+  // ---- Pro (Alex, 23 Oct: "make my account Pro, so we add things there and see them") ----
+  // the admins are Pro, and later whoever pays; roartransfer-r2 'pro' says so and gives what is theirs
+  var PT = {
+    en: {
+      rxH: 'Receive files', rxN: 'Anyone can send you files on this page, without an account: up to 20 GB a file, kept 30 days.',
+      copy: 'Copy link', copied: 'Copied', edit: 'Edit', save: 'Save', name: 'The name people see (e.g. The Mad Lions)', got: 'Received',
+      noneGot: 'Nothing received yet. Send your link to someone and their files show up here.', open: 'Open', setUp: 'Pick a name for your page',
+      files: function (n) { return n === 1 ? '1 file' : n + ' files' },
+      drH: function (n) { return 'Send files to <b>' + esc(n) + '</b>.' }, drSub: 'No account needed. Up to 20 GB a file.',
+      drB: 'Drop your files here', drS: 'or click to choose them', drMore: 'Add more files', from: 'Your name', mail: 'Your email (optional, so they can answer)',
+      msg: 'Message (optional)', go: 'Send', noName: 'Write your name, so they know who sent it.', tooBig: 'Up to 20 GB a file.',
+      ok: function (n) { return '<b>Sent.</b> ' + esc(n) + ' got an email with your files.' }, again: 'Send more files',
+      gone: 'This page does not take files.', limit: 'Too many files from here today. Try again tomorrow.'
+    },
+    el: {
+      rxH: 'Λήψη αρχείων', rxN: 'Οποιοσδήποτε σου στέλνει αρχεία σε αυτή τη σελίδα, χωρίς λογαριασμό: ως 20 GB το αρχείο, μένουν 30 μέρες.',
+      copy: 'Αντιγραφή link', copied: 'Αντιγράφηκε', edit: 'Αλλαγή', save: 'Αποθήκευση', name: 'Το όνομα που βλέπουν (π.χ. The Mad Lions)', got: 'Ήρθαν',
+      noneGot: 'Δεν ήρθε τίποτα ακόμα. Στείλε το link σου σε κάποιον και τα αρχεία του θα εμφανιστούν εδώ.', open: 'Άνοιγμα', setUp: 'Διάλεξε όνομα για τη σελίδα σου',
+      files: function (n) { return n === 1 ? '1 αρχείο' : n + ' αρχεία' },
+      drH: function (n) { return 'Στείλε αρχεία στο <b>' + esc(n) + '</b>.' }, drSub: 'Χωρίς λογαριασμό. Ως 20 GB το αρχείο.',
+      drB: 'Άφησε τα αρχεία σου εδώ', drS: 'ή πάτα για να τα διαλέξεις', drMore: 'Πρόσθεσε κι άλλα', from: 'Το όνομά σου', mail: 'Το email σου (προαιρετικά, για να σου απαντήσουν)',
+      msg: 'Μήνυμα (προαιρετικά)', go: 'Αποστολή', noName: 'Γράψε το όνομά σου, για να ξέρουν ποιος το έστειλε.', tooBig: 'Ως 20 GB το αρχείο.',
+      ok: function (n) { return '<b>Στάλθηκε.</b> Το ' + esc(n) + ' πήρε email με τα αρχεία σου.' }, again: 'Στείλε κι άλλα',
+      gone: 'Αυτή η σελίδα δεν δέχεται αρχεία.', limit: 'Πάρα πολλά αρχεία από εδώ σήμερα. Δοκίμασε ξανά αύριο.'
+    }
+  }
+  var pw = function (k) { return PT[lang][k] }
+  var pro = null, proEd = false
+  function loadPro() {
+    bridge({ action: 'pro' }).then(function (d) { pro = d && d.pro ? d : null; if (pro && !pro.slug) proEd = true; paintPro() }).catch(function () { pro = null; paintPro() })
+  }
+  function paintPro() {
+    $('pro').hidden = !pro
+    if (!pro) return
+    $('pro-h').textContent = pw('rxH'); $('pro-n').textContent = pw('rxN')
+    var url = pro.slug ? 'roartransfer.com/u/' + pro.slug : pw('setUp')
+    $('pro-link').textContent = url
+    $('pro-copy').hidden = !pro.slug; $('pro-copy').querySelector('span').textContent = pw('copy')
+    $('pro-edit').querySelector('span').textContent = pw('edit')
+    $('pro-ed').hidden = !proEd
+    $('pro-name').placeholder = pw('name'); $('pro-save').querySelector('span').textContent = pw('save')
+    if (proEd && !$('pro-slug').value && document.activeElement !== $('pro-slug')) { $('pro-slug').value = pro.slug || ''; $('pro-name').value = pro.name || '' }
+    $('pro-got').textContent = pw('got') + (pro.received.length ? ' · ' + pro.received.length : '')
+    $('pro-list').innerHTML = pro.received.length ? pro.received.map(function (g) {
+      return '<li><span class="fi"><svg><use href="#i-down"/></svg></span><span class="ft"><b>' + esc(g.sender_name) + '</b>'
+        + '<small>' + (g.sender_email ? esc(g.sender_email) + ' · ' : '') + pw('files')(g.files) + ' · ' + size(Number(g.bytes || 0)) + ' · ' + when(g.created_at) + '</small>'
+        + (g.message ? '<span class="got-msg">' + esc(g.message) + '</span>' : '') + '</span>'
+        + '<a class="pill" href="' + PAGE + esc(g.bundle) + '" target="_blank" rel="noopener"><span>' + pw('open') + '</span></a></li>'
+    }).join('') : note(pw('noneGot'))
+  }
+  $('pro-copy').addEventListener('click', function () {
+    var b = $('pro-copy').querySelector('span')
+    try { navigator.clipboard.writeText('https://roartransfer.com/u/' + pro.slug).then(function () { b.textContent = pw('copied'); setTimeout(paintPro, 1600) }) } catch (e) {}
+  })
+  $('pro-edit').addEventListener('click', function () { proEd = !proEd; $('pro-slug').value = pro.slug || ''; $('pro-name').value = pro.name || ''; paintPro() })
+  $('pro-slug').addEventListener('input', function () { var v = $('pro-slug').value.toLowerCase().replace(/[^a-z0-9-]/g, ''); if (v !== $('pro-slug').value) $('pro-slug').value = v })
+  $('pro-save').addEventListener('click', function () {
+    $('pro-err').hidden = true; $('pro-save').disabled = true
+    bridge({ action: 'pro-set', slug: $('pro-slug').value, name: $('pro-name').value }).then(function (d) {
+      $('pro-save').disabled = false; pro.slug = d.slug; pro.name = d.name; proEd = false; paintPro()
+    }).catch(function (e) { $('pro-save').disabled = false; $('pro-err').textContent = e.message; $('pro-err').hidden = false })
+  })
+
+  // ---- the Receive-files page itself (roartransfer.com/u/<name>): drop files, your name, Send ----
+  var inb = { name: '', files: [], done: false, gone: false }
+  var DROP_MAX = 20 * GB
+  function paintDrop() {
+    $('dr-h').innerHTML = inb.gone ? pw('gone') : inb.name ? pw('drH')(inb.name) : ''
+    $('dr-sub').textContent = inb.gone ? '' : pw('drSub')
+    $('dr-form').hidden = inb.gone || inb.done; $('dr-done').hidden = !inb.done
+    var has = inb.files.length > 0
+    $('dr-b').textContent = has ? pw('drMore') : pw('drB'); $('dr-s').textContent = pw('drS')
+    $('dr-drop').classList.toggle('has', has)
+    $('dr-list').hidden = !has; $('dr-opts').hidden = !has; $('dr-go').hidden = !has; $('dr-agree').hidden = !has
+    $('dr-list').innerHTML = inb.files.map(function (f, n) {
+      return '<li><span class="fi"><svg><use href="#' + icon(f.type) + '"/></svg></span><span class="ft"><b>' + esc(f.name) + '</b><small' + (f.size > DROP_MAX ? ' class="bad"' : '') + '>' + size(f.size) + (f.size > DROP_MAX ? ' · ' + pw('tooBig') : '') + '</small></span>'
+        + '<button type="button" class="x" data-n="' + n + '" aria-label="' + w('remove') + '"><svg><use href="#i-x"/></svg></button></li>'
+    }).join('')
+    $('dr-from').placeholder = pw('from'); $('dr-mail').placeholder = pw('mail'); $('dr-msg').placeholder = pw('msg')
+    $('dr-go').querySelector('span').textContent = pw('go')
+    $('dr-go').disabled = inb.files.some(function (f) { return f.size > DROP_MAX })
+    $('dr-again').querySelector('span').textContent = pw('again')
+    if (inb.done) $('dr-ok').innerHTML = pw('ok')(inb.name)
+  }
+  function dropAdd(list) { [].slice.call(list || []).forEach(function (f) { if (!inb.files.some(function (x) { return x.name === f.name && x.size === f.size })) inb.files.push(f) }); paintDrop() }
+  $('dr-drop').addEventListener('click', function () { $('dr-pick').click() })
+  $('dr-pick').addEventListener('change', function (e) { dropAdd(e.target.files); e.target.value = '' })
+  ;['dragenter', 'dragover'].forEach(function (k) { $('dr-drop').addEventListener(k, function (e) { e.preventDefault(); $('dr-drop').classList.add('over') }) })
+  $('dr-drop').addEventListener('dragleave', function () { $('dr-drop').classList.remove('over') })
+  $('dr-drop').addEventListener('drop', function (e) { e.preventDefault(); $('dr-drop').classList.remove('over'); dropAdd(e.dataTransfer && e.dataTransfer.files) })
+  $('dr-list').addEventListener('click', function (e) { var b = e.target.closest('.x'); if (b) { inb.files.splice(+b.dataset.n, 1); paintDrop() } })
+  $('dr-again').addEventListener('click', function () { inb.done = false; inb.files = []; $('dr-msg').value = ''; paintDrop() })
+  $('dr-go').addEventListener('click', async function () {
+    if (busy || !inb.files.length) return
+    var who = $('dr-from').value.trim()
+    if (!who) { $('dr-err').textContent = pw('noName'); $('dr-err').hidden = false; $('dr-from').focus(); return }
+    $('dr-err').hidden = true
+    // the same upload as Send (16 MB pieces straight to R2), each file marked for this page
+    files = inb.files.slice(); busy = true; stopped = false; sent = []; errs = []
+    show('v-up'); progress(0)
+    var before = 0
+    for (var i = 0; i < files.length; i++) {
+      if (stopped) break
+      try { sent.push(await upOne(files[i], before)) } catch (e) {
+        if (stopped || e.message === 'cancelled') break
+        errs.push(files[i].name + ': ' + (e.limit ? pw('limit') : e.message === 'offline' ? w('offline') : e.message))
+        if (e.limit) break
+      }
+      before += files[i].size; progress(before)
+    }
+    if (sent.length && !stopped) {
+      try { await bridge({ action: 'inbox-send', inbox: dropSlug, tokens: sent.map(function (m) { return m.token }), name: who, email: $('dr-mail').value, message: $('dr-msg').value }); inb.done = true; inb.files = [] }
+      catch (e) { errs.push(e.message) }
+    }
+    busy = false; files = []
+    show('v-drop'); paintDrop()
+    if (errs.length) { $('dr-form').hidden = false; $('dr-done').hidden = !inb.done; $('dr-err').textContent = errs.join(' · '); $('dr-err').hidden = false }
+  })
+  if (dropping) {
+    var rb2 = document.querySelector('meta[name="robots"]'); if (rb2) rb2.content = 'noindex, nofollow'
+    show('v-drop'); paintDrop()
+    bridge({ action: 'inbox-info', inbox: dropSlug }).then(function (d) { inb.name = d.name; paintDrop() }).catch(function () { inb.gone = true; paintDrop() })
   }
 
   // one of Alex's pictures behind the card, a new one each visit (Alex, 20 Oct; kept here in stills/, nothing from
