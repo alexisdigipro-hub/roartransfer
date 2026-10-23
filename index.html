@@ -26,7 +26,7 @@
 <meta name="twitter:title" content="RoarTransfer · Send large files free &amp; secure, up to 5 GB">
 <meta name="twitter:description" content="Send large files free and secure with RoarTransfer: up to 5 GB with one short link, by email or link, password optional. No account needed to download.">
 <meta name="twitter:image" content="https://roartransfer.com/og.jpg">
-<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebApplication", "@id": "https://roartransfer.com/#app", "name": "RoarTransfer", "alternateName": "Roar Transfer", "url": "https://roartransfer.com/", "image": "https://roartransfer.com/og.jpg", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any (web browser)", "browserRequirements": "Requires a modern web browser", "inLanguage": ["en", "el"], "description": "Send large files free and secure: up to 5 GB with one short link, by email or as a link, with an optional password and an email when it is downloaded. No account needed to download.", "featureList": ["Up to 5 GB per transfer, free", "One short link for all files", "Send by email or as a link", "Optional password", "Email when it is downloaded", "Files delete themselves after 1 to 3 days", "No account needed to download", "FastTransfer: send without an account, up to 1 GB"], "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "publisher": {"@type": "Organization", "@id": "https://themadlions.com/#org", "name": "The Mad Lions", "url": "https://themadlions.com/", "logo": "https://roartransfer.com/icon-512.png"}}, {"@type": "WebSite", "@id": "https://roartransfer.com/#site", "name": "RoarTransfer", "url": "https://roartransfer.com/", "publisher": {"@id": "https://themadlions.com/#org"}}, {"@type": "Organization", "@id": "https://themadlions.com/#org", "name": "The Mad Lions", "url": "https://themadlions.com/", "logo": "https://roartransfer.com/icon-512.png"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebApplication", "@id": "https://roartransfer.com/#app", "name": "RoarTransfer", "alternateName": "Roar Transfer", "url": "https://roartransfer.com/", "image": "https://roartransfer.com/og.jpg", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any (web browser)", "browserRequirements": "Requires a modern web browser", "inLanguage": ["en", "el"], "description": "Send large files free and secure: up to 5 GB with one short link, by email or as a link, with an optional password and an email when it is downloaded. No account needed to download.", "featureList": ["Up to 5 GB per transfer, free", "One short link for all files", "Send by email or as a link", "Optional password", "Email when it is downloaded", "Files delete themselves after 1 to 7 days", "No account needed to download", "FastTransfer: send without an account, up to 1 GB"], "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "publisher": {"@type": "Organization", "@id": "https://themadlions.com/#org", "name": "The Mad Lions", "url": "https://themadlions.com/", "logo": "https://roartransfer.com/icon-512.png"}}, {"@type": "WebSite", "@id": "https://roartransfer.com/#site", "name": "RoarTransfer", "url": "https://roartransfer.com/", "publisher": {"@id": "https://themadlions.com/#org"}}, {"@type": "Organization", "@id": "https://themadlions.com/#org", "name": "The Mad Lions", "url": "https://themadlions.com/", "logo": "https://roartransfer.com/icon-512.png"}]}</script>
 <meta name="theme-color" content="#16181c">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="icon" href="icon.svg?v=2" type="image/svg+xml">
@@ -241,6 +241,12 @@ h2 .cnt { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 
 .seg.two { display: grid; grid-template-columns: 1fr 1fr; }
 .seg.two button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 12px; flex-direction: row; }
 .seg.two button svg { width: 16px; height: 16px; }
+/* three durations, the short two with a leaf (Alex, 23 Oct) */
+.seg.three { display: grid; grid-template-columns: repeat(3, 1fr); }
+.seg.three button { display: inline-flex; align-items: center; justify-content: center; padding: 10px 8px; }
+#dur b { display: inline-flex; align-items: center; gap: 5px; } #dur .leaf { width: 13px; height: 13px; color: #5fd38d; }
+.eco { display: flex; align-items: flex-start; gap: 6px; margin: -4px 6px 0; font-size: 11px; line-height: 1.4; color: var(--muted); opacity: .85; }
+.eco svg { flex: none; width: 12px; height: 12px; margin-top: 1px; color: #5fd38d; }
 #dur button { flex-direction: column; gap: 1px; } #dur small { font-size: 11px; font-weight: 500; color: var(--muted); } #dur .on small { color: var(--text); }
 .in { width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: 16px; background: rgba(0,0,0,.22); border: 1px solid var(--line-2); font-size: 15px; outline: none; resize: vertical; font-family: inherit; }
 .in:focus { border-color: rgba(255,90,80,.7); }
@@ -351,6 +357,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9.5 4.5 2.5-4.5 2.5z"/></g></symbol>
   <symbol id="i-img" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></g></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14z"/><path d="M5 19 13 11"/></g></symbol>
   <symbol id="i-link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></g></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-timer" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/></g></symbol>
@@ -479,7 +486,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       <input class="in" id="op-to" type="text" inputmode="email" autocomplete="off" hidden>
       <input class="in" id="op-title" type="text" maxlength="120" autocomplete="off">
       <textarea class="in" id="op-msg" rows="3" maxlength="2000"></textarea>
-      <div class="seg two" id="dur"><button type="button" data-d="1"><b data-t="op.d1">1 day</b><small data-t="op.d1s">up to 5 GB</small></button><button type="button" data-d="3" class="on"><b data-t="op.d3">3 days</b><small data-t="op.d3s">up to 3 GB</small></button></div>
+      <!-- three durations (Alex, 23 Oct): 1 day up to 5 GB first and chosen, with the green leaf, and one small line why -->
+      <div class="seg three" id="dur"><button type="button" data-d="1" class="on"><b><span data-t="op.d1">1 day</span><svg class="leaf"><use href="#i-leaf"/></svg></b><small data-t="op.d1s">up to 5 GB</small></button><button type="button" data-d="3"><b data-t="op.d3">3 days</b><small data-t="op.d3s">up to 3 GB</small></button><button type="button" data-d="7"><b data-t="op.d7">7 days</b><small data-t="op.d7s">up to 1 GB</small></button></div>
+      <p class="eco"><svg><use href="#i-leaf"/></svg><span data-t="op.eco">The greener choice is also the bigger one: most files are picked up the same day, so a 1-day link spends less time on our servers and carries up to 5 GB.</span></p>
       <label class="chk"><input type="checkbox" id="op-notify" checked><span data-t="op.notify">Email me when it is downloaded</span></label>
       <!-- the admin alone (Alex, 22 Oct): the file is kept only in the hub's pCloud, the link stays a roartransfer.com one -->
       <label class="chk" id="op-pc-row" hidden><input type="checkbox" id="op-pc"><span data-t="op.pc">Keep it only in my pCloud</span></label>
@@ -517,7 +526,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <!-- My transfers: everything this account sent, its numbers, and each link with how often it was downloaded -->
   <div class="card wide" id="v-mine" hidden>
     <h1 data-t="mn.title" data-html>My <b>transfers</b>.</h1>
-    <p class="sub" data-t="mn.sub">Everything you sent with RoarTransfer: from this page, from RoarMail and in your chats. A link works for 3 days, the list stays.</p>
+    <p class="sub" data-t="mn.sub">Everything you sent with RoarTransfer: from this page, from RoarMail and in your chats. A link works for 1 to 7 days, the list stays.</p>
     <div class="facts f4" id="mine-facts"></div>
     <div class="bar2">
       <div class="seg" id="mine-seg"><button type="button" class="on" data-f="all" data-t="f.all">All</button><button type="button" data-f="on" data-t="f.on">Active</button><button type="button" data-f="off" data-t="f.off">Expired</button></div>
@@ -574,12 +583,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   var KEY = 'sb_publishable_7mQ3e0NH5lCmdoIKx2-FUA_EgCoXx9X'
   var BUCKET = 'roar-transfers'
   var MAX = 3 * 1024 * 1024 * 1024
-  var DAYS = 3, mode = 'link'
-  // Free (Alex, 21 Oct): 1 day up to 5 GB, or 3 days up to 3 GB
+  var DAYS = 1, mode = 'link'
+  // Free (Alex, 21 Oct): 1 day up to 5 GB, or 3 days up to 3 GB; 7 days up to 1 GB since 23 Oct
   var GB = 1024 * 1024 * 1024
   // without an account (Alex, 21 Oct): link only, 24 hours, up to 1 GB, 3 transfers a day (roartransfer-r2 GUEST)
-  var lim = function () { return !user ? GB : DAYS === 1 ? 5 * GB : 3 * GB }
-  var limG = function () { return !user ? 1 : DAYS === 1 ? 5 : 3 }
+  var lim = function () { return !user ? GB : DAYS === 1 ? 5 * GB : DAYS === 7 ? GB : 3 * GB }
+  var limG = function () { return !user ? 1 : DAYS === 1 ? 5 : DAYS === 7 ? 1 : 3 }
   var guestLeft = null
   var PIECE = 6 * 1024 * 1024
   var TUS = URL_.replace('.supabase.co', '.storage.supabase.co') + '/storage/v1/upload/resumable'
@@ -596,12 +605,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'in.email': 'Email', 'in.pass': 'Κωδικός', 'in.go': 'Σύνδεση',
     'gt.sub': 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', 'gt.go': 'Λήψη', 'gt.send': 'Στείλε κι εσύ αρχεία', 'gb.t': 'Το πήρες; Σειρά σου.', 'gb.p': 'Στείλε κι εσύ μεγάλα αρχεία δωρεάν, ως 5 GB, με έναν κοντό σύνδεσμο. Ως 1 GB χωρίς λογαριασμό.', 'gb.go': 'Στείλε αρχεία δωρεάν',
     'pk.title': 'Στείλε <b>μεγάλα αρχεία</b>.', 'pk.drop': 'Άφησε τα αρχεία σου εδώ', 'pk.or': 'ή πάτα για να τα διαλέξεις',
-    'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.notify': 'Στείλε μου email όταν κατέβει', 'op.pc': 'Να μείνει μόνο στο pCloud μου',
+    'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.d7': '7 μέρες', 'op.d7s': 'ως 1 GB', 'op.eco': 'Η πιο πράσινη επιλογή είναι και η πιο μεγάλη: τα περισσότερα αρχεία παραλαμβάνονται την ίδια μέρα, οπότε ένα link μιας μέρας μένει λιγότερο στους servers μας και χωράει ως 5 GB.', 'op.notify': 'Στείλε μου email όταν κατέβει', 'op.pc': 'Να μείνει μόνο στο pCloud μου',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
     'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · 1 GB · 24 ώρες · 3 τη μέρα', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
-    'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες με RoarTransfer: από εδώ, από το RoarMail και στις συνομιλίες σου. Ο σύνδεσμος ισχύει 3 μέρες, η λίστα μένει.',
+    'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες με RoarTransfer: από εδώ, από το RoarMail και στις συνομιλίες σου. Ο σύνδεσμος ισχύει 1 με 7 μέρες, η λίστα μένει.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
     'ad.days': 'Τελευταίες 30 μέρες', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
@@ -616,13 +625,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       until: 'until', sent: 'uploaded', sentOne: 'Uploaded!', sentMany: function (n) { return n + ' files uploaded!' }, none: 'Nothing was uploaded',
       left: 'Anyone with the link can download until', copy: 'Copy link', copied: 'Copied', allCopied: 'All links copied', cant: 'Could not copy',
       bad: 'Wrong email or password.', offline: 'Could not reach RoarTransfer. Check the connection and try again.',
-      inSub: 'Sign in to send by email too, up to 5 GB, for up to 3 days.', upSub: 'Make a free account to send files up to 5 GB.',
+      inSub: 'Sign in to send by email too, up to 5 GB, for up to 7 days.', upSub: 'Make a free account to send files up to 5 GB.',
       inGo: 'Sign in', upGo: 'Create account', inQ: 'No account yet?', upQ: 'Already have an account?', inSw: 'Sign up', upSw: 'Sign in',
       upMail: 'Almost there: open the email we just sent you and press Confirm my account. It brings you back here, signed in.', upShort: 'The password needs at least 6 characters.', upTaken: 'There is already an account with this email. Sign in instead.',
       off: 'RoarTransfer is not open to this account yet.', stopped: 'Stopped.', leave: 'Files are still uploading.',
       mailSub: 'Files for you (RoarTransfer)', mailBody: 'Download them here, until', remove: 'Remove',
       phSave: 'Save to Photos', phPrep: function (p) { return 'Preparing… ' + p + '%' }, phReady: 'Tap to save to Photos', phDone: 'Saved? Save again', phFiles: 'Download to Files', phFail: 'Could not prepare it for Photos. Download it to Files instead?',
-      gExpires: 'Expires', gGo: 'Download', gAll: 'Download all files', gOne: 'Download this file', gSubOne: 'Someone sent you a file with RoarTransfer.', gSubMany: function (n, t) { return 'Someone sent you ' + n + ' files with RoarTransfer · ' + t }, gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are kept 3 days. Ask for it to be sent again.',
+      gExpires: 'Expires', gGo: 'Download', gAll: 'Download all files', gOne: 'Download this file', gSubOne: 'Someone sent you a file with RoarTransfer.', gSubMany: function (n, t) { return 'Someone sent you ' + n + ' files with RoarTransfer · ' + t }, gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are kept 1 to 7 days. Ask for it to be sent again.',
       gBad: 'This link does not work', gBadN: 'Check that the whole link was copied.', gOff: 'Could not reach RoarTransfer', gOffN: 'Check the connection and try again.',
       find: 'Search by file or chat', findAdm: 'File, person, email or chat',
       tTransfers: 'transfers', tSent: 'sent in all', tActive: 'active now', tDownloads: 'downloads', tSenders: 'people sending',
@@ -636,13 +645,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       stop: 'Delete', stopT: 'Delete the file and its link now',
       stopAsk: function (n) { return 'Delete "' + n + '" now? The file and its link are gone for good.' },
       noneYet: 'Nothing sent yet. What you send shows up here.', noneFound: 'Nothing matches.', noneAll: 'No transfers yet.',
-      gNote: function (n) { return '<b>No account needed:</b> a link for 24 hours, up to 1 GB, 3 transfers a day' + (n == null ? '' : ' (' + n + ' left today)') + '. <a href="#" data-up>Sign up free</a> for email, up to 5 GB and 3 days.' },
+      gNote: function (n) { return '<b>No account needed:</b> a link for 24 hours, up to 1 GB, 3 transfers a day' + (n == null ? '' : ' (' + n + ' left today)') + '. <a href="#" data-up>Sign up free</a> for email, up to 5 GB and up to 7 days.' },
       gOut: 'You used today\'s 3 free transfers. <a href="#" data-up>Sign up free</a> to keep sending, up to 5 GB.',
       limit: 'You used today\'s 3 free transfers. Sign up free to keep sending.',
       repAsk: 'Report this transfer: what is wrong with it? (optional)', repDone: 'Thanks, we will look at it.',
       only: 'Only', everyone: 'Everyone', guestN: 'Guest',
       stOf: 'of 10 GB free', stLeft: function (g) { return g + ' left' }, stOver: function (g) { return g + ' over the free 10 GB' }, stFiles: function (n) { return n + (n === 1 ? ' file' : ' files') }, stAcc: 'Accounts', stOther: 'Other', stOpen: function (n) { return n + ' unfinished ' + (n === 1 ? 'upload' : 'uploads') + ' (cleared in 7 days)' },
-      stHint: function (c) { return 'Files delete themselves after 1 to 3 days, so this is about the last 3 days of uploads. Above 10 GB Cloudflare charges about $0.015 per GB a month: about $' + c + ' a month at today’s size.' },
+      stHint: function (c) { return 'Files delete themselves when their link ends (1 to 7 days), so this is about the last few days of uploads. Above 10 GB Cloudflare charges about $0.015 per GB a month: about $' + c + ' a month at today’s size.' },
       accSum: function (w7, sent, unc) { return w7 + ' new this week · ' + sent + ' have sent · ' + unc + ' not confirmed yet' }, joined: 'Joined', unconfC: 'Not confirmed', lastSent: 'last sent', lastIn: 'last in', noAcc: 'No accounts yet.',
       wait: 'Too many tries. Wait a few minutes and try again.', badMail: 'This does not look like an email.', unconf: 'Confirm your email first: open the email we sent you.', forgotMail: 'Write your email above, then press Forgot password.', resetSent: 'If there is an account with this email, a link to choose a new password is on its way.', linkOld: 'This link has expired or was already used. Try again.', k_video: 'Video', k_image: 'Pictures', k_audio: 'Audio', k_other: 'Other'
     },
@@ -655,13 +664,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       until: 'ως', sent: 'ανέβηκαν', sentOne: 'Ανέβηκε!', sentMany: function (n) { return 'Ανέβηκαν ' + n + ' αρχεία!' }, none: 'Δεν ανέβηκε τίποτα',
       left: 'Όποιος έχει τον σύνδεσμο μπορεί να κατεβάσει ως', copy: 'Αντιγραφή', copied: 'Αντιγράφηκε', allCopied: 'Αντιγράφηκαν όλοι', cant: 'Δεν αντιγράφηκε',
       bad: 'Λάθος email ή κωδικός.', offline: 'Δεν βρέθηκε το RoarTransfer. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
-      inSub: 'Συνδέσου για να στέλνεις και με email, ως 5 GB, για ως 3 μέρες.', upSub: 'Φτιάξε δωρεάν λογαριασμό για να στέλνεις αρχεία ως 5 GB.',
+      inSub: 'Συνδέσου για να στέλνεις και με email, ως 5 GB, για ως 7 μέρες.', upSub: 'Φτιάξε δωρεάν λογαριασμό για να στέλνεις αρχεία ως 5 GB.',
       inGo: 'Σύνδεση', upGo: 'Δημιουργία λογαριασμού', inQ: 'Δεν έχεις λογαριασμό;', upQ: 'Έχεις ήδη λογαριασμό;', inSw: 'Εγγραφή', upSw: 'Σύνδεση',
       upMail: 'Σχεδόν έτοιμο: άνοιξε το email που σου στείλαμε και πάτα Confirm my account. Σε φέρνει πίσω εδώ, συνδεδεμένο.', upShort: 'Ο κωδικός θέλει τουλάχιστον 6 χαρακτήρες.', upTaken: 'Υπάρχει ήδη λογαριασμός με αυτό το email. Συνδέσου.',
       off: 'Το RoarTransfer δεν είναι ακόμα ανοιχτό σε αυτόν τον λογαριασμό.', stopped: 'Διακόπηκε.', leave: 'Τα αρχεία ανεβαίνουν ακόμα.',
       mailSub: 'Αρχεία για σένα (RoarTransfer)', mailBody: 'Κατέβασέ τα εδώ, ως', remove: 'Αφαίρεση',
       phSave: 'Αποθήκευση στις Φωτογραφίες', phPrep: function (p) { return 'Ετοιμάζεται… ' + p + '%' }, phReady: 'Πάτα για αποθήκευση στις Φωτογραφίες', phDone: 'Αποθηκεύτηκε; Ξανά', phFiles: 'Λήψη στα Αρχεία', phFail: 'Δεν ετοιμάστηκε για τις Φωτογραφίες. Να κατέβει στα Αρχεία;',
-      gExpires: 'Λήγει', gGo: 'Λήψη', gAll: 'Λήψη όλων των αρχείων', gOne: 'Λήψη αυτού του αρχείου', gSubOne: 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', gSubMany: function (n, t) { return 'Κάποιος σου έστειλε ' + n + ' αρχεία με το RoarTransfer · ' + t }, gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer μένουν 3 μέρες. Ζήτα να σου το ξαναστείλουν.',
+      gExpires: 'Λήγει', gGo: 'Λήψη', gAll: 'Λήψη όλων των αρχείων', gOne: 'Λήψη αυτού του αρχείου', gSubOne: 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', gSubMany: function (n, t) { return 'Κάποιος σου έστειλε ' + n + ' αρχεία με το RoarTransfer · ' + t }, gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer μένουν 1 με 7 μέρες. Ζήτα να σου το ξαναστείλουν.',
       gBad: 'Αυτός ο σύνδεσμος δεν δουλεύει', gBadN: 'Έλεγξε ότι αντιγράφηκε ολόκληρος ο σύνδεσμος.', gOff: 'Δεν βρέθηκε το RoarTransfer', gOffN: 'Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
       find: 'Αναζήτηση σε αρχεία ή συνομιλίες', findAdm: 'Αρχείο, άτομο, email ή συνομιλία',
       tTransfers: 'αποστολές', tSent: 'στάλθηκαν συνολικά', tActive: 'ενεργές τώρα', tDownloads: 'λήψεις', tSenders: 'άτομα που στέλνουν',
@@ -675,13 +684,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       stop: 'Διαγραφή', stopT: 'Σβήσε τώρα το αρχείο και τον σύνδεσμό του',
       stopAsk: function (n) { return 'Να σβηστεί το "' + n + '" τώρα; Το αρχείο και ο σύνδεσμός του χάνονται οριστικά.' },
       noneYet: 'Δεν έχεις στείλει τίποτα ακόμα. Ό,τι στέλνεις εμφανίζεται εδώ.', noneFound: 'Δεν βρέθηκε τίποτα.', noneAll: 'Καμία αποστολή ακόμα.',
-      gNote: function (n) { return '<b>Χωρίς λογαριασμό:</b> σύνδεσμος για 24 ώρες, ως 1 GB, 3 αποστολές τη μέρα' + (n == null ? '' : ' (σου μένουν ' + n + ' σήμερα)') + '. <a href="#" data-up>Κάνε δωρεάν εγγραφή</a> για email, ως 5 GB και 3 μέρες.' },
+      gNote: function (n) { return '<b>Χωρίς λογαριασμό:</b> σύνδεσμος για 24 ώρες, ως 1 GB, 3 αποστολές τη μέρα' + (n == null ? '' : ' (σου μένουν ' + n + ' σήμερα)') + '. <a href="#" data-up>Κάνε δωρεάν εγγραφή</a> για email, ως 5 GB και ως 7 μέρες.' },
       gOut: 'Χρησιμοποίησες τις 3 δωρεάν αποστολές της ημέρας. <a href="#" data-up>Κάνε δωρεάν εγγραφή</a> για να συνεχίσεις, ως 5 GB.',
       limit: 'Χρησιμοποίησες τις 3 δωρεάν αποστολές της ημέρας. Κάνε δωρεάν εγγραφή για να συνεχίσεις.',
       repAsk: 'Αναφορά αυτής της αποστολής: τι πρόβλημα έχει; (προαιρετικό)', repDone: 'Ευχαριστούμε, θα το δούμε.',
       only: 'Μόνο', everyone: 'Όλοι', guestN: 'Επισκέπτης',
       stOf: 'από τα 10 GB δωρεάν', stLeft: function (g) { return 'μένουν ' + g }, stOver: function (g) { return g + ' πάνω από τα δωρεάν 10 GB' }, stFiles: function (n) { return n + (n === 1 ? ' αρχείο' : ' αρχεία') }, stAcc: 'Λογαριασμοί', stOther: 'Άλλα', stOpen: function (n) { return n + ' ημιτελή ανεβάσματα (σβήνονται σε 7 μέρες)' },
-      stHint: function (c) { return 'Τα αρχεία σβήνονται μόνα τους σε 1 με 3 μέρες, οπότε αυτό είναι περίπου τα ανεβάσματα των τελευταίων 3 ημερών. Πάνω από 10 GB το Cloudflare χρεώνει περίπου $0.015 το GB τον μήνα: περίπου $' + c + ' τον μήνα με το σημερινό μέγεθος.' },
+      stHint: function (c) { return 'Τα αρχεία σβήνονται μόνα τους όταν λήξει το link τους (1 με 7 μέρες), οπότε αυτό είναι περίπου τα ανεβάσματα των τελευταίων ημερών. Πάνω από 10 GB το Cloudflare χρεώνει περίπου $0.015 το GB τον μήνα: περίπου $' + c + ' τον μήνα με το σημερινό μέγεθος.' },
       accSum: function (w7, sent, unc) { return w7 + ' νέοι αυτή την εβδομάδα · ' + sent + ' έχουν στείλει · ' + unc + ' δεν επιβεβαίωσαν ακόμα' }, joined: 'Εγγραφή', unconfC: 'Χωρίς επιβεβαίωση', lastSent: 'τελευταία αποστολή', lastIn: 'τελευταία σύνδεση', noAcc: 'Κανένας λογαριασμός ακόμα.',
       wait: 'Πολλές προσπάθειες. Περίμενε λίγα λεπτά και δοκίμασε ξανά.', badMail: 'Αυτό δεν μοιάζει με email.', unconf: 'Επιβεβαίωσε πρώτα το email σου: άνοιξε το email που σου στείλαμε.', forgotMail: 'Γράψε το email σου πάνω και πάτα Ξέχασα τον κωδικό.', resetSent: 'Αν υπάρχει λογαριασμός με αυτό το email, έρχεται σύνδεσμος για νέο κωδικό.', linkOld: 'Ο σύνδεσμος έληξε ή χρησιμοποιήθηκε ήδη. Δοκίμασε ξανά.', k_video: 'Βίντεο', k_image: 'Εικόνες', k_audio: 'Ήχος', k_other: 'Άλλα'
     }
@@ -840,7 +849,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('opts').hidden = !has
     var g = !user
     if (g && mode === 'mail') { mode = 'link'; $('mode').querySelectorAll('[data-m]').forEach(function (x) { x.classList.toggle('on', x.dataset.m === 'link') }) }
-    $('mode').hidden = g; $('dur').hidden = g; $('op-notify').parentNode.hidden = g
+    $('mode').hidden = g; $('dur').hidden = g; document.querySelector('.eco').hidden = g; $('op-notify').parentNode.hidden = g
     $('guest-n').hidden = !g; $('guest-n').classList.toggle('out', g && guestLeft === 0)
     if (g) $('guest-n').innerHTML = guestLeft === 0 ? w('gOut') : w('gNote')(guestLeft)
     $('op-to').hidden = mode !== 'mail'
