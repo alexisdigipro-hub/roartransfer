@@ -6,5 +6,7 @@
      here and goes on to the one page as ?t=<token>; that page puts the short address back in the bar -->
 <script>
   var m = location.pathname.match(/^\/([A-Za-z0-9]{6,32})\/?$/)
-  location.replace('/' + (m ? '?t=' + m[1] : '') + location.hash)
+  // a Pro's Receive-files page (Alex, 23 Oct): roartransfer.com/u/<name>
+  var u = location.pathname.match(/^\/u\/([A-Za-z0-9-]{3,30})\/?$/)
+  location.replace('/' + (u ? '?u=' + u[1].toLowerCase() : m ? '?t=' + m[1] : '') + location.hash)
 </script>
