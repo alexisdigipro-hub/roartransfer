@@ -245,8 +245,8 @@ h2 .cnt { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 
 .seg.three { display: grid; grid-template-columns: repeat(3, 1fr); }
 .seg.three button { display: inline-flex; align-items: center; justify-content: center; padding: 10px 8px; }
 #dur b { display: inline-flex; align-items: center; gap: 5px; } #dur .leaf { width: 13px; height: 13px; color: #5fd38d; }
-.eco { display: flex; align-items: flex-start; gap: 8px; margin: -2px 4px 0; font-size: 12.5px; line-height: 1.45; color: var(--muted); }
-.eco svg { flex: none; width: 14px; height: 14px; margin-top: 2px; color: #5fd38d; } .eco b { color: #5fd38d; font-weight: 600; }
+.eco { display: flex; align-items: flex-start; gap: 6px; margin: -4px 6px 0; font-size: 11px; line-height: 1.4; color: var(--muted); opacity: .85; }
+.eco svg { flex: none; width: 12px; height: 12px; margin-top: 1px; color: #5fd38d; }
 #dur button { flex-direction: column; gap: 1px; } #dur small { font-size: 11px; font-weight: 500; color: var(--muted); } #dur .on small { color: var(--text); }
 .in { width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: 16px; background: rgba(0,0,0,.22); border: 1px solid var(--line-2); font-size: 15px; outline: none; resize: vertical; font-family: inherit; }
 .in:focus { border-color: rgba(255,90,80,.7); }
@@ -486,9 +486,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       <input class="in" id="op-to" type="text" inputmode="email" autocomplete="off" hidden>
       <input class="in" id="op-title" type="text" maxlength="120" autocomplete="off">
       <textarea class="in" id="op-msg" rows="3" maxlength="2000"></textarea>
-      <!-- three durations (Alex, 23 Oct): the two short ones recommended with a green leaf, and one line why -->
-      <div class="seg three" id="dur"><button type="button" data-d="1"><b><span data-t="op.d1">1 day</span><svg class="leaf"><use href="#i-leaf"/></svg></b><small data-t="op.d1s">up to 5 GB</small></button><button type="button" data-d="3" class="on"><b><span data-t="op.d3">3 days</span><svg class="leaf"><use href="#i-leaf"/></svg></b><small data-t="op.d3s">up to 3 GB</small></button><button type="button" data-d="7"><b data-t="op.d7">7 days</b><small data-t="op.d7s">up to 1 GB</small></button></div>
-      <p class="eco"><svg><use href="#i-leaf"/></svg><span data-t="op.eco" data-html><b>Recommended: 1 or 3 days.</b> Most files are downloaded on the first day. A shorter link uses less energy on our servers, and lets you send bigger files.</span></p>
+      <!-- three durations (Alex, 23 Oct): 1 day up to 5 GB first and chosen, with the green leaf, and one small line why -->
+      <div class="seg three" id="dur"><button type="button" data-d="1" class="on"><b><span data-t="op.d1">1 day</span><svg class="leaf"><use href="#i-leaf"/></svg></b><small data-t="op.d1s">up to 5 GB</small></button><button type="button" data-d="3"><b data-t="op.d3">3 days</b><small data-t="op.d3s">up to 3 GB</small></button><button type="button" data-d="7"><b data-t="op.d7">7 days</b><small data-t="op.d7s">up to 1 GB</small></button></div>
+      <p class="eco"><svg><use href="#i-leaf"/></svg><span data-t="op.eco">The greener choice is also the bigger one: most files are picked up the same day, so a 1-day link spends less time on our servers and carries up to 5 GB.</span></p>
       <label class="chk"><input type="checkbox" id="op-notify" checked><span data-t="op.notify">Email me when it is downloaded</span></label>
       <!-- the admin alone (Alex, 22 Oct): the file is kept only in the hub's pCloud, the link stays a roartransfer.com one -->
       <label class="chk" id="op-pc-row" hidden><input type="checkbox" id="op-pc"><span data-t="op.pc">Keep it only in my pCloud</span></label>
@@ -583,7 +583,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   var KEY = 'sb_publishable_7mQ3e0NH5lCmdoIKx2-FUA_EgCoXx9X'
   var BUCKET = 'roar-transfers'
   var MAX = 3 * 1024 * 1024 * 1024
-  var DAYS = 3, mode = 'link'
+  var DAYS = 1, mode = 'link'
   // Free (Alex, 21 Oct): 1 day up to 5 GB, or 3 days up to 3 GB; 7 days up to 1 GB since 23 Oct
   var GB = 1024 * 1024 * 1024
   // without an account (Alex, 21 Oct): link only, 24 hours, up to 1 GB, 3 transfers a day (roartransfer-r2 GUEST)
@@ -605,7 +605,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'in.email': 'Email', 'in.pass': 'Κωδικός', 'in.go': 'Σύνδεση',
     'gt.sub': 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', 'gt.go': 'Λήψη', 'gt.send': 'Στείλε κι εσύ αρχεία', 'gb.t': 'Το πήρες; Σειρά σου.', 'gb.p': 'Στείλε κι εσύ μεγάλα αρχεία δωρεάν, ως 5 GB, με έναν κοντό σύνδεσμο. Ως 1 GB χωρίς λογαριασμό.', 'gb.go': 'Στείλε αρχεία δωρεάν',
     'pk.title': 'Στείλε <b>μεγάλα αρχεία</b>.', 'pk.drop': 'Άφησε τα αρχεία σου εδώ', 'pk.or': 'ή πάτα για να τα διαλέξεις',
-    'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.d7': '7 μέρες', 'op.d7s': 'ως 1 GB', 'op.eco': '<b>Προτείνεται: 1 ή 3 μέρες.</b> Τα περισσότερα αρχεία κατεβαίνουν την πρώτη μέρα. Ένα πιο σύντομο link θέλει λιγότερη ενέργεια στους servers μας και σου επιτρέπει να στείλεις μεγαλύτερα αρχεία.', 'op.notify': 'Στείλε μου email όταν κατέβει', 'op.pc': 'Να μείνει μόνο στο pCloud μου',
+    'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.d7': '7 μέρες', 'op.d7s': 'ως 1 GB', 'op.eco': 'Η πιο πράσινη επιλογή είναι και η πιο μεγάλη: τα περισσότερα αρχεία παραλαμβάνονται την ίδια μέρα, οπότε ένα link μιας μέρας μένει λιγότερο στους servers μας και χωράει ως 5 GB.', 'op.notify': 'Στείλε μου email όταν κατέβει', 'op.pc': 'Να μείνει μόνο στο pCloud μου',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
     'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · 1 GB · 24 ώρες · 3 τη μέρα', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
