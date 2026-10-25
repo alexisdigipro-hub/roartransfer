@@ -16,3 +16,7 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   in R2 (never for a transfer with a password) and the hourly sweep deletes it with the link. The apps never run
   JavaScript, so `cloudflare/worker.js` (a Cloudflare Worker on the route `roartransfer.com/*`, the DNS records proxied)
   puts the tags in the link's page from `roar-transfer-get ?meta=1` and serves `/og/<token>.jpg` from `?og=1`.
+- Pro (25 Oct 2026): for a Pro account the tab and title say My Pro transfers, with a Pro card on top (until when, what
+  it includes, Receive files). Admin > Pro: make an account Pro by email (or Make Pro on an account row) for 1 month,
+  1 year or always, Remove, Give again. Edge Function `roartransfer-pro` (in roarme) answers `me`, `list`, `grant`,
+  `revoke` (the last three only for an admin); admins are always Pro.

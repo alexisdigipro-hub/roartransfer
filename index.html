@@ -238,6 +238,14 @@ h2 .cnt { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 
 .slug { display: flex; align-items: center; border-radius: 999px; background: rgba(0,0,0,.25); border: 1px solid var(--line-2); padding: 0 6px 0 16px; font-family: var(--mono); font-size: 13px; color: var(--muted); }
 .slug input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--text); font: inherit; padding: 12px 8px 12px 0; outline: none; }
 .pro-sub { margin: 6px 2px 0; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.pro-st { display: grid; gap: 10px; }
+.pro-st .chips i { font-style: normal; }
+.pro-rx { margin: 8px 2px 0; font-weight: 700; font-size: 15px; }
+.pro-add { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pro-add .in { flex: 1 1 240px; width: auto; }
+.files .pill.sm { flex: none; min-height: 34px; padding: 0 14px; font-size: 12.5px; }
+.files .pill.sm.bad { color: #ffb4ad; }
+.chips i.pro { color: #1a1205; border-color: transparent; background: linear-gradient(135deg, #ffd27a, #ff9f43); font-weight: 700; }
 .got-msg { display: block; margin-top: 3px; font-size: 12.5px; color: var(--text); opacity: .85; white-space: pre-wrap; word-break: break-word; }
 #dr-done { display: grid; gap: 14px; justify-items: center; }
 #dr-form { display: grid; gap: 18px; } #dr-go { justify-self: center; }
@@ -409,7 +417,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 <!-- the panels (Alex, 21 Oct): shown once signed in; Admin only to the admin (roar_is_admin) -->
 <nav class="tabs" id="tabs" hidden aria-label="RoarTransfer">
   <button type="button" data-go="send" data-t="tb.send">Send</button>
-  <button type="button" data-go="mine" data-t="tb.mine">My transfers</button>
+  <button type="button" data-go="mine" id="tab-mine" data-t="tb.mine">My transfers</button>
   <button type="button" data-go="admin" id="tab-admin" data-t="tb.admin" hidden>Admin</button>
 </nav>
 
@@ -574,12 +582,17 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 
   <!-- My transfers: everything this account sent, its numbers, and each link with how often it was downloaded -->
   <div class="card wide" id="v-mine" hidden>
-    <h1 data-t="mn.title" data-html>My <b>transfers</b>.</h1>
+    <h1 id="mn-title" data-t="mn.title" data-html>My <b>transfers</b>.</h1>
     <p class="sub" data-t="mn.sub">Everything you sent, from here, RoarMail and your chats. Links last 1 to 7 days.</p>
     <div class="facts f4" id="mine-facts"></div>
     <!-- Pro (Alex, 23 Oct): Receive files, the page where anyone sends you files without an account, and what came in -->
     <div class="pro" id="pro" hidden>
-      <div class="pro-h"><b class="badge">PRO</b><span id="pro-h"></span></div>
+      <!-- the account's Pro (Alex, 25 Oct: "My transfers becomes My Pro transfers"): until when, and what it includes -->
+      <div class="pro-st">
+        <div class="pro-h"><b class="badge">PRO</b><span id="pro-st"></span></div>
+        <div class="chips" id="pro-perks"></div>
+      </div>
+      <p class="pro-rx" id="pro-h"></p>
       <p class="note" id="pro-n"></p>
       <div class="row"><span class="linkbox" id="pro-link"></span><button type="button" class="pill main" id="pro-copy"><svg><use href="#i-link"/></svg><span></span></button><button type="button" class="pill" id="pro-edit"><span></span></button></div>
       <div class="pro-ed" id="pro-ed" hidden>
@@ -620,6 +633,16 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
         <ul class="files top-list" id="adm-top"></ul>
       </div>
     </div>
+    <!-- Pro (Alex, 25 Oct: "give me somewhere to make someone Pro"): by email, for a month, a year or always; the list
+         of every Pro with Remove (the page name stays, so giving Pro back keeps the same link). roartransfer-pro -->
+    <h2><span data-t="ad.pro">Pro</span> <span class="cnt" id="adm-pro-n"></span></h2>
+    <div class="pro-add">
+      <input class="in" id="adm-pro-mail" type="email" autocomplete="off" spellcheck="false">
+      <div class="seg" id="adm-pro-seg"><button type="button" class="on" data-f="1" data-t="pr.m1">1 month</button><button type="button" data-f="12" data-t="pr.y1">1 year</button><button type="button" data-f="0" data-t="pr.ever">Always</button></div>
+      <button type="button" class="pill main sm" id="adm-pro-go"><span data-t="pr.make">Make Pro</span></button>
+    </div>
+    <p class="err" id="adm-pro-err" hidden></p>
+    <ul class="files top-list" id="adm-pro"></ul>
     <!-- every account (Alex, 22 Oct): who signed up on RoarTransfer or sent from it, and each one's numbers -->
     <h2><span data-t="ad.acc">Accounts</span> <span class="cnt" id="adm-acc-n"></span></h2>
     <p class="sub" id="adm-acc-sum" style="margin:-6px 0 0"></p>
@@ -676,7 +699,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
-    'ad.days': 'Τελευταίες 30 μέρες', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
+    'ad.days': 'Τελευταίες 30 μέρες', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Για πάντα', 'pr.make': 'Κάνε Pro', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
   }
   var W = {
     en: {
@@ -775,6 +798,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     document.querySelectorAll('.lang button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === lang) })
     try { localStorage.setItem('roartransfer.lang', lang) } catch (e) {}
     paint()
+    paintPro(); paintAdmPro()
   }
   document.querySelectorAll('.lang button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.dataset.lang) }) })
 
@@ -890,7 +914,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var was = user && user.id
     user = session && session.user || null
     $('who-mail').textContent = user ? user.email || '' : ''
-    if (!user) { isAdmin = false; mine = null; adm.stats = adm.list = adm.who = adm.acc = adm.usage = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) show('v-in'); loadGuest() }
+    if (!user) { pro = proMe = null; if (admPro) admPro.list = null; paintPro(); isAdmin = false; mine = null; adm.stats = adm.list = adm.who = adm.acc = adm.usage = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) show('v-in'); loadGuest() }
     else if (resetting) { $('who').hidden = true }
     else if (view === 'v-wait' || view === 'v-in' || was !== user.id) { $('pw').value = ''; signedIn() }
     else $('who').hidden = false
@@ -1236,6 +1260,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var h = (location.hash || '').slice(1)
     tab = 'send'; sendView = busy ? 'v-up' : 'v-pick'
     go(h === 'mine' ? 'mine' : 'send')
+    loadPro()
     sb.rpc('roar_is_admin').then(function (r) {
       isAdmin = r.data === true
       $('tab-admin').hidden = !isAdmin
@@ -1350,6 +1375,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     adm.usage = null; paintStore()
     bridge({ action: 'usage' }).then(function (d) { adm.usage = d; paintStore(); paintStats() }).catch(function (e) { adm.usage = { error: e.message }; paintStore() })
     sb.rpc('roar_admin_transfer_accounts').then(function (r) { if (r.error) admErr(r.error.message); else { adm.acc = r.data || []; paintAcc() } })
+    loadAdmPro()
     loadAdmList(false)
   }
   function loadAdmList(next) {
@@ -1406,14 +1432,18 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('adm-acc-n').textContent = fmtN(a.length)
     $('adm-acc-sum').textContent = w('accSum')(a.filter(function (u) { return new Date(u.created_at).getTime() > week }).length, a.filter(function (u) { return Number(u.n) > 0 }).length, a.filter(function (u) { return !u.confirmed }).length)
     $('adm-acc').innerHTML = a.length ? a.map(function (u, n) {
+      var isPro = proIds()[u.id]
       return '<li data-acc="' + n + '">' + av(u) + '<span class="ft"><b>' + esc(nameOf(u)) + '</b><small>' + esc(u.email || '') + '</small>'
-        + '<span class="chips"><i>' + w('joined') + ' ' + dayT(u.created_at) + '</i>' + (u.confirmed ? '' : '<i class="bad">' + w('unconfC') + '</i>')
+        + '<span class="chips">' + (isPro ? '<i class="pro">PRO</i>' : '') + '<i>' + w('joined') + ' ' + dayT(u.created_at) + '</i>' + (u.confirmed ? '' : '<i class="bad">' + w('unconfC') + '</i>')
         + '<i class="dl">' + w('nTransfers')(Number(u.n)) + '</i>' + (Number(u.n) ? '<i>' + sz(u.bytes) + '</i><i>' + w('dls')(Number(u.downloads)) + '</i><i>' + w('lastSent') + ' ' + dayT(u.last) + '</i>' : '')
-        + (u.last_sign_in_at ? '<i>' + w('lastIn') + ' ' + dayT(u.last_sign_in_at) + '</i>' : '') + '</span></span></li>'
+        + (u.last_sign_in_at ? '<i>' + w('lastIn') + ' ' + dayT(u.last_sign_in_at) + '</i>' : '') + '</span></span>'
+        + (isPro || !admPro.list ? '' : '<button type="button" class="pill sm" data-mkpro="' + esc(u.id) + '"><span>' + pw('make') + '</span></button>') + '</li>'
     }).join('') : note(w('noAcc'))
   }
   // a tap on an account shows only its transfers below
   $('adm-acc').addEventListener('click', function (e) {
+    var mk = e.target.closest('[data-mkpro]')
+    if (mk) { grantPro({ id: mk.dataset.mkpro }, mk); return }
     var li = e.target.closest('[data-acc]'); if (!li || !adm.acc) return
     adm.who = adm.acc[+li.dataset.acc]; adm.list = null; paintAdmList(); loadAdmList(false)
     $('adm-list').scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -1627,7 +1657,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       drB: 'Drop your files here', drS: 'or click to choose them', drMore: 'Add more files', from: 'Your name', mail: 'Your email (optional, so they can answer)',
       msg: 'Message (optional)', go: 'Send', noName: 'Write your name, so they know who sent it.', tooBig: 'Up to 20 GB a file.',
       ok: function (n) { return '<b>Sent.</b> ' + esc(n) + ' got an email with your files.' }, again: 'Send more files',
-      gone: 'This page does not take files.', limit: 'Too many files from here today. Try again tomorrow.'
+      gone: 'This page does not take files.', limit: 'Too many files from here today. Try again tomorrow.',
+      mineT: 'My <b>Pro transfers</b>.', tab: 'My Pro transfers',
+      stAdmin: 'Pro, always (you are an admin)', stEver: 'Pro, with no end date', stUntil: function (d) { return 'Pro until ' + d },
+      pkRx: 'Receive files: your own page, up to 20 GB a file, kept 30 days', pkDl: 'Unlimited downloads', pkPc: 'Keep it only in pCloud',
+      make: 'Make Pro', remove: 'Remove', again: 'Give again', admin: 'Admin · always', ever: 'Always', until: function (d) { return 'Until ' + d },
+      ended: function (d) { return 'Ended ' + d }, mail: 'Email of the account', none: 'No one is Pro yet.',
+      sure: function (n) { return 'Remove Pro from ' + n + '? Their page stops taking files.' }
     },
     el: {
       rxH: 'Λήψη αρχείων', rxN: 'Οποιοσδήποτε σου στέλνει αρχεία σε αυτή τη σελίδα, χωρίς λογαριασμό: ως 20 GB το αρχείο, μένουν 30 μέρες.',
@@ -1638,17 +1674,42 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       drB: 'Άφησε τα αρχεία σου εδώ', drS: 'ή πάτα για να τα διαλέξεις', drMore: 'Πρόσθεσε κι άλλα', from: 'Το όνομά σου', mail: 'Το email σου (προαιρετικά, για να σου απαντήσουν)',
       msg: 'Μήνυμα (προαιρετικά)', go: 'Αποστολή', noName: 'Γράψε το όνομά σου, για να ξέρουν ποιος το έστειλε.', tooBig: 'Ως 20 GB το αρχείο.',
       ok: function (n) { return '<b>Στάλθηκε.</b> Το ' + esc(n) + ' πήρε email με τα αρχεία σου.' }, again: 'Στείλε κι άλλα',
-      gone: 'Αυτή η σελίδα δεν δέχεται αρχεία.', limit: 'Πάρα πολλά αρχεία από εδώ σήμερα. Δοκίμασε ξανά αύριο.'
+      gone: 'Αυτή η σελίδα δεν δέχεται αρχεία.', limit: 'Πάρα πολλά αρχεία από εδώ σήμερα. Δοκίμασε ξανά αύριο.',
+      mineT: 'Οι <b>Pro αποστολές</b> μου.', tab: 'Οι Pro αποστολές μου',
+      stAdmin: 'Pro, για πάντα (είσαι διαχειριστής)', stEver: 'Pro, χωρίς λήξη', stUntil: function (d) { return 'Pro ως ' + d },
+      pkRx: 'Λήψη αρχείων: δική σου σελίδα, ως 20 GB το αρχείο, μένουν 30 μέρες', pkDl: 'Απεριόριστα κατεβάσματα', pkPc: 'Μόνο στο pCloud',
+      make: 'Κάνε Pro', remove: 'Αφαίρεση', again: 'Δώσε ξανά', admin: 'Διαχειριστής · για πάντα', ever: 'Για πάντα', until: function (d) { return 'Ως ' + d },
+      ended: function (d) { return 'Έληξε ' + d }, mail: 'Email του λογαριασμού', none: 'Κανείς δεν είναι Pro ακόμα.',
+      sure: function (n) { return 'Να αφαιρεθεί το Pro από ' + n + '; Η σελίδα του σταματά να δέχεται αρχεία.' }
     }
   }
   var pw = function (k) { return PT[lang][k] }
   var pro = null, proEd = false
+  // the account's own Pro, from roartransfer-pro (until when, admin or given)
+  var FNP = URL_ + '/functions/v1/roartransfer-pro'
+  async function proCall(body) {
+    var s0 = (await sb.auth.getSession()).data.session
+    var r = await fetch(FNP, { method: 'POST', headers: { apikey: KEY, 'Content-Type': 'application/json', Authorization: 'Bearer ' + (s0 ? s0.access_token : '') }, body: JSON.stringify(body) })
+    var d = {}; try { d = await r.json() } catch (e) {}
+    if (!r.ok) throw new Error(d.error || ('Error ' + r.status))
+    return d
+  }
+  var proMe = null
   function loadPro() {
     bridge({ action: 'pro' }).then(function (d) { pro = d && d.pro ? d : null; if (pro && !pro.slug) proEd = true; paintPro() }).catch(function () { pro = null; paintPro() })
+    proCall({ action: 'me' }).then(function (d) { proMe = d; paintPro() }).catch(function () {})
   }
   function paintPro() {
-    $('pro').hidden = !pro
-    if (!pro) return
+    // a Pro's tab and title say Pro (Alex, 25 Oct)
+    if (!PT) return
+    var isPro = !!pro && !!user
+    $('tab-mine').textContent = isPro ? pw('tab') : ((lang === 'el' ? EL : EN)['tb.mine'] || EN['tb.mine'])
+    $('mn-title').innerHTML = isPro ? pw('mineT') : (lang === 'el' ? EL['mn.title'] : EN['mn.title'])
+    $('pro').hidden = !isPro
+    if (!isPro) return
+    var me = proMe || {}
+    $('pro-st').textContent = me.admin ? pw('stAdmin') : me.until ? pw('stUntil')(dayY(me.until)) : pw('stEver')
+    $('pro-perks').innerHTML = [pw('pkRx')].concat(me.admin ? [pw('pkDl'), pw('pkPc')] : []).map(function (t) { return '<i>' + esc(t) + '</i>' }).join('')
     $('pro-h').textContent = pw('rxH'); $('pro-n').textContent = pw('rxN')
     var url = pro.slug ? 'roartransfer.com/u/' + pro.slug : pw('setUp')
     $('pro-link').textContent = url
@@ -1676,6 +1737,55 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     bridge({ action: 'pro-set', slug: $('pro-slug').value, name: $('pro-name').value }).then(function (d) {
       $('pro-save').disabled = false; pro.slug = d.slug; pro.name = d.name; proEd = false; paintPro()
     }).catch(function (e) { $('pro-save').disabled = false; $('pro-err').textContent = e.message; $('pro-err').hidden = false })
+  })
+
+  // ---- Admin > Pro (Alex, 25 Oct: "give me somewhere to make someone Pro") ----
+  var admPro = { list: null, months: '1' }
+  var dayY = function (d) { return new Date(d).toLocaleDateString(loc(), { day: 'numeric', month: 'short', year: 'numeric' }) }
+  function proIds() { var o = {}; (admPro.list || []).forEach(function (p) { if (p.pro) o[p.id] = 1 }); return o }
+  function loadAdmPro() {
+    if (!isAdmin) return
+    proCall({ action: 'list' }).then(function (d) { admPro.list = d.people || []; paintAdmPro(); paintAcc() })
+      .catch(function (e) { $('adm-pro-err').textContent = e.message; $('adm-pro-err').hidden = false })
+  }
+  function paintAdmPro() {
+    if (!admPro) return
+    $('adm-pro-mail').placeholder = pw('mail')
+    var l = admPro.list
+    if (!l) { $('adm-pro').innerHTML = loading; $('adm-pro-n').textContent = ''; return }
+    $('adm-pro-n').textContent = fmtN(l.filter(function (p) { return p.pro }).length)
+    $('adm-pro').innerHTML = l.length ? l.map(function (p) {
+      var st = p.admin ? '<i class="pro">' + pw('admin') + '</i>' : p.pro ? '<i class="pro">' + (p.until ? pw('until')(dayY(p.until)) : pw('ever')) + '</i>' : '<i class="bad">' + pw('ended')(dayY(p.until)) + '</i>'
+      var btn = p.admin ? '' : p.pro ? '<button type="button" class="pill sm bad" data-rmpro="' + esc(p.id) + '"><span>' + pw('remove') + '</span></button>'
+        : '<button type="button" class="pill sm" data-mkpro="' + esc(p.id) + '"><span>' + pw('again') + '</span></button>'
+      return '<li>' + av(p) + '<span class="ft"><b>' + esc(nameOf(p)) + '</b><small>' + esc(p.email) + (p.slug ? ' · roartransfer.com/u/' + esc(p.slug) : '') + '</small>'
+        + '<span class="chips">' + st + '</span></span>' + btn + '</li>'
+    }).join('') : note(pw('none'))
+  }
+  function grantPro(who, btn) {
+    $('adm-pro-err').hidden = true
+    if (btn) btn.disabled = true
+    proCall(Object.assign({ action: 'grant', months: Number(admPro.months) }, who)).then(function () {
+      if (btn) btn.disabled = false
+      $('adm-pro-mail').value = ''; loadAdmPro()
+    }).catch(function (e) { if (btn) btn.disabled = false; $('adm-pro-err').textContent = e.message; $('adm-pro-err').hidden = false })
+  }
+  segs('adm-pro-seg', function (f) { admPro.months = f })
+  $('adm-pro-go').addEventListener('click', function () {
+    var m = $('adm-pro-mail').value.trim()
+    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(m)) { $('adm-pro-err').textContent = w('badMail'); $('adm-pro-err').hidden = false; return }
+    grantPro({ email: m }, $('adm-pro-go'))
+  })
+  $('adm-pro-mail').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('adm-pro-go').click() })
+  $('adm-pro').addEventListener('click', function (e) {
+    var mk = e.target.closest('[data-mkpro]'), rm = e.target.closest('[data-rmpro]')
+    if (mk) grantPro({ id: mk.dataset.mkpro }, mk)
+    if (rm) {
+      var p = (admPro.list || []).filter(function (x) { return x.id === rm.dataset.rmpro })[0]
+      if (!p || !confirm(pw('sure')(nameOf(p)))) return
+      rm.disabled = true
+      proCall({ action: 'revoke', id: p.id }).then(loadAdmPro).catch(function (er) { rm.disabled = false; $('adm-pro-err').textContent = er.message; $('adm-pro-err').hidden = false })
+    }
   })
 
   // ---- the Receive-files page itself (roartransfer.com/u/<name>): drop files, your name, Send ----
