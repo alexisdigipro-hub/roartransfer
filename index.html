@@ -1063,12 +1063,19 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       var src = URL.createObjectURL(f), done = false
       var end = function (v) { if (done) return; done = true; URL.revokeObjectURL(src); ok(v || '') }
       setTimeout(end, 15000)
-      var draw = function (el, w0, h0, play) {
+      // the picture, cropped to 1200x630; how dark it is (0 to 255), so a black frame can be passed over
+      var paint = function (el, w0, h0) {
+        var W = 1200, H = 630, c = document.createElement('canvas'), g = c.getContext('2d'), k = Math.max(W / w0, H / h0)
+        c.width = W; c.height = H
+        g.fillStyle = '#111'; g.fillRect(0, 0, W, H)
+        g.drawImage(el, (W - w0 * k) / 2, (H - h0 * k) / 2, w0 * k, h0 * k)
+        var d = g.getImageData(0, 0, W, H).data, sum = 0, n = 0
+        for (var i = 0; i < d.length; i += 4 * 97) { sum += d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11; n++ }
+        return { c: c, light: n ? sum / n : 0 }
+      }
+      var finish = function (c, play) {
         try {
-          var W = 1200, H = 630, c = document.createElement('canvas'), g = c.getContext('2d'), k = Math.max(W / w0, H / h0)
-          c.width = W; c.height = H
-          g.fillStyle = '#111'; g.fillRect(0, 0, W, H)
-          g.drawImage(el, (W - w0 * k) / 2, (H - h0 * k) / 2, w0 * k, h0 * k)
+          var g = c.getContext('2d'), W = c.width, H = c.height
           if (play) {
             g.fillStyle = 'rgba(0,0,0,.45)'; g.beginPath(); g.arc(W / 2, H / 2, 64, 0, Math.PI * 2); g.fill()
             g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 3; g.stroke()
@@ -1079,16 +1086,38 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       }
       if (!/^video\//.test(f.type)) {
         var im = new Image()
-        im.onload = function () { im.naturalWidth ? draw(im, im.naturalWidth, im.naturalHeight) : end('') }
+        im.onload = function () { try { im.naturalWidth ? finish(paint(im, im.naturalWidth, im.naturalHeight).c) : end('') } catch (e) { end('') } }
         im.onerror = function () { end('') }
         im.src = src
         return
       }
-      // a frame a little way in (the first one is often black): 15% of the way, at most 8 seconds
-      var v = document.createElement('video')
+      // Alex, 25 Oct: not the first frame (most videos open on black) but the 20th, about 0.8 s in; if that one is
+      // still black (a fade in), a little further on (2, 4, 8 seconds, a third of the way), else the brightest one seen
+      var v = document.createElement('video'), at = [], best = null
       v.muted = true; v.playsInline = true; v.preload = 'auto'
-      v.onloadedmetadata = function () { v.currentTime = isFinite(v.duration) && v.duration > 0 ? Math.min(v.duration * 0.15, 8) : 0.5 }
-      v.onseeked = function () { v.videoWidth ? draw(v, v.videoWidth, v.videoHeight, true) : end('') }
+      var next = function () { at.length ? (v.currentTime = at.shift()) : best ? finish(best.c, true) : end('') }
+      v.onloadedmetadata = function () {
+        var d = isFinite(v.duration) && v.duration > 0 ? v.duration : 10
+        at = [0.8, 2, 4, 8, d / 3].filter(function (t) { return t < d })
+        if (!at.length) at = [d / 2]
+        next()
+      }
+      // the frame is drawn only once the browser has shown it after the seek (Safari otherwise gives the old one)
+      v.onseeked = function () {
+        var once = false
+        var take = function () {
+          if (once) return; once = true
+          try {
+            if (!v.videoWidth) return end('')
+            var p = paint(v, v.videoWidth, v.videoHeight)
+            if (p.light >= 40) return finish(p.c, true)
+            if (!best || p.light > best.light) best = p
+            next()
+          } catch (e) { end('') }
+        }
+        if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(take)
+        setTimeout(take, 400)
+      }
       v.onerror = function () { end('') }
       v.src = src
     })
