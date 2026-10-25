@@ -20,3 +20,11 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   it includes, Receive files). Admin > Pro: make an account Pro by email (or Make Pro on an account row) for 1 month,
   1 year or always, Remove, Give again. Edge Function `roartransfer-pro` (in roarme) answers `me`, `list`, `grant`,
   `revoke` (the last three only for an admin); admins are always Pro.
+- Pro, more (25 Oct 2026): up to 20 GB, 1/3/7/30 days, unlimited downloads (files under `pro/<id>/`); Your brand in
+  My Pro transfers (name, logo, up to 8 backgrounds, bucket `roartransfer-brand/<id>/`) shown on the Pro's download
+  pages and Receive-files page; Details on each of their links (change expiry up to what storage keeps, set or remove
+  the password, every open and download with when, country and device from `roar_transfer_events`); uploads resume
+  from the last piece after a lost connection or a reload (localStorage `rt-up:*`, 20 hours). "Lifetime" instead of
+  "Always". SQL: `supabase/transfer-pro-plus.sql` in roarme.
+- Admin > Backgrounds (25 Oct 2026): the pictures behind every page (`roar_transfer_backgrounds`, files in
+  `roartransfer-brand/site/`), one at random per visit; `stills/` only if the list cannot be read.

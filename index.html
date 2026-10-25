@@ -268,6 +268,33 @@ h2 .cnt { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 
 /* three durations, the short two with a leaf (Alex, 23 Oct) */
 .seg.three { display: grid; grid-template-columns: repeat(3, 1fr); }
 .seg.three button { display: inline-flex; align-items: center; justify-content: center; padding: 10px 8px; }
+.seg.three.four { grid-template-columns: repeat(4, 1fr); }
+/* a Pro's brand on their pages (Alex, 25 Oct): their logo and name above the card's content */
+.brand-top { display: flex; align-items: center; justify-content: center; gap: 12px; margin: -4px 0 4px; }
+.brand-top img { max-height: 56px; max-width: 180px; object-fit: contain; }
+.brand-top b { font-size: 17px; font-weight: 750; letter-spacing: .01em; }
+/* pictures as tiles: a Pro's logo and backgrounds, the site's backgrounds in Admin */
+.bgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+.bgs .tile { position: relative; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+.bgs .tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bgs .tile.logo img { object-fit: contain; padding: 10px; box-sizing: border-box; }
+.bgs .tile .x { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(0,0,0,.6); color: #fff; cursor: pointer; display: grid; place-items: center; }
+.bgs .tile .x svg { width: 13px; height: 13px; }
+.bgs .add { aspect-ratio: 16 / 10; border-radius: 14px; border: 1px dashed var(--line-2); background: transparent; color: var(--muted); cursor: pointer; display: grid; place-items: center; gap: 4px; font-size: 12px; font-weight: 600; }
+.bgs .add svg { width: 18px; height: 18px; }
+.bgs .add:disabled { opacity: .5; cursor: default; }
+.pro-lbl { margin: 4px 2px -2px; font-size: 12px; color: var(--muted); }
+/* a sent link's details for a Pro: expiry, password, and every open and download */
+.files li.tx { flex-wrap: wrap; }
+.det { flex-basis: 100%; display: grid; gap: 8px; padding: 10px 2px 4px 45px; }
+.det .row2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.det .row2 .in { flex: 1 1 200px; width: auto; padding: 9px 14px; font-size: 14px; }
+.det .ev { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-height: 220px; overflow: auto; }
+.det .ev li { display: flex; gap: 8px; padding: 7px 10px; border-radius: 12px; background: rgba(255,255,255,.04); font-size: 12.5px; border: 0; }
+.det .ev li b { font-weight: 650; min-width: 74px; }
+.det .ev li span { color: var(--muted); }
+.det .ok { color: #a6efc0; font-size: 12.5px; }
+@media (max-width: 520px) { .det { padding-left: 2px; } .seg.three.four small { font-size: 9.5px; } }
 #dur b { display: inline-flex; align-items: center; gap: 5px; } #dur .leaf { width: 13px; height: 13px; color: #5fd38d; }
 .eco { display: flex; align-items: flex-start; gap: 6px; margin: -4px 6px 0; font-size: 11px; line-height: 1.4; color: var(--muted); opacity: .85; }
 .eco svg { flex: none; width: 12px; height: 12px; margin-top: 1px; color: #5fd38d; } .eco.dl svg { color: var(--muted); } .eco.dl { margin-bottom: -6px; }
@@ -427,6 +454,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 
   <!-- a download link (?t=…): no account needed -->
   <div class="card" id="v-get" hidden>
+    <div class="brand-top" id="get-brand" hidden><img id="get-logo" alt="" hidden><b id="get-bname"></b></div>
     <p class="sub center" id="get-sub" data-t="gt.sub" style="margin:0">Someone sent you a file with RoarTransfer.</p>
     <p class="g-title" id="get-title" hidden></p>
     <p class="g-msg" id="get-msg" hidden></p>
@@ -516,9 +544,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       <input class="in" id="op-title" type="text" maxlength="120" autocomplete="off">
       <textarea class="in" id="op-msg" rows="3" maxlength="2000"></textarea>
       <!-- three durations (Alex, 23 Oct): 1 day up to 5 GB first and chosen, with the green leaf, and one small line why -->
-      <div class="seg three" id="dur"><button type="button" data-d="1" class="on"><b><span data-t="op.d1">1 day</span><svg class="leaf"><use href="#i-leaf"/></svg></b><small data-t="op.d1s">up to 5 GB</small></button><button type="button" data-d="3"><b data-t="op.d3">3 days</b><small data-t="op.d3s">up to 3 GB</small></button><button type="button" data-d="7"><b data-t="op.d7">7 days</b><small data-t="op.d7s">up to 1 GB</small></button></div>
+      <div class="seg three" id="dur"><button type="button" data-d="1" class="on"><b><span data-t="op.d1">1 day</span><svg class="leaf"><use href="#i-leaf"/></svg></b><small data-t="op.d1s">up to 5 GB</small></button><button type="button" data-d="3"><b data-t="op.d3">3 days</b><small data-t="op.d3s">up to 3 GB</small></button><button type="button" data-d="7"><b data-t="op.d7">7 days</b><small data-t="op.d7s">up to 1 GB</small></button><button type="button" data-d="30" id="d30" hidden><b data-t="op.d30">30 days</b><small data-t="op.d30s">up to 20 GB</small></button></div>
       <p class="eco dl"><svg><use href="#i-down"/></svg><span data-t="op.dls">Each file can be downloaded up to 5 times.</span></p>
-      <p class="eco"><svg><use href="#i-leaf"/></svg><span data-t="op.eco">The greener choice is also the bigger one: most files are picked up the same day, so a 1-day link spends less time on our servers and carries up to 5 GB.</span></p>
+      <p class="eco" id="op-eco"><svg><use href="#i-leaf"/></svg><span data-t="op.eco">The greener choice is also the bigger one: most files are picked up the same day, so a 1-day link spends less time on our servers and carries up to 5 GB.</span></p>
       <label class="chk"><input type="checkbox" id="op-notify" checked><span data-t="op.notify">Email me when it is downloaded</span></label>
       <!-- the admin alone (Alex, 22 Oct): the file is kept only in the hub's pCloud, the link stays a roartransfer.com one -->
       <label class="chk" id="op-pc-row" hidden><input type="checkbox" id="op-pc"><span data-t="op.pc">Keep it only in my pCloud</span></label>
@@ -531,6 +559,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 
   <!-- Receive files (Alex, 23 Oct, Pro): roartransfer.com/u/<name>, where anyone sends files to a Pro without an account -->
   <div class="card" id="v-drop" hidden>
+    <div class="brand-top" id="dr-brand" hidden><img id="dr-logo" alt="" hidden><b id="dr-bname"></b></div>
     <h1 id="dr-h"></h1>
     <p class="sub center" id="dr-sub"></p>
     <div id="dr-form">
@@ -583,7 +612,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <!-- My transfers: everything this account sent, its numbers, and each link with how often it was downloaded -->
   <div class="card wide" id="v-mine" hidden>
     <h1 id="mn-title" data-t="mn.title" data-html>My <b>transfers</b>.</h1>
-    <p class="sub" data-t="mn.sub">Everything you sent, from here, RoarMail and your chats. Links last 1 to 7 days.</p>
+    <p class="sub" id="mn-sub" data-t="mn.sub">Everything you sent, from here, RoarMail and your chats. Links last 1 to 7 days.</p>
     <div class="facts f4" id="mine-facts"></div>
     <!-- Pro (Alex, 23 Oct): Receive files, the page where anyone sends you files without an account, and what came in -->
     <div class="pro" id="pro" hidden>
@@ -591,6 +620,19 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       <div class="pro-st">
         <div class="pro-h"><b class="badge">PRO</b><span id="pro-st"></span></div>
         <div class="chips" id="pro-perks"></div>
+      </div>
+      <!-- the Pro's own brand (Alex, 25 Oct): name, logo and backgrounds on their download pages and Receive-files page -->
+      <p class="pro-rx" id="pb-h"></p>
+      <p class="note" id="pb-n"></p>
+      <div class="pro-ed">
+        <input class="in" id="pb-name" type="text" maxlength="80" autocomplete="off">
+        <p class="pro-lbl" id="pb-lt"></p>
+        <div class="bgs" id="pb-logo"></div>
+        <p class="pro-lbl" id="pb-bt"></p>
+        <div class="bgs" id="pb-bgs"></div>
+        <input type="file" id="pb-file" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" hidden>
+        <div class="row"><button type="button" class="pill main sm" id="pb-save"><span></span></button></div>
+        <p class="err" id="pb-err" hidden></p><p class="note ok" id="pb-ok" hidden></p>
       </div>
       <p class="pro-rx" id="pro-h"></p>
       <p class="note" id="pro-n"></p>
@@ -638,11 +680,18 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <h2><span data-t="ad.pro">Pro</span> <span class="cnt" id="adm-pro-n"></span></h2>
     <div class="pro-add">
       <input class="in" id="adm-pro-mail" type="email" autocomplete="off" spellcheck="false">
-      <div class="seg" id="adm-pro-seg"><button type="button" class="on" data-f="1" data-t="pr.m1">1 month</button><button type="button" data-f="12" data-t="pr.y1">1 year</button><button type="button" data-f="0" data-t="pr.ever">Always</button></div>
+      <div class="seg" id="adm-pro-seg"><button type="button" class="on" data-f="1" data-t="pr.m1">1 month</button><button type="button" data-f="12" data-t="pr.y1">1 year</button><button type="button" data-f="0" data-t="pr.ever">Lifetime</button></div>
       <button type="button" class="pill main sm" id="adm-pro-go"><span data-t="pr.make">Make Pro</span></button>
     </div>
     <p class="err" id="adm-pro-err" hidden></p>
     <ul class="files top-list" id="adm-pro"></ul>
+    <!-- Backgrounds (Alex, 25 Oct: "somewhere in Admin to upload the pictures behind the home page and the others"):
+         roar_transfer_backgrounds, one picks itself at random on each visit; pictures go to roartransfer-brand/site/ -->
+    <h2><span data-t="ad.bg">Backgrounds</span> <span class="cnt" id="adm-bg-n"></span></h2>
+    <p class="sub" id="adm-bg-sub" style="margin:-6px 0 0"></p>
+    <div class="bgs" id="adm-bgs"></div>
+    <input type="file" id="adm-bg-file" accept="image/jpeg,image/png,image/webp" multiple hidden>
+    <p class="err" id="adm-bg-err" hidden></p>
     <!-- every account (Alex, 22 Oct): who signed up on RoarTransfer or sent from it, and each one's numbers -->
     <h2><span data-t="ad.acc">Accounts</span> <span class="cnt" id="adm-acc-n"></span></h2>
     <p class="sub" id="adm-acc-sum" style="margin:-6px 0 0"></p>
@@ -673,8 +722,10 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   // Free (Alex, 21 Oct): 1 day up to 5 GB, or 3 days up to 3 GB; 7 days up to 1 GB since 23 Oct
   var GB = 1024 * 1024 * 1024
   // without an account (Alex, 21 Oct): link only, 24 hours, up to 1 GB, 3 transfers a day (roartransfer-r2 GUEST)
-  var lim = function () { return !user ? GB : DAYS === 1 ? 5 * GB : DAYS === 7 ? GB : 3 * GB }
-  var limG = function () { return !user ? 1 : DAYS === 1 ? 5 : DAYS === 7 ? 1 : 3 }
+  // Pro (Alex, 25 Oct): up to 20 GB for any of 1, 3, 7 or 30 days
+  var isProNow = function () { return !!user && !!pro }
+  var lim = function () { return !user ? GB : isProNow() ? 20 * GB : DAYS === 1 ? 5 * GB : DAYS === 7 ? GB : 3 * GB }
+  var limG = function () { return !user ? 1 : isProNow() ? 20 : DAYS === 1 ? 5 : DAYS === 7 ? 1 : 3 }
   var guestLeft = null
   var PIECE = 6 * 1024 * 1024
   var TUS = URL_.replace('.supabase.co', '.storage.supabase.co') + '/storage/v1/upload/resumable'
@@ -699,7 +750,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
-    'ad.days': 'Τελευταίες 30 μέρες', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Για πάντα', 'pr.make': 'Κάνε Pro', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
+    'ad.days': 'Τελευταίες 30 μέρες', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
   }
   var W = {
     en: {
@@ -941,6 +992,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var g = !user
     if (g && mode === 'mail') { mode = 'link'; $('mode').querySelectorAll('[data-m]').forEach(function (x) { x.classList.toggle('on', x.dataset.m === 'link') }) }
     $('mode').hidden = g; $('dur').hidden = g; document.querySelectorAll('.eco').forEach(function (x) { x.hidden = g }); $('op-notify').parentNode.hidden = g
+    // Pro (Alex, 25 Oct): a fourth length, 30 days, every length up to 20 GB, downloads without limit
+    var P = isProNow(), D = lang === 'el' ? EL : EN
+    $('d30').hidden = !P; $('dur').classList.toggle('four', P)
+    if (!P && DAYS === 30) { DAYS = 1; $('dur').querySelectorAll('[data-d]').forEach(function (x) { x.classList.toggle('on', x.dataset.d === '1') }) }
+    $('dur').querySelectorAll('small[data-t]').forEach(function (x) { x.textContent = P ? (D['op.d30s'] || EN['op.d30s']) : (D[x.dataset.t] || EN[x.dataset.t]) })
+    $('op-eco').hidden = g || P
+    document.querySelector('.eco.dl span').textContent = P ? pw('pkDl') + '.' : (D['op.dls'] || EN['op.dls'])
     $('guest-n').hidden = !g; $('guest-n').classList.toggle('out', g && guestLeft === 0)
     if (g) $('guest-n').innerHTML = guestLeft === 0 ? w('gOut') : w('gNote')(guestLeft)
     $('op-to').hidden = mode !== 'mail'
@@ -1030,9 +1088,18 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   }
   var wait = function (ms) { return new Promise(function (ok) { setTimeout(ok, ms) }) }
   async function upOne(f, before) {
-    var made = await bridge({ action: 'create', name: f.name || 'file', size: f.size, type: f.type || '', days: DAYS, inbox: dropping ? dropSlug : undefined })
+    // Pro (Alex, 25 Oct): an upload cut off (no connection, the page closed) goes on from the last finished piece when
+    // the same file is sent again within 20 hours; meanwhile it waits for the connection instead of failing
+    var resume = isProNow() && !dropping, fp = 'rt-up:' + [f.name, f.size, f.lastModified, DAYS].join('|'), saved = null
+    if (resume) { try { saved = JSON.parse(localStorage.getItem(fp) || 'null') } catch (e) {} }
+    if (saved && (!saved.key || Date.now() - saved.t > 20 * 36e5)) saved = null
+    var made = saved ? { key: saved.key, uploadId: saved.uploadId } : await bridge({ action: 'create', name: f.name || 'file', size: f.size, type: f.type || '', days: DAYS, inbox: dropping ? dropSlug : undefined })
     var n = Math.max(1, Math.ceil(f.size / PART)), next = 1
-    var urls = {}, etags = {}, loaded = {}
+    var urls = {}, etags = saved ? saved.etags || {} : {}, loaded = {}
+    for (var k0 in etags) loaded[k0] = Math.min(PART, f.size - (k0 - 1) * PART)
+    var keep = function () { if (resume) try { localStorage.setItem(fp, JSON.stringify({ key: made.key, uploadId: made.uploadId, etags: etags, t: saved ? saved.t : Date.now() })) } catch (e) {} }
+    var forget = function () { try { localStorage.removeItem(fp) } catch (e) {} }
+    keep()
     var sum = function () { var t = 0; for (var k in loaded) t += loaded[k]; return t }
     var signing = null // one signing request at a time, for the next 20 pieces
     async function urlFor(i) {
@@ -1053,28 +1120,37 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
         if (stopped) throw new Error('cancelled')
         var i = next++
         if (i > n) return
+        if (etags[i]) continue
         var from = (i - 1) * PART, piece = f.slice(from, Math.min(from + PART, f.size)), tries = 0
         for (;;) {
           try {
             var r = await put(await urlFor(i), piece, function (x) { loaded[i] = x; progress(before + sum()) })
-            if (r.status >= 200 && r.status < 300) { etags[i] = r.getResponseHeader('ETag') || ''; loaded[i] = piece.size; progress(before + sum()); break }
+            if (r.status >= 200 && r.status < 300) { etags[i] = r.getResponseHeader('ETag') || ''; loaded[i] = piece.size; progress(before + sum()); keep(); break }
             if (r.status === 403) delete urls[i] // its signature ran out: sign it again
             throw new Error('Upload failed (' + r.status + ')')
           } catch (e) {
             if (stopped || e.message === 'cancelled' || e.fatal) throw e
             loaded[i] = 0
-            if (++tries > 6) throw e
+            if (resume && !navigator.onLine) { await new Promise(function (ok) { window.addEventListener('online', ok, { once: true }) }); tries = 0; continue }
+            if (++tries > (resume ? 20 : 6)) throw e
             await wait(Math.min(30000, 1000 * Math.pow(2, tries)))
           }
         }
       }
     }
     try { await Promise.all([worker(), worker(), worker()]) } catch (e) {
-      bridge({ action: 'abort', key: made.key, uploadId: made.uploadId, inbox: dropping ? dropSlug : undefined }).catch(function () {})
+      // a kept upload whose pieces can no longer be signed (it was cleared): start this file afresh
+      if (saved && e.fatal && !stopped) { forget(); return upOne(f, before) }
+      if (stopped || !resume) { forget(); bridge({ action: 'abort', key: made.key, uploadId: made.uploadId, inbox: dropping ? dropSlug : undefined }).catch(function () {}) }
       throw e
     }
     var parts = Object.keys(etags).map(function (k) { return { n: +k, etag: etags[k] } })
-    var fin = await bridge({ action: 'complete', key: made.key, uploadId: made.uploadId, parts: parts, name: f.name || 'file', size: f.size, type: f.type || '', days: DAYS, inbox: dropping ? dropSlug : undefined })
+    var fin
+    try { fin = await bridge({ action: 'complete', key: made.key, uploadId: made.uploadId, parts: parts, name: f.name || 'file', size: f.size, type: f.type || '', days: DAYS, inbox: dropping ? dropSlug : undefined }) } catch (e) {
+      if (saved && e.fatal) { forget(); return upOne(f, before) }
+      throw e
+    }
+    forget()
     return { name: f.name, size: fin.size || f.size, type: f.type, token: fin.token, url: PAGE + fin.token, expires: fin.expires }
   }
   // the link's preview picture (Alex, 25 Oct): a frame of the first video, else the first picture, cropped to 1200x630
@@ -1305,9 +1381,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var acts = ''
     if (on && m.token) acts += '<button type="button" class="cp" data-cp="' + n + '"><svg><use href="#i-link"/></svg><span>' + w('copy') + '</span></button>'
     if (on && m.source === 'link') acts += '<button type="button" class="cp stop" data-stop="' + n + '" title="' + esc(w('stopT')) + '"><svg><use href="#i-trash"/></svg><span>' + w('stop') + '</span></button>'
+    // a Pro's own links (Alex, 25 Oct): expiry, password, and who opened and downloaded
+    var mineRow = !withWho && isProNow() && m.token && m.source === 'link'
+    if (mineRow) acts = '<button type="button" class="cp" data-info="' + n + '"><svg><use href="#i-timer"/></svg><span>' + pw('details') + '</span></button>' + acts
     return '<li class="tx' + (on ? '' : ' off') + '"><span class="fi"><svg><use href="#' + icon(m.type) + '"/></svg></span>'
       + '<span class="ft"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b><small>' + sz(m.size) + ' · ' + when(m.created_at) + ' · ' + esc(where(m)) + '</small>'
-      + '<span class="chips">' + by + st + counts + '</span></span>' + (acts ? '<span class="acts">' + acts + '</span>' : '') + '</li>'
+      + '<span class="chips">' + by + st + counts + '</span></span>' + (acts ? '<span class="acts">' + acts + '</span>' : '')
+      + (mineRow && det.token === m.token ? detHtml(on) : '') + '</li>'
   }
   function filt(list, f, q) {
     q = (q || '').trim().toLowerCase()
@@ -1326,8 +1406,11 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   // Copy link and Stop on a row; Stop ends the link at once, then the file goes (Storage, the person's own folder)
   function rowActs(listId, get, reload) {
     $(listId).addEventListener('click', async function (e) {
-      var c = e.target.closest('[data-cp]'), s = e.target.closest('[data-stop]')
+      var c = e.target.closest('[data-cp]'), s = e.target.closest('[data-stop]'), inf = e.target.closest('[data-info]')
       if (c) { copy(PAGE + get()[+c.dataset.cp].token, c, w('copied')); return }
+      if (inf) { openDet(get()[+inf.dataset.info]); return }
+      if (e.target.closest('[data-dsave]')) { saveDet(false); return }
+      if (e.target.closest('[data-dpwoff]')) { saveDet(true); return }
       if (!s) return
       var m = get()[+s.dataset.stop]
       if (!window.confirm(w('stopAsk')(m.name))) return
@@ -1375,7 +1458,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     adm.usage = null; paintStore()
     bridge({ action: 'usage' }).then(function (d) { adm.usage = d; paintStore(); paintStats() }).catch(function (e) { adm.usage = { error: e.message }; paintStore() })
     sb.rpc('roar_admin_transfer_accounts').then(function (r) { if (r.error) admErr(r.error.message); else { adm.acc = r.data || []; paintAcc() } })
-    loadAdmPro()
+    loadAdmPro(); paintAdmBg()
     loadAdmList(false)
   }
   function loadAdmList(next) {
@@ -1469,6 +1552,158 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   $('adm-q').addEventListener('input', paintAdmList)
   $('adm-more').addEventListener('click', function () { loadAdmList(true) })
   rowActs('adm-list', function () { return adm.list }, loadAdmin)
+
+
+  // ---- a Pro's own link: details (Alex, 25 Oct: change expiry or password after sending; who opened, when, from where) ----
+  var det = { token: '', data: null, busy: false, msg: '' }
+  var country = function (c) { try { return c ? new Intl.DisplayNames([lang], { type: 'region' }).of(c) : '' } catch (e) { return c || '' } }
+  var localIso = function (d) { var x = new Date(d); x.setMinutes(x.getMinutes() - x.getTimezoneOffset()); return x.toISOString().slice(0, 16) }
+  function detHtml(on) {
+    var d = det.data
+    if (!d) return '<div class="det"><span class="wait" aria-label="Loading"></span></div>'
+    var ev = d.events.length ? d.events.map(function (x) {
+      return '<li><b>' + (x.kind === 'download' ? pw('evDl') : pw('evOpen')) + '</b><span>' + when(x.at) + (x.country ? ' · ' + esc(country(x.country)) : '') + (x.device ? ' · ' + esc(x.device) : '') + '</span></li>'
+    }).join('') : '<li><span>' + pw('noEv') + '</span></li>'
+    return '<div class="det">'
+      + (on ? '<div class="row2"><label class="pro-lbl" style="margin:0">' + pw('expT') + '</label><input class="in" type="datetime-local" id="det-until" value="' + localIso(d.expires) + '" max="' + localIso(d.max) + '"><small class="pro-lbl" style="margin:0">' + pw('maxT')(dayY(d.max)) + '</small></div>'
+        + (d.bundle ? '<div class="row2"><input class="in" type="password" id="det-pw" autocomplete="new-password" maxlength="100" placeholder="' + esc(pw('pwNew')) + '">'
+          + (d.locked ? '<button type="button" class="pill sm" data-dpwoff><span>' + pw('pwOff') + '</span></button>' : '') + '</div>' : '')
+        + '<div class="row2"><button type="button" class="pill main sm" data-dsave' + (det.busy ? ' disabled' : '') + '><span>' + pw('saveC') + '</span></button>'
+        + (d.locked ? '<span class="chips"><i>' + pw('locked') + '</i></span>' : '') + (det.msg ? '<span class="ok">' + esc(det.msg) + '</span>' : '') + '</div>' : '')
+      + '<ul class="ev">' + ev + '</ul></div>'
+  }
+  function openDet(m) {
+    if (det.token === m.token) { det.token = ''; det.data = null; paintMine(); return }
+    det = { token: m.token, data: null, busy: false, msg: '' }; paintMine()
+    proCall({ action: 'link', token: m.token }).then(function (d) { if (det.token === m.token) { det.data = d; paintMine() } })
+      .catch(function (e) { det.token = ''; window.alert(e.message); paintMine() })
+  }
+  function saveDet(pwOff) {
+    if (!det.data || det.busy) return
+    var body = { action: 'edit', token: det.token }
+    var u = $('det-until') && $('det-until').value, p = $('det-pw') && $('det-pw').value
+    if (u && localIso(det.data.expires) !== u) body.until = new Date(u).toISOString()
+    if (pwOff) body.password = ''; else if (p) body.password = p
+    if (!body.until && body.password == null) return
+    det.busy = true; paintMine()
+    proCall(body).then(function (r) {
+      det.busy = false; det.msg = pw('bSaved')
+      if (r.until) det.data.expires = r.until
+      if (r.locked != null) det.data.locked = r.locked
+      loadMine()
+    }).catch(function (e) { det.busy = false; paintMine(); window.alert(e.message) })
+  }
+
+  // ---- a Pro's brand (Alex, 25 Oct): name, logo and backgrounds, pictures in roartransfer-brand/<their id>/ ----
+  var BRAND_BUCKET = 'roartransfer-brand'
+  var brandEd = null, brandSlot = ''
+  function paintBrand() {
+    // filled once the account's brand has come (roartransfer-pro 'me'); until then nothing can be changed
+    if (!brandEd && proMe) brandEd = { name: (proMe.brand || {}).name || '', logo: (proMe.brand || {}).logo || '', bgs: ((proMe.brand || {}).bgs || []).slice(), busy: false }
+    if (!brandEd) { $('pb-logo').innerHTML = $('pb-bgs').innerHTML = loading.replace(/li/g, 'span'); $('pb-save').disabled = true; return }
+    $('pb-name').placeholder = pw('bName'); if (document.activeElement !== $('pb-name')) $('pb-name').value = brandEd.name
+    $('pb-lt').textContent = pw('bLogo'); $('pb-bt').textContent = pw('bBgs')
+    var add = function (slot, n) { return n ? '' : '<button type="button" class="add" data-badd="' + slot + '"' + (brandEd.busy ? ' disabled' : '') + '><svg><use href="#i-up"/></svg>' + pw('bAdd') + '</button>' }
+    $('pb-logo').innerHTML = brandEd.logo ? '<div class="tile logo"><img src="' + esc(brandEd.logo) + '" alt=""><button type="button" class="x" data-brm="logo" aria-label="Remove"><svg><use href="#i-x"/></svg></button></div>' : add('logo', 0)
+    $('pb-bgs').innerHTML = brandEd.bgs.map(function (u, n) { return '<div class="tile"><img src="' + esc(u) + '" alt="" loading="lazy"><button type="button" class="x" data-brm="' + n + '" aria-label="Remove"><svg><use href="#i-x"/></svg></button></div>' }).join('')
+      + add('bg', brandEd.bgs.length >= 8)
+    $('pb-save').querySelector('span').textContent = pw('save'); $('pb-save').disabled = brandEd.busy
+  }
+  async function upPic(file, folder) {
+    if (file.size > 8 * 1024 * 1024) throw new Error(pw('bBig'))
+    var ext = (file.name.match(/\.(jpe?g|png|webp|gif|svg)$/i) || ['', 'jpg'])[1].toLowerCase()
+    var path = folder + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext
+    var r = await sb.storage.from(BRAND_BUCKET).upload(path, file, { contentType: file.type || 'image/jpeg', upsert: false })
+    if (r.error) throw new Error(r.error.message)
+    return sb.storage.from(BRAND_BUCKET).getPublicUrl(path).data.publicUrl
+  }
+  $('pb-logo').addEventListener('click', brandClick); $('pb-bgs').addEventListener('click', brandClick)
+  function brandClick(e) {
+    var a = e.target.closest('[data-badd]'), x = e.target.closest('[data-brm]')
+    if (a) { brandSlot = a.dataset.badd; $('pb-file').click() }
+    if (x) { if (x.dataset.brm === 'logo') brandEd.logo = ''; else brandEd.bgs.splice(+x.dataset.brm, 1); paintBrand() }
+  }
+  $('pb-file').addEventListener('change', async function (e) {
+    var f = e.target.files && e.target.files[0]; e.target.value = ''
+    if (!f || !user) return
+    $('pb-err').hidden = true; brandEd.busy = true; paintBrand()
+    try { var u = await upPic(f, user.id); if (brandSlot === 'logo') brandEd.logo = u; else brandEd.bgs.push(u) } catch (x) { $('pb-err').textContent = x.message; $('pb-err').hidden = false }
+    brandEd.busy = false; paintBrand()
+  })
+  $('pb-name').addEventListener('input', function () { brandEd.name = $('pb-name').value; $('pb-ok').hidden = true })
+  $('pb-save').addEventListener('click', function () {
+    $('pb-err').hidden = true; $('pb-ok').hidden = true; brandEd.busy = true; paintBrand()
+    proCall({ action: 'brand', name: brandEd.name, logo: brandEd.logo, bgs: brandEd.bgs }).then(function (d) {
+      brandEd.busy = false; if (proMe) proMe.brand = d.brand; paintBrand(); $('pb-ok').textContent = pw('bSaved'); $('pb-ok').hidden = false
+    }).catch(function (x) { brandEd.busy = false; paintBrand(); $('pb-err').textContent = x.message; $('pb-err').hidden = false })
+  })
+
+  // ---- the backgrounds (Alex, 20 Oct: his own pictures; since 25 Oct chosen in Admin > Backgrounds) ----
+  // a link's or a Receive-files page waits to know whose it is, so a Pro's own backgrounds show from the start
+  var siteBgs = null, bgSet = false, bgWait = getting || dropping
+  function setBg(u) {
+    if (!u) return
+    bgSet = true
+    var im = $('bg-img'); $('bg').classList.remove('on')
+    im.onload = function () { $('bg').classList.add('on') }
+    im.src = u
+  }
+  var pick = function (l) { return l && l.length ? l[Math.floor(Math.random() * l.length)] : '' }
+  function siteBg() { return pick(siteBgs && siteBgs.length ? siteBgs.map(function (b) { return b.url }) : STILLS.map(function (x) { return 'stills/' + x.f })) }
+  function useBrand(brand, where) {
+    var b = brand || null
+    $(where + '-brand').hidden = !b || !(b.logo || b.name)
+    if (b) {
+      $(where + '-logo').hidden = !b.logo; if (b.logo) $(where + '-logo').src = b.logo
+      $(where + '-bname').textContent = b.logo ? '' : b.name
+      if (b.logo && b.name) $(where + '-logo').alt = b.name
+    }
+    if (bgWait) { bgWait = false; setBg(b && b.bgs && b.bgs.length ? pick(b.bgs) : siteBg()) }
+  }
+  function loadSiteBgs() {
+    return fetch(URL_ + '/rest/v1/roar_transfer_backgrounds?select=id,url,sort&order=sort.asc,created_at.asc', { headers: { apikey: KEY } })
+      .then(function (r) { return r.ok ? r.json() : [] }).catch(function () { return [] })
+      .then(function (l) { siteBgs = Array.isArray(l) ? l : []; if (!bgWait && !bgSet) setBg(siteBg()); paintAdmBg() })
+  }
+  // never a blank page: after a second and a half the site's own pick, whatever is still loading
+  setTimeout(function () { if (!bgSet) { bgWait = false; setBg(siteBg()) } }, 1500)
+
+  // Admin > Backgrounds
+  var bgBusy = false
+  function paintAdmBg() {
+    if (!$('adm-bgs') || !isAdmin) return
+    $('adm-bg-sub').textContent = pw('bgSub')
+    var l = siteBgs || []
+    $('adm-bg-n').textContent = fmtN(l.length)
+    $('adm-bgs').innerHTML = l.map(function (b) { return '<div class="tile"><img src="' + esc(b.url) + '" alt="" loading="lazy"><button type="button" class="x" data-bgrm="' + esc(b.id) + '" aria-label="Remove"><svg><use href="#i-x"/></svg></button></div>' }).join('')
+      + '<button type="button" class="add" id="adm-bg-add"' + (bgBusy ? ' disabled' : '') + '><svg><use href="#i-up"/></svg>' + pw('bAdd') + '</button>'
+  }
+  $('adm-bgs').addEventListener('click', async function (e) {
+    if (e.target.closest('#adm-bg-add')) { $('adm-bg-file').click(); return }
+    var x = e.target.closest('[data-bgrm]'); if (!x) return
+    var b = (siteBgs || []).filter(function (y) { return y.id === x.dataset.bgrm })[0]
+    if (!b || !window.confirm(pw('bgAsk'))) return
+    x.disabled = true
+    var r = await sb.from('roar_transfer_backgrounds').delete().eq('id', b.id)
+    if (r.error) { x.disabled = false; $('adm-bg-err').textContent = r.error.message; $('adm-bg-err').hidden = false; return }
+    var m = b.url.match(/roartransfer-brand\/(site\/[^?]+)$/)
+    if (m) sb.storage.from(BRAND_BUCKET).remove([m[1]]).catch(function () {})
+    loadSiteBgs()
+  })
+  $('adm-bg-file').addEventListener('change', async function (e) {
+    var fl = [].slice.call(e.target.files || []); e.target.value = ''
+    if (!fl.length) return
+    $('adm-bg-err').hidden = true; bgBusy = true; paintAdmBg()
+    var top = (siteBgs || []).reduce(function (a, b) { return Math.max(a, b.sort || 0) }, 0)
+    for (var i = 0; i < fl.length; i++) {
+      try {
+        var u = await upPic(fl[i], 'site')
+        var r = await sb.from('roar_transfer_backgrounds').insert({ url: u, sort: top + i + 1 })
+        if (r.error) throw new Error(r.error.message)
+      } catch (x) { $('adm-bg-err').textContent = x.message; $('adm-bg-err').hidden = false }
+    }
+    bgBusy = false; loadSiteBgs()
+  })
 
   // ---- the download page (?t=…): name, size, a preview, the expiry, Download; opens and downloads are counted
   // for the sender's panel (keepalive: the click starts the file at once and an ordinary request would be dropped) ----
@@ -1570,6 +1805,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       .catch(function () { got = { error: 'offline' }; paintGet() })
   }
   function paintGet() {
+    if (got) useBrand(got.brand, 'get')
     if (!got) return
     $('get-wait').hidden = true
     // who sent it and the title; with a password, only those until the password is right
@@ -1659,11 +1895,18 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       ok: function (n) { return '<b>Sent.</b> ' + esc(n) + ' got an email with your files.' }, again: 'Send more files',
       gone: 'This page does not take files.', limit: 'Too many files from here today. Try again tomorrow.',
       mineT: 'My <b>Pro transfers</b>.', tab: 'My Pro transfers',
-      stAdmin: 'Pro, always (you are an admin)', stEver: 'Pro, with no end date', stUntil: function (d) { return 'Pro until ' + d },
+      stAdmin: 'Pro, lifetime (you are an admin)', mineSub: 'Everything you sent, from here, RoarMail and your chats. Your links last 1 to 30 days.', stEver: 'Pro, lifetime', stUntil: function (d) { return 'Pro until ' + d },
       pkRx: 'Receive files: your own page, up to 20 GB a file, kept 30 days', pkDl: 'Unlimited downloads', pkPc: 'Keep it only in pCloud',
-      make: 'Make Pro', remove: 'Remove', again: 'Give again', admin: 'Admin · always', ever: 'Always', until: function (d) { return 'Until ' + d },
+      make: 'Make Pro', remove: 'Remove', again: 'Give again', admin: 'Admin · always', ever: 'Lifetime', until: function (d) { return 'Until ' + d },
       ended: function (d) { return 'Ended ' + d }, mail: 'Email of the account', none: 'No one is Pro yet.',
-      sure: function (n) { return 'Remove Pro from ' + n + '? Their page stops taking files.' }
+      sure: function (n) { return 'Remove Pro from ' + n + '? Their page stops taking files.' },
+      pkGb: 'Up to 20 GB per transfer', pkDays: 'Links up to 30 days', pkBrand: 'Your name, logo and backgrounds',
+      pkEdit: 'Change expiry or password after sending', pkStats: 'Who opened and downloaded, when, from where', pkResume: 'Uploads resume after a lost connection',
+      bH: 'Your brand', bN: 'Your name, logo and backgrounds on the pages people open from your links, and on your Receive-files page.',
+      bName: 'Your name or company (e.g. The Mad Lions)', bLogo: 'Logo', bBgs: 'Backgrounds (up to 8, one shows at random)', bAdd: 'Add', bSaved: 'Saved.',
+      bBig: 'Pictures can be up to 8 MB.', details: 'Details', expT: 'Expires', pwNew: 'New password (empty keeps it as it is)', pwOff: 'Remove password',
+      saveC: 'Save changes', locked: 'Has a password', noEv: 'Not opened yet.', evOpen: 'Opened', evDl: 'Downloaded', maxT: function (d) { return 'At most until ' + d },
+      bgSub: 'The pictures behind every page; one shows at random on each visit. Pro accounts can use their own on their links.', bgAsk: 'Remove this background?'
     },
     el: {
       rxH: 'Λήψη αρχείων', rxN: 'Οποιοσδήποτε σου στέλνει αρχεία σε αυτή τη σελίδα, χωρίς λογαριασμό: ως 20 GB το αρχείο, μένουν 30 μέρες.',
@@ -1676,11 +1919,18 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       ok: function (n) { return '<b>Στάλθηκε.</b> Το ' + esc(n) + ' πήρε email με τα αρχεία σου.' }, again: 'Στείλε κι άλλα',
       gone: 'Αυτή η σελίδα δεν δέχεται αρχεία.', limit: 'Πάρα πολλά αρχεία από εδώ σήμερα. Δοκίμασε ξανά αύριο.',
       mineT: 'Οι <b>Pro αποστολές</b> μου.', tab: 'Οι Pro αποστολές μου',
-      stAdmin: 'Pro, για πάντα (είσαι διαχειριστής)', stEver: 'Pro, χωρίς λήξη', stUntil: function (d) { return 'Pro ως ' + d },
+      stAdmin: 'Pro, lifetime (είσαι διαχειριστής)', mineSub: 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links σου ισχύουν 1 με 30 μέρες.', stEver: 'Pro, lifetime', stUntil: function (d) { return 'Pro ως ' + d },
       pkRx: 'Λήψη αρχείων: δική σου σελίδα, ως 20 GB το αρχείο, μένουν 30 μέρες', pkDl: 'Απεριόριστα κατεβάσματα', pkPc: 'Μόνο στο pCloud',
-      make: 'Κάνε Pro', remove: 'Αφαίρεση', again: 'Δώσε ξανά', admin: 'Διαχειριστής · για πάντα', ever: 'Για πάντα', until: function (d) { return 'Ως ' + d },
+      make: 'Κάνε Pro', remove: 'Αφαίρεση', again: 'Δώσε ξανά', admin: 'Διαχειριστής · για πάντα', ever: 'Lifetime', until: function (d) { return 'Ως ' + d },
       ended: function (d) { return 'Έληξε ' + d }, mail: 'Email του λογαριασμού', none: 'Κανείς δεν είναι Pro ακόμα.',
-      sure: function (n) { return 'Να αφαιρεθεί το Pro από ' + n + '; Η σελίδα του σταματά να δέχεται αρχεία.' }
+      sure: function (n) { return 'Να αφαιρεθεί το Pro από ' + n + '; Η σελίδα του σταματά να δέχεται αρχεία.' },
+      pkGb: 'Ως 20 GB ανά αποστολή', pkDays: 'Links ως 30 μέρες', pkBrand: 'Το όνομα, το λογότυπο και τα φόντα σου',
+      pkEdit: 'Αλλαγή λήξης ή κωδικού μετά την αποστολή', pkStats: 'Ποιος άνοιξε και κατέβασε, πότε, από πού', pkResume: 'Το ανέβασμα συνεχίζει αν κοπεί η σύνδεση',
+      bH: 'Το brand σου', bN: 'Το όνομα, το λογότυπο και τα φόντα σου στις σελίδες που ανοίγουν από τα links σου και στη σελίδα Λήψης αρχείων.',
+      bName: 'Το όνομά σου ή της εταιρείας (π.χ. The Mad Lions)', bLogo: 'Λογότυπο', bBgs: 'Φόντα (ως 8, ένα εμφανίζεται τυχαία)', bAdd: 'Προσθήκη', bSaved: 'Αποθηκεύτηκε.',
+      bBig: 'Οι εικόνες μπορούν να είναι ως 8 MB.', details: 'Λεπτομέρειες', expT: 'Λήγει', pwNew: 'Νέος κωδικός (κενό τον αφήνει ως έχει)', pwOff: 'Αφαίρεση κωδικού',
+      saveC: 'Αποθήκευση', locked: 'Έχει κωδικό', noEv: 'Δεν έχει ανοιχτεί ακόμα.', evOpen: 'Άνοιξε', evDl: 'Κατέβηκε', maxT: function (d) { return 'Το πολύ ως ' + d },
+      bgSub: 'Οι εικόνες πίσω από κάθε σελίδα· μία εμφανίζεται τυχαία σε κάθε επίσκεψη. Οι Pro βάζουν τις δικές τους στα links τους.', bgAsk: 'Να αφαιρεθεί αυτό το φόντο;'
     }
   }
   var pw = function (k) { return PT[lang][k] }
@@ -1705,11 +1955,17 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var isPro = !!pro && !!user
     $('tab-mine').textContent = isPro ? pw('tab') : ((lang === 'el' ? EL : EN)['tb.mine'] || EN['tb.mine'])
     $('mn-title').innerHTML = isPro ? pw('mineT') : (lang === 'el' ? EL['mn.title'] : EN['mn.title'])
+    if (!isPro) $('mn-sub').textContent = (lang === 'el' ? EL : EN)['mn.sub'] || EN['mn.sub']
     $('pro').hidden = !isPro
     if (!isPro) return
     var me = proMe || {}
     $('pro-st').textContent = me.admin ? pw('stAdmin') : me.until ? pw('stUntil')(dayY(me.until)) : pw('stEver')
-    $('pro-perks').innerHTML = [pw('pkRx')].concat(me.admin ? [pw('pkDl'), pw('pkPc')] : []).map(function (t) { return '<i>' + esc(t) + '</i>' }).join('')
+    // what Pro gives (Alex, 25 Oct); Keep it only in pCloud stays the admin's own
+    $('pro-perks').innerHTML = ['pkGb', 'pkDays', 'pkDl', 'pkBrand', 'pkEdit', 'pkStats', 'pkResume', 'pkRx'].map(pw).concat(me.admin ? [pw('pkPc')] : [])
+      .map(function (t) { return '<i>' + esc(t) + '</i>' }).join('')
+    $('pb-h').textContent = pw('bH'); $('pb-n').textContent = pw('bN')
+    $('mn-sub').textContent = pw('mineSub')
+    paintBrand()
     $('pro-h').textContent = pw('rxH'); $('pro-n').textContent = pw('rxN')
     var url = pro.slug ? 'roartransfer.com/u/' + pro.slug : pw('setUp')
     $('pro-link').textContent = url
@@ -1846,18 +2102,16 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   if (dropping) {
     var rb2 = document.querySelector('meta[name="robots"]'); if (rb2) rb2.content = 'noindex, nofollow'
     show('v-drop'); paintDrop()
-    bridge({ action: 'inbox-info', inbox: dropSlug }).then(function (d) { inb.name = d.name; paintDrop() }).catch(function () { inb.gone = true; paintDrop() })
+    bridge({ action: 'inbox-info', inbox: dropSlug }).then(function (d) { inb.name = d.name; useBrand(d.brand, 'dr'); paintDrop() }).catch(function () { inb.gone = true; useBrand(null, 'dr'); paintDrop() })
   }
 
   // one of Alex's pictures behind the card, a new one each visit (Alex, 20 Oct; kept here in stills/, nothing from
   // elsewhere). A picture from one of our films can carry t / k / v to name the film at the top, with a link to it.
   var STILLS = [{ f: 'salon.webp' }, { f: 'shoes.webp' }, { f: 'tartan.webp' }, { f: 'corridor.webp' }, { f: 'sunflower.webp' }, { f: 'silhouette.webp' }]
-  var still = STILLS[Math.floor(Math.random() * STILLS.length)]
-  var img = $('bg-img')
-  img.onload = function () { $('bg').classList.add('on') }
-  img.src = 'stills/' + still.f
+  // (since 25 Oct the list lives in Admin > Backgrounds; these are only what shows if it cannot be read)
+  var still = {}
+  loadSiteBgs()
   function credit() { if (still.t) $('credit-t').textContent = still.t + ' · ' + still.k[lang] }
-  if (still.t) { $('credit').href = 'https://www.youtube.com/watch?v=' + still.v; $('credit').hidden = false }
   var _setLang = setLang
   setLang = function (l) { _setLang(l); credit() }
 
