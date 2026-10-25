@@ -376,6 +376,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 .av { flex: none; width: 34px; height: 34px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: rgba(255,255,255,.1); font-size: 13px; font-weight: 700; }
 .av img { width: 100%; height: 100%; object-fit: cover; }
 .rank { flex: none; width: 16px; font-family: var(--mono); font-size: 11px; color: var(--dim); text-align: right; align-self: center; }
+.adm-tab { align-self: center; margin: -4px auto 2px; }
+.adm-tab button { padding: 9px 22px; font-size: 13.5px; }
+.web-row { display: flex; align-items: center; gap: 10px; }
+.web-row .wb { flex: 1; min-width: 0; display: grid; gap: 4px; }
+.web-row .wb b { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.web-row .wb s { display: block; height: 5px; border-radius: 99px; background: linear-gradient(90deg, #ff6b5e, #d40000); text-decoration: none; }
+.web-row em { flex: none; font-style: normal; font-family: var(--mono); font-size: 12px; color: var(--muted); }
 .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
 .two > div { display: grid; gap: 10px; align-content: start; min-width: 0; }
 @media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } }
@@ -656,8 +663,27 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 
   <!-- Admin: every account's transfers and the overall numbers (supabase/transfer-panel.sql answers only the admin) -->
   <div class="card wide" id="v-admin" hidden>
-    <h1 data-t="ad.title" data-html>All <b>transfers</b>.</h1>
-    <p class="sub" data-t="ad.sub">Only you see this: who sent what, how big, when, how often it was downloaded. Never what the files say.</p>
+    <h1 id="adm-h1" data-t="ad.title" data-html>All <b>transfers</b>.</h1>
+    <p class="sub" id="adm-sub" data-t="ad.sub">Only you see this: who sent what, how big, when, how often it was downloaded. Never what the files say.</p>
+    <!-- Transfers | Website (Alex, 25 Oct: "statistics of the website, a tab in admin") -->
+    <div class="seg two adm-tab" id="adm-tab"><button type="button" class="on" data-f="tx" data-t="ad.tx">Transfers</button><button type="button" data-f="web" data-t="ad.web">Website</button></div>
+    <!-- the website: visitors, views, countries, devices, pages, where they came from (roar_site_stats, supabase/site-stats.sql) -->
+    <div id="adm-web" hidden style="display:none;gap:14px">
+      <div class="bar2"><div class="seg" id="web-seg"><button type="button" data-f="7" data-t="wb.d7">7 days</button><button type="button" class="on" data-f="30" data-t="wb.d30">30 days</button><button type="button" data-f="90" data-t="wb.d90">90 days</button></div></div>
+      <p class="err" id="web-err" hidden></p>
+      <div class="facts f4" id="web-facts"></div>
+      <h2 data-t="wb.days">Visitors per day</h2>
+      <div class="chart" id="web-chart"></div>
+      <div class="two">
+        <div><h2 data-t="wb.co">Countries</h2><ul class="files top-list" id="web-co"></ul></div>
+        <div><h2 data-t="wb.ref">Where they came from</h2><ul class="files top-list" id="web-ref"></ul></div>
+      </div>
+      <div class="two">
+        <div><h2 data-t="wb.pg">Pages</h2><ul class="files top-list" id="web-pg"></ul></div>
+        <div><h2 data-t="wb.dev">Devices</h2><ul class="files top-list" id="web-dev"></ul><h2 data-t="wb.lang">Languages</h2><ul class="files top-list" id="web-lang"></ul></div>
+      </div>
+    </div>
+    <div id="adm-tx" style="display:grid;gap:14px">
     <p class="err" id="adm-err" hidden></p>
     <div class="facts f4" id="adm-facts"></div>
     <!-- Storage (Alex, 22 Oct: "how much room do we have"): what is on Cloudflare R2 now, against the 10 GB that are free -->
@@ -704,6 +730,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     </div>
     <ul class="files tall" id="adm-list"></ul>
     <button type="button" class="pill sm" id="adm-more" hidden><span data-t="ad.more">More</span></button>
+    </div>
   </div>
 </main>
 
@@ -750,7 +777,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
-    'ad.days': 'Τελευταίες 30 μέρες', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
+    'ad.days': 'Τελευταίες 30 μέρες', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.tx': 'Αποστολές', 'ad.web': 'Ιστότοπος', 'wb.d7': '7 μέρες', 'wb.d30': '30 μέρες', 'wb.d90': '90 μέρες', 'wb.days': 'Επισκέπτες ανά μέρα', 'wb.co': 'Χώρες', 'wb.ref': 'Από πού ήρθαν', 'wb.pg': 'Σελίδες', 'wb.dev': 'Συσκευές', 'wb.lang': 'Γλώσσες', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
   }
   var W = {
     en: {
@@ -850,6 +877,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     try { localStorage.setItem('roartransfer.lang', lang) } catch (e) {}
     paint()
     paintPro(); paintAdmPro()
+    if (typeof web !== 'undefined' && web) { paintWebTab(); paintWeb() }
   }
   document.querySelectorAll('.lang button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.dataset.lang) }) })
 
@@ -1339,6 +1367,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     loadPro()
     sb.rpc('roar_is_admin').then(function (r) {
       isAdmin = r.data === true
+      try { if (isAdmin) localStorage.setItem('rt-admin', '1') } catch (e) {}
       $('tab-admin').hidden = !isAdmin
       $('op-pc-row').hidden = !isAdmin
       try { $('op-pc').checked = isAdmin && localStorage.getItem('rt-pcloud') === '1' } catch (e) {}
@@ -1752,6 +1781,67 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     bgBusy = false; loadSiteBgs()
   })
 
+
+  // ---- Admin > Website (Alex, 25 Oct): roartransfer.com's own visitor numbers, roar_site_stats ----
+  var web = { tab: 'tx', days: '30', s: null, err: '' }
+  segs('adm-tab', function (f) { web.tab = f; paintWebTab(); if (f === 'web') loadWeb() })
+  segs('web-seg', function (f) { web.days = f; web.s = null; paintWeb(); loadWeb() })
+  function paintWebTab() {
+    var on = web.tab === 'web'
+    $('adm-web').hidden = !on; $('adm-tx').hidden = on
+    $('adm-web').style.display = on ? 'grid' : 'none'; $('adm-tx').style.display = on ? 'none' : 'grid'
+    $('adm-h1').innerHTML = on ? pw('webH') : (lang === 'el' ? EL : EN)['ad.title'] || EN['ad.title']
+    $('adm-sub').textContent = on ? pw('webSub') : (lang === 'el' ? EL : EN)['ad.sub'] || EN['ad.sub']
+  }
+  function loadWeb() {
+    if (!isAdmin) return
+    sb.rpc('roar_site_stats', { days: Number(web.days) }).then(function (r) {
+      web.err = r.error ? (/roar_site_stats|function/i.test(r.error.message) ? pw('wNoSql') : r.error.message) : ''
+      web.s = r.error ? null : r.data || {}; paintWeb()
+    })
+  }
+  function webRows(list, name, key) {
+    list = list || []
+    var top = Math.max.apply(null, list.map(function (x) { return Number(x[key || 'n']) }).concat([1]))
+    return list.length ? list.map(function (x, n) {
+      var v = Number(x[key || 'n'])
+      return '<li class="web-row"><span class="rank">' + (n + 1) + '</span><span class="wb"><b>' + esc(name(x)) + '</b><s style="width:' + Math.max(3, v / top * 100) + '%"></s></span><em>' + fmtN(v) + '</em></li>'
+    }).join('') : note(pw('wNone'))
+  }
+  function paintWeb() {
+    $('web-err').hidden = !web.err; $('web-err').textContent = web.err
+    var s = web.s
+    if (!s) { $('web-facts').innerHTML = ''; $('web-chart').innerHTML = ''; ['web-co', 'web-ref', 'web-pg', 'web-dev', 'web-lang'].forEach(function (id) { $(id).innerHTML = web.err ? '' : loading }); return }
+    var vis = Number(s.visitors || 0), views = Number(s.views || 0)
+    $('web-facts').innerHTML = tile('i-user', fmtN(vis), pw('wVis') + ' · ' + pw('wPer')(vis ? (views / vis).toFixed(1) : '0'))
+      + tile('i-file', fmtN(views), pw('wViews')) + tile('i-cal', fmtN(s.today_visitors), pw('wToday')(s.today_visitors, fmtN(s.today_views)))
+      + tile('i-timer', fmtN(s.now), pw('wNow') + ' · ' + fmtN(s.returning) + ' ' + pw('wRet'))
+    var days = s.days || [], max = Math.max.apply(null, days.map(function (d) { return Number(d.visitors) }).concat([1]))
+    $('web-chart').innerHTML = '<div class="cols" style="grid-template-columns:repeat(' + Math.max(1, days.length) + ',minmax(0,1fr))">' + days.map(function (d) {
+      var v = Number(d.visitors)
+      return '<i' + (v ? '' : ' class="z"') + ' style="height:' + (v ? Math.max(4, v / max * 100) : 2) + '%" title="' + esc(dayD(String(d.day).slice(0, 10)) + ': ' + v + ' ' + pw('wVis') + ' · ' + d.views + ' ' + pw('wViews')) + '"></i>'
+    }).join('') + '</div>' + (days.length ? '<div class="ax"><span>' + dayD(String(days[0].day).slice(0, 10)) + '</span><span>' + dayD(String(days[days.length - 1].day).slice(0, 10)) + '</span></div>' : '')
+    $('web-co').innerHTML = webRows(s.countries, function (x) { return country(x.country) })
+    $('web-ref').innerHTML = webRows(s.refs, function (x) { return x.ref })
+    $('web-pg').innerHTML = webRows(s.pages, function (x) { return (pw('pages') || {})[x.page] || x.page }, 'vs')
+    $('web-dev').innerHTML = webRows(s.devices, function (x) { return x.device })
+    $('web-lang').innerHTML = webRows(s.langs, function (x) { return x.lang === 'el' ? 'Ελληνικά' : x.lang === 'en' ? 'English' : x.lang })
+  }
+
+  // this page's own visit, counted once per load (not for the admins' browsers)
+  function siteHit() {
+    try {
+      if (localStorage.getItem('rt-admin')) return
+      var v = localStorage.getItem('rt-vid')
+      if (!v) { v = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem('rt-vid', v) }
+      var q = new URLSearchParams(location.search), r = q.get('utm_source') || ''
+      if (!r && document.referrer) { try { r = new URL(document.referrer).hostname.replace(/^www\./, '') } catch (e) {} }
+      if (/(^|\.)roartransfer\.com$/.test(r)) r = ''
+      fetch(URL_ + '/rest/v1/rpc/roar_site_hit', { method: 'POST', keepalive: true, headers: { apikey: KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ v: v, p: getting ? 'link' : dropping ? 'receive' : 'home', r: r, l: lang }) }).catch(function () {})
+    } catch (e) {}
+  }
+
   // ---- the download page (?t=…): name, size, a preview, the expiry, Download; opens and downloads are counted
   // for the sender's panel (keepalive: the click starts the file at once and an ordinary request would be dropped) ----
   var got = null, gotFiles = []
@@ -1953,7 +2043,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       bName: 'Your name or company (e.g. The Mad Lions)', bLogo: 'Logo', bBgs: 'Backgrounds (up to 8, one shows at random)', bAdd: 'Add', bSaved: 'Saved.',
       bBig: 'Pictures can be up to 10 MB.', details: 'Details', expT: 'Expires', pwNew: 'New password (empty keeps it as it is)', pwOff: 'Remove password',
       saveC: 'Save changes', locked: 'Has a password', noEv: 'Not opened yet.', evOpen: 'Opened', evDl: 'Downloaded', maxT: function (d) { return 'At most until ' + d },
-      bgSub: 'The pictures behind every page; one shows at random on each visit. Pro accounts can use their own on their links.', bgAsk: 'Remove this background?'
+      bgSub: 'The pictures behind every page; one shows at random on each visit. Pro accounts can use their own on their links.', bgAsk: 'Remove this background?',
+      webH: 'The <b>website</b>.', webSub: 'Who visits roartransfer.com: no cookies, no addresses, your own visits left out.',
+      wVis: 'visitors', wViews: 'page views', wToday: function (v, n) { return 'today · ' + n + ' views' }, wNow: 'here right now', wWeek: 'last 7 days',
+      wRet: 'came back another day', wPer: function (n) { return n + ' pages a visitor' }, wNone: 'No visits counted yet.',
+      wNoSql: 'The counter is not in the database yet: run supabase/site-stats.sql in Supabase.',
+      pages: { home: 'Home (send)', link: 'A download link', receive: 'A Receive-files page', about: 'About', el: 'Home in Greek', privacy: 'Privacy', terms: 'Terms', 'wetransfer-alternative': 'WeTransfer alternative', iphone: 'Send to iPhone', 'el/iphone': 'Send to iPhone (Greek)', 'el/wetransfer-alternative': 'WeTransfer alternative (Greek)' }
     },
     el: {
       rxH: 'Λήψη αρχείων', rxN: 'Οποιοσδήποτε σου στέλνει αρχεία σε αυτή τη σελίδα, χωρίς λογαριασμό: ως 20 GB το αρχείο, μένουν 30 μέρες.',
@@ -1977,7 +2072,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       bName: 'Το όνομά σου ή της εταιρείας (π.χ. The Mad Lions)', bLogo: 'Λογότυπο', bBgs: 'Φόντα (ως 8, ένα εμφανίζεται τυχαία)', bAdd: 'Προσθήκη', bSaved: 'Αποθηκεύτηκε.',
       bBig: 'Οι εικόνες μπορούν να είναι ως 10 MB.', details: 'Λεπτομέρειες', expT: 'Λήγει', pwNew: 'Νέος κωδικός (κενό τον αφήνει ως έχει)', pwOff: 'Αφαίρεση κωδικού',
       saveC: 'Αποθήκευση', locked: 'Έχει κωδικό', noEv: 'Δεν έχει ανοιχτεί ακόμα.', evOpen: 'Άνοιξε', evDl: 'Κατέβηκε', maxT: function (d) { return 'Το πολύ ως ' + d },
-      bgSub: 'Οι εικόνες πίσω από κάθε σελίδα· μία εμφανίζεται τυχαία σε κάθε επίσκεψη. Οι Pro βάζουν τις δικές τους στα links τους.', bgAsk: 'Να αφαιρεθεί αυτό το φόντο;'
+      bgSub: 'Οι εικόνες πίσω από κάθε σελίδα· μία εμφανίζεται τυχαία σε κάθε επίσκεψη. Οι Pro βάζουν τις δικές τους στα links τους.', bgAsk: 'Να αφαιρεθεί αυτό το φόντο;',
+      webH: 'Ο <b>ιστότοπος</b>.', webSub: 'Ποιοι επισκέπτονται το roartransfer.com: χωρίς cookies, χωρίς διευθύνσεις, χωρίς τις δικές σου επισκέψεις.',
+      wVis: 'επισκέπτες', wViews: 'προβολές σελίδων', wToday: function (v, n) { return 'σήμερα · ' + n + ' προβολές' }, wNow: 'εδώ αυτή τη στιγμή', wWeek: 'τελευταίες 7 μέρες',
+      wRet: 'ξαναήρθαν άλλη μέρα', wPer: function (n) { return n + ' σελίδες ανά επισκέπτη' }, wNone: 'Δεν έχουν μετρηθεί επισκέψεις ακόμα.',
+      wNoSql: 'Ο μετρητής δεν είναι ακόμα στη βάση: τρέξε το supabase/site-stats.sql στο Supabase.',
+      pages: { home: 'Αρχική (αποστολή)', link: 'Link λήψης', receive: 'Σελίδα Λήψης αρχείων', about: 'About', el: 'Αρχική στα ελληνικά', privacy: 'Απόρρητο', terms: 'Όροι', 'wetransfer-alternative': 'Εναλλακτική του WeTransfer', iphone: 'Αποστολή σε iPhone', 'el/iphone': 'Αποστολή σε iPhone (ελληνικά)', 'el/wetransfer-alternative': 'Εναλλακτική του WeTransfer (ελληνικά)' }
     }
   }
   var pw = function (k) { return PT[lang][k] }
@@ -2165,6 +2265,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   var saved = ''
   try { saved = localStorage.getItem('roartransfer.lang') || '' } catch (e) {}
   setLang(saved || (/^el\b/i.test(navigator.language || '') ? 'el' : 'en'))
+  siteHit()
 })()
 </script>
 </body>

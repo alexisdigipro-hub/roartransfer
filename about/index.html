@@ -609,5 +609,7 @@ footer > span { margin-left: auto; }
   }
 })()
 </script>
+<!-- the site's own visitor count (Alex, 25 Oct): no cookies, a random id in this browser, Admin > Website reads it -->
+<script>try{if(!localStorage.getItem('rt-admin')){var v=localStorage.getItem('rt-vid');if(!v){v=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('rt-vid',v)}var r=document.referrer?new URL(document.referrer).hostname.replace(/^www\./,''):'';if(/(^|\.)roartransfer\.com$/.test(r))r='';fetch('https://bzmjhbnwhdwmncxkqkdl.supabase.co/rest/v1/rpc/roar_site_hit',{method:'POST',keepalive:true,headers:{apikey:'sb_publishable_7mQ3e0NH5lCmdoIKx2-FUA_EgCoXx9X','Content-Type':'application/json'},body:JSON.stringify({v:v,p:'about',r:r,l:document.documentElement.lang||''})}).catch(function(){})}}catch(e){}</script>
 </body>
 </html>
