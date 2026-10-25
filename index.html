@@ -669,7 +669,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <div class="seg two adm-tab" id="adm-tab"><button type="button" class="on" data-f="tx" data-t="ad.tx">Transfers</button><button type="button" data-f="web" data-t="ad.web">Website</button></div>
     <!-- the website: visitors, views, countries, devices, pages, where they came from (roar_site_stats, supabase/site-stats.sql) -->
     <div id="adm-web" hidden style="display:none;gap:14px">
-      <div class="bar2"><div class="seg" id="web-seg"><button type="button" data-f="7" data-t="wb.d7">7 days</button><button type="button" class="on" data-f="30" data-t="wb.d30">30 days</button><button type="button" data-f="90" data-t="wb.d90">90 days</button></div></div>
+      <div class="bar2"><div class="seg" id="web-seg"><button type="button" data-f="7" data-t="wb.d7">7 days</button><button type="button" data-f="30" data-t="wb.d30">30 days</button><button type="button" data-f="90" data-t="wb.d90">90 days</button><button type="button" class="on" data-f="0" data-t="wb.all">All time</button></div></div>
       <p class="err" id="web-err" hidden></p>
       <div class="facts f4" id="web-facts"></div>
       <h2 data-t="wb.days">Visitors per day</h2>
@@ -684,6 +684,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       </div>
     </div>
     <div id="adm-tx" style="display:grid;gap:14px">
+    <!-- the same periods as Website (Alex, 25 Oct: "and All time, everywhere") -->
+    <div class="bar2"><div class="seg" id="tx-seg"><button type="button" data-f="7" data-t="wb.d7">7 days</button><button type="button" data-f="30" data-t="wb.d30">30 days</button><button type="button" data-f="90" data-t="wb.d90">90 days</button><button type="button" class="on" data-f="0" data-t="wb.all">All time</button></div></div>
     <p class="err" id="adm-err" hidden></p>
     <div class="facts f4" id="adm-facts"></div>
     <!-- Storage (Alex, 22 Oct: "how much room do we have"): what is on Cloudflare R2 now, against the 10 GB that are free -->
@@ -691,7 +693,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <div class="store" id="adm-store"></div>
     <div class="two">
       <div>
-        <h2 data-t="ad.days">Last 30 days</h2>
+        <h2 data-t="ad.days">Per day</h2>
         <div class="chart" id="adm-chart"></div>
         <h2 data-t="ad.kinds">Kinds of file</h2>
         <div class="kinds" id="adm-kinds"></div>
@@ -777,7 +779,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
-    'ad.days': 'Τελευταίες 30 μέρες', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.tx': 'Αποστολές', 'ad.web': 'Ιστότοπος', 'wb.d7': '7 μέρες', 'wb.d30': '30 μέρες', 'wb.d90': '90 μέρες', 'wb.days': 'Επισκέπτες ανά μέρα', 'wb.co': 'Χώρες', 'wb.ref': 'Από πού ήρθαν', 'wb.pg': 'Σελίδες', 'wb.dev': 'Συσκευές', 'wb.lang': 'Γλώσσες', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
+    'ad.days': 'Ανά μέρα', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.tx': 'Αποστολές', 'ad.web': 'Ιστότοπος', 'wb.d7': '7 μέρες', 'wb.d30': '30 μέρες', 'wb.d90': '90 μέρες', 'wb.all': 'Από την αρχή', 'wb.days': 'Επισκέπτες ανά μέρα', 'wb.co': 'Χώρες', 'wb.ref': 'Από πού ήρθαν', 'wb.pg': 'Σελίδες', 'wb.dev': 'Συσκευές', 'wb.lang': 'Γλώσσες', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
   }
   var W = {
     en: {
@@ -1483,7 +1485,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   function loadAdmin() {
     if (!isAdmin) return
     $('adm-err').hidden = true
-    sb.rpc('roar_admin_transfer_stats').then(function (r) { if (r.error) admErr(r.error.message); else { adm.stats = r.data; paintStats() } })
+    sb.rpc('roar_admin_transfer_stats', { days: Number(adm.days || 0) }).then(function (r) { if (r.error) admErr(r.error.message); else { adm.stats = r.data; paintStats() } })
     adm.usage = null; paintStore()
     bridge({ action: 'usage' }).then(function (d) { adm.usage = d; paintStore(); paintStats() }).catch(function (e) { adm.usage = { error: e.message }; paintStore() })
     sb.rpc('roar_admin_transfer_accounts').then(function (r) { if (r.error) admErr(r.error.message); else { adm.acc = r.data || []; paintAcc() } })
@@ -1510,7 +1512,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       + tile('i-timer', fmtN(s.active), w('tActive') + ' · ' + sz(s.active_bytes)) + tile('i-box', adm.usage && !adm.usage.error ? sz(adm.usage.bytes) : '…', w('tStored')(adm.usage && !adm.usage.error ? Number(adm.usage.files) : 0))
       + tile('i-cal', fmtN(s.week), w('tWeek') + ' · ' + sz(s.week_bytes)) + tile('i-file', sz(s.biggest), w('tBiggest'))
     var days = s.days || [], max = Math.max.apply(null, days.map(function (d) { return Number(d.bytes) }).concat([1]))
-    $('adm-chart').innerHTML = '<div class="cols">' + days.map(function (d) {
+    $('adm-chart').innerHTML = '<div class="cols" style="grid-template-columns:repeat(' + Math.max(1, days.length) + ',minmax(0,1fr))">' + days.map(function (d) {
       var b = Number(d.bytes)
       return '<i' + (b ? '' : ' class="z"') + ' style="height:' + (b ? Math.max(4, b / max * 100) : 2) + '%" title="' + esc(dayD(d.day) + ': ' + w('nTransfers')(Number(d.n)) + ' · ' + sz(b)) + '"></i>'
     }).join('') + '</div>' + (days.length ? '<div class="ax"><span>' + dayD(days[0].day) + '</span><span>' + dayD(days[days.length - 1].day) + '</span></div>' : '')
@@ -1783,9 +1785,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 
 
   // ---- Admin > Website (Alex, 25 Oct): roartransfer.com's own visitor numbers, roar_site_stats ----
-  var web = { tab: 'tx', days: '30', s: null, err: '' }
+  var web = { tab: 'tx', days: '0', s: null, err: '' }
   segs('adm-tab', function (f) { web.tab = f; paintWebTab(); if (f === 'web') loadWeb() })
   segs('web-seg', function (f) { web.days = f; web.s = null; paintWeb(); loadWeb() })
+  segs('tx-seg', function (f) {
+    adm.days = f; adm.stats = null; paintStats()
+    sb.rpc('roar_admin_transfer_stats', { days: Number(f) }).then(function (r) { if (r.error) admErr(r.error.message); else { adm.stats = r.data; paintStats() } })
+  })
   function paintWebTab() {
     var on = web.tab === 'web'
     $('adm-web').hidden = !on; $('adm-tx').hidden = on
