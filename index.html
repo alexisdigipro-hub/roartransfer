@@ -110,7 +110,16 @@ header { view-transition-name: rt-head; }
 #v-wait { animation: late-in .3s .45s both !important; }
 #v-wait > * { animation: none; }
 .tabs:not([hidden]) { animation: item-in .5s var(--ease) both; }
-#adm-web, #adm-tx { animation: item-in .45s var(--ease) both; }
+#adm-web, #adm-tx { animation: item-in .5s var(--ease) both; }
+/* Transfers <-> Website (Alex, 25 Oct: "smoother when the window changes"): the one going fades up and away, the
+   title changes with a soft fade, the one coming rises in with its parts one after another */
+@keyframes leave { to { opacity: 0; transform: translateY(-8px); filter: blur(4px); } }
+.leaving { animation: leave .2s var(--ease) both !important; pointer-events: none; }
+.rp { animation: item-in .5s var(--ease) both; }
+#adm-web > *, #adm-tx > * { animation: item-in .5s var(--ease) both; }
+#adm-web > :nth-child(2), #adm-tx > :nth-child(2) { animation-delay: 50ms; } #adm-web > :nth-child(3), #adm-tx > :nth-child(3) { animation-delay: 100ms; }
+#adm-web > :nth-child(4), #adm-tx > :nth-child(4) { animation-delay: 150ms; } #adm-web > :nth-child(5), #adm-tx > :nth-child(5) { animation-delay: 200ms; }
+#adm-web > :nth-child(n+6), #adm-tx > :nth-child(n+6) { animation-delay: 250ms; }
 .lens { position: relative; isolation: isolate; }
 .lens::before { content: ''; position: absolute; z-index: -1; left: 0; top: 0; width: var(--lw, 0); height: var(--lh, 0); border-radius: 999px;
   transform: translate(var(--lx, 0), var(--ly, 0)); background: rgba(255,255,255,.15);
@@ -1862,7 +1871,19 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 
   // ---- Admin > Website (Alex, 25 Oct): roartransfer.com's own visitor numbers, roar_site_stats ----
   var web = { tab: 'tx', days: '0', s: null, err: '' }
-  segs('adm-tab', function (f) { web.tab = f; paintWebTab(); if (f === 'web') loadWeb() })
+  // the switch: the shown part leaves (0.2 s), then the other comes in; the title fades between the two
+  var tabT = 0
+  segs('adm-tab', function (f) {
+    if (f === web.tab) return
+    var out = $(web.tab === 'web' ? 'adm-web' : 'adm-tx')
+    out.classList.add('leaving'); $('adm-h1').classList.add('leaving'); $('adm-sub').classList.add('leaving')
+    clearTimeout(tabT)
+    tabT = setTimeout(function () {
+      out.classList.remove('leaving')
+      ;['adm-h1', 'adm-sub'].forEach(function (id) { var e = $(id); e.classList.remove('leaving', 'rp'); void e.offsetWidth; e.classList.add('rp') })
+      web.tab = f; paintWebTab(); if (f === 'web') loadWeb()
+    }, 190)
+  })
   segs('web-seg', function (f) { web.days = f; web.s = null; paintWeb(); loadWeb() })
   segs('tx-seg', function (f) {
     adm.days = f; adm.stats = null; paintStats()
@@ -1880,6 +1901,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     sb.rpc('roar_site_stats', { days: Number(web.days) }).then(function (r) {
       web.err = r.error ? (/roar_site_stats|function/i.test(r.error.message) ? pw('wNoSql') : r.error.message) : ''
       web.s = r.error ? null : r.data || {}; paintWeb()
+      ;['web-facts', 'web-chart', 'web-co', 'web-ref', 'web-pg', 'web-dev', 'web-lang'].forEach(function (id, n) { var e = $(id); e.classList.remove('rp'); void e.offsetWidth; e.style.animationDelay = n * 40 + 'ms'; e.classList.add('rp') })
     })
   }
   function webRows(list, name, key) {
