@@ -29,3 +29,8 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
 - Admin > Backgrounds (25 Oct 2026): the pictures behind every page (`roar_transfer_backgrounds`, files in
   `roartransfer-brand/site/`), one at random per visit; `stills/` only if the list cannot be read. Pictures up to 10 MB, made
   2560 px WebP 0.86 before upload (`shrink`); older heavy ones are made light once when Admin opens (`slimBgs`).
+- Admin > Website (25 Oct 2026): roartransfer.com's own visitor numbers, no cookies and no addresses. Every page sends
+  one hit (`roar_site_hit`: a random id in localStorage `rt-vid`, the page, the referring site's name, the language;
+  country from Cloudflare, device from the user agent; robots and the admins' own browsers left out). Admin shows
+  visitors, views, today, right now, visitors per day, countries, where they came from, pages, devices, languages for
+  7/30/90 days (`roar_site_stats`). SQL: `supabase/site-stats.sql` in roarme. The Privacy page says so.
