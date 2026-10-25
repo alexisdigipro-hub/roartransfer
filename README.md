@@ -12,7 +12,7 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
 - Tabs: Send, My transfers, Admin (only for RoarMe's admins). Database: `supabase/transfer-panel.sql` in roarme.
 - Link previews (25 Oct 2026): when a link is pasted in WhatsApp, Messenger, iMessage, Slack…, it shows a frame of the
   first video (with a round play sign) or the first picture, who sent it, how big and until when. The page makes the
-  picture (1200x630, `makeCover` in index.html) and sends it with the link; `roartransfer-r2` keeps it as `og/<token>.jpg`
+  picture (1200x630, `makeCover` in index.html: the 20th frame, about 0.8 s in, or further on at 2, 4, 8 s when that one is black) and sends it with the link; `roartransfer-r2` keeps it as `og/<token>.jpg`
   in R2 (never for a transfer with a password) and the hourly sweep deletes it with the link. The apps never run
   JavaScript, so `cloudflare/worker.js` (a Cloudflare Worker on the route `roartransfer.com/*`, the DNS records proxied)
   puts the tags in the link's page from `roar-transfer-get ?meta=1` and serves `/og/<token>.jpg` from `?og=1`.
