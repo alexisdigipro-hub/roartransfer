@@ -27,4 +27,5 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   from the last piece after a lost connection or a reload (localStorage `rt-up:*`, 20 hours). "Lifetime" instead of
   "Always". SQL: `supabase/transfer-pro-plus.sql` in roarme.
 - Admin > Backgrounds (25 Oct 2026): the pictures behind every page (`roar_transfer_backgrounds`, files in
-  `roartransfer-brand/site/`), one at random per visit; `stills/` only if the list cannot be read.
+  `roartransfer-brand/site/`), one at random per visit; `stills/` only if the list cannot be read. Pictures up to 10 MB, made
+  2560 px WebP 0.86 before upload (`shrink`); older heavy ones are made light once when Admin opens (`slimBgs`).
