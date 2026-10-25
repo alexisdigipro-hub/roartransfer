@@ -1,6 +1,8 @@
 # RoarTransfer
 
-roartransfer.com: send files up to 3 GB with a link anyone can download for 3 days. By The Mad Lions.
+roartransfer.com: send files up to 5 GB free with one short link anyone can download. By The Mad Lions.
+
+- `llms.txt` describes the service in plain text for AI assistants; `robots.txt` names the AI crawlers as welcome.
 
 - One plain page (`index.html`), served by GitHub Pages at roartransfer.com (`CNAME`). No build step.
 - Sign in with a RoarMe account (Supabase project RoarMe). Files go straight from the browser to Cloudflare R2
