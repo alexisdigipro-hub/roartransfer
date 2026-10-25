@@ -1053,6 +1053,46 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var fin = await bridge({ action: 'complete', key: made.key, uploadId: made.uploadId, parts: parts, name: f.name || 'file', size: f.size, type: f.type || '', days: DAYS, inbox: dropping ? dropSlug : undefined })
     return { name: f.name, size: fin.size || f.size, type: f.type, token: fin.token, url: PAGE + fin.token, expires: fin.expires }
   }
+  // the link's preview picture (Alex, 25 Oct): a frame of the first video, else the first picture, cropped to 1200x630
+  // with a round play sign on a video, so the link shows it in WhatsApp, Messenger, iMessage, Slack… (roartransfer-r2
+  // keeps it as og/<token>.jpg, never with a password; cloudflare/worker.js puts it in the link's Open Graph tags)
+  function makeCover(list) {
+    var f = list.filter(function (x) { return /^video\//.test(x.type) })[0] || list.filter(function (x) { return /^image\/(jpeg|png|webp|gif|avif)$/.test(x.type) })[0]
+    if (!f) return Promise.resolve('')
+    return new Promise(function (ok) {
+      var src = URL.createObjectURL(f), done = false
+      var end = function (v) { if (done) return; done = true; URL.revokeObjectURL(src); ok(v || '') }
+      setTimeout(end, 15000)
+      var draw = function (el, w0, h0, play) {
+        try {
+          var W = 1200, H = 630, c = document.createElement('canvas'), g = c.getContext('2d'), k = Math.max(W / w0, H / h0)
+          c.width = W; c.height = H
+          g.fillStyle = '#111'; g.fillRect(0, 0, W, H)
+          g.drawImage(el, (W - w0 * k) / 2, (H - h0 * k) / 2, w0 * k, h0 * k)
+          if (play) {
+            g.fillStyle = 'rgba(0,0,0,.45)'; g.beginPath(); g.arc(W / 2, H / 2, 64, 0, Math.PI * 2); g.fill()
+            g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 3; g.stroke()
+            g.fillStyle = '#fff'; g.beginPath(); g.moveTo(W / 2 - 18, H / 2 - 28); g.lineTo(W / 2 + 30, H / 2); g.lineTo(W / 2 - 18, H / 2 + 28); g.closePath(); g.fill()
+          }
+          end(c.toDataURL('image/jpeg', 0.82))
+        } catch (e) { end('') }
+      }
+      if (!/^video\//.test(f.type)) {
+        var im = new Image()
+        im.onload = function () { im.naturalWidth ? draw(im, im.naturalWidth, im.naturalHeight) : end('') }
+        im.onerror = function () { end('') }
+        im.src = src
+        return
+      }
+      // a frame a little way in (the first one is often black): 15% of the way, at most 8 seconds
+      var v = document.createElement('video')
+      v.muted = true; v.playsInline = true; v.preload = 'auto'
+      v.onloadedmetadata = function () { v.currentTime = isFinite(v.duration) && v.duration > 0 ? Math.min(v.duration * 0.15, 8) : 0.5 }
+      v.onseeked = function () { v.videoWidth ? draw(v, v.videoWidth, v.videoHeight, true) : end('') }
+      v.onerror = function () { end('') }
+      v.src = src
+    })
+  }
   $('go').addEventListener('click', async function () {
     if (!files.length || total() > lim() || busy) return
     // by email: at least one address, and all of them must look right
@@ -1064,6 +1104,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     busy = true; stopped = false; sent = []; errs = []
     $('up-n').classList.remove('warn')
     show('v-up'); progress(0)
+    var coverP = $('op-pw').value || dropping ? Promise.resolve('') : makeCover(files.slice())
     var before = 0
     for (var i = 0; i < files.length; i++) {
       if (stopped) break
@@ -1080,7 +1121,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (sent.length) {
       try {
         var bun = await bridge({ action: 'bundle', tokens: sent.map(function (m) { return m.token }), title: $('op-title').value, message: $('op-msg').value,
-          recipients: mode === 'mail' ? emails() : [], password: $('op-pw').value, notify: $('op-notify').checked })
+          recipients: mode === 'mail' ? emails() : [], password: $('op-pw').value, notify: $('op-notify').checked,
+          cover: await Promise.race([coverP, wait(3000).then(function () { return '' })]) || undefined })
         link = PAGE + bun.token
         mailed = bun.mailed || 0
         if (bun.mailErrors && bun.mailErrors.length) errs.push(w('unmailed') + ' ' + bun.mailErrors.join(', '))
