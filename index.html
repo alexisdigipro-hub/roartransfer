@@ -1609,9 +1609,33 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       + add('bg', brandEd.bgs.length >= 8)
     $('pb-save').querySelector('span').textContent = pw('save'); $('pb-save').disabled = brandEd.busy
   }
-  async function upPic(file, folder) {
-    if (file.size > 8 * 1024 * 1024) throw new Error(pw('bBig'))
-    var ext = (file.name.match(/\.(jpe?g|png|webp|gif|svg)$/i) || ['', 'jpg'])[1].toLowerCase()
+  // a picture made light enough to fill a page (Alex, 25 Oct: "up to 10 MB, then compressed a little without losing
+  // much quality"): at most 2560 px on its long side as WebP at 0.86 (JPEG where the browser cannot write WebP);
+  // a logo at most 1000 px and keeps its transparency. SVG and GIF go up as they are.
+  function shrink(file, logo) {
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return Promise.resolve(file)
+    return new Promise(function (ok) {
+      var u = URL.createObjectURL(file), im = new Image()
+      im.onload = function () {
+        var max = logo ? 1000 : 2560, w0 = im.naturalWidth, h0 = im.naturalHeight, k = Math.min(1, max / Math.max(w0, h0))
+        var c = document.createElement('canvas'); c.width = Math.round(w0 * k); c.height = Math.round(h0 * k)
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height)
+        URL.revokeObjectURL(u)
+        c.toBlob(function (b) {
+          var done = function (x) { ok(x && x.size < file.size ? x : k < 1 && x ? x : file) }
+          if (b && b.type === 'image/webp') return done(b)
+          // no WebP writer (older Safari): JPEG for a background, PNG for a logo so it keeps its transparency
+          c.toBlob(done, logo ? 'image/png' : 'image/jpeg', 0.86)
+        }, 'image/webp', 0.86)
+      }
+      im.onerror = function () { URL.revokeObjectURL(u); ok(file) }
+      im.src = u
+    })
+  }
+  async function upPic(file, folder, logo) {
+    if (file.size > 10 * 1024 * 1024) throw new Error(pw('bBig'))
+    file = await shrink(file, logo)
+    var ext = { 'image/webp': 'webp', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/svg+xml': 'svg' }[file.type] || 'jpg'
     var path = folder + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext
     var r = await sb.storage.from(BRAND_BUCKET).upload(path, file, { contentType: file.type || 'image/jpeg', upsert: false })
     if (r.error) throw new Error(r.error.message)
@@ -1627,7 +1651,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var f = e.target.files && e.target.files[0]; e.target.value = ''
     if (!f || !user) return
     $('pb-err').hidden = true; brandEd.busy = true; paintBrand()
-    try { var u = await upPic(f, user.id); if (brandSlot === 'logo') brandEd.logo = u; else brandEd.bgs.push(u) } catch (x) { $('pb-err').textContent = x.message; $('pb-err').hidden = false }
+    try { var u = await upPic(f, user.id, brandSlot === 'logo'); if (brandSlot === 'logo') brandEd.logo = u; else brandEd.bgs.push(u) } catch (x) { $('pb-err').textContent = x.message; $('pb-err').hidden = false }
     brandEd.busy = false; paintBrand()
   })
   $('pb-name').addEventListener('input', function () { brandEd.name = $('pb-name').value; $('pb-ok').hidden = true })
@@ -1669,7 +1693,29 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   setTimeout(function () { if (!bgSet) { bgWait = false; setBg(siteBg()) } }, 1500)
 
   // Admin > Backgrounds
-  var bgBusy = false
+  var bgBusy = false, bgSlim = false
+  // pictures put in before they were made light (heavier than 1.5 MB): made light once, in place, when Admin opens
+  async function slimBgs() {
+    if (bgSlim || !isAdmin || !siteBgs) return
+    bgSlim = true
+    var heavy = 0
+    for (var i = 0; i < siteBgs.length; i++) {
+      var row = siteBgs[i], m = row.url.match(/\/roartransfer-brand\/(site\/[^?]+)$/)
+      // only the ones that never went through shrink (made light ones are WebP or a small JPEG)
+      if (!m || /\.webp$/i.test(m[1])) continue
+      try {
+        var h = await fetch(row.url, { method: 'HEAD' })
+        if (Number(h.headers.get('content-length')) <= 1.5 * 1024 * 1024) continue
+        var blob = await (await fetch(row.url)).blob()
+        var u = await upPic(new File([blob], m[1].split('/').pop(), { type: blob.type }), 'site')
+        var r = await sb.from('roar_transfer_backgrounds').update({ url: u }).eq('id', row.id)
+        if (r.error) throw new Error(r.error.message)
+        await sb.storage.from(BRAND_BUCKET).remove([m[1]])
+        heavy++
+      } catch (x) {}
+    }
+    if (heavy) loadSiteBgs()
+  }
   function paintAdmBg() {
     if (!$('adm-bgs') || !isAdmin) return
     $('adm-bg-sub').textContent = pw('bgSub')
@@ -1677,6 +1723,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('adm-bg-n').textContent = fmtN(l.length)
     $('adm-bgs').innerHTML = l.map(function (b) { return '<div class="tile"><img src="' + esc(b.url) + '" alt="" loading="lazy"><button type="button" class="x" data-bgrm="' + esc(b.id) + '" aria-label="Remove"><svg><use href="#i-x"/></svg></button></div>' }).join('')
       + '<button type="button" class="add" id="adm-bg-add"' + (bgBusy ? ' disabled' : '') + '><svg><use href="#i-up"/></svg>' + pw('bAdd') + '</button>'
+    slimBgs()
   }
   $('adm-bgs').addEventListener('click', async function (e) {
     if (e.target.closest('#adm-bg-add')) { $('adm-bg-file').click(); return }
@@ -1904,7 +1951,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       pkEdit: 'Change expiry or password after sending', pkStats: 'Who opened and downloaded, when, from where', pkResume: 'Uploads resume after a lost connection',
       bH: 'Your brand', bN: 'Your name, logo and backgrounds on the pages people open from your links, and on your Receive-files page.',
       bName: 'Your name or company (e.g. The Mad Lions)', bLogo: 'Logo', bBgs: 'Backgrounds (up to 8, one shows at random)', bAdd: 'Add', bSaved: 'Saved.',
-      bBig: 'Pictures can be up to 8 MB.', details: 'Details', expT: 'Expires', pwNew: 'New password (empty keeps it as it is)', pwOff: 'Remove password',
+      bBig: 'Pictures can be up to 10 MB.', details: 'Details', expT: 'Expires', pwNew: 'New password (empty keeps it as it is)', pwOff: 'Remove password',
       saveC: 'Save changes', locked: 'Has a password', noEv: 'Not opened yet.', evOpen: 'Opened', evDl: 'Downloaded', maxT: function (d) { return 'At most until ' + d },
       bgSub: 'The pictures behind every page; one shows at random on each visit. Pro accounts can use their own on their links.', bgAsk: 'Remove this background?'
     },
@@ -1928,7 +1975,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       pkEdit: 'Αλλαγή λήξης ή κωδικού μετά την αποστολή', pkStats: 'Ποιος άνοιξε και κατέβασε, πότε, από πού', pkResume: 'Το ανέβασμα συνεχίζει αν κοπεί η σύνδεση',
       bH: 'Το brand σου', bN: 'Το όνομα, το λογότυπο και τα φόντα σου στις σελίδες που ανοίγουν από τα links σου και στη σελίδα Λήψης αρχείων.',
       bName: 'Το όνομά σου ή της εταιρείας (π.χ. The Mad Lions)', bLogo: 'Λογότυπο', bBgs: 'Φόντα (ως 8, ένα εμφανίζεται τυχαία)', bAdd: 'Προσθήκη', bSaved: 'Αποθηκεύτηκε.',
-      bBig: 'Οι εικόνες μπορούν να είναι ως 8 MB.', details: 'Λεπτομέρειες', expT: 'Λήγει', pwNew: 'Νέος κωδικός (κενό τον αφήνει ως έχει)', pwOff: 'Αφαίρεση κωδικού',
+      bBig: 'Οι εικόνες μπορούν να είναι ως 10 MB.', details: 'Λεπτομέρειες', expT: 'Λήγει', pwNew: 'Νέος κωδικός (κενό τον αφήνει ως έχει)', pwOff: 'Αφαίρεση κωδικού',
       saveC: 'Αποθήκευση', locked: 'Έχει κωδικό', noEv: 'Δεν έχει ανοιχτεί ακόμα.', evOpen: 'Άνοιξε', evDl: 'Κατέβηκε', maxT: function (d) { return 'Το πολύ ως ' + d },
       bgSub: 'Οι εικόνες πίσω από κάθε σελίδα· μία εμφανίζεται τυχαία σε κάθε επίσκεψη. Οι Pro βάζουν τις δικές τους στα links τους.', bgAsk: 'Να αφαιρεθεί αυτό το φόντο;'
     }
