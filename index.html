@@ -41,6 +41,7 @@
   --red: #d40000; --red-hi: #ff3b2f; --ok: #2fd36b; --warn: #ffd666;
   --glass: rgba(255,255,255,.055); --glass-edge: rgba(255,255,255,.12);
   --ease: cubic-bezier(.16, 1, .3, 1);
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
   --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   --disp: 'Jost RoarMe', Jost, Futura, var(--sans);
   --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
@@ -84,13 +85,47 @@ svg { display: block; }
 .lang button { border: 0; background: transparent; cursor: pointer; padding: 6px 11px; border-radius: 999px; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--muted); }
 .lang button.on { background: rgba(255,255,255,.14); color: var(--text); }
 .who { display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 12px; border-radius: 999px; background: var(--glass); border: 1px solid var(--glass-edge); font-size: 12.5px; color: var(--muted); max-width: 46vw; }
+.who-pro { flex: none; padding: 2px 8px; font-size: 9.5px; animation: pro-pop .55s var(--spring) both; }
+@keyframes pro-pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
 .who span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .who button { flex: none; border: 0; cursor: pointer; padding: 6px 11px; border-radius: 999px; background: rgba(255,255,255,.08); font-size: 12px; font-weight: 600; }
 .who button:hover { background: rgba(255,255,255,.16); }
 
 /* the card */
 main { flex: 1; display: grid; place-items: center; padding: 8px 16px 32px; }
-.card { width: min(520px, 100%); padding: clamp(22px, 4vw, 34px); border-radius: 30px; background: linear-gradient(170deg, rgba(43,48,56,.42), rgba(20,22,26,.5)); border: 1px solid rgba(255,255,255,.2); box-shadow: 0 50px 120px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.14); -webkit-backdrop-filter: blur(28px) saturate(150%); backdrop-filter: blur(28px) saturate(150%); display: grid; gap: 18px; animation: up .7s var(--ease) both; }
+/* motion (Alex, 25 Oct: "smoother and fresher, like RoarMe; it jolts and things flash when I change page"):
+   pages cross-fade into each other with the background held still, a card comes in soft (up, a little blur, its
+   parts one after another), the chosen tab or option is a sheet of glass that slides, and buttons give under a press */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .38s; animation-timing-function: var(--ease); }
+.bg { view-transition-name: rt-bg; }
+header { view-transition-name: rt-head; }
+::view-transition-group(rt-bg), ::view-transition-group(rt-head) { animation-duration: .38s; }
+@keyframes card-in { from { opacity: 0; transform: translateY(20px) scale(.975); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes item-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes late-in { from { opacity: 0; } to { opacity: 1; } }
+.card > * { animation: item-in .55s var(--ease) both; }
+.card > :nth-child(2) { animation-delay: 40ms; } .card > :nth-child(3) { animation-delay: 80ms; } .card > :nth-child(4) { animation-delay: 120ms; }
+.card > :nth-child(5) { animation-delay: 160ms; } .card > :nth-child(6) { animation-delay: 200ms; } .card > :nth-child(n+7) { animation-delay: 240ms; }
+#v-wait { animation: late-in .3s .45s both !important; }
+#v-wait > * { animation: none; }
+.tabs:not([hidden]) { animation: item-in .5s var(--ease) both; }
+#adm-web, #adm-tx { animation: item-in .45s var(--ease) both; }
+.lens { position: relative; isolation: isolate; }
+.lens::before { content: ''; position: absolute; z-index: -1; left: 0; top: 0; width: var(--lw, 0); height: var(--lh, 0); border-radius: 999px;
+  transform: translate(var(--lx, 0), var(--ly, 0)); background: rgba(255,255,255,.15);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 6px 18px rgba(0,0,0,.22); opacity: 0; pointer-events: none; }
+.lens.lens-go::before { transition: transform .5s var(--spring), width .5s var(--spring), height .5s var(--spring), opacity .2s; }
+.lens.lens-on::before { opacity: 1; }
+.lens.lens-on > .on { background: none !important; box-shadow: none !important; }
+.pill, .seg button, .tabs button, .lang button, .files .cp, .bgs .add, .bgs .x, .eye, .drop { transition: transform .22s var(--spring), background .2s, color .2s, box-shadow .2s, filter .2s, opacity .2s, border-color .2s; }
+.pill:hover:not(:disabled) { transform: translateY(-1px); }
+.pill:active:not(:disabled), .seg button:active, .tabs button:active, .lang button:active, .files .cp:active, .bgs .add:active, .bgs .x:active { transform: scale(.93); }
+.eye:active { transform: translateY(-50%) scale(.88); }
+.drop:active { transform: scale(.985); }
+.files li { animation: item-in .4s var(--ease) both; }
+.bg img { transition: opacity 1s var(--ease), transform 14s cubic-bezier(.16,1,.3,1); }
+.card { width: min(520px, 100%); padding: clamp(22px, 4vw, 34px); border-radius: 30px; background: linear-gradient(170deg, rgba(43,48,56,.42), rgba(20,22,26,.5)); border: 1px solid rgba(255,255,255,.2); box-shadow: 0 50px 120px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.14); -webkit-backdrop-filter: blur(28px) saturate(150%); backdrop-filter: blur(28px) saturate(150%); display: grid; gap: 18px; animation: card-in .6s var(--ease) both; }
 @keyframes up { from { opacity: 0; transform: translateY(14px) scale(.985); } }
 h1 { margin: 0; font-family: var(--disp); font-size: clamp(34px, 8vw, 48px); font-weight: 300; line-height: .98; letter-spacing: -.01em; text-wrap: balance; }
 h1 b { font-weight: 800; }
@@ -239,7 +274,8 @@ h2 .cnt { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 
 .slug input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--text); font: inherit; padding: 12px 8px 12px 0; outline: none; }
 .pro-sub { margin: 6px 2px 0; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .pro-st { display: grid; gap: 10px; }
-.pro-st .chips i { font-style: normal; }
+.pro-st .chips i { font-style: normal; white-space: normal; max-width: 100%; }
+.card { grid-template-columns: minmax(0, 1fr); }
 .pro-rx { margin: 8px 2px 0; font-weight: 700; font-size: 15px; }
 .pro-add { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .pro-add .in { flex: 1 1 240px; width: auto; }
@@ -393,7 +429,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 @media (max-width: 480px) {
   .top .mark b { font-size: 20px; }
   /* on a phone the signed-in pill is only Sign out, so it and EN/GR fit beside the wordmark (Alex, 22 Oct) */
-  .who { max-width: none; padding: 3px; } #who-mail { display: none; }
+  .who { max-width: none; padding: 3px; gap: 4px; } #who-mail { display: none; } .who-pro { padding: 2px 6px; font-size: 8.5px; margin-left: 2px; }
   .who button { padding: 6px 10px; }
   .top { gap: 8px; } .top .end { gap: 6px; flex: none; }
   .lang button { padding: 6px 9px; }
@@ -405,7 +441,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   .top .mark b { font-size: 17px; } .mark .by { font-size: 8.5px; letter-spacing: .2em; }
   .who button { font-size: 11px; padding: 5px 8px; } .lang button { padding: 5px 7px; }
 }
-@media (prefers-reduced-motion: reduce) { .card, .done-ic { animation: none; } .drop, .pill, .ring .fl, .meter .bar i { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .card, .done-ic, .card > *, .files li, .tabs, #adm-web, #adm-tx { animation: none !important; } .lens::before { transition: none !important; } @view-transition { navigation: none; } .drop, .pill, .ring .fl, .meter .bar i { transition: none; } }
 </style>
 </head>
 <body>
@@ -440,7 +476,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <div class="end">
     <a class="more" href="about/" data-t="more">About Us</a>
     <button type="button" class="more in" id="signin" hidden data-t="sgn">Sign in</button>
-    <div class="who" id="who" hidden><span id="who-mail"></span><button type="button" id="out" data-t="out">Sign out</button></div>
+    <div class="who" id="who" hidden><b class="badge who-pro" id="who-pro" hidden>PRO</b><span id="who-mail"></span><button type="button" id="out" data-t="out">Sign out</button></div>
     <div class="lang" role="group" aria-label="Language">
       <button type="button" data-lang="en">EN</button>
       <button type="button" data-lang="el">GR</button>
@@ -1693,18 +1729,53 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     }).catch(function (x) { brandEd.busy = false; paintBrand(); $('pb-err').textContent = x.message; $('pb-err').hidden = false })
   })
 
+  // ---- the glass that slides to the chosen tab or option (as in RoarMe's Lens), on every row of choices ----
+  function lens(el) {
+    el.classList.add('lens')
+    var put = function () {
+      // classes change only when they must: touching them otherwise wakes this observer again, without end
+      var on = el.querySelector(':scope > .on')
+      if (!on || !on.offsetWidth) { if (el.classList.contains('lens-on')) el.classList.remove('lens-on'); return }
+      el.style.setProperty('--lx', on.offsetLeft + 'px'); el.style.setProperty('--ly', on.offsetTop + 'px')
+      el.style.setProperty('--lw', on.offsetWidth + 'px'); el.style.setProperty('--lh', on.offsetHeight + 'px')
+      if (!el.classList.contains('lens-on')) el.classList.add('lens-on')
+      // it slides only once it has a place: the first time it simply appears there
+      if (!el.classList.contains('lens-go')) requestAnimationFrame(function () { el.classList.add('lens-go') })
+    }
+    new MutationObserver(function (l) { if (l.some(function (m) { return m.target !== el })) put() }).observe(el, { subtree: true, attributes: true, attributeFilter: ['class', 'hidden'] })
+    try { var ro = new ResizeObserver(put); ro.observe(el); [].forEach.call(el.children, function (c) { ro.observe(c) }) } catch (e) {}
+    put()
+  }
+  document.querySelectorAll('.seg, .tabs, .lang').forEach(lens)
+
   // ---- the backgrounds (Alex, 20 Oct: his own pictures; since 25 Oct chosen in Admin > Backgrounds) ----
   // a link's or a Receive-files page waits to know whose it is, so a Pro's own backgrounds show from the start
   var siteBgs = null, bgSet = false, bgWait = getting || dropping
   function setBg(u) {
     if (!u) return
     bgSet = true
-    var im = $('bg-img'); $('bg').classList.remove('on')
-    im.onload = function () { $('bg').classList.add('on') }
+    var im = $('bg-img')
+    if (im.getAttribute('src') === u) return
+    // the new picture fades in over the old one instead of the page going dark between them
+    var was = im.getAttribute('src')
+    if (was) { var old = im.cloneNode(); old.removeAttribute('id'); old.style.cssText = 'position:absolute;inset:0;opacity:1;transform:none'; $('bg').insertBefore(old, im); setTimeout(function () { old.remove() }, 1200) }
+    $('bg').classList.remove('on')
+    im.onload = function () { requestAnimationFrame(function () { $('bg').classList.add('on') }) }
     im.src = u
   }
   var pick = function (l) { return l && l.length ? l[Math.floor(Math.random() * l.length)] : '' }
-  function siteBg() { return pick(siteBgs && siteBgs.length ? siteBgs.map(function (b) { return b.url }) : STILLS.map(function (x) { return 'stills/' + x.f })) }
+  // one picture for the whole visit (Alex, 25 Oct: a new one on every page made each change of page jolt), and the
+  // list kept from last time so the picture is there at once instead of after the list has come
+  var held = ''
+  try { held = sessionStorage.getItem('rt-bg') || '' } catch (e) {}
+  function siteBg() {
+    var l = siteBgs && siteBgs.length ? siteBgs.map(function (b) { return b.url }) : STILLS.map(function (x) { return 'stills/' + x.f })
+    if (held && l.indexOf(held) >= 0) return held
+    held = pick(l)
+    try { sessionStorage.setItem('rt-bg', held) } catch (e) {}
+    return held
+  }
+  try { var kept = JSON.parse(localStorage.getItem('rt-bgs') || 'null'); if (Array.isArray(kept) && kept.length) siteBgs = kept } catch (e) {}
   function useBrand(brand, where) {
     var b = brand || null
     $(where + '-brand').hidden = !b || !(b.logo || b.name)
@@ -1718,9 +1789,14 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   function loadSiteBgs() {
     return fetch(URL_ + '/rest/v1/roar_transfer_backgrounds?select=id,url,sort&order=sort.asc,created_at.asc', { headers: { apikey: KEY } })
       .then(function (r) { return r.ok ? r.json() : [] }).catch(function () { return [] })
-      .then(function (l) { siteBgs = Array.isArray(l) ? l : []; if (!bgWait && !bgSet) setBg(siteBg()); paintAdmBg() })
+      .then(function (l) {
+        siteBgs = Array.isArray(l) ? l : []
+        try { localStorage.setItem('rt-bgs', JSON.stringify(siteBgs)) } catch (e) {}
+        if (!bgWait && !bgSet) setBg(siteBg()); paintAdmBg()
+      })
   }
-  // never a blank page: after a second and a half the site's own pick, whatever is still loading
+  // the remembered list shows its picture at once; never a blank page: after a second and a half the site's own pick
+  if (!bgWait && siteBgs && siteBgs.length) setBg(siteBg())
   setTimeout(function () { if (!bgSet) { bgWait = false; setBg(siteBg()) } }, 1500)
 
   // Admin > Backgrounds
@@ -2106,6 +2182,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     // a Pro's tab and title say Pro (Alex, 25 Oct)
     if (!PT) return
     var isPro = !!pro && !!user
+    // the PRO mark on the account at the top (Alex, 25 Oct)
+    $('who-pro').hidden = !isPro
     $('tab-mine').textContent = isPro ? pw('tab') : ((lang === 'el' ? EL : EN)['tb.mine'] || EN['tb.mine'])
     $('mn-title').innerHTML = isPro ? pw('mineT') : (lang === 'el' ? EL['mn.title'] : EN['mn.title'])
     if (!isPro) $('mn-sub').textContent = (lang === 'el' ? EL : EN)['mn.sub'] || EN['mn.sub']

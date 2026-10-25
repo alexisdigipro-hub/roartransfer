@@ -34,3 +34,8 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   country from Cloudflare, device from the user agent; robots and the admins' own browsers left out). Admin shows
   visitors, views, today, right now, visitors per day, countries, where they came from, pages, devices, languages for
   7/30/90 days (`roar_site_stats`). SQL: `supabase/site-stats.sql` in roarme. The Privacy page says so.
+- Motion (25 Oct 2026, Alex: "smoother and fresher, like RoarMe; it jolts when I change page"): pages cross-fade
+  (`@view-transition`, every page), the background is one picture for the whole visit (sessionStorage `rt-bg`, the list
+  kept in localStorage `rt-bgs` so it shows at once), cards come in soft with their parts one after another, the chosen
+  tab or option is a sliding sheet of glass (`lens()`, as RoarMe's Lens), buttons give under a press. A PRO mark on the
+  account at the top for Pro accounts.
