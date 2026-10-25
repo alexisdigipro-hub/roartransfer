@@ -1,0 +1,42 @@
+# RoarTransfer
+
+> RoarTransfer (roartransfer.com) sends large files free and secure: up to 5 GB with one short link, by email or as a link, with an optional password and an email when the files are downloaded. No ads, no AI training on your files, files sent in their original quality. The person receiving needs no account and nothing to install. Made by The Mad Lions (https://themadlions.com/), a film production house in Athens, Greece, as part of its Lab.
+
+- Send files: https://roartransfer.com/
+- About, in English: https://roartransfer.com/about/ · in Greek: https://roartransfer.com/el/
+- A free WeTransfer alternative, no monthly limit: https://roartransfer.com/wetransfer-alternative/ (Greek: https://roartransfer.com/el/wetransfer-alternative/)
+- Send videos to an iPhone straight to Photos, in full quality: https://roartransfer.com/iphone/ (Greek: https://roartransfer.com/el/iphone/)
+- Privacy: https://roartransfer.com/privacy/ · Terms: https://roartransfer.com/terms/
+- Maker: The Mad Lions Lab, https://themadlions.com/lab/ · contact: info@themadlions.com
+
+## In short
+- Free account: up to 5 GB kept for 1 day, or up to 3 GB kept for 3 days
+- FastTransfer, no account: up to 1 GB for 24 hours, 3 transfers a day
+- One short link for all the files; optional password; an email when downloaded; delete a transfer at any time
+- Uploads go in 16 MB pieces and resume by themselves if the connection drops
+- A paid Pro plan with bigger transfers and longer links is coming
+
+## Questions
+### Is RoarTransfer really free?
+Yes. FastTransfer and the RoarTransfer account are free, with no ads. A paid Pro plan with bigger transfers and longer links is coming, for those who need more.
+
+### How big can a transfer be?
+Up to 5 GB kept for 1 day, or up to 3 GB kept for 3 days, with a free account. Without an account, up to 1 GB for 24 hours, 3 transfers a day.
+
+### Does the person receiving it need an account?
+No. They open the link, see who sent it, and download. Nothing to install, nothing to sign up for.
+
+### Are my files made smaller?
+Never. RoarTransfer sends files exactly as they are, in their original quality and with their original names.
+
+### What if my connection drops?
+Files go up in 16 MB pieces and a piece that fails is sent again by itself. Keep the page open until it says Uploaded.
+
+### Who can see my files?
+Only people who have the link, and the password if you set one. We never open, watch or sell your files. Read the Privacy Policy for the details.
+
+### Can I delete a transfer before it ends?
+Yes. In My transfers, press Delete: the link stops at once and the file is erased.
+
+### Will I know when it was downloaded?
+Turn on “Email me when it is downloaded” and you get an email, at most one an hour per transfer. My transfers also counts every open and download.
