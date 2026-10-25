@@ -1775,12 +1775,20 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   var pick = function (l) { return l && l.length ? l[Math.floor(Math.random() * l.length)] : '' }
   // one picture for the whole visit (Alex, 25 Oct: a new one on every page made each change of page jolt), and the
   // list kept from last time so the picture is there at once instead of after the list has come
-  var held = ''
-  try { held = sessionStorage.getItem('rt-bg') || '' } catch (e) {}
+  // (Alex, 25 Oct, later: "it got stuck on one background"): the same picture only when coming from another page of
+  // the site; a new visit or a reload picks again, never the one shown last
+  var held = '', last = ''
+  try {
+    last = sessionStorage.getItem('rt-bg') || ''
+    var nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {}
+    var fromSite = /^https?:\/\/(www\.)?roartransfer\.com\//.test(document.referrer || '') && nav.type !== 'reload'
+    if (fromSite) held = last
+  } catch (e) {}
   function siteBg() {
     var l = siteBgs && siteBgs.length ? siteBgs.map(function (b) { return b.url }) : STILLS.map(function (x) { return 'stills/' + x.f })
     if (held && l.indexOf(held) >= 0) return held
-    held = pick(l)
+    var other = l.filter(function (u) { return u !== last })
+    held = pick(other.length ? other : l)
     try { sessionStorage.setItem('rt-bg', held) } catch (e) {}
     return held
   }
