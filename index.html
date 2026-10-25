@@ -1095,12 +1095,15 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       // still black (a fade in), a little further on (2, 4, 8 seconds, a third of the way), else the brightest one seen
       var v = document.createElement('video'), at = [], best = null
       v.muted = true; v.playsInline = true; v.preload = 'auto'
-      var next = function () { at.length ? (v.currentTime = at.shift()) : best ? finish(best.c, true) : end('') }
+      // nothing but the dark backdrop (the browser never drew the frame): the general RoarTransfer card instead
+      var next = function () { at.length ? (v.currentTime = at.shift()) : best && best.light >= 22 ? finish(best.c, true) : end('') }
       v.onloadedmetadata = function () {
         var d = isFinite(v.duration) && v.duration > 0 ? v.duration : 10
         at = [0.8, 2, 4, 8, d / 3].filter(function (t) { return t < d })
         if (!at.length) at = [d / 2]
-        next()
+        // a moment of muted play makes Safari decode pictures at all; then the seeks
+        var go = function () { try { v.pause() } catch (e) {} next() }
+        try { var pl = v.play(); pl && pl.then ? pl.then(go, go) : go() } catch (e) { go() }
       }
       // the frame is drawn only once the browser has shown it after the seek (Safari otherwise gives the old one)
       v.onseeked = function () {
