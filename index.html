@@ -530,6 +530,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <span class="get-ic" id="get-ic" hidden><svg><use href="#i-timer"/></svg></span>
     <h1 class="center" id="get-h" hidden></h1>
     <p class="note" id="get-n" hidden></p>
+    <!-- one last time (Alex, 26 Oct): an ended link from an account can still be taken once by someone who signs up -->
+    <div class="get-back" id="get-grace" hidden>
+      <b data-t="gr.t">One last download</b>
+      <p data-t="gr.p">Sign up free, or sign in, and you can still download it one last time today.</p>
+      <div class="row"><button type="button" class="pill main" data-gup><span data-t="gr.up">Sign up free</span></button><button type="button" class="pill" data-gin><span data-t="gr.in">Sign in</span></button></div>
+    </div>
+    <p class="note warn" id="get-last" hidden data-t="gr.last">The link has ended: this is your one last download of each file.</p>
     <video class="pv" id="get-vid" controls playsinline preload="metadata" hidden></video>
     <img class="pv" id="get-img" alt="" hidden>
     <ul class="files" id="get-list" hidden></ul>
@@ -844,6 +851,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
     'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · 1 GB · 24 ώρες · 1 λήψη · 3/μέρα', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
+    'gr.t': 'Μία τελευταία λήψη', 'gr.p': 'Κάνε δωρεάν εγγραφή, ή συνδέσου, και μπορείς να το κατεβάσεις μία τελευταία φορά σήμερα.', 'gr.up': 'Δωρεάν εγγραφή', 'gr.in': 'Σύνδεση', 'gr.last': 'Το link έληξε: αυτή είναι η τελευταία σου λήψη για κάθε αρχείο.',
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
@@ -1059,7 +1067,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   })
   $('out').addEventListener('click', function () { if (busy) return; sb.auth.signOut() })
   sb.auth.onAuthStateChange(function (ev, session) {
-    if (getting || dropping) { user = session && session.user || null; return }
+    if (getting || dropping) {
+      user = session && session.user || null
+      // signed in from an ended link: back to it, now with the one last download
+      if (getting && user && view === 'v-in') { try { localStorage.removeItem('rt-grace') } catch (x) {} show('v-get'); load() }
+      return
+    }
     var was = user && user.id
     user = session && session.user || null
     $('who-mail').textContent = user ? user.email || '' : ''
@@ -1071,6 +1084,22 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   sb.auth.getSession().then(function (r) { if (!r.data.session && !getting && !dropping) { show('v-in'); loadGuest() } })
   // without an account: how many of today's transfers are left
   function loadGuest() { if (user) return; bridge({ action: 'guest' }).then(function (d) { guestLeft = d.left; paint() }).catch(function () {}) }
+  // one last download (Alex, 26 Oct): to sign up or in from an ended link, and back to it afterwards (also after the
+  // email that confirms a new account, which lands on the home page)
+  $('get-grace').addEventListener('click', function (e) {
+    var up = e.target.closest('[data-gup]'), inn = e.target.closest('[data-gin]')
+    if (!up && !inn) return
+    try { localStorage.setItem('rt-grace', JSON.stringify({ t: getToken, at: Date.now() })) } catch (x) {}
+    toIn(!!up)
+  })
+  function graceBack() {
+    try {
+      var g = JSON.parse(localStorage.getItem('rt-grace') || 'null')
+      localStorage.removeItem('rt-grace')
+      if (g && g.t && Date.now() - g.at < 864e5) { location.replace(PAGE.replace(/\/$/, '') + '/' + g.t); return true }
+    } catch (x) {}
+    return false
+  }
   function toIn(up) { signUp = !!up; $('in-err').hidden = true; $('in-ok').hidden = true; paintIn(); show('v-in') }
   $('signin').addEventListener('click', function () { if (!busy) toIn(false) })
   $('in-guest').addEventListener('click', function (e) { e.preventDefault(); show('v-pick'); paint() })
@@ -1431,6 +1460,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   var adm = { stats: null, list: null, more: false, who: null, f: 'all', busy: false }
   var ADM_PAGE = 100
   function signedIn() {
+    if (graceBack()) return
     var h = (location.hash || '').slice(1)
     tab = 'send'; sendView = busy ? 'v-up' : 'v-pick'
     go(h === 'mine' ? 'mine' : 'send')
@@ -2080,9 +2110,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (d && !d.error) { await one(d); if (d.files) await Promise.all(d.files.map(one)) }
     return d
   }
-  function load() {
+  async function load() {
     $('get-wait').hidden = false
-    fetch(URL_ + '/functions/v1/roar-transfer-get?t=' + encodeURIComponent(getToken) + (getPw ? '&p=' + encodeURIComponent(getPw) : ''))
+    // signed in, the page says who asks: an ended link then gives its one last download
+    var hd = {}
+    try { var s0 = (await sb.auth.getSession()).data.session; if (s0) hd.Authorization = 'Bearer ' + s0.access_token } catch (e) {}
+    fetch(URL_ + '/functions/v1/roar-transfer-get?t=' + encodeURIComponent(getToken) + (getPw ? '&p=' + encodeURIComponent(getPw) : ''), { headers: hd })
       .then(function (r) { return r.json() })
       .then(pcResolve)
       .then(function (d) {
@@ -2110,6 +2143,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     }
     var bad = !!got.error
     $('get-ic').hidden = !bad; $('get-h').hidden = !bad; $('get-n').hidden = !bad
+    $('get-grace').hidden = !(bad && got.grace && !user)
+    $('get-last').hidden = bad || !got.last
     $('get-sub').hidden = bad
     ;['get-list', 'get-exp', 'get-go'].forEach(function (id) { $(id).hidden = bad })
     $('get-photos').hidden = true
@@ -2117,6 +2152,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       var k = got.error === 'expired' ? 'gGone' : got.error === 'used' ? 'gUsed' : got.error === 'offline' ? 'gOff' : 'gBad'
       $('get-ic').innerHTML = '<svg><use href="#' + (k === 'gGone' ? 'i-timer' : 'i-x') + '"/></svg>'
       $('get-h').textContent = w(k); $('get-n').textContent = w(k + 'N')
+      if (got.grace && !user) $('get-n').hidden = true
       $('get-vid').hidden = true; $('get-img').hidden = true
       return
     }
