@@ -533,7 +533,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <!-- one last time (Alex, 26 Oct): an ended link from an account can still be taken once by someone who signs up -->
     <div class="get-back" id="get-grace" hidden>
       <b data-t="gr.t">One last download</b>
-      <p data-t="gr.p">Sign up free, or sign in, and you can still download it one last time today.</p>
+      <p data-t="gr.p">Sign up free, or sign in, and you can still download it one last time.</p>
       <div class="row"><button type="button" class="pill main" data-gup><span data-t="gr.up">Sign up free</span></button><button type="button" class="pill" data-gin><span data-t="gr.in">Sign in</span></button></div>
     </div>
     <p class="note warn" id="get-last" hidden data-t="gr.last">The link has ended: this is your one last download of each file.</p>
@@ -851,7 +851,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
     'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · 1 GB · 24 ώρες · 1 λήψη · 3/μέρα', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
-    'gr.t': 'Μία τελευταία λήψη', 'gr.p': 'Κάνε δωρεάν εγγραφή, ή συνδέσου, και μπορείς να το κατεβάσεις μία τελευταία φορά σήμερα.', 'gr.up': 'Δωρεάν εγγραφή', 'gr.in': 'Σύνδεση', 'gr.last': 'Το link έληξε: αυτή είναι η τελευταία σου λήψη για κάθε αρχείο.',
+    'gr.t': 'Μία τελευταία λήψη', 'gr.p': 'Κάνε δωρεάν εγγραφή, ή συνδέσου, και μπορείς να το κατεβάσεις μία τελευταία φορά.', 'gr.up': 'Δωρεάν εγγραφή', 'gr.in': 'Σύνδεση', 'gr.last': 'Το link έληξε: αυτή είναι η τελευταία σου λήψη για κάθε αρχείο.',
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
@@ -2172,6 +2172,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       return '<li' + (f.used ? ' class="used"' : '') + '><span class="fi"><svg><use href="#' + icon(f.type || '') + '"/></svg></span><span class="ft"><b>' + esc(f.name || 'file') + '</b><small>' + size(f.size) + (f.used ? ' · ' + w('gUsed') : f.left != null ? ' · ' + w('gLeft')(f.left) : '') + '</small></span>'
         + (gotFiles.length > 1 && !f.used ? '<a class="getdl" href="' + esc(f.url) + '" download="' + esc(f.name || '') + '" data-n="' + n + '" title="' + esc(w('gOne')) + '" aria-label="' + esc(w('gOne')) + '"><svg><use href="#i-down"/></svg></a>' : '') + '</li>'
     }).join('')
+    // the last download says nothing about how long it stays (Alex, 26 Oct: kept 5 days, not shown)
+    $('get-exp').hidden = !!got.last
     var ms = new Date(got.expires).getTime()
     $('get-exp').querySelector('span').textContent = w('gExpires') + ' ' + day(ms) + ' ' + hour(ms)
     $('get-go').querySelector('span').textContent = gotFiles.length > 1 ? w('gAll') : w('gGo')
