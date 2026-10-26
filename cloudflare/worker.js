@@ -27,7 +27,8 @@ export default {
     if (!m || page.status !== 404) return page
     let meta = {}
     try { meta = await (await fetch(`${FN}?meta=1&t=${m[1]}`, { cf: { cacheTtl: 60 } })).json() } catch (e) {}
-    const html = (await page.text()).replace(/<title>[^<]*<\/title>/, tags(m[1], meta))
+    // a function, so a `$` in a title is only text (security check, 26 Oct)
+    const html = (await page.text()).replace(/<title>[^<]*<\/title>/, () => tags(m[1], meta))
     return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=60' } })
   },
 }
