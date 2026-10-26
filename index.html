@@ -920,6 +920,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       gNote: function (n) { return '<b>No account needed:</b> a link for 24 hours, up to 1 GB, downloaded once, 3 transfers a day' + (n == null ? '' : ' (' + n + ' left today)') + '. <a href="#" data-up>Sign up free</a> for email, up to 5 GB and up to 7 days.' },
       gOut: 'You used today\'s 3 free transfers. <a href="#" data-up>Sign up free</a> to keep sending, up to 5 GB.',
       limit: 'You used today\'s 3 free transfers. Sign up free to keep sending.',
+      daily: 'A free account can send up to 15 GB a day. Go Pro for more, or send the rest tomorrow.',
       repAsk: 'Report this transfer: what is wrong with it? (optional)', repDone: 'Thanks, we will look at it.',
       only: 'Only', everyone: 'Everyone', guestN: 'Guest',
       stOf: 'of 10 GB free', stLeft: function (g) { return g + ' left' }, stOver: function (g) { return g + ' over the free 10 GB' }, stFiles: function (n) { return n + (n === 1 ? ' file' : ' files') }, stAcc: 'Accounts', stOther: 'Other', stOpen: function (n) { return n + ' unfinished ' + (n === 1 ? 'upload' : 'uploads') + ' (cleared in 7 days)' },
@@ -959,6 +960,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       gNote: function (n) { return '<b>Χωρίς λογαριασμό:</b> σύνδεσμος για 24 ώρες, ως 1 GB, για 1 λήψη, 3 αποστολές τη μέρα' + (n == null ? '' : ' (σου μένουν ' + n + ' σήμερα)') + '. <a href="#" data-up>Κάνε δωρεάν εγγραφή</a> για email, ως 5 GB και ως 7 μέρες.' },
       gOut: 'Χρησιμοποίησες τις 3 δωρεάν αποστολές της ημέρας. <a href="#" data-up>Κάνε δωρεάν εγγραφή</a> για να συνεχίσεις, ως 5 GB.',
       limit: 'Χρησιμοποίησες τις 3 δωρεάν αποστολές της ημέρας. Κάνε δωρεάν εγγραφή για να συνεχίσεις.',
+      daily: 'Με δωρεάν λογαριασμό στέλνεις ως 15 GB τη μέρα. Γίνε Pro για περισσότερα ή στείλε τα υπόλοιπα αύριο.',
       repAsk: 'Αναφορά αυτής της αποστολής: τι πρόβλημα έχει; (προαιρετικό)', repDone: 'Ευχαριστούμε, θα το δούμε.',
       only: 'Μόνο', everyone: 'Όλοι', guestN: 'Επισκέπτης',
       stOf: 'από τα 10 GB δωρεάν', stLeft: function (g) { return 'μένουν ' + g }, stOver: function (g) { return g + ' πάνω από τα δωρεάν 10 GB' }, stFiles: function (n) { return n + (n === 1 ? ' αρχείο' : ' αρχεία') }, stAcc: 'Λογαριασμοί', stOther: 'Άλλα', stOpen: function (n) { return n + ' ημιτελή ανεβάσματα (σβήνονται σε 7 μέρες)' },
@@ -1232,7 +1234,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (viewAs === 'free') body = Object.assign({ as: 'free' }, body)
     var r = await fetch(FN, { method: 'POST', headers: hd, body: JSON.stringify(body) })
     var d = {}; try { d = await r.json() } catch (e) {}
-    if (!r.ok) throw Object.assign(new Error(d.limit ? w('limit') : d.error === 'signed-out' ? 'signed-out' : d.error || ('Error ' + r.status)), { fatal: r.status < 500, limit: !!d.limit })
+    if (!r.ok) throw Object.assign(new Error(d.limit ? w('limit') : d.daily ? w('daily') : d.error === 'signed-out' ? 'signed-out' : d.error || ('Error ' + r.status)), { fatal: r.status < 500, limit: !!d.limit, daily: !!d.daily })
     return d
   }
   function put(url, body, onUp) {
@@ -1407,6 +1409,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       try { sent.push(await upOne(f, before)) } catch (e) {
         if (stopped || e.message === 'cancelled') break
         if (e.limit) { errs.push(e.message); guestLeft = 0; break }
+        // a Free account's 15 GB a day (Alex, 26 Oct): the files that fit went, the rest wait for tomorrow
+        if (e.daily) { errs.push(e.message); break }
         errs.push(f.name + ': ' + (e.message === 'offline' ? w('offline') : e.message === 'signed-out' ? w('bad') : e.message))
       }
       before += f.size; progress(before)
