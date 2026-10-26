@@ -392,6 +392,17 @@ main:has(> .card.wide:not([hidden])) { align-content: start; }
 .facts.f4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .facts span { min-width: 0; }
 .bar2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.view-as { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.view-as .pill svg { width: 16px; height: 16px; }
+@media (max-width: 600px) { .view-as { width: 100%; margin-left: 0; } .view-as .pill { flex: 1 1 auto; justify-content: center; } }
+.as-bar { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 60; display: flex; width: max-content; align-items: center; gap: 12px; max-width: calc(100% - 32px);
+  padding: 8px 8px 8px 18px; border-radius: 999px; background: rgba(20,22,26,.72); border: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(22px) saturate(1.4); -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  box-shadow: 0 18px 50px rgba(0,0,0,.45); font-size: 13.5px; font-weight: 600; animation: asIn .5s var(--ease) both; }
+.as-bar[hidden] { display: none; }
+.as-bar i { width: 8px; height: 8px; border-radius: 50%; background: var(--red-hi); box-shadow: 0 0 10px var(--red-hi); flex: none; }
+.as-bar span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.as-bar .pill { flex: none; }
+@keyframes asIn { from { opacity: 0; transform: translate(-50%, 16px); } }
 .seg { display: flex; padding: 3px; border-radius: 999px; background: rgba(0,0,0,.2); border: 1px solid var(--line-2); }
 .seg button { border: 0; background: transparent; cursor: pointer; padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--muted); }
 .seg button.on { background: rgba(255,255,255,.14); color: var(--text); }
@@ -502,6 +513,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   </div>
 </header>
 
+<div class="as-bar" id="as-bar" hidden><i></i><span id="as-what"></span><button type="button" class="pill sm" id="as-back" data-t="va.back">Back to Admin</button></div>
 <!-- the panels (Alex, 21 Oct): shown once signed in; Admin only to the admin (roar_is_admin) -->
 <nav class="tabs" id="tabs" hidden aria-label="RoarTransfer">
   <button type="button" data-go="send" data-t="tb.send">Send</button>
@@ -752,7 +764,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     </div>
     <div class="pane" id="pane-ov">
     <!-- the same periods as Website (Alex, 25 Oct: "and All time, everywhere") -->
-    <div class="bar2"><div class="seg" id="tx-seg"><button type="button" data-f="7" data-t="wb.d7">7 days</button><button type="button" data-f="30" data-t="wb.d30">30 days</button><button type="button" data-f="90" data-t="wb.d90">90 days</button><button type="button" class="on" data-f="0" data-t="wb.all">All time</button></div></div>
+    <div class="bar2"><div class="seg" id="tx-seg"><button type="button" data-f="7" data-t="wb.d7">7 days</button><button type="button" data-f="30" data-t="wb.d30">30 days</button><button type="button" data-f="90" data-t="wb.d90">90 days</button><button type="button" class="on" data-f="0" data-t="wb.all">All time</button></div>
+      <!-- see the site as someone else sees it (Alex, 26 Oct: "view as Free user & view as Pro user") -->
+      <div class="view-as"><button type="button" class="pill sm" data-as="free"><svg><use href="#i-eye"/></svg><span data-t="va.free">View as Free user</span></button><button type="button" class="pill sm" data-as="pro"><svg><use href="#i-eye"/></svg><span data-t="va.pro">View as Pro user</span></button></div></div>
     <p class="err" id="adm-err" hidden></p>
     <div class="facts f4" id="adm-facts"></div>
     <!-- Storage (Alex, 22 Oct: "how much room do we have"): what is on Cloudflare R2 now, against the 10 GB that are free -->
@@ -855,7 +869,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
-    'ad.days': 'Ανά μέρα', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.tx': 'Αποστολές', 'ad.ov': 'Επισκόπηση', 'mt.sent': 'Στάλθηκαν', 'mt.got': 'Ήρθαν', 'mt.pro': 'Pro', 'ad.web': 'Ιστότοπος', 'wb.d7': '7 μέρες', 'wb.d30': '30 μέρες', 'wb.d90': '90 μέρες', 'wb.all': 'Από την αρχή', 'wb.days': 'Επισκέπτες ανά μέρα', 'wb.co': 'Χώρες', 'wb.ref': 'Από πού ήρθαν', 'wb.pg': 'Σελίδες', 'wb.dev': 'Συσκευές', 'wb.lang': 'Γλώσσες', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
+    'ad.days': 'Ανά μέρα', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.tx': 'Αποστολές', 'ad.ov': 'Επισκόπηση', 'va.free': 'Δες το σαν Free χρήστης', 'va.pro': 'Δες το σαν Pro χρήστης', 'va.back': 'Πίσω στο Admin', 'mt.sent': 'Στάλθηκαν', 'mt.got': 'Ήρθαν', 'mt.pro': 'Pro', 'ad.web': 'Ιστότοπος', 'wb.d7': '7 μέρες', 'wb.d30': '30 μέρες', 'wb.d90': '90 μέρες', 'wb.all': 'Από την αρχή', 'wb.days': 'Επισκέπτες ανά μέρα', 'wb.co': 'Χώρες', 'wb.ref': 'Από πού ήρθαν', 'wb.pg': 'Σελίδες', 'wb.dev': 'Συσκευές', 'wb.lang': 'Γλώσσες', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
   }
   var W = {
     en: {
@@ -954,7 +968,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     document.querySelectorAll('.lang button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === lang) })
     try { localStorage.setItem('roartransfer.lang', lang) } catch (e) {}
     paint()
-    paintPro(); paintAdmPro()
+    paintPro(); paintAdmPro(); paintAs()
     if (typeof web !== 'undefined' && web) { paintWebTab(); paintWeb() }
   }
   document.querySelectorAll('.lang button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.dataset.lang) }) })
@@ -986,6 +1000,11 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   // the Send tab remembers where it is (pick, sending, done), so an upload goes on while My transfers is open
   var SEND = { 'v-pick': 1, 'v-up': 1, 'v-done': 1 }
   var tab = 'send', sendView = 'v-pick', isAdmin = false
+  // View as (Alex, 26 Oct): the admin sees the site as a Free or a Pro user would, in this tab until Back to Admin;
+  // uploads made as Free are real Free ones (roartransfer-r2 takes `as: 'free'` only to lower, never to raise)
+  var viewAs = ''
+  try { viewAs = sessionStorage.getItem('rt-as') || '' } catch (e) {}
+  if (viewAs !== 'free' && viewAs !== 'pro') viewAs = ''
   function show(v) {
     if (SEND[v]) { sendView = v; if (tab !== 'send') return }
     view = v
@@ -1076,7 +1095,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var was = user && user.id
     user = session && session.user || null
     $('who-mail').textContent = user ? user.email || '' : ''
-    if (!user) { pro = proMe = null; if (admPro) admPro.list = null; paintPro(); isAdmin = false; mine = null; adm.stats = adm.list = adm.who = adm.acc = adm.usage = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) show('v-in'); loadGuest() }
+    if (!user) { pro = proMe = null; if (admPro) admPro.list = null; paintPro(); isAdmin = false; $('as-bar').hidden = true; mine = null; adm.stats = adm.list = adm.who = adm.acc = adm.usage = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) show('v-in'); loadGuest() }
     else if (resetting) { $('who').hidden = true }
     else if (view === 'v-wait' || view === 'v-in' || was !== user.id) { $('pw').value = ''; signedIn() }
     else $('who').hidden = false
@@ -1194,6 +1213,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     // without an account the bridge still answers, within the free limits
     var hd = { apikey: KEY, 'Content-Type': 'application/json' }
     if (s0) hd.Authorization = 'Bearer ' + s0.access_token
+    if (viewAs === 'free') body = Object.assign({ as: 'free' }, body)
     var r = await fetch(FN, { method: 'POST', headers: hd, body: JSON.stringify(body) })
     var d = {}; try { d = await r.json() } catch (e) {}
     if (!r.ok) throw Object.assign(new Error(d.limit ? w('limit') : d.error === 'signed-out' ? 'signed-out' : d.error || ('Error ' + r.status)), { fatal: r.status < 500, limit: !!d.limit })
@@ -1467,6 +1487,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     loadPro()
     sb.rpc('roar_is_admin').then(function (r) {
       isAdmin = r.data === true
+      if (!isAdmin) viewAs = ''
+      paintAs()
+      if (viewAs) isAdmin = false
       try { if (isAdmin) localStorage.setItem('rt-admin', '1') } catch (e) {}
       $('tab-admin').hidden = !isAdmin
       $('op-pc-row').hidden = !isAdmin
@@ -1483,6 +1506,18 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     else { show('v-admin'); paintStats(); paintAdmList(); loadAdmin() }
   }
   $('tabs').addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) go(b.dataset.go) })
+  // View as: a fresh start of the page as that user, and back to Admin the same way
+  function setAs(v, hash) {
+    try { if (v) sessionStorage.setItem('rt-as', v); else sessionStorage.removeItem('rt-as') } catch (e) {}
+    try { history.replaceState(null, '', location.pathname + location.search + hash) } catch (e) {}
+    location.reload()
+  }
+  function paintAs() {
+    $('as-bar').hidden = !viewAs
+    if (viewAs) $('as-what').textContent = lang === 'el' ? (viewAs === 'pro' ? 'Βλέπεις ως Pro' : 'Βλέπεις ως Free') : (viewAs === 'pro' ? 'Viewing as Pro' : 'Viewing as Free')
+  }
+  $('v-admin').addEventListener('click', function (e) { var b = e.target.closest('[data-as]'); if (b) setAs(b.dataset.as, '') })
+  $('as-back').addEventListener('click', function () { setAs('', '#admin') })
 
   var loc = function () { return lang === 'el' ? 'el-GR' : 'en-GB' }
   var fmtN = function (n) { return Number(n || 0).toLocaleString(loc()) }
@@ -2290,8 +2325,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   }
   var proMe = null
   function loadPro() {
-    bridge({ action: 'pro' }).then(function (d) { pro = d && d.pro ? d : null; if (pro && !pro.slug) proEd = true; paintPro() }).catch(function () { pro = null; paintPro() })
-    proCall({ action: 'me' }).then(function (d) { proMe = d; paintPro() }).catch(function () {})
+    bridge({ action: 'pro' }).then(function (d) { pro = d && d.pro && viewAs !== 'free' ? d : null; if (pro && !pro.slug) proEd = true; paintPro() }).catch(function () { pro = null; paintPro() })
+    proCall({ action: 'me' }).then(function (d) { proMe = viewAs === 'free' ? null : viewAs === 'pro' ? Object.assign({}, d, { admin: false }) : d; paintPro() }).catch(function () {})
   }
   function paintPro() {
     // a Pro's tab and title say Pro (Alex, 25 Oct)

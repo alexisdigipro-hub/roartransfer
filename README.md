@@ -49,3 +49,7 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   each, `roar_transfer_claims`), with a line saying so. The page keeps the link in localStorage `rt-grace` and comes
   back to it after sign-in. roar-transfer-get checks the file is still in R2; every file stays in R2 5 days past its
   link's end, quietly (Alex, 26 Oct: roartransfer-r2's sweep; R2's lifecycle rules free/ 8 days, pro/ 35). SQL: `supabase/transfer-grace.sql` in roarme.
+- View as (26 Oct 2026, Alex: "view as Free user & view as Pro user"): Admin > Overview has View as Free user / View
+  as Pro user. The page starts again as that user would see it (no Admin tab, Free or Pro limits, PRO mark or not),
+  in that browser tab only (sessionStorage `rt-as`), with a bar at the bottom: Back to Admin. Sent as Free, an upload is
+  a real Free one (roartransfer-r2 takes `as: 'free'`, which can only lower, never raise).
