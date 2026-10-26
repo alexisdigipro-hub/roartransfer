@@ -54,3 +54,6 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   as Pro user. The page starts again as that user would see it (no Admin tab, Free or Pro limits, PRO mark or not),
   in that browser tab only (sessionStorage `rt-as`), with a bar at the bottom: Back to Admin. Sent as Free, an upload is
   a real Free one (roartransfer-r2 takes `as: 'free'`, which can only lower, never raise).
+- Free accounts send up to 15 GB a day (26 Oct 2026, Alex): roartransfer-r2 counts the last 24 hours of an account's
+  Free files (`FREE_PER_DAY`, checked when a file starts and when it finishes); past it the page says so and stops
+  there (`daily`). Pro and the admins have no daily limit.
