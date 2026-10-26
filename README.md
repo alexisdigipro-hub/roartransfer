@@ -44,11 +44,12 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   they sent). One pane at a time (`panes()`): the shown one fades away, the title fades over, the chosen one rises in;
   counts sit on the tabs; the wide pages stay at the top so nothing jumps.
 - One last download (26 Oct 2026, Alex: "when a link I sent has expired, if they sign up they can open it one last
-  time"): for 5 days after a link sent from an account ends (not stopped by the sender, not FastTransfer; the page never
-  says how long), its page says "One last download" with Sign up free / Sign in; signed in, the person gets every file once more (one download
-  each, `roar_transfer_claims`), with a line saying so. The page keeps the link in localStorage `rt-grace` and comes
-  back to it after sign-in. roar-transfer-get checks the file is still in R2; every file stays in R2 5 days past its
-  link's end, quietly (Alex, 26 Oct: roartransfer-r2's sweep; R2's lifecycle rules free/ 8 days, pro/ 35). SQL: `supabase/transfer-grace.sql` in roarme.
+  time"; narrowed the same day): only links from a Free account (files under free/<id>/ or week/<id>/; not Pro, not
+  FastTransfer). Their files stay 3 days past the link's end, quietly (roartransfer-r2's sweep; R2's lifecycle rule on
+  free/ 6 days). In those 3 days the expired page offers "One last download" with Sign up free (no Sign in): an account
+  made after the link ended gets every file once (one download each, `roar_transfer_claims`), an account that already
+  existed gets neither the offer nor the files. The page never says how long. The page keeps the link in localStorage
+  `rt-grace` and comes back to it after sign-up. SQL: `supabase/transfer-grace.sql` in roarme.
 - View as (26 Oct 2026, Alex: "view as Free user & view as Pro user"): Admin > Overview has View as Free user / View
   as Pro user. The page starts again as that user would see it (no Admin tab, Free or Pro limits, PRO mark or not),
   in that browser tab only (sessionStorage `rt-as`), with a bar at the bottom: Back to Admin. Sent as Free, an upload is
