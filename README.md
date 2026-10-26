@@ -39,3 +39,7 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   kept in localStorage `rt-bgs` so it shows at once), cards come in soft with their parts one after another, the chosen
   tab or option is a sliding sheet of glass (`lens()`, as RoarMe's Lens), buttons give under a press. A PRO mark on the
   account at the top for Pro accounts.
+- Tabs (26 Oct 2026, Alex: "tidy Admin and My transfers into tabs, nice buttons, smooth"): Admin is Overview ·
+  Transfers · Accounts · Pro · Backgrounds · Website, My Pro transfers is Sent · Received · Pro (others see only what
+  they sent). One pane at a time (`panes()`): the shown one fades away, the title fades over, the chosen one rises in;
+  counts sit on the tabs; the wide pages stay at the top so nothing jumps.

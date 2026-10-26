@@ -110,16 +110,21 @@ header { view-transition-name: rt-head; }
 #v-wait { animation: late-in .3s .45s both !important; }
 #v-wait > * { animation: none; }
 .tabs:not([hidden]) { animation: item-in .5s var(--ease) both; }
-#adm-web, #adm-tx { animation: item-in .5s var(--ease) both; }
+/* panes (Admin and My Pro transfers, Alex 26 Oct): one shows at a time, its parts coming in one after another */
+.pane { display: grid; gap: 14px; min-width: 0; animation: item-in .5s var(--ease) both; }
+.pane[hidden] { display: none !important; }
+.adm-tab { align-self: center; justify-self: center; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.adm-tab::-webkit-scrollbar { display: none; }
+.adm-tab button { flex: none; padding: 9px 18px; font-size: 13.5px; white-space: nowrap; }
 /* Transfers <-> Website (Alex, 25 Oct: "smoother when the window changes"): the one going fades up and away, the
    title changes with a soft fade, the one coming rises in with its parts one after another */
 @keyframes leave { to { opacity: 0; transform: translateY(-8px); filter: blur(4px); } }
 .leaving { animation: leave .2s var(--ease) both !important; pointer-events: none; }
 .rp { animation: item-in .5s var(--ease) both; }
-#adm-web > *, #adm-tx > * { animation: item-in .5s var(--ease) both; }
-#adm-web > :nth-child(2), #adm-tx > :nth-child(2) { animation-delay: 50ms; } #adm-web > :nth-child(3), #adm-tx > :nth-child(3) { animation-delay: 100ms; }
-#adm-web > :nth-child(4), #adm-tx > :nth-child(4) { animation-delay: 150ms; } #adm-web > :nth-child(5), #adm-tx > :nth-child(5) { animation-delay: 200ms; }
-#adm-web > :nth-child(n+6), #adm-tx > :nth-child(n+6) { animation-delay: 250ms; }
+.pane > * { animation: item-in .5s var(--ease) both; }
+.pane > :nth-child(2) { animation-delay: 50ms; } .pane > :nth-child(3) { animation-delay: 100ms; }
+.pane > :nth-child(4) { animation-delay: 150ms; } .pane > :nth-child(5) { animation-delay: 200ms; }
+.pane > :nth-child(n+6) { animation-delay: 250ms; }
 .lens { position: relative; isolation: isolate; }
 .lens::before { content: ''; position: absolute; z-index: -1; left: 0; top: 0; width: var(--lw, 0); height: var(--lh, 0); border-radius: 999px;
   transform: translate(var(--lx, 0), var(--ly, 0)); background: rgba(255,255,255,.15);
@@ -378,6 +383,12 @@ footer .pw { font-family: Jost, var(--sans); font-size: 10px; font-weight: 600; 
 .tabs button:hover { color: var(--text); }
 .tabs button.on { background: rgba(255,255,255,.14); color: var(--text); }
 .card.wide { width: min(900px, 100%); align-self: start; }
+/* the wide pages stay put at the top: a centred card moved up and down with every change of tab */
+main:has(> .card.wide:not([hidden])) { align-content: start; }
+/* the title already says which tab it is: no second heading inside, the count sits on the tab */
+#pane-all > h2:first-child, #pane-acc > h2:first-of-type, #pane-pro > h2:first-of-type, #pane-bg > h2:first-of-type, #adm-bg-sub { display: none; }
+.adm-tab .tc { margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: rgba(255,255,255,.1); font-family: var(--mono); font-size: 10.5px; font-weight: 500; }
+.adm-tab .tc:empty { display: none; }
 .facts.f4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .facts span { min-width: 0; }
 .bar2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
@@ -421,8 +432,6 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 .av { flex: none; width: 34px; height: 34px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: rgba(255,255,255,.1); font-size: 13px; font-weight: 700; }
 .av img { width: 100%; height: 100%; object-fit: cover; }
 .rank { flex: none; width: 16px; font-family: var(--mono); font-size: 11px; color: var(--dim); text-align: right; align-self: center; }
-.adm-tab { align-self: center; margin: -4px auto 2px; }
-.adm-tab button { padding: 9px 22px; font-size: 13.5px; }
 .web-row { display: flex; align-items: center; gap: 10px; }
 .web-row .wb { flex: 1; min-width: 0; display: grid; gap: 4px; }
 .web-row .wb b { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -450,7 +459,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   .top .mark b { font-size: 17px; } .mark .by { font-size: 8.5px; letter-spacing: .2em; }
   .who button { font-size: 11px; padding: 5px 8px; } .lang button { padding: 5px 7px; }
 }
-@media (prefers-reduced-motion: reduce) { .card, .done-ic, .card > *, .files li, .tabs, #adm-web, #adm-tx { animation: none !important; } .lens::before { transition: none !important; } @view-transition { navigation: none; } .drop, .pill, .ring .fl, .meter .bar i { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .card, .done-ic, .card > *, .files li, .tabs, .pane, .pane > * { animation: none !important; } .lens::before { transition: none !important; } @view-transition { navigation: none; } .drop, .pill, .ring .fl, .meter .bar i { transition: none; } }
 </style>
 </head>
 <body>
@@ -665,9 +674,19 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <div class="card wide" id="v-mine" hidden>
     <h1 id="mn-title" data-t="mn.title" data-html>My <b>transfers</b>.</h1>
     <p class="sub" id="mn-sub" data-t="mn.sub">Everything you sent, from here, RoarMail and your chats. Links last 1 to 7 days.</p>
+    <!-- a Pro's page in three (Alex, 26 Oct: "tabs, nice buttons, smoother"): what they sent, what came in, their Pro -->
+    <div class="seg adm-tab" id="mine-tab" hidden><button type="button" class="on" data-f="sent" data-t="mt.sent">Sent</button><button type="button" data-f="got"><span data-t="mt.got">Received</span><i class="tc" id="tc-got"></i></button><button type="button" data-f="pro" data-t="mt.pro">Pro</button></div>
+    <div class="pane" id="mpane-sent">
     <div class="facts f4" id="mine-facts"></div>
+    <div class="bar2">
+      <div class="seg" id="mine-seg"><button type="button" class="on" data-f="all" data-t="f.all">All</button><button type="button" data-f="on" data-t="f.on">Active</button><button type="button" data-f="off" data-t="f.off">Expired</button></div>
+      <input class="find" id="mine-q" type="search" autocomplete="off">
+    </div>
+    <p class="err" id="mine-err" hidden></p>
+    <ul class="files tall" id="mine-list"></ul>
+    </div>
     <!-- Pro (Alex, 23 Oct): Receive files, the page where anyone sends you files without an account, and what came in -->
-    <div class="pro" id="pro" hidden>
+    <div class="pro pane" id="mpane-pro" hidden>
       <!-- the account's Pro (Alex, 25 Oct: "My transfers becomes My Pro transfers"): until when, and what it includes -->
       <div class="pro-st">
         <div class="pro-h"><b class="badge">PRO</b><span id="pro-st"></span></div>
@@ -686,6 +705,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
         <div class="row"><button type="button" class="pill main sm" id="pb-save"><span></span></button></div>
         <p class="err" id="pb-err" hidden></p><p class="note ok" id="pb-ok" hidden></p>
       </div>
+    </div>
+    <div class="pro pane" id="mpane-got" hidden>
       <p class="pro-rx" id="pro-h"></p>
       <p class="note" id="pro-n"></p>
       <div class="row"><span class="linkbox" id="pro-link"></span><button type="button" class="pill main" id="pro-copy"><svg><use href="#i-link"/></svg><span></span></button><button type="button" class="pill" id="pro-edit"><span></span></button></div>
@@ -698,12 +719,6 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       <p class="pro-sub" id="pro-got"></p>
       <ul class="files tall" id="pro-list"></ul>
     </div>
-    <div class="bar2">
-      <div class="seg" id="mine-seg"><button type="button" class="on" data-f="all" data-t="f.all">All</button><button type="button" data-f="on" data-t="f.on">Active</button><button type="button" data-f="off" data-t="f.off">Expired</button></div>
-      <input class="find" id="mine-q" type="search" autocomplete="off">
-    </div>
-    <p class="err" id="mine-err" hidden></p>
-    <ul class="files tall" id="mine-list"></ul>
   </div>
 
   <!-- Admin: every account's transfers and the overall numbers (supabase/transfer-panel.sql answers only the admin) -->
@@ -711,9 +726,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <h1 id="adm-h1" data-t="ad.title" data-html>All <b>transfers</b>.</h1>
     <p class="sub" id="adm-sub" data-t="ad.sub">Only you see this: who sent what, how big, when, how often it was downloaded. Never what the files say.</p>
     <!-- Transfers | Website (Alex, 25 Oct: "statistics of the website, a tab in admin") -->
-    <div class="seg two adm-tab" id="adm-tab"><button type="button" class="on" data-f="tx" data-t="ad.tx">Transfers</button><button type="button" data-f="web" data-t="ad.web">Website</button></div>
+    <div class="seg adm-tab" id="adm-tab"><button type="button" class="on" data-f="ov" data-t="ad.ov">Overview</button><button type="button" data-f="all" data-t="ad.tx">Transfers</button><button type="button" data-f="acc"><span data-t="ad.acc">Accounts</span><i class="tc" id="tc-acc"></i></button><button type="button" data-f="pro"><span data-t="ad.pro">Pro</span><i class="tc" id="tc-pro"></i></button><button type="button" data-f="bg"><span data-t="ad.bg">Backgrounds</span><i class="tc" id="tc-bg"></i></button><button type="button" data-f="web" data-t="ad.web">Website</button></div>
     <!-- the website: visitors, views, countries, devices, pages, where they came from (roar_site_stats, supabase/site-stats.sql) -->
-    <div id="adm-web" hidden style="display:none;gap:14px">
+    <div class="pane" id="adm-web" hidden>
       <div class="bar2"><div class="seg" id="web-seg"><button type="button" data-f="7" data-t="wb.d7">7 days</button><button type="button" data-f="30" data-t="wb.d30">30 days</button><button type="button" data-f="90" data-t="wb.d90">90 days</button><button type="button" class="on" data-f="0" data-t="wb.all">All time</button></div></div>
       <p class="err" id="web-err" hidden></p>
       <div class="facts f4" id="web-facts"></div>
@@ -728,7 +743,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
         <div><h2 data-t="wb.dev">Devices</h2><ul class="files top-list" id="web-dev"></ul><h2 data-t="wb.lang">Languages</h2><ul class="files top-list" id="web-lang"></ul></div>
       </div>
     </div>
-    <div id="adm-tx" style="display:grid;gap:14px">
+    <div class="pane" id="pane-ov">
     <!-- the same periods as Website (Alex, 25 Oct: "and All time, everywhere") -->
     <div class="bar2"><div class="seg" id="tx-seg"><button type="button" data-f="7" data-t="wb.d7">7 days</button><button type="button" data-f="30" data-t="wb.d30">30 days</button><button type="button" data-f="90" data-t="wb.d90">90 days</button><button type="button" class="on" data-f="0" data-t="wb.all">All time</button></div></div>
     <p class="err" id="adm-err" hidden></p>
@@ -748,6 +763,24 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
         <ul class="files top-list" id="adm-top"></ul>
       </div>
     </div>
+    </div>
+    <div class="pane" id="pane-all" hidden>
+    <h2 data-t="ad.all">Every transfer</h2>
+    <div class="bar2">
+      <div class="seg" id="adm-seg"><button type="button" class="on" data-f="all" data-t="f.all">All</button><button type="button" data-f="on" data-t="f.on">Active</button><button type="button" data-f="off" data-t="f.off">Expired</button></div>
+      <input class="find" id="adm-q" type="search" autocomplete="off">
+      <span class="who-f" id="adm-who" hidden><span></span><button type="button" id="adm-who-x" aria-label="Everyone"><svg><use href="#i-x"/></svg></button></span>
+    </div>
+    <ul class="files tall" id="adm-list"></ul>
+    <button type="button" class="pill sm" id="adm-more" hidden><span data-t="ad.more">More</span></button>
+    </div>
+    <div class="pane" id="pane-acc" hidden>
+    <!-- every account (Alex, 22 Oct): who signed up on RoarTransfer or sent from it, and each one's numbers -->
+    <h2><span data-t="ad.acc">Accounts</span> <span class="cnt" id="adm-acc-n"></span></h2>
+    <p class="sub" id="adm-acc-sum" style="margin:-6px 0 0"></p>
+    <ul class="files top-list" id="adm-acc"></ul>
+    </div>
+    <div class="pane" id="pane-pro" hidden>
     <!-- Pro (Alex, 25 Oct: "give me somewhere to make someone Pro"): by email, for a month, a year or always; the list
          of every Pro with Remove (the page name stays, so giving Pro back keeps the same link). roartransfer-pro -->
     <h2><span data-t="ad.pro">Pro</span> <span class="cnt" id="adm-pro-n"></span></h2>
@@ -758,6 +791,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     </div>
     <p class="err" id="adm-pro-err" hidden></p>
     <ul class="files top-list" id="adm-pro"></ul>
+    </div>
+    <div class="pane" id="pane-bg" hidden>
     <!-- Backgrounds (Alex, 25 Oct: "somewhere in Admin to upload the pictures behind the home page and the others"):
          roar_transfer_backgrounds, one picks itself at random on each visit; pictures go to roartransfer-brand/site/ -->
     <h2><span data-t="ad.bg">Backgrounds</span> <span class="cnt" id="adm-bg-n"></span></h2>
@@ -765,18 +800,6 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <div class="bgs" id="adm-bgs"></div>
     <input type="file" id="adm-bg-file" accept="image/jpeg,image/png,image/webp" multiple hidden>
     <p class="err" id="adm-bg-err" hidden></p>
-    <!-- every account (Alex, 22 Oct): who signed up on RoarTransfer or sent from it, and each one's numbers -->
-    <h2><span data-t="ad.acc">Accounts</span> <span class="cnt" id="adm-acc-n"></span></h2>
-    <p class="sub" id="adm-acc-sum" style="margin:-6px 0 0"></p>
-    <ul class="files top-list" id="adm-acc"></ul>
-    <h2 data-t="ad.all">Every transfer</h2>
-    <div class="bar2">
-      <div class="seg" id="adm-seg"><button type="button" class="on" data-f="all" data-t="f.all">All</button><button type="button" data-f="on" data-t="f.on">Active</button><button type="button" data-f="off" data-t="f.off">Expired</button></div>
-      <input class="find" id="adm-q" type="search" autocomplete="off">
-      <span class="who-f" id="adm-who" hidden><span></span><button type="button" id="adm-who-x" aria-label="Everyone"><svg><use href="#i-x"/></svg></button></span>
-    </div>
-    <ul class="files tall" id="adm-list"></ul>
-    <button type="button" class="pill sm" id="adm-more" hidden><span data-t="ad.more">More</span></button>
     </div>
   </div>
 </main>
@@ -824,7 +847,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
-    'ad.days': 'Ανά μέρα', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.tx': 'Αποστολές', 'ad.web': 'Ιστότοπος', 'wb.d7': '7 μέρες', 'wb.d30': '30 μέρες', 'wb.d90': '90 μέρες', 'wb.all': 'Από την αρχή', 'wb.days': 'Επισκέπτες ανά μέρα', 'wb.co': 'Χώρες', 'wb.ref': 'Από πού ήρθαν', 'wb.pg': 'Σελίδες', 'wb.dev': 'Συσκευές', 'wb.lang': 'Γλώσσες', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
+    'ad.days': 'Ανά μέρα', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.tx': 'Αποστολές', 'ad.ov': 'Επισκόπηση', 'mt.sent': 'Στάλθηκαν', 'mt.got': 'Ήρθαν', 'mt.pro': 'Pro', 'ad.web': 'Ιστότοπος', 'wb.d7': '7 μέρες', 'wb.d30': '30 μέρες', 'wb.d90': '90 μέρες', 'wb.all': 'Από την αρχή', 'wb.days': 'Επισκέπτες ανά μέρα', 'wb.co': 'Χώρες', 'wb.ref': 'Από πού ήρθαν', 'wb.pg': 'Σελίδες', 'wb.dev': 'Συσκευές', 'wb.lang': 'Γλώσσες', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
   }
   var W = {
     en: {
@@ -1588,7 +1611,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var a = adm.acc
     if (!a) { $('adm-acc').innerHTML = loading; $('adm-acc-n').textContent = ''; $('adm-acc-sum').textContent = ''; return }
     var week = Date.now() - 7 * 864e5
-    $('adm-acc-n').textContent = fmtN(a.length)
+    $('adm-acc-n').textContent = fmtN(a.length); $('tc-acc').textContent = fmtN(a.length)
     $('adm-acc-sum').textContent = w('accSum')(a.filter(function (u) { return new Date(u.created_at).getTime() > week }).length, a.filter(function (u) { return Number(u.n) > 0 }).length, a.filter(function (u) { return !u.confirmed }).length)
     $('adm-acc').innerHTML = a.length ? a.map(function (u, n) {
       var isPro = proIds()[u.id]
@@ -1605,7 +1628,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (mk) { grantPro({ id: mk.dataset.mkpro }, mk); return }
     var li = e.target.closest('[data-acc]'); if (!li || !adm.acc) return
     adm.who = adm.acc[+li.dataset.acc]; adm.list = null; paintAdmList(); loadAdmList(false)
-    $('adm-list').scrollIntoView({ behavior: 'smooth', block: 'start' })
+    // to the Transfers tab, showing only theirs
+    var tb = $('adm-tab').querySelector('[data-f="all"]'); if (tb) tb.click()
   })
   function paintAdmList() {
     $('adm-q').placeholder = w('findAdm')
@@ -1621,7 +1645,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   $('adm-top').addEventListener('click', function (e) {
     var li = e.target.closest('[data-who]'); if (!li || !adm.stats) return
     adm.who = adm.stats.top[+li.dataset.who]; adm.list = null; paintAdmList(); loadAdmList(false)
-    $('adm-list').scrollIntoView({ behavior: 'smooth', block: 'start' })
+    // to the Transfers tab, showing only theirs
+    var tb = $('adm-tab').querySelector('[data-f="all"]'); if (tb) tb.click()
   })
   $('adm-who-x').addEventListener('click', function () { adm.who = null; adm.list = null; paintAdmList(); loadAdmList(false) })
   segs('adm-seg', function (f) { adm.f = f; paintAdmList() })
@@ -1629,6 +1654,10 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   $('adm-more').addEventListener('click', function () { loadAdmList(true) })
   rowActs('adm-list', function () { return adm.list }, loadAdmin)
 
+
+  // My Pro transfers in three (Alex, 26 Oct): Sent, Received, Pro
+  var MINE = { sent: 'mpane-sent', got: 'mpane-got', pro: 'mpane-pro' }, mineT = { tab: 'sent' }
+  panes('mine-tab', MINE, mineT, function () {})
 
   // ---- a Pro's own link: details (Alex, 25 Oct: change expiry or password after sending; who opened, when, from where) ----
   var det = { token: '', data: null, busy: false, msg: '' }
@@ -1844,7 +1873,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (!$('adm-bgs') || !isAdmin) return
     $('adm-bg-sub').textContent = pw('bgSub')
     var l = siteBgs || []
-    $('adm-bg-n').textContent = fmtN(l.length)
+    $('adm-bg-n').textContent = $('tc-bg').textContent = fmtN(l.length)
     $('adm-bgs').innerHTML = l.map(function (b) { return '<div class="tile"><img src="' + esc(b.url) + '" alt="" loading="lazy"><button type="button" class="x" data-bgrm="' + esc(b.id) + '" aria-label="Remove"><svg><use href="#i-x"/></svg></button></div>' }).join('')
       + '<button type="button" class="add" id="adm-bg-add"' + (bgBusy ? ' disabled' : '') + '><svg><use href="#i-up"/></svg>' + pw('bAdd') + '</button>'
     slimBgs()
@@ -1879,30 +1908,40 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 
   // ---- Admin > Website (Alex, 25 Oct): roartransfer.com's own visitor numbers, roar_site_stats ----
   var web = { tab: 'tx', days: '0', s: null, err: '' }
-  // the switch: the shown part leaves (0.2 s), then the other comes in; the title fades between the two
-  var tabT = 0
-  segs('adm-tab', function (f) {
-    if (f === web.tab) return
-    var out = $(web.tab === 'web' ? 'adm-web' : 'adm-tx')
-    out.classList.add('leaving'); $('adm-h1').classList.add('leaving'); $('adm-sub').classList.add('leaving')
-    clearTimeout(tabT)
-    tabT = setTimeout(function () {
-      out.classList.remove('leaving')
-      ;['adm-h1', 'adm-sub'].forEach(function (id) { var e = $(id); e.classList.remove('leaving', 'rp'); void e.offsetWidth; e.classList.add('rp') })
-      web.tab = f; paintWebTab(); if (f === 'web') loadWeb()
-    }, 190)
-  })
+  // panes (Alex, 26 Oct): a row of tabs over parts of one page; the shown part fades up and away (0.2 s), the title
+  // fades over, the chosen one rises in part by part. Used by Admin and by a Pro's My Pro transfers.
+  function panes(segId, map, state, after, titled) {
+    var t = 0
+    segs(segId, function (f) {
+      var b = $(segId).querySelector('[data-f="' + f + '"]')
+      if (b && $(segId).scrollWidth > $(segId).clientWidth) b.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+      if (f === state.tab) return
+      var out = $(map[state.tab])
+      if (out) out.classList.add('leaving')
+      if (titled) titled.forEach(function (id) { $(id).classList.add('leaving') })
+      clearTimeout(t)
+      t = setTimeout(function () {
+        if (out) out.classList.remove('leaving')
+        state.tab = f; showPane(map, state.tab); after(f)
+        if (titled) titled.forEach(function (id) { var e = $(id); e.classList.remove('leaving', 'rp'); void e.offsetWidth; e.classList.add('rp') })
+      }, 190)
+    })
+  }
+  function showPane(map, tab) { for (var k in map) { var e = $(map[k]); if (e) e.hidden = k !== tab } }
+  var ADM = { ov: 'pane-ov', all: 'pane-all', acc: 'pane-acc', pro: 'pane-pro', bg: 'pane-bg', web: 'adm-web' }
+  var AT = { ov: ['ad.title', 'ad.sub'], all: ['h.all', 's.all'], acc: ['h.acc', 's.acc'], pro: ['h.pro', 's.pro'], bg: ['h.bg', 's.bg'], web: ['webH', 'webSub'] }
+  web.tab = 'ov'
+  panes('adm-tab', ADM, web, function (f) { paintWebTab(); if (f === 'web') loadWeb() }, ['adm-h1', 'adm-sub'])
   segs('web-seg', function (f) { web.days = f; web.s = null; paintWeb(); loadWeb() })
   segs('tx-seg', function (f) {
     adm.days = f; adm.stats = null; paintStats()
     sb.rpc('roar_admin_transfer_stats', { days: Number(f) }).then(function (r) { if (r.error) admErr(r.error.message); else { adm.stats = r.data; paintStats() } })
   })
+  // each pane's own title and the line under it
   function paintWebTab() {
-    var on = web.tab === 'web'
-    $('adm-web').hidden = !on; $('adm-tx').hidden = on
-    $('adm-web').style.display = on ? 'grid' : 'none'; $('adm-tx').style.display = on ? 'none' : 'grid'
-    $('adm-h1').innerHTML = on ? pw('webH') : (lang === 'el' ? EL : EN)['ad.title'] || EN['ad.title']
-    $('adm-sub').textContent = on ? pw('webSub') : (lang === 'el' ? EL : EN)['ad.sub'] || EN['ad.sub']
+    var k = AT[web.tab] || AT.ov, D = lang === 'el' ? EL : EN
+    $('adm-h1').innerHTML = D[k[0]] || EN[k[0]] || pw(k[0])
+    $('adm-sub').textContent = D[k[1]] || EN[k[1]] || pw(k[1])
   }
   function loadWeb() {
     if (!isAdmin) return
@@ -2156,6 +2195,10 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       bBig: 'Pictures can be up to 10 MB.', details: 'Details', expT: 'Expires', pwNew: 'New password (empty keeps it as it is)', pwOff: 'Remove password',
       saveC: 'Save changes', locked: 'Has a password', noEv: 'Not opened yet.', evOpen: 'Opened', evDl: 'Downloaded', maxT: function (d) { return 'At most until ' + d },
       bgSub: 'The pictures behind every page; one shows at random on each visit. Pro accounts can use their own on their links.', bgAsk: 'Remove this background?',
+      'h.all': 'Every <b>transfer</b>.', 's.all': 'Every file sent, newest first; tap an account under Accounts to see only theirs.',
+      'h.acc': 'The <b>accounts</b>.', 's.acc': 'Who signed up or sent from RoarTransfer, and how much each one sent.',
+      'h.pro': 'The <b>Pros</b>.', 's.pro': 'Make an account Pro for a month, a year or for life, or take it away.',
+      'h.bg': 'The <b>backgrounds</b>.', 's.bg': 'The pictures behind every page; one shows at random on each visit.',
       webH: 'The <b>website</b>.', webSub: 'Who visits roartransfer.com: no cookies, no addresses, your own visits left out.',
       wVis: 'visitors', wViews: 'page views', wToday: function (v, n) { return 'today · ' + n + ' views' }, wNow: 'here right now', wWeek: 'last 7 days',
       wRet: 'came back another day', wPer: function (n) { return n + ' pages a visitor' }, wNone: 'No visits counted yet.',
@@ -2185,6 +2228,10 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       bBig: 'Οι εικόνες μπορούν να είναι ως 10 MB.', details: 'Λεπτομέρειες', expT: 'Λήγει', pwNew: 'Νέος κωδικός (κενό τον αφήνει ως έχει)', pwOff: 'Αφαίρεση κωδικού',
       saveC: 'Αποθήκευση', locked: 'Έχει κωδικό', noEv: 'Δεν έχει ανοιχτεί ακόμα.', evOpen: 'Άνοιξε', evDl: 'Κατέβηκε', maxT: function (d) { return 'Το πολύ ως ' + d },
       bgSub: 'Οι εικόνες πίσω από κάθε σελίδα· μία εμφανίζεται τυχαία σε κάθε επίσκεψη. Οι Pro βάζουν τις δικές τους στα links τους.', bgAsk: 'Να αφαιρεθεί αυτό το φόντο;',
+      'h.all': 'Όλες οι <b>αποστολές</b>.', 's.all': 'Κάθε αρχείο που στάλθηκε, τα νεότερα πρώτα· πάτα έναν λογαριασμό στο Accounts για να δεις μόνο τα δικά του.',
+      'h.acc': 'Οι <b>λογαριασμοί</b>.', 's.acc': 'Ποιοι γράφτηκαν ή έστειλαν από το RoarTransfer, και πόσα έστειλε ο καθένας.',
+      'h.pro': 'Οι <b>Pro</b>.', 's.pro': 'Κάνε έναν λογαριασμό Pro για έναν μήνα, έναν χρόνο ή για πάντα, ή αφαίρεσέ το.',
+      'h.bg': 'Τα <b>φόντα</b>.', 's.bg': 'Οι εικόνες πίσω από κάθε σελίδα· μία εμφανίζεται τυχαία σε κάθε επίσκεψη.',
       webH: 'Ο <b>ιστότοπος</b>.', webSub: 'Ποιοι επισκέπτονται το roartransfer.com: χωρίς cookies, χωρίς διευθύνσεις, χωρίς τις δικές σου επισκέψεις.',
       wVis: 'επισκέπτες', wViews: 'προβολές σελίδων', wToday: function (v, n) { return 'σήμερα · ' + n + ' προβολές' }, wNow: 'εδώ αυτή τη στιγμή', wWeek: 'τελευταίες 7 μέρες',
       wRet: 'ξαναήρθαν άλλη μέρα', wPer: function (n) { return n + ' σελίδες ανά επισκέπτη' }, wNone: 'Δεν έχουν μετρηθεί επισκέψεις ακόμα.',
@@ -2217,7 +2264,10 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('tab-mine').textContent = isPro ? pw('tab') : ((lang === 'el' ? EL : EN)['tb.mine'] || EN['tb.mine'])
     $('mn-title').innerHTML = isPro ? pw('mineT') : (lang === 'el' ? EL['mn.title'] : EN['mn.title'])
     if (!isPro) $('mn-sub').textContent = (lang === 'el' ? EL : EN)['mn.sub'] || EN['mn.sub']
-    $('pro').hidden = !isPro
+    // a Pro sees three tabs; everyone else only what they sent
+    $('mine-tab').hidden = !isPro
+    if (!isPro && mineT.tab !== 'sent') { mineT.tab = 'sent'; $('mine-tab').querySelectorAll('[data-f]').forEach(function (x) { x.classList.toggle('on', x.dataset.f === 'sent') }) }
+    showPane(MINE, mineT.tab)
     if (!isPro) return
     var me = proMe || {}
     $('pro-st').textContent = me.admin ? pw('stAdmin') : me.until ? pw('stUntil')(dayY(me.until)) : pw('stEver')
@@ -2236,6 +2286,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('pro-name').placeholder = pw('name'); $('pro-save').querySelector('span').textContent = pw('save')
     if (proEd && !$('pro-slug').value && document.activeElement !== $('pro-slug')) { $('pro-slug').value = pro.slug || ''; $('pro-name').value = pro.name || '' }
     $('pro-got').textContent = pw('got') + (pro.received.length ? ' · ' + pro.received.length : '')
+    $('tc-got').textContent = pro.received.length ? fmtN(pro.received.length) : ''
     $('pro-list').innerHTML = pro.received.length ? pro.received.map(function (g) {
       return '<li><span class="fi"><svg><use href="#i-down"/></svg></span><span class="ft"><b>' + esc(g.sender_name) + '</b>'
         + '<small>' + (g.sender_email ? esc(g.sender_email) + ' · ' : '') + pw('files')(g.files) + ' · ' + size(Number(g.bytes || 0)) + ' · ' + when(g.created_at) + '</small>'
@@ -2270,7 +2321,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('adm-pro-mail').placeholder = pw('mail')
     var l = admPro.list
     if (!l) { $('adm-pro').innerHTML = loading; $('adm-pro-n').textContent = ''; return }
-    $('adm-pro-n').textContent = fmtN(l.filter(function (p) { return p.pro }).length)
+    $('adm-pro-n').textContent = $('tc-pro').textContent = fmtN(l.filter(function (p) { return p.pro }).length)
     $('adm-pro').innerHTML = l.length ? l.map(function (p) {
       var st = p.admin ? '<i class="pro">' + pw('admin') + '</i>' : p.pro ? '<i class="pro">' + (p.until ? pw('until')(dayY(p.until)) : pw('ever')) + '</i>' : '<i class="bad">' + pw('ended')(dayY(p.until)) + '</i>'
       var btn = p.admin ? '' : p.pro ? '<button type="button" class="pill sm bad" data-rmpro="' + esc(p.id) + '"><span>' + pw('remove') + '</span></button>'
