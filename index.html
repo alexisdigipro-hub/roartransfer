@@ -190,6 +190,17 @@ h2 .cnt { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 
 .get-back b { font-size: 17px; font-weight: 750; color: #fff; }
 .get-back p { margin: -4px 0 0; font-size: 13.5px; line-height: 1.5; color: rgba(255,255,255,.75); }
 .get-back .pill { width: 100%; }
+.grace { display: grid; gap: 14px; justify-items: center; text-align: center; padding: 4px 0 2px; }
+.grace .gr-exp { display: inline-flex; align-items: center; gap: 7px; padding: 6px 13px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid var(--line-2); font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,.7); animation: gbIn .5s cubic-bezier(.16,1,.3,1) both; }
+.grace .gr-exp svg { width: 14px; height: 14px; opacity: .8; }
+.grace .gr-ic { width: 76px; height: 76px; margin-top: 6px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #ff5a4e, #d40000 70%); box-shadow: 0 16px 44px rgba(212,0,0,.5), inset 0 1px 0 rgba(255,255,255,.35); animation: gbIn .6s .06s cubic-bezier(.16,1,.3,1) both, grPulse 2.4s 1s ease-in-out infinite; }
+.grace .gr-ic svg { width: 34px; height: 34px; color: #fff; }
+.grace .gr-h { font-size: clamp(38px, 9vw, 52px); font-weight: 300; line-height: 1.02; letter-spacing: -.02em; color: #fff; animation: gbIn .6s .12s cubic-bezier(.16,1,.3,1) both; }
+.grace .gr-h em { font-style: normal; font-weight: 800; }
+.grace p { margin: 0; max-width: 30ch; font-size: 15px; line-height: 1.5; color: rgba(255,255,255,.8); animation: gbIn .6s .18s cubic-bezier(.16,1,.3,1) both; }
+.grace .row { width: 100%; margin-top: 4px; animation: gbIn .6s .24s cubic-bezier(.16,1,.3,1) both; }
+.grace .pill { width: 100%; min-height: 54px; font-size: 16px; }
+@keyframes grPulse { 50% { box-shadow: 0 16px 56px rgba(212,0,0,.75), inset 0 1px 0 rgba(255,255,255,.35); } }
 @keyframes gbIn { from { opacity: 0; transform: translateY(10px) scale(.98); } }
 .get-foot { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 2px; font-size: 12.5px; }
 .get-foot a { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,.82); text-decoration: none; font-weight: 600; }
@@ -543,9 +554,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <h1 class="center" id="get-h" hidden></h1>
     <p class="note" id="get-n" hidden></p>
     <!-- one last time (Alex, 26 Oct): an ended link from an account can still be taken once by someone who signs up -->
-    <div class="get-back" id="get-grace" hidden>
-      <b data-t="gr.t">One last download</b>
-      <p data-t="gr.p">Make a free account and you can still download it one last time.</p>
+    <!-- the offer is the page, the expiry a small line above it (Alex, 26 Oct: "emphasis on ONE LAST DOWNLOAD") -->
+    <div class="grace" id="get-grace" hidden>
+      <span class="gr-exp"><svg><use href="#i-timer"/></svg><span data-t="gr.exp">This transfer has expired</span></span>
+      <span class="gr-ic"><svg><use href="#i-down"/></svg></span>
+      <b class="gr-h" data-t="gr.t" data-html>One last<br><em>download</em></b>
+      <p data-t="gr.p">Sign up free and you can still download it, one last time.</p>
       <!-- only for a new account (Alex, 26 Oct): one that already existed gets nothing, so there is no Sign in here -->
       <div class="row"><button type="button" class="pill main" data-gup><span data-t="gr.up">Sign up free</span></button></div>
     </div>
@@ -866,7 +880,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
     'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · 1 GB · 24 ώρες · 1 λήψη · 3/μέρα', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
-    'gr.t': 'Μία τελευταία λήψη', 'gr.p': 'Φτιάξε δωρεάν λογαριασμό και μπορείς να το κατεβάσεις μία τελευταία φορά.', 'gr.up': 'Δωρεάν εγγραφή', 'gr.in': 'Σύνδεση', 'gr.last': 'Το link έληξε: αυτή είναι η τελευταία σου λήψη για κάθε αρχείο.',
+    'gr.exp': 'Αυτή η αποστολή έληξε', 'gr.t': 'Μία τελευταία<br><em>λήψη</em>', 'gr.p': 'Κάνε δωρεάν εγγραφή και μπορείς να το κατεβάσεις ακόμα, μία τελευταία φορά.', 'gr.up': 'Δωρεάν εγγραφή', 'gr.in': 'Σύνδεση', 'gr.last': 'Το link έληξε: αυτή είναι η τελευταία σου λήψη για κάθε αρχείο.',
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
@@ -2178,8 +2192,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       return
     }
     var bad = !!got.error
-    $('get-ic').hidden = !bad; $('get-h').hidden = !bad; $('get-n').hidden = !bad
-    $('get-grace').hidden = !(bad && got.grace && !user)
+    var offer = bad && got.grace && !user
+    $('get-ic').hidden = !bad || offer; $('get-h').hidden = !bad || offer; $('get-n').hidden = !bad
+    $('get-grace').hidden = !offer
     $('get-last').hidden = bad || !got.last
     $('get-sub').hidden = bad
     ;['get-list', 'get-exp', 'get-go'].forEach(function (id) { $(id).hidden = bad })
