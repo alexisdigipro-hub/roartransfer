@@ -43,3 +43,9 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   Transfers · Accounts · Pro · Backgrounds · Website, My Pro transfers is Sent · Received · Pro (others see only what
   they sent). One pane at a time (`panes()`): the shown one fades away, the title fades over, the chosen one rises in;
   counts sit on the tabs; the wide pages stay at the top so nothing jumps.
+- One last download (26 Oct 2026, Alex: "when a link I sent has expired, if they sign up they can open it one last
+  time"): for 24 hours after a link sent from an account ends (not stopped by the sender, not FastTransfer), its page
+  says "One last download" with Sign up free / Sign in; signed in, the person gets every file once more (one download
+  each, `roar_transfer_claims`), with a line saying so. The page keeps the link in localStorage `rt-grace` and comes
+  back to it after sign-in. roar-transfer-get checks the file is still in R2; roartransfer-r2's sweep keeps those files
+  the extra day. SQL: `supabase/transfer-grace.sql` in roarme.
