@@ -57,3 +57,9 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
 - Free accounts send up to 15 GB a day (26 Oct 2026, Alex): roartransfer-r2 counts the last 24 hours of an account's
   Free files (`FREE_PER_DAY`, checked when a file starts and when it finishes); past it the page says so and stops
   there (`daily`). Pro and the admins have no daily limit.
+- Security check (26 Oct 2026, Alex: "check roartransfer for security holes", then "fix them all"): a transfer's
+  password locks for 15 minutes after 10 wrong tries from one address or 50 from anywhere (`roar_transfer_pw_fails`,
+  page `gSlow`); an account emails at most 50 people a day (Pro 200); a file with a download limit has no full preview
+  (the preview is the whole file); an upload is aborted when its pieces pass the sender's largest size; R2 downloads are
+  counted only by roar-transfer-get; site visits cannot be flooded; brand pictures are never SVG; Stop works on 7-day
+  links; the Worker treats `$` in a title as text. SQL: `supabase/transfer-security.sql` in roarme (applied).

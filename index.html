@@ -735,7 +735,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
         <div class="bgs" id="pb-logo"></div>
         <p class="pro-lbl" id="pb-bt"></p>
         <div class="bgs" id="pb-bgs"></div>
-        <input type="file" id="pb-file" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" hidden>
+        <input type="file" id="pb-file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
         <div class="row"><button type="button" class="pill main sm" id="pb-save"><span></span></button></div>
         <p class="err" id="pb-err" hidden></p><p class="note ok" id="pb-ok" hidden></p>
       </div>
@@ -893,7 +893,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       to: 'Send to: emails, separated by commas', title: 'Title (optional)', msg: 'Your message (optional)', pw: 'Password (optional)',
       noTo: 'Add at least one email to send to.', badTo: function (e) { return 'This does not look like an email: ' + e },
       mailed: function (n) { return n === 1 ? 'Sent by email to 1 person.' : 'Sent by email to ' + n + ' people.' }, unmailed: 'Some emails could not be sent:',
-      gFrom: function (n) { return n + ' sent you' }, gLocked: 'This transfer has a password', gPw: 'Password', gOpen: 'Open', gWrong: 'Wrong password, try again.', gLeft: function (n) { return n === 1 ? '1 download left' : n + ' downloads left' }, gUsed: 'Download limit reached', gUsedN: 'This file has been downloaded as many times as it can be. Ask for it to be sent again.',
+      gFrom: function (n) { return n + ' sent you' }, gLocked: 'This transfer has a password', gPw: 'Password', gOpen: 'Open', gWrong: 'Wrong password, try again.', gSlow: 'Too many wrong tries. Wait 15 minutes and try again.', gLeft: function (n) { return n === 1 ? '1 download left' : n + ' downloads left' }, gUsed: 'Download limit reached', gUsedN: 'This file has been downloaded as many times as it can be. Ask for it to be sent again.',
       until: 'until', sent: 'uploaded', sentOne: 'Uploaded!', sentMany: function (n) { return n + ' files uploaded!' }, none: 'Nothing was uploaded',
       left: 'Anyone with the link can download until', copy: 'Copy link', copied: 'Copied', allCopied: 'All links copied', cant: 'Could not copy',
       bad: 'Wrong email or password.', offline: 'Could not reach RoarTransfer. Check the connection and try again.',
@@ -933,7 +933,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       to: 'Προς: email, χωρισμένα με κόμμα', title: 'Τίτλος (προαιρετικό)', msg: 'Το μήνυμά σου (προαιρετικό)', pw: 'Κωδικός (προαιρετικό)',
       noTo: 'Γράψε τουλάχιστον ένα email παραλήπτη.', badTo: function (e) { return 'Αυτό δεν μοιάζει με email: ' + e },
       mailed: function (n) { return n === 1 ? 'Στάλθηκε με email σε 1 άτομο.' : 'Στάλθηκε με email σε ' + n + ' άτομα.' }, unmailed: 'Κάποια email δεν στάλθηκαν:',
-      gFrom: function (n) { return 'Ο/Η ' + n + ' σου έστειλε' }, gLocked: 'Αυτή η αποστολή έχει κωδικό', gPw: 'Κωδικός', gOpen: 'Άνοιγμα', gWrong: 'Λάθος κωδικός, δοκίμασε ξανά.', gLeft: function (n) { return n === 1 ? 'απομένει 1 λήψη' : 'απομένουν ' + n + ' λήψεις' }, gUsed: 'Έφτασε το όριο λήψεων', gUsedN: 'Αυτό το αρχείο κατέβηκε όσες φορές επιτρέπεται. Ζήτα να σου το ξαναστείλουν.',
+      gFrom: function (n) { return 'Ο/Η ' + n + ' σου έστειλε' }, gLocked: 'Αυτή η αποστολή έχει κωδικό', gPw: 'Κωδικός', gOpen: 'Άνοιγμα', gWrong: 'Λάθος κωδικός, δοκίμασε ξανά.', gSlow: 'Πάρα πολλές λάθος προσπάθειες. Περίμενε 15 λεπτά και δοκίμασε ξανά.', gLeft: function (n) { return n === 1 ? 'απομένει 1 λήψη' : 'απομένουν ' + n + ' λήψεις' }, gUsed: 'Έφτασε το όριο λήψεων', gUsedN: 'Αυτό το αρχείο κατέβηκε όσες φορές επιτρέπεται. Ζήτα να σου το ξαναστείλουν.',
       until: 'ως', sent: 'ανέβηκαν', sentOne: 'Ανέβηκε!', sentMany: function (n) { return 'Ανέβηκαν ' + n + ' αρχεία!' }, none: 'Δεν ανέβηκε τίποτα',
       left: 'Όποιος έχει τον σύνδεσμο μπορεί να κατεβάσει ως', copy: 'Αντιγραφή', copied: 'Αντιγράφηκε', allCopied: 'Αντιγράφηκαν όλοι', cant: 'Δεν αντιγράφηκε',
       bad: 'Λάθος email ή κωδικός.', offline: 'Δεν βρέθηκε το RoarTransfer. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
@@ -1133,7 +1133,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     try {
       var g = JSON.parse(localStorage.getItem('rt-grace') || 'null')
       localStorage.removeItem('rt-grace')
-      if (g && g.t && Date.now() - g.at < 864e5) { location.replace(PAGE.replace(/\/$/, '') + '/' + g.t); return true }
+      if (g && /^[A-Za-z0-9]{6,32}$/.test(g.t || '') && Date.now() - g.at < 864e5) { location.replace(PAGE.replace(/\/$/, '') + '/' + g.t); return true }
     } catch (x) {}
     return false
   }
@@ -1599,7 +1599,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       var m = get()[+s.dataset.stop]
       if (!window.confirm(w('stopAsk')(m.name))) return
       s.disabled = true
-      if (/^(free|pro)\//.test(m.path)) {
+      if (/^(free|week|pro)\//.test(m.path)) {
         try { await bridge({ action: 'delete', key: m.path }) } catch (x) { s.disabled = false; window.alert(x.message); return }
       } else {
         var r = await sb.rpc('roar_transfer_stop', { p: m.path })
@@ -1683,7 +1683,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   function paintStore() {
     var u = adm.usage, el = $('adm-store')
     if (!u) { el.innerHTML = loading; return }
-    if (u.error) { el.innerHTML = note(u.error); return }
+    if (u.error) { el.innerHTML = note(esc(u.error)); return }
     var inc = 1e10, used = Number(u.bytes), pct = Math.min(100, used / inc * 100), over = used > inc
     var GBd = function (n) { return (n / 1e9).toFixed(2) + ' GB' }
     var cost = over ? (Math.ceil((used - inc) / 1e9 * 100) / 100 * 0.015).toFixed(2) : '0.00'
@@ -1824,8 +1824,10 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   }
   async function upPic(file, folder, logo) {
     if (file.size > 10 * 1024 * 1024) throw new Error(pw('bBig'))
+    // pictures only, never SVG (it can carry code; security check, Alex 26 Oct)
+    if (!/^image\/(jpeg|png|webp|gif)$/.test(file.type || '')) throw new Error(lang === 'el' ? 'Βάλε εικόνα JPG, PNG, WebP ή GIF.' : 'Use a JPG, PNG, WebP or GIF picture.')
     file = await shrink(file, logo)
-    var ext = { 'image/webp': 'webp', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/svg+xml': 'svg' }[file.type] || 'jpg'
+    var ext = { 'image/webp': 'webp', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif' }[file.type] || 'jpg'
     var path = folder + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext
     var r = await sb.storage.from(BRAND_BUCKET).upload(path, file, { contentType: file.type || 'image/jpeg', upsert: false })
     if (r.error) throw new Error(r.error.message)
@@ -2193,7 +2195,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       ;['get-ic', 'get-h', 'get-n', 'get-list', 'get-exp', 'get-go', 'get-vid', 'get-img', 'get-photos'].forEach(function (id) { $(id).hidden = true })
       $('get-sub').hidden = !got.from; $('get-sub').textContent = got.from ? w('gFrom')(got.from) : ''
       $('get-pwh').textContent = w('gLocked'); $('get-pw').placeholder = w('gPw'); $('get-pwgo').querySelector('span').textContent = w('gOpen')
-      $('get-pwe').hidden = !got.wrong; $('get-pwe').textContent = w('gWrong')
+      $('get-pwe').hidden = !got.wrong && !got.slow; $('get-pwe').textContent = got.slow ? w('gSlow') : w('gWrong')
       return
     }
     var bad = !!got.error
@@ -2225,7 +2227,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       ? w('gFrom')(got.from) + (gotFiles.length > 1 ? ' ' + gotFiles.length + ' ' + w('files') + ' · ' + size(gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0)) : '')
       : gotFiles.length > 1 ? w('gSubMany')(gotFiles.length, size(gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0))) : w('gSubOne')
     $('get-list').innerHTML = gotFiles.map(function (f, n) {
-      return '<li' + (f.used ? ' class="used"' : '') + '><span class="fi"><svg><use href="#' + icon(f.type || '') + '"/></svg></span><span class="ft"><b>' + esc(f.name || 'file') + '</b><small>' + size(f.size) + (f.used ? ' · ' + w('gUsed') : f.left != null ? ' · ' + w('gLeft')(f.left) : '') + '</small></span>'
+      return '<li' + (f.used ? ' class="used"' : '') + '><span class="fi"><svg><use href="#' + icon(f.type || '') + '"/></svg></span><span class="ft"><b>' + esc(f.name || 'file') + '</b><small>' + size(f.size) + (f.used ? ' · ' + w('gUsed') : f.left != null ? ' · ' + w('gLeft')(Number(f.left) || 0) : '') + '</small></span>'
         + (gotFiles.length > 1 && !f.used ? '<a class="getdl" href="' + esc(f.url) + '" download="' + esc(f.name || '') + '" data-n="' + n + '" title="' + esc(w('gOne')) + '" aria-label="' + esc(w('gOne')) + '"><svg><use href="#i-down"/></svg></a>' : '') + '</li>'
     }).join('')
     // the last download says nothing about how long it stays (Alex, 26 Oct: kept 5 days, not shown)
@@ -2383,7 +2385,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('tc-got').textContent = pro.received.length ? fmtN(pro.received.length) : ''
     $('pro-list').innerHTML = pro.received.length ? pro.received.map(function (g) {
       return '<li><span class="fi"><svg><use href="#i-down"/></svg></span><span class="ft"><b>' + esc(g.sender_name) + '</b>'
-        + '<small>' + (g.sender_email ? esc(g.sender_email) + ' · ' : '') + pw('files')(g.files) + ' · ' + size(Number(g.bytes || 0)) + ' · ' + when(g.created_at) + '</small>'
+        + '<small>' + (g.sender_email ? esc(g.sender_email) + ' · ' : '') + pw('files')(Number(g.files) || 0) + ' · ' + size(Number(g.bytes || 0)) + ' · ' + when(g.created_at) + '</small>'
         + (g.message ? '<span class="got-msg">' + esc(g.message) + '</span>' : '') + '</span>'
         + '<a class="pill" href="' + PAGE + esc(g.bundle) + '" target="_blank" rel="noopener"><span>' + pw('open') + '</span></a></li>'
     }).join('') : note(pw('noneGot'))
