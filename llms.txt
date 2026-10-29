@@ -10,18 +10,18 @@
 - Maker: The Mad Lions Lab, https://themadlions.com/lab/ · contact: info@themadlions.com
 
 ## In short
-- Free account: up to 5 GB kept for 1 day, or up to 3 GB kept for 3 days
+- Free account: up to 5 GB kept for 1 day, up to 3 GB for 3 days, or up to 1 GB for 7 days; each file can be downloaded up to 5 times
 - FastTransfer, no account: up to 1 GB for 24 hours, 3 transfers a day
 - One short link for all the files; optional password; an email when downloaded; delete a transfer at any time
 - Uploads go in 16 MB pieces and resume by themselves if the connection drops
-- A paid Pro plan with bigger transfers and longer links is coming
+- Pro: up to 50 GB for 1 day, 40 GB for 3 days, 30 GB for 7 days or 20 GB for 30 days, unlimited downloads, your own name, logo and backgrounds on your links, a page to receive files, opens and downloads with when and where, uploads that pick up again
 
 ## Questions
 ### Is RoarTransfer really free?
-Yes. FastTransfer and the RoarTransfer account are free, with no ads. A paid Pro plan with bigger transfers and longer links is coming, for those who need more.
+Yes. FastTransfer and the RoarTransfer account are free, with no ads. Pro adds bigger transfers (up to 50 GB), links up to 30 days, unlimited downloads, your own branding and link stats, for those who need more; write to lab@themadlions.com for it.
 
 ### How big can a transfer be?
-Up to 5 GB kept for 1 day, or up to 3 GB kept for 3 days, with a free account. Without an account, up to 1 GB for 24 hours, 3 transfers a day.
+Up to 5 GB kept for 1 day, 3 GB for 3 days or 1 GB for 7 days with a free account; up to 50 GB with Pro. Without an account, up to 1 GB for 24 hours, 3 transfers a day.
 
 ### Does the person receiving it need an account?
 No. They open the link, see who sent it, and download. Nothing to install, nothing to sign up for.
