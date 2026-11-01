@@ -844,6 +844,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <nav class="legal"><a href="privacy/" data-t="lg.priv">Privacy Policy</a><a href="terms/" data-t="lg.terms">Terms of Service</a></nav></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="/zip.js"></script>
 <script>
 (function () {
   // RoarMe's own project and public key (src/lib.js); what each person may write is enforced by the database
@@ -903,7 +904,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       off: 'RoarTransfer is not open to this account yet.', stopped: 'Stopped.', leave: 'Files are still uploading.',
       mailSub: 'Files for you (RoarTransfer)', mailBody: 'Download them here, until', remove: 'Remove',
       phSave: 'Save to Photos', phPrep: function (p) { return 'Preparing… ' + p + '%' }, phReady: 'Tap to save to Photos', phDone: 'Saved? Save again', phFiles: 'Download to Files', phFail: 'Could not prepare it for Photos. Download it to Files instead?',
-      gExpires: 'Expires', gGo: 'Download', gAll: 'Download all files', gOne: 'Download this file', gSubOne: 'Someone sent you a file with RoarTransfer.', gSubMany: function (n, t) { return 'Someone sent you ' + n + ' files with RoarTransfer · ' + t }, gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are kept 1 to 7 days. Ask for it to be sent again.',
+      gExpires: 'Expires', gGo: 'Download', gAll: 'Download all (.zip)', zPrep: function (p) { return 'Zipping… ' + p + '%' }, zGo: 'Downloading the zip…', zFail: 'Could not make the zip. Download the files one by one instead?', gOne: 'Download this file', gSubOne: 'Someone sent you a file with RoarTransfer.', gSubMany: function (n, t) { return 'Someone sent you ' + n + ' files with RoarTransfer · ' + t }, gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are kept 1 to 7 days. Ask for it to be sent again.',
       gBad: 'This link does not work', gBadN: 'Check that the whole link was copied.', gOff: 'Could not reach RoarTransfer', gOffN: 'Check the connection and try again.',
       find: 'Search by file or chat', findAdm: 'File, person, email or chat',
       tTransfers: 'transfers', tSent: 'sent in all', tActive: 'active now', tDownloads: 'downloads', tSenders: 'people sending',
@@ -943,7 +944,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       off: 'Το RoarTransfer δεν είναι ακόμα ανοιχτό σε αυτόν τον λογαριασμό.', stopped: 'Διακόπηκε.', leave: 'Τα αρχεία ανεβαίνουν ακόμα.',
       mailSub: 'Αρχεία για σένα (RoarTransfer)', mailBody: 'Κατέβασέ τα εδώ, ως', remove: 'Αφαίρεση',
       phSave: 'Αποθήκευση στις Φωτογραφίες', phPrep: function (p) { return 'Ετοιμάζεται… ' + p + '%' }, phReady: 'Πάτα για αποθήκευση στις Φωτογραφίες', phDone: 'Αποθηκεύτηκε; Ξανά', phFiles: 'Λήψη στα Αρχεία', phFail: 'Δεν ετοιμάστηκε για τις Φωτογραφίες. Να κατέβει στα Αρχεία;',
-      gExpires: 'Λήγει', gGo: 'Λήψη', gAll: 'Λήψη όλων των αρχείων', gOne: 'Λήψη αυτού του αρχείου', gSubOne: 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', gSubMany: function (n, t) { return 'Κάποιος σου έστειλε ' + n + ' αρχεία με το RoarTransfer · ' + t }, gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer μένουν 1 με 7 μέρες. Ζήτα να σου το ξαναστείλουν.',
+      gExpires: 'Λήγει', gGo: 'Λήψη', gAll: 'Λήψη όλων (.zip)', zPrep: function (p) { return 'Φτιάχνεται το zip… ' + p + '%' }, zGo: 'Κατεβαίνει το zip…', zFail: 'Δεν έγινε το zip. Να κατέβουν τα αρχεία ένα ένα;', gOne: 'Λήψη αυτού του αρχείου', gSubOne: 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', gSubMany: function (n, t) { return 'Κάποιος σου έστειλε ' + n + ' αρχεία με το RoarTransfer · ' + t }, gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer μένουν 1 με 7 μέρες. Ζήτα να σου το ξαναστείλουν.',
       gBad: 'Αυτός ο σύνδεσμος δεν δουλεύει', gBadN: 'Έλεγξε ότι αντιγράφηκε ολόκληρος ο σύνδεσμος.', gOff: 'Δεν βρέθηκε το RoarTransfer', gOffN: 'Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
       find: 'Αναζήτηση σε αρχεία ή συνομιλίες', findAdm: 'Αρχείο, άτομο, email ή συνομιλία',
       tTransfers: 'αποστολές', tSent: 'στάλθηκαν συνολικά', tActive: 'ενεργές τώρα', tDownloads: 'λήψεις', tSenders: 'άτομα που στέλνουν',
@@ -2237,7 +2238,93 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('get-go').querySelector('span').textContent = gotFiles.length > 1 ? w('gAll') : w('gGo')
     $('get-go').href = one ? one.url : '#'
     if (one) $('get-go').setAttribute('download', one.name || ''); else $('get-go').removeAttribute('download')
+    if (zipping) zipLabel(w('zGo')); else zipSoon()
     paintPhotos()
+  }
+  // ---- Download all as one .zip (Alex, 1 Nov 2026). zip.js writes it (stored, no compression, zip64 past 4 GB).
+  // Where the browser can, zip-sw.js (scope /__zip/ only) streams it straight to the disk, any size, with the browser's
+  // own progress; Safari, or no service worker: made in memory up to ZIP_MEM; past that, or when it fails, one by one.
+  var ZIP_MEM = (IOS ? 1 : 2) * 1024 * 1024 * 1024
+  var SAFARI = /Safari\//.test(navigator.userAgent) && !/Chrome\/|Chromium\/|CriOS\/|FxiOS\/|Edg\/|EdgiOS\/|Android/.test(navigator.userAgent)
+  var zipping = false
+  function zipName() {
+    var t = String((got && got.title) || '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80)
+    return (t || 'RoarTransfer ' + getToken) + '.zip'
+  }
+  function zipLabel(txt) { $('get-go').querySelector('span').textContent = txt || w('gAll') }
+  function oneByOne(list) {
+    var i = 0
+    ;(function next() { if (i >= list.length) return; fetchFile(list[i++]); setTimeout(next, 1200) })()
+  }
+  function zipWorker() {
+    if (SAFARI || !window.RTZip || !('serviceWorker' in navigator) || !window.ReadableStream || !window.TransformStream) return Promise.resolve(null)
+    return navigator.serviceWorker.register('/zip-sw.js', { scope: '/__zip/' }).then(function (reg) {
+      var sw = reg.active || reg.waiting || reg.installing
+      if (!sw) return null
+      if (sw.state === 'activated') return sw
+      return new Promise(function (ok) {
+        var t = setTimeout(function () { ok(null) }, 8000)
+        sw.addEventListener('statechange', function () { if (sw.state === 'activated') { clearTimeout(t); ok(sw) } else if (sw.state === 'redundant') { clearTimeout(t); ok(null) } })
+      })
+    }).catch(function () { return null })
+  }
+  // a link with many files gets the worker ready while they look at the list, so the click starts at once
+  var zipSw = null
+  function zipSoon() { if (!zipSw && gotFiles.length > 1) zipSw = zipWorker() }
+  async function zipAll() {
+    if (zipping) return
+    var list = gotFiles.filter(function (f) { return !f.used })
+    if (!list.length) return
+    if (list.length === 1 || !window.RTZip) { oneByOne(list); return }
+    var total = list.reduce(function (n, f) { return n + Number(f.size || 0) }, 0) || 1
+    var files = list.map(function (f) { return { name: f.name || 'file', url: f.url, size: Number(f.size) } })
+    var count = function () { list.forEach(function (f) { if (!f.counted) countHit(f.token, true) }) }
+    var fail = function (er) {
+      zipping = false; zipLabel()
+      if (confirm(w('zFail') + (er ? '\n(' + er + ')' : ''))) oneByOne(list)
+    }
+    zipping = true
+    var sw = await (zipSw || (zipSw = zipWorker()))
+    if (sw) {
+      var id = Math.random().toString(36).slice(2) + Date.now().toString(36)
+      var ch = new MessageChannel(), ping = null, fr = null
+      var stop = function () { clearInterval(ping); setTimeout(function () { if (fr) fr.remove() }, 4000); zipping = false; zipLabel() }
+      var ready = await new Promise(function (ok) {
+        var t = setTimeout(function () { ok(false) }, 4000)
+        ch.port1.onmessage = function (m) {
+          var d = m.data || {}
+          if (d.ok) { clearTimeout(t); ok(true) }
+          else if (d.bytes) zipLabel(w('zPrep')(Math.min(99, Math.floor(d.bytes / total * 100))))
+          else if (d.done) stop()
+          else if (d.error) { stop(); fail(d.error) }
+        }
+        sw.postMessage({ zip: true, id: id, name: zipName(), files: files }, [ch.port2])
+      })
+      if (ready) {
+        zipLabel(w('zGo'))
+        // the browser stops an idle worker; a word every 10 s keeps it going while the zip is made
+        ping = setInterval(function () { try { sw.postMessage({ ping: 1 }) } catch (er) {} }, 10000)
+        fr = document.createElement('iframe'); fr.hidden = true
+        fr.src = '/__zip/' + id + '/' + encodeURIComponent(zipName())
+        document.body.appendChild(fr)
+        count()
+        return
+      }
+    }
+    // no worker: in memory, when it fits
+    if (total > ZIP_MEM) { zipping = false; oneByOne(list); return }
+    try {
+      zipLabel(w('zPrep')(0))
+      var rd = RTZip.stream(files, function (f) {
+        return fetch(f.url, { mode: 'cors', cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' })
+      }, function (n) { zipLabel(w('zPrep')(Math.min(99, Math.floor(n / total * 100)))) }).getReader()
+      var parts = []
+      for (;;) { var c = await rd.read(); if (c.done) break; parts.push(c.value) }
+      var url = URL.createObjectURL(new Blob(parts, { type: 'application/zip' }))
+      var a = document.createElement('a'); a.href = url; a.download = zipName(); document.body.appendChild(a); a.click(); a.remove()
+      setTimeout(function () { URL.revokeObjectURL(url) }, 60000)
+      count(); zipping = false; zipLabel()
+    } catch (er) { fail(er && er.message) }
   }
   // after a download, a card that invites them to send their own (Alex, 22 Oct), a moment later so it does not jump
   function sendBack() {
@@ -2246,12 +2333,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   }
   if (getting) {
     show('v-get')
-    // Download all: one file after the other, a moment apart, so the browser takes each one
-    $('get-go').addEventListener('click', async function (e) {
+    // Download all (Alex, 1 Nov: "many files: show each one, but Download all as a zip"): one .zip of every file left
+    $('get-go').addEventListener('click', function (e) {
       sendBack()
       if (gotFiles.length === 1) { if (gotFiles[0].used) { e.preventDefault(); return } if (!gotFiles[0].counted) countHit(gotFiles[0].token, true); return }
       e.preventDefault()
-      for (var i = 0; i < gotFiles.length; i++) { if (gotFiles[i].used) continue; fetchFile(gotFiles[i]); await new Promise(function (ok) { setTimeout(ok, 1200) }) }
+      zipAll()
     })
     $('get-list').addEventListener('click', function (e) { var a = e.target.closest('.getdl'); if (a) { countHit(gotFiles[+a.dataset.n].token, true); sendBack() } })
     $('get-pwf').addEventListener('submit', function (e) { e.preventDefault(); getPw = $('get-pw').value; if (getPw) { $('get-pwf').hidden = true; load() } })

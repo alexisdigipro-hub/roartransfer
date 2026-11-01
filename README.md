@@ -63,3 +63,10 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   (the preview is the whole file); an upload is aborted when its pieces pass the sender's largest size; R2 downloads are
   counted only by roar-transfer-get; site visits cannot be flooded; brand pictures are never SVG; Stop works on 7-day
   links; the Worker treats `$` in a title as text. SQL: `supabase/transfer-security.sql` in roarme (applied).
+- Download all as one .zip (1 Nov 2026, Alex: "many files: show each one, but Download all as a zip"): a link with more
+  than one file still lists every file with its own download button; Download all (.zip) gives one zip named after the
+  transfer's title. `zip.js` writes it (files stored as they are, no compression, CRC worked out as they pass, zip64
+  only past 4 GB, the same name twice becomes "name (2)"). `zip-sw.js`, a service worker with scope `/__zip/` only,
+  streams it from R2 straight to the disk at any size with the browser's own progress (the page pings it every 10 s
+  and shows "Zipping… N%" on the button). Safari, or a browser without service workers: made in memory up to 2 GB
+  (1 GB on iPhone); past that, or if it fails, the files come one by one as before. No server or database change.
