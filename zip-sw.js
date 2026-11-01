@@ -2,7 +2,7 @@
 // then opens /__zip/<id>/<name>.zip, and the worker answers with the zip as it is made (zip.js), file after file,
 // straight from storage, so the browser saves it like any download, with its progress, never all in memory.
 // Its scope is /__zip/ only: it never touches the rest of roartransfer.com.
-importScripts('/zip.js')
+importScripts('/zip.js?v=3')
 
 var jobs = {}
 

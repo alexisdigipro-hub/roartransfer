@@ -844,7 +844,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <nav class="legal"><a href="privacy/" data-t="lg.priv">Privacy Policy</a><a href="terms/" data-t="lg.terms">Terms of Service</a></nav></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="/zip.js"></script>
+<script src="/zip.js?v=3"></script>
 <script>
 (function () {
   // RoarMe's own project and public key (src/lib.js); what each person may write is enforced by the database
@@ -2267,9 +2267,18 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     } catch (e) {}
     return f.url
   }
+  // the page's own copy of how a file is read (Safari kept an older zip.js without RTZip.open: "open is not a function",
+  // 1 Nov): through the site first, the file's own address if that does not answer
+  function zipOpen(f) {
+    var get = function (u) { return fetch(u, { mode: 'cors', cache: 'no-store', credentials: 'omit' }) }
+    return get(f.url).then(function (r) {
+      if (r.ok && r.body && !/text\/html/.test(r.headers.get('content-type') || '')) return r
+      return f.alt && f.alt !== f.url ? get(f.alt) : r
+    }, function (er) { if (f.alt && f.alt !== f.url) return get(f.alt); throw er })
+  }
   function zipWorker() {
     if (SAFARI || !window.RTZip || !('serviceWorker' in navigator) || !window.ReadableStream || !window.TransformStream) return Promise.resolve(null)
-    return navigator.serviceWorker.register('/zip-sw.js', { scope: '/__zip/' }).then(function (reg) {
+    return navigator.serviceWorker.register('/zip-sw.js?v=3', { scope: '/__zip/', updateViaCache: 'none' }).then(function (reg) {
       var sw = reg.active || reg.waiting || reg.installing
       if (!sw) return null
       if (sw.state === 'activated') return sw
@@ -2326,7 +2335,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (total > ZIP_MEM) { zipping = false; oneByOne(list); return }
     try {
       zipLabel(w('zPrep')(0))
-      var rd = RTZip.stream(files, RTZip.open, function (n) { zipLabel(w('zPrep')(Math.min(99, Math.floor(n / total * 100)))) }).getReader()
+      var rd = RTZip.stream(files, zipOpen, function (n) { zipLabel(w('zPrep')(Math.min(99, Math.floor(n / total * 100)))) }).getReader()
       var parts = []
       for (;;) { var c = await rd.read(); if (c.done) break; parts.push(c.value) }
       var url = URL.createObjectURL(new Blob(parts, { type: 'application/zip' }))
