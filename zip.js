@@ -143,5 +143,14 @@
       cancel: function () { if (rd) try { rd.cancel() } catch (e) {} }
     }, { highWaterMark: 1 })
   }
-  root.RTZip = { stream: stream, length: length, names: names, crc32: crc32 }
+  // a file's bytes: through the site first (url), and its own address (alt) if that does not answer
+  function open(f) {
+    var get = function (u) { return fetch(u, { mode: 'cors', cache: 'no-store', credentials: 'omit' }) }
+    return get(f.url).then(function (r) {
+      if (r.ok && r.body && !/text\/html/.test(r.headers.get('content-type') || '')) return r
+      if (f.alt && f.alt !== f.url) return get(f.alt)
+      return r
+    }, function (er) { if (f.alt && f.alt !== f.url) return get(f.alt); throw er })
+  }
+  root.RTZip = { open: open, stream: stream, length: length, names: names, crc32: crc32 }
 })(typeof self !== 'undefined' ? self : globalThis)

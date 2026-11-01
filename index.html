@@ -2256,6 +2256,17 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var i = 0
     ;(function next() { if (i >= list.length) return; fetchFile(list[i++]); setTimeout(next, 1200) })()
   }
+  // a file read for the zip comes through roartransfer.com itself (cloudflare/worker.js /__dl/): R2 answers a page
+  // only from its own site, and the link's address goes on to R2 by a redirect, after which the browser no longer says
+  // which site asks ("Load failed" in Safari, 1 Nov). Not through here (pCloud, older files): their own address.
+  function zipSrc(f) {
+    try {
+      var u = new URL(f.url)
+      if (/\/functions\/v1\/roar-transfer-get$/.test(u.pathname) && u.searchParams.get('dl') === '1' && /^[A-Za-z0-9]{6,32}$/.test(u.searchParams.get('t') || ''))
+        return location.origin + '/__dl/' + u.searchParams.get('t') + (u.searchParams.get('c') ? '?c=' + encodeURIComponent(u.searchParams.get('c')) : '')
+    } catch (e) {}
+    return f.url
+  }
   function zipWorker() {
     if (SAFARI || !window.RTZip || !('serviceWorker' in navigator) || !window.ReadableStream || !window.TransformStream) return Promise.resolve(null)
     return navigator.serviceWorker.register('/zip-sw.js', { scope: '/__zip/' }).then(function (reg) {
@@ -2277,7 +2288,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (!list.length) return
     if (list.length === 1 || !window.RTZip) { oneByOne(list); return }
     var total = list.reduce(function (n, f) { return n + Number(f.size || 0) }, 0) || 1
-    var files = list.map(function (f) { return { name: f.name || 'file', url: f.url, size: Number(f.size) } })
+    var files = list.map(function (f) { return { name: f.name || 'file', url: zipSrc(f), alt: f.url, size: Number(f.size) } })
     var count = function () { list.forEach(function (f) { if (!f.counted) countHit(f.token, true) }) }
     var fail = function (er) {
       zipping = false; zipLabel()
@@ -2315,9 +2326,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (total > ZIP_MEM) { zipping = false; oneByOne(list); return }
     try {
       zipLabel(w('zPrep')(0))
-      var rd = RTZip.stream(files, function (f) {
-        return fetch(f.url, { mode: 'cors', cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' })
-      }, function (n) { zipLabel(w('zPrep')(Math.min(99, Math.floor(n / total * 100)))) }).getReader()
+      var rd = RTZip.stream(files, RTZip.open, function (n) { zipLabel(w('zPrep')(Math.min(99, Math.floor(n / total * 100)))) }).getReader()
       var parts = []
       for (;;) { var c = await rd.read(); if (c.done) break; parts.push(c.value) }
       var url = URL.createObjectURL(new Blob(parts, { type: 'application/zip' }))
