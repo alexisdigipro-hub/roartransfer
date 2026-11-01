@@ -70,3 +70,6 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   streams it from R2 straight to the disk at any size with the browser's own progress (the page pings it every 10 s
   and shows "Zipping… N%" on the button). Safari, or a browser without service workers: made in memory up to 2 GB
   (1 GB on iPhone); past that, or if it fails, the files come one by one as before. No server or database change.
+  Each file is read through roartransfer.com itself (`cloudflare/worker.js` `/__dl/<token>`: asks roar-transfer-get,
+  counted there, and passes R2's bytes on), since R2 refuses a page after the link's redirect ("Load failed", 1 Nov);
+  only roar-transfer-get to R2, no open proxy. If the Worker does not answer, the file's own address is tried.

@@ -28,9 +28,7 @@ self.addEventListener('fetch', function (e) {
   delete jobs[m[1]]
   var port = job.port, last = 0
   var tell = function (x) { try { if (port) port.postMessage(x) } catch (er) {} }
-  var body = RTZip.stream(job.files, function (f) {
-    return fetch(f.url, { mode: 'cors', cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' })
-  }, function (n) { var now = Date.now(); if (now - last > 700) { last = now; tell({ bytes: n }) } })
+  var body = RTZip.stream(job.files, RTZip.open, function (n) { var now = Date.now(); if (now - last > 700) { last = now; tell({ bytes: n }) } })
   // tell the page when it ended, well or not
   var pass = new TransformStream({ flush: function () { tell({ done: true }) } })
   body.pipeTo(pass.writable).catch(function (er) { tell({ error: String(er && er.message || er) }) })

@@ -4,6 +4,7 @@
 // in front of roartransfer.com on Cloudflare (route roartransfer.com/*): everything goes to GitHub Pages as before; only a
 // link's page gets its own title, description and picture in Open Graph tags, with status 200 so the apps show it.
 //   /<token>        404.html from GitHub Pages + the link's tags (from roar-transfer-get ?meta=1)
+//   /__dl/<token>   one file of a link, from R2 through this site (for Download all as a .zip)
 //   /og/<token>.jpg the link's picture (roar-transfer-get ?og=1: og/<token>.jpg in R2, made by the page when it was sent)
 // A transfer with a password shows only who sent it, how many files and until when; no names, no picture.
 // It holds no key: roar-transfer-get is public and answers only what the link itself would show.
@@ -15,6 +16,23 @@ export default {
   async fetch(req) {
     const url = new URL(req.url)
     if (req.method !== 'GET' && req.method !== 'HEAD') return fetch(req)
+    // Download all as one .zip (Alex, 1 Nov 2026): the page reads each file to put it in the zip, and a browser may read
+    // only what comes from its own site, so the file comes through here: /__dl/<token>[?c=<claim>] asks roar-transfer-get
+    // for it (counted there as a download, as a click is) and passes R2's bytes on as they come, never all at once.
+    // Only roar-transfer-get and only R2: this is no open proxy.
+    const dl = url.pathname.match(/^\/__dl\/([A-Za-z0-9]{6,32})$/)
+    if (dl) {
+      const c = url.searchParams.get('c') || ''
+      const ask = `${FN}?t=${dl[1]}&dl=1` + (/^[0-9a-f-]{36}$/.test(c) ? `&c=${c}` : '')
+      const hop = await fetch(ask, { redirect: 'manual', headers: { 'User-Agent': req.headers.get('user-agent') || '' } })
+      const to = hop.headers.get('location') || ''
+      if (hop.status !== 302 || !/^https:\/\/[^/]+\.r2\.cloudflarestorage\.com\//.test(to)) return new Response('gone', { status: 410, headers: { 'Cache-Control': 'no-store' } })
+      const file = await fetch(to)
+      if (!file.ok) return new Response('gone', { status: 410, headers: { 'Cache-Control': 'no-store' } })
+      const h = new Headers({ 'Content-Type': file.headers.get('content-type') || 'application/octet-stream', 'Cache-Control': 'no-store' })
+      if (file.headers.get('content-length')) h.set('Content-Length', file.headers.get('content-length'))
+      return new Response(file.body, { headers: h })
+    }
     const pic = url.pathname.match(/^\/og\/([A-Za-z0-9]{6,32})\.jpg$/)
     if (pic) {
       const r = await fetch(`${FN}?og=1&t=${pic[1]}`, { cf: { cacheTtl: 3600, cacheEverything: true } })
