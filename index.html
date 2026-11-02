@@ -906,7 +906,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       off: 'RoarTransfer is not open to this account yet.', stopped: 'Stopped.', leave: 'Files are still uploading.',
       mailSub: 'Files for you (RoarTransfer)', mailBody: 'Download them here, until', remove: 'Remove',
       phSave: 'Save to Photos', phPrep: function (p) { return 'Preparing… ' + p + '%' }, phReady: 'Tap to save to Photos', phDone: 'Saved? Save again', phFiles: 'Download to Files', phFail: 'Could not prepare it for Photos. Download it to Files instead?',
-      gExpires: 'Expires', gGo: 'Download', gAll: 'Download all (.zip)', zPrep: function (p) { return 'Zipping… ' + p + '%' }, zGo: 'Downloading the zip…', zFail: 'Could not make the zip. Download the files one by one instead?', gOne: 'Download this file', gSubOne: 'Someone sent you a file with RoarTransfer.', gSubMany: function (n, t) { return 'Someone sent you ' + n + ' files with RoarTransfer · ' + t }, gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are kept 1 to 7 days. Ask for it to be sent again.',
+      gExpires: 'Expires', gGo: 'Download', gAll: 'Download all (.zip)', trialNoMail: 'Pro Trial is on, but the email could not be sent.', zPrep: function (p) { return 'Zipping… ' + p + '%' }, zGo: 'Downloading the zip…', zFail: 'Could not make the zip. Download the files one by one instead?', gOne: 'Download this file', gSubOne: 'Someone sent you a file with RoarTransfer.', gSubMany: function (n, t) { return 'Someone sent you ' + n + ' files with RoarTransfer · ' + t }, gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are kept 1 to 7 days. Ask for it to be sent again.',
       gBad: 'This link does not work', gBadN: 'Check that the whole link was copied.', gOff: 'Could not reach RoarTransfer', gOffN: 'Check the connection and try again.',
       find: 'Search by file or chat', findAdm: 'File, person, email or chat',
       tTransfers: 'transfers', tSent: 'sent in all', tActive: 'active now', tDownloads: 'downloads', tSenders: 'people sending',
@@ -946,7 +946,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       off: 'Το RoarTransfer δεν είναι ακόμα ανοιχτό σε αυτόν τον λογαριασμό.', stopped: 'Διακόπηκε.', leave: 'Τα αρχεία ανεβαίνουν ακόμα.',
       mailSub: 'Αρχεία για σένα (RoarTransfer)', mailBody: 'Κατέβασέ τα εδώ, ως', remove: 'Αφαίρεση',
       phSave: 'Αποθήκευση στις Φωτογραφίες', phPrep: function (p) { return 'Ετοιμάζεται… ' + p + '%' }, phReady: 'Πάτα για αποθήκευση στις Φωτογραφίες', phDone: 'Αποθηκεύτηκε; Ξανά', phFiles: 'Λήψη στα Αρχεία', phFail: 'Δεν ετοιμάστηκε για τις Φωτογραφίες. Να κατέβει στα Αρχεία;',
-      gExpires: 'Λήγει', gGo: 'Λήψη', gAll: 'Λήψη όλων (.zip)', zPrep: function (p) { return 'Φτιάχνεται το zip… ' + p + '%' }, zGo: 'Κατεβαίνει το zip…', zFail: 'Δεν έγινε το zip. Να κατέβουν τα αρχεία ένα ένα;', gOne: 'Λήψη αυτού του αρχείου', gSubOne: 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', gSubMany: function (n, t) { return 'Κάποιος σου έστειλε ' + n + ' αρχεία με το RoarTransfer · ' + t }, gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer μένουν 1 με 7 μέρες. Ζήτα να σου το ξαναστείλουν.',
+      gExpires: 'Λήγει', gGo: 'Λήψη', gAll: 'Λήψη όλων (.zip)', trialNoMail: 'Το Pro Trial μπήκε, αλλά το email δεν στάλθηκε.', zPrep: function (p) { return 'Φτιάχνεται το zip… ' + p + '%' }, zGo: 'Κατεβαίνει το zip…', zFail: 'Δεν έγινε το zip. Να κατέβουν τα αρχεία ένα ένα;', gOne: 'Λήψη αυτού του αρχείου', gSubOne: 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', gSubMany: function (n, t) { return 'Κάποιος σου έστειλε ' + n + ' αρχεία με το RoarTransfer · ' + t }, gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer μένουν 1 με 7 μέρες. Ζήτα να σου το ξαναστείλουν.',
       gBad: 'Αυτός ο σύνδεσμος δεν δουλεύει', gBadN: 'Έλεγξε ότι αντιγράφηκε ολόκληρος ο σύνδεσμος.', gOff: 'Δεν βρέθηκε το RoarTransfer', gOffN: 'Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
       find: 'Αναζήτηση σε αρχεία ή συνομιλίες', findAdm: 'Αρχείο, άτομο, email ή συνομιλία',
       tTransfers: 'αποστολές', tSent: 'στάλθηκαν συνολικά', tActive: 'ενεργές τώρα', tDownloads: 'λήψεις', tSenders: 'άτομα που στέλνουν',
@@ -2539,7 +2539,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   function grantPro(who, btn, months) {
     $('adm-pro-err').hidden = true
     if (btn) btn.disabled = true
-    proCall(Object.assign({ action: 'grant', months: months || Number(admPro.months) }, who)).then(function () {
+    proCall(Object.assign({ action: 'grant', months: months || Number(admPro.months) }, months ? { trial: true } : {}, who)).then(function (d) {
+      // Pro Trial: the email with the gift went (roartransfer-pro sendTrial), or say it did not
+      if (months && d && d.mailed === false) alert(w('trialNoMail'))
       if (btn) btn.disabled = false
       $('adm-pro-mail').value = ''; loadAdmPro()
     }).catch(function (e) { if (btn) btn.disabled = false; $('adm-pro-err').textContent = e.message; $('adm-pro-err').hidden = false; if (months) alert(e.message) })
