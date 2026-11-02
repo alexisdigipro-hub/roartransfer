@@ -73,6 +73,6 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   Each file is read through roartransfer.com itself (`cloudflare/worker.js` `/__dl/<token>`: asks roar-transfer-get,
   counted there, and passes R2's bytes on), since R2 refuses a page after the link's redirect ("Load failed", 1 Nov);
   only roar-transfer-get to R2, no open proxy. If the Worker does not answer, the file's own address is tried.
-- Pro Trial (2 Nov 2026, Alex): Admin > Accounts has Pro Trial on each account that is not Pro (in place of Make Pro);
+- Pro Trial (2 Nov 2026, Alex): Admin > Accounts has Pro Trial next to Make Pro on each account that is not Pro;
   one press makes it Pro for three months (roartransfer-pro `grant`, months 3, i.e. 90 days). Admin > Pro still gives
   1 month, 1 year or Lifetime by email.
