@@ -2480,7 +2480,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       gone: 'This page does not take files.', limit: 'Too many files from here today. Try again tomorrow.',
       mineT: 'My <b>Pro transfers</b>.', tab: 'My Pro transfers',
       stAdmin: 'Pro, lifetime (you are an admin)', mineSub: 'Everything you sent, from here, RoarMail and your chats. Your links last 1 to 30 days.', stEver: 'Pro, lifetime', stUntil: function (d) { return 'Pro until ' + d },
-      pkRx: 'Receive files: your own page, up to 20 GB a file, kept 30 days', pkDl: 'Unlimited downloads', pkPc: 'Keep it only in pCloud',
+      pkRx: 'Receive files: your own page, up to 20 GB a file, kept 30 days', pkDl: 'Unlimited downloads',
       make: 'Make Pro', trial: 'Pro Trial', remove: 'Remove', again: 'Give again', admin: 'Admin · always', ever: 'Lifetime', until: function (d) { return 'Until ' + d },
       ended: function (d) { return 'Ended ' + d }, mail: 'Email of the account', none: 'No one is Pro yet.',
       sure: function (n) { return 'Remove Pro from ' + n + '? Their page stops taking files.' },
@@ -2513,7 +2513,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       gone: 'Αυτή η σελίδα δεν δέχεται αρχεία.', limit: 'Πάρα πολλά αρχεία από εδώ σήμερα. Δοκίμασε ξανά αύριο.',
       mineT: 'Οι <b>Pro αποστολές</b> μου.', tab: 'Οι Pro αποστολές μου',
       stAdmin: 'Pro, lifetime (είσαι διαχειριστής)', mineSub: 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links σου ισχύουν 1 με 30 μέρες.', stEver: 'Pro, lifetime', stUntil: function (d) { return 'Pro ως ' + d },
-      pkRx: 'Λήψη αρχείων: δική σου σελίδα, ως 20 GB το αρχείο, μένουν 30 μέρες', pkDl: 'Απεριόριστα κατεβάσματα', pkPc: 'Μόνο στο pCloud',
+      pkRx: 'Λήψη αρχείων: δική σου σελίδα, ως 20 GB το αρχείο, μένουν 30 μέρες', pkDl: 'Απεριόριστα κατεβάσματα',
       make: 'Κάνε Pro', trial: 'Pro Trial', remove: 'Αφαίρεση', again: 'Δώσε ξανά', admin: 'Διαχειριστής · για πάντα', ever: 'Lifetime', until: function (d) { return 'Ως ' + d },
       ended: function (d) { return 'Έληξε ' + d }, mail: 'Email του λογαριασμού', none: 'Κανείς δεν είναι Pro ακόμα.',
       sure: function (n) { return 'Να αφαιρεθεί το Pro από ' + n + '; Η σελίδα του σταματά να δέχεται αρχεία.' },
@@ -2567,9 +2567,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     if (!isPro) return
     var me = proMe || {}
     $('pro-st').textContent = me.admin ? pw('stAdmin') : me.until ? pw('stUntil')(dayY(me.until)) : pw('stEver')
-    // what Pro gives (Alex, 25 Oct); Keep it only in pCloud stays the admin's own
+    // what Pro gives (Alex, 25 Oct); the admin's pCloud option is never listed (Alex, 2 Nov)
     // what Pro gives as tiles with a check, two columns on a computer (Alex, 2 Nov: tidier than chips)
-    $('pro-perks').innerHTML = ['pkGb', 'pkDays', 'pkDl', 'pkBrand', 'pkEdit', 'pkStats', 'pkResume', 'pkRx'].map(pw).concat(me.admin ? [pw('pkPc')] : [])
+    $('pro-perks').innerHTML = ['pkGb', 'pkDays', 'pkDl', 'pkBrand', 'pkEdit', 'pkStats', 'pkResume', 'pkRx'].map(pw)
       .map(function (t) { return '<li><i><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><span>' + esc(t) + '</span></li>' }).join('')
     $('pb-h').textContent = pw('bH'); $('pb-n').textContent = pw('bN')
     $('mn-sub').textContent = pw('mineSub')
