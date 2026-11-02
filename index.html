@@ -482,6 +482,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   .who button { font-size: 11px; padding: 5px 8px; } .lang button { padding: 5px 7px; }
 }
 @media (prefers-reduced-motion: reduce) { .card, .done-ic, .card > *, .files li, .tabs, .pane, .pane > * { animation: none !important; } .lens::before { transition: none !important; } @view-transition { navigation: none; } .drop, .pill, .ring .fl, .meter .bar i { transition: none; } }
+.acc-pro { display: inline-flex; gap: 8px; flex-shrink: 0; }
+@media (max-width: 560px) { .acc-pro { flex-direction: column; gap: 6px; } }
 </style>
 </head>
 <body>
@@ -1705,7 +1707,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
         + '<span class="chips">' + (isPro ? '<i class="pro">PRO</i>' : '') + '<i>' + w('joined') + ' ' + dayT(u.created_at) + '</i>' + (u.confirmed ? '' : '<i class="bad">' + w('unconfC') + '</i>')
         + '<i class="dl">' + w('nTransfers')(Number(u.n)) + '</i>' + (Number(u.n) ? '<i>' + sz(u.bytes) + '</i><i>' + w('dls')(Number(u.downloads)) + '</i><i>' + w('lastSent') + ' ' + dayT(u.last) + '</i>' : '')
         + (u.last_sign_in_at ? '<i>' + w('lastIn') + ' ' + dayT(u.last_sign_in_at) + '</i>' : '') + '</span></span>'
-        + (isPro || !admPro.list ? '' : '<button type="button" class="pill sm" data-trial="' + esc(u.id) + '"><span>' + pw('trial') + '</span></button>') + '</li>'
+        + (isPro || !admPro.list ? '' : '<span class="acc-pro"><button type="button" class="pill sm" data-trial="' + esc(u.id) + '"><span>' + pw('trial') + '</span></button><button type="button" class="pill sm" data-mkpro="' + esc(u.id) + '"><span>' + pw('make') + '</span></button></span>') + '</li>'
     }).join('') : note(w('noAcc'))
   }
   // a tap on an account shows only its transfers below
@@ -1713,6 +1715,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     // Pro Trial (Alex, 2 Nov): an account row gives Pro for three months at one press
     var mk = e.target.closest('[data-trial]')
     if (mk) { grantPro({ id: mk.dataset.trial }, mk, 3); return }
+    var mp = e.target.closest('[data-mkpro]')
+    if (mp) { grantPro({ id: mp.dataset.mkpro }, mp); return }
     var li = e.target.closest('[data-acc]'); if (!li || !adm.acc) return
     adm.who = adm.acc[+li.dataset.acc]; adm.list = null; paintAdmList(); loadAdmList(false)
     // to the Transfers tab, showing only theirs
