@@ -483,7 +483,34 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 }
 @media (prefers-reduced-motion: reduce) { .card, .done-ic, .card > *, .files li, .tabs, .pane, .pane > * { animation: none !important; } .lens::before { transition: none !important; } @view-transition { navigation: none; } .drop, .pill, .ring .fl, .meter .bar i { transition: none; } }
 .acc-pro { display: inline-flex; gap: 8px; flex-shrink: 0; }
-@media (max-width: 560px) { .acc-pro { flex-direction: column; gap: 6px; } }
+@media (max-width: 560px) { #adm-acc li { flex-wrap: wrap; } #adm-acc .acc-pro { width: 100%; padding-left: 45px; } #adm-acc .acc-pro .pill { flex: 1; } }
+
+/* Admin > Accounts rows and the Pro perks (Alex, 2 Nov: "the chips: another layout instead") */
+.files .ft b.acc-n { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; overflow: visible; white-space: normal; }
+.tag { font-style: normal; font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em; font-weight: 700; padding: 2px 7px; border-radius: 999px; line-height: 1.5; }
+.tag.pro { color: #1a1205; background: linear-gradient(135deg, #ffd27a, #ff9f43); }
+.tag.bad { color: #ffb4ad; background: rgba(212,0,0,.16); border: 1px solid rgba(255,90,80,.35); letter-spacing: .04em; font-weight: 600; }
+.acc-nums { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 7px; font-size: 13px; color: var(--muted); }
+.acc-nums b { color: var(--text); font-weight: 700; }
+.acc-dates { display: block; margin-top: 3px; font-family: var(--mono); font-size: 10.5px; color: var(--muted); opacity: .8; }
+.perks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; }
+.perks li { display: flex; align-items: center; gap: 11px; padding: 11px 14px 11px 11px; border-radius: 16px; background: rgba(255,255,255,.045); border: 1px solid var(--line); font-size: 13.5px; line-height: 1.35; }
+.perks i { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: #d40000; box-shadow: 0 0 12px rgba(212,0,0,.5); }
+.perks svg { width: 14px; height: 14px; fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Select in My transfers (Alex, 2 Nov) */
+.selbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 8px 8px 16px; border-radius: 999px; background: rgba(212,0,0,.1); border: 1px solid rgba(255,90,80,.3); }
+.selbar b { font-size: 13.5px; }
+.selbar .sp { flex: 1; }
+.selbar .pill.main:disabled { opacity: .45; }
+.bar2 #mine-sel { flex: none; }
+.files li.pickrow { cursor: pointer; user-select: none; }
+.files li.pickrow .fi.pk { border-radius: 50%; background: transparent; border: 1.5px solid rgba(255,255,255,.35); color: transparent; transition: background .15s, border-color .15s; }
+.files li.pickrow.picked { border-color: rgba(255,90,80,.55); background: rgba(212,0,0,.1); }
+.files li.pickrow.picked .fi.pk { background: #d40000; border-color: #d40000; color: #fff; box-shadow: 0 0 12px rgba(212,0,0,.5); }
+.files li.nopick { opacity: .4; cursor: default; }
+.files li.nopick .fi.pk { visibility: hidden; }
+@media (max-width: 560px) { .selbar { border-radius: 20px; } .selbar .sp { flex-basis: 100%; height: 0; } .selbar .pill { flex: 1; } }
 </style>
 </head>
 <body>
@@ -717,7 +744,10 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <div class="bar2">
       <div class="seg" id="mine-seg"><button type="button" class="on" data-f="all" data-t="f.all">All</button><button type="button" data-f="on" data-t="f.on">Active</button><button type="button" data-f="off" data-t="f.off">Expired</button></div>
       <input class="find" id="mine-q" type="search" autocomplete="off">
+      <button type="button" class="pill sm" id="mine-sel"><svg><use href="#i-check"/></svg><span>Select</span></button>
     </div>
+    <!-- several links deleted at once (Alex, 2 Nov): Select, tap the rows, Delete -->
+    <div class="selbar" id="mine-selbar" hidden><b id="mine-seln"></b><button type="button" class="pill sm" id="mine-selall"></button><span class="sp"></span><button type="button" class="pill sm" id="mine-selx"></button><button type="button" class="pill sm main" id="mine-seldel" disabled><svg><use href="#i-trash"/></svg><span></span></button></div>
     <p class="err" id="mine-err" hidden></p>
     <ul class="files tall" id="mine-list"></ul>
     </div>
@@ -726,7 +756,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       <!-- the account's Pro (Alex, 25 Oct: "My transfers becomes My Pro transfers"): until when, and what it includes -->
       <div class="pro-st">
         <div class="pro-h"><b class="badge">PRO</b><span id="pro-st"></span></div>
-        <div class="chips" id="pro-perks"></div>
+        <ul class="perks" id="pro-perks"></ul>
       </div>
       <!-- the Pro's own brand (Alex, 25 Oct): name, logo and backgrounds on their download pages and Receive-files page -->
       <p class="pro-rx" id="pb-h"></p>
@@ -917,6 +947,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       active: 'Active', expired: 'Expired', stoppedT: 'Stopped', deleted: 'Deleted in the chat',
       daysLeft: function (n) { return n + ' days left' }, hLeft: function (n) { return n + ' h left' }, minLeft: function (n) { return n + ' min left' },
       byLink: 'by link', group: 'a group', dm: 'a one-to-one chat',
+      sel: 'Select', selN: function (n) { return n === 1 ? '1 selected' : n + ' selected' }, selAll: 'Select all', selNone: 'Clear', selX: 'Cancel', selDel: 'Delete',
+      selAsk: function (n) { return 'Delete ' + (n === 1 ? 'this link' : 'these ' + n + ' links') + ' now? The files and their links are gone for good.' },
       stop: 'Delete', stopT: 'Delete the file and its link now',
       stopAsk: function (n) { return 'Delete "' + n + '" now? The file and its link are gone for good.' },
       noneYet: 'Nothing sent yet. What you send shows up here.', noneFound: 'Nothing matches.', noneAll: 'No transfers yet.',
@@ -957,6 +989,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       active: 'Ενεργό', expired: 'Έληξε', stoppedT: 'Σταμάτησε', deleted: 'Σβήστηκε στη συνομιλία',
       daysLeft: function (n) { return 'μένουν ' + n + ' μέρες' }, hLeft: function (n) { return 'μένουν ' + n + ' ώρες' }, minLeft: function (n) { return 'μένουν ' + n + ' λεπτά' },
       byLink: 'με σύνδεσμο', group: 'μια ομάδα', dm: 'μια προσωπική συνομιλία',
+      sel: 'Επιλογή', selN: function (n) { return n === 1 ? '1 επιλεγμένο' : n + ' επιλεγμένα' }, selAll: 'Όλα', selNone: 'Κανένα', selX: 'Άκυρο', selDel: 'Διαγραφή',
+      selAsk: function (n) { return 'Να σβηστ' + (n === 1 ? 'εί αυτό το link' : 'ούν αυτά τα ' + n + ' links') + ' τώρα; Τα αρχεία και τα links τους χάνονται οριστικά.' },
       stop: 'Διαγραφή', stopT: 'Σβήσε τώρα το αρχείο και τον σύνδεσμό του',
       stopAsk: function (n) { return 'Να σβηστεί το "' + n + '" τώρα; Το αρχείο και ο σύνδεσμός του χάνονται οριστικά.' },
       noneYet: 'Δεν έχεις στείλει τίποτα ακόμα. Ό,τι στέλνεις εμφανίζεται εδώ.', noneFound: 'Δεν βρέθηκε τίποτα.', noneAll: 'Καμία αποστολή ακόμα.',
@@ -1571,6 +1605,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     // a Pro's own links (Alex, 25 Oct): expiry, password, and who opened and downloaded
     var mineRow = !withWho && isProNow() && m.token && m.source === 'link'
     if (mineRow) acts = '<button type="button" class="cp" data-info="' + n + '"><svg><use href="#i-timer"/></svg><span>' + pw('details') + '</span></button>' + acts
+    // while picking (My transfers, Select): a round check instead of the icon, only on links that can be deleted
+    if (!withWho && picks) {
+      var can = on && m.source === 'link', got = !!picks[n]
+      return '<li class="tx pickrow' + (can ? '' : ' nopick') + (got ? ' picked' : '') + (on ? '' : ' off') + '"' + (can ? ' data-pick="' + n + '"' : '') + '><span class="fi pk"><svg><use href="#i-check"/></svg></span>'
+        + '<span class="ft"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b><small>' + sz(m.size) + ' · ' + when(m.created_at) + ' · ' + esc(where(m)) + '</small>'
+        + '<span class="chips">' + st + counts + '</span></span></li>'
+    }
     return '<li class="tx' + (on ? '' : ' off') + '"><span class="fi"><svg><use href="#' + icon(m.type) + '"/></svg></span>'
       + '<span class="ft"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b><small>' + sz(m.size) + ' · ' + when(m.created_at) + ' · ' + esc(where(m)) + '</small>'
       + '<span class="chips">' + by + st + counts + '</span></span>' + (acts ? '<span class="acts">' + acts + '</span>' : '')
@@ -1602,15 +1643,16 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       var m = get()[+s.dataset.stop]
       if (!window.confirm(w('stopAsk')(m.name))) return
       s.disabled = true
-      if (/^(free|week|pro)\//.test(m.path)) {
-        try { await bridge({ action: 'delete', key: m.path }) } catch (x) { s.disabled = false; window.alert(x.message); return }
-      } else {
-        var r = await sb.rpc('roar_transfer_stop', { p: m.path })
-        if (r.error) { s.disabled = false; window.alert(r.error.message); return }
-        try { await sb.storage.from(BUCKET).remove([m.path]) } catch (x) {}
-      }
+      try { await stopOne(m) } catch (x) { s.disabled = false; window.alert(x.message); return }
       reload()
     })
+  }
+  // one link ended and its file gone: R2 through roartransfer-r2, older Storage files through roar_transfer_stop
+  async function stopOne(m) {
+    if (/^(free|week|pro)\//.test(m.path)) { await bridge({ action: 'delete', key: m.path }); return }
+    var r = await sb.rpc('roar_transfer_stop', { p: m.path })
+    if (r.error) throw new Error(r.error.message)
+    try { await sb.storage.from(BUCKET).remove([m.path]) } catch (x) {}
   }
 
   // ---- My transfers ----
@@ -1630,7 +1672,53 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       + tile('i-down', fmtN(sum(mine, 'downloads')), w('tDownloads') + ' · ' + w('opensN')(sum(mine, 'opens')))
     var shown = filt(mine.filter(function (m) { return !m.stopped }), mineF, $('mine-q').value)
     $('mine-list').innerHTML = shown.length ? shown.map(function (m) { return row(m, mine.indexOf(m), false) }).join('') : note(mine.length ? w('noneFound') : w('noneYet'))
+    paintPick(shown)
   }
+  // ---- Select (Alex, 2 Nov: "select, to delete many links at once") ----
+  var picks = null
+  function pickable(shown) { return (shown || []).filter(function (m) { return live(m) && m.source === 'link' }).map(function (m) { return mine.indexOf(m) }) }
+  function paintPick(shown) {
+    $('mine-sel').querySelector('span').textContent = w('sel')
+    $('mine-sel').hidden = !!picks || !pickable(shown).length
+    $('mine-selbar').hidden = !picks
+    if (!picks) return
+    var n = Object.keys(picks).length, all = pickable(shown)
+    $('mine-seln').textContent = w('selN')(n)
+    $('mine-selall').textContent = n && n === all.length ? w('selNone') : w('selAll')
+    $('mine-selx').textContent = w('selX')
+    $('mine-seldel').querySelector('span').textContent = w('selDel') + (n ? ' (' + n + ')' : '')
+    $('mine-seldel').disabled = !n
+  }
+  function shownMine() { return filt(mine.filter(function (m) { return !m.stopped }), mineF, $('mine-q').value) }
+  $('mine-sel').addEventListener('click', function () { picks = {}; paintMine() })
+  $('mine-selx').addEventListener('click', function () { picks = null; paintMine() })
+  $('mine-selall').addEventListener('click', function () {
+    var all = pickable(shownMine())
+    if (Object.keys(picks).length === all.length) picks = {}; else { picks = {}; all.forEach(function (i) { picks[i] = 1 }) }
+    paintMine()
+  })
+  $('mine-list').addEventListener('click', function (e) {
+    if (!picks) return
+    var li = e.target.closest('[data-pick]'); if (!li) return
+    e.stopImmediatePropagation()
+    var i = +li.dataset.pick
+    if (picks[i]) delete picks[i]; else picks[i] = 1
+    li.classList.toggle('picked', !!picks[i]); paintPick(shownMine())
+  }, true)
+  $('mine-seldel').addEventListener('click', async function () {
+    var list = Object.keys(picks || {}).map(function (i) { return mine[+i] }).filter(Boolean)
+    if (!list.length || !window.confirm(w('selAsk')(list.length))) return
+    var b = $('mine-seldel'), bad = []
+    b.disabled = true; $('mine-selx').disabled = true; $('mine-selall').disabled = true
+    for (var k = 0; k < list.length; k++) {
+      b.querySelector('span').textContent = w('selDel') + ' ' + (k + 1) + '/' + list.length
+      try { await stopOne(list[k]) } catch (x) { bad.push(list[k].name + ': ' + x.message) }
+    }
+    $('mine-selx').disabled = false; $('mine-selall').disabled = false
+    picks = null
+    if (bad.length) window.alert(bad.join('\n'))
+    loadMine()
+  })
   segs('mine-seg', function (f) { mineF = f; paintMine() })
   $('mine-q').addEventListener('input', paintMine)
   rowActs('mine-list', function () { return mine }, loadMine)
@@ -1703,10 +1791,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     $('adm-acc-sum').textContent = w('accSum')(a.filter(function (u) { return new Date(u.created_at).getTime() > week }).length, a.filter(function (u) { return Number(u.n) > 0 }).length, a.filter(function (u) { return !u.confirmed }).length)
     $('adm-acc').innerHTML = a.length ? a.map(function (u, n) {
       var isPro = proIds()[u.id]
-      return '<li data-acc="' + n + '">' + av(u) + '<span class="ft"><b>' + esc(nameOf(u)) + '</b><small>' + esc(u.email || '') + '</small>'
-        + '<span class="chips">' + (isPro ? '<i class="pro">PRO</i>' : '') + '<i>' + w('joined') + ' ' + dayT(u.created_at) + '</i>' + (u.confirmed ? '' : '<i class="bad">' + w('unconfC') + '</i>')
-        + '<i class="dl">' + w('nTransfers')(Number(u.n)) + '</i>' + (Number(u.n) ? '<i>' + sz(u.bytes) + '</i><i>' + w('dls')(Number(u.downloads)) + '</i><i>' + w('lastSent') + ' ' + dayT(u.last) + '</i>' : '')
-        + (u.last_sign_in_at ? '<i>' + w('lastIn') + ' ' + dayT(u.last_sign_in_at) + '</i>' : '') + '</span></span>'
+      // tidier than a row of chips (Alex, 2 Nov): the name with its tags, the numbers bold in one line, the dates quiet below
+      var num = function (t) { var i = t.indexOf(' '); return '<span><b>' + esc(t.slice(0, i)) + '</b> ' + esc(t.slice(i + 1)) + '</span>' }
+      var nums = [num(w('nTransfers')(Number(u.n)))].concat(Number(u.n) ? [num(sz(u.bytes)), num(w('dls')(Number(u.downloads)))] : [])
+      var dates = [w('joined') + ' ' + dayT(u.created_at)].concat(Number(u.n) ? [w('lastSent') + ' ' + dayT(u.last)] : [], u.last_sign_in_at ? [w('lastIn') + ' ' + dayT(u.last_sign_in_at)] : [])
+      return '<li data-acc="' + n + '">' + av(u) + '<span class="ft"><b class="acc-n">' + esc(nameOf(u)) + (isPro ? ' <i class="tag pro">PRO</i>' : '') + (u.confirmed ? '' : ' <i class="tag bad">' + w('unconfC') + '</i>') + '</b><small>' + esc(u.email || '') + '</small>'
+        + '<span class="acc-nums">' + nums.join('') + '</span><span class="acc-dates">' + esc(dates.join(' · ')) + '</span></span>'
         + (isPro || !admPro.list ? '' : '<span class="acc-pro"><button type="button" class="pill sm" data-trial="' + esc(u.id) + '"><span>' + pw('trial') + '</span></button><button type="button" class="pill sm" data-mkpro="' + esc(u.id) + '"><span>' + pw('make') + '</span></button></span>') + '</li>'
     }).join('') : note(w('noAcc'))
   }
@@ -2478,8 +2568,9 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     var me = proMe || {}
     $('pro-st').textContent = me.admin ? pw('stAdmin') : me.until ? pw('stUntil')(dayY(me.until)) : pw('stEver')
     // what Pro gives (Alex, 25 Oct); Keep it only in pCloud stays the admin's own
+    // what Pro gives as tiles with a check, two columns on a computer (Alex, 2 Nov: tidier than chips)
     $('pro-perks').innerHTML = ['pkGb', 'pkDays', 'pkDl', 'pkBrand', 'pkEdit', 'pkStats', 'pkResume', 'pkRx'].map(pw).concat(me.admin ? [pw('pkPc')] : [])
-      .map(function (t) { return '<i>' + esc(t) + '</i>' }).join('')
+      .map(function (t) { return '<li><i><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><span>' + esc(t) + '</span></li>' }).join('')
     $('pb-h').textContent = pw('bH'); $('pb-n').textContent = pw('bN')
     $('mn-sub').textContent = pw('mineSub')
     paintBrand()
