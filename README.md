@@ -79,3 +79,7 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   Pro Trial also emails the person (roartransfer-pro `grant` with `trial: true`, `sendTrial`/`trialMail` in roarme):
   "A gift: 3 months of RoarTransfer Pro, free", a thank-you, the date it ends and every Pro feature, signed With love,
   The Mad Lions. Make Pro sends nothing. If the email fails, the page says so.
+- Select (2 Nov 2026, Alex): My transfers > Sent has Select next to the search; the rows become round checks (only live
+  links can be picked), a red bar says how many, Select all / Clear, Cancel, Delete (n), one confirm, then each link
+  ends as its own Delete does (`stopOne`). Admin > Accounts rows and the Pro card's perks are no longer chips (2 Nov):
+  the name with PRO / Not confirmed tags, the numbers in one line, the dates quiet below; the perks as tiles with a red check.
