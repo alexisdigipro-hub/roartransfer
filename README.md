@@ -83,3 +83,7 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   links can be picked), a red bar says how many, Select all / Clear, Cancel, Delete (n), one confirm, then each link
   ends as its own Delete does (`stopOne`). Admin > Accounts rows and the Pro card's perks are no longer chips (2 Nov):
   the name with PRO / Not confirmed tags, the numbers in one line, the dates quiet below; the perks as tiles with a red check.
+- Admins open every link (2 Nov 2026, Alex: "any link users send, even past the download limit, while its time runs;
+  above all the Free ones"): roar-transfer-get (in roarme) sees an admin signed in on the download page and skips the
+  password and the download limit; each file's address carries an admin ticket (&c=, an HMAC of the token and a 6-hour
+  slot) so the download is not counted and Download all (.zip) works through the Worker. Never past the link's end.
