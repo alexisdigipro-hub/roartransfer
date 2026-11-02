@@ -76,3 +76,6 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
 - Pro Trial (2 Nov 2026, Alex): Admin > Accounts has Pro Trial next to Make Pro on each account that is not Pro;
   one press makes it Pro for three months (roartransfer-pro `grant`, months 3, i.e. 90 days). Admin > Pro still gives
   1 month, 1 year or Lifetime by email.
+  Pro Trial also emails the person (roartransfer-pro `grant` with `trial: true`, `sendTrial`/`trialMail` in roarme):
+  "A gift: 3 months of RoarTransfer Pro, free", a thank-you, the date it ends and every Pro feature, signed With love,
+  The Mad Lions. Make Pro sends nothing. If the email fails, the page says so.
