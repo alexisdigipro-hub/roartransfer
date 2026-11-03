@@ -5,7 +5,13 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
 - `llms.txt` describes the service in plain text for AI assistants; `robots.txt` names the AI crawlers as welcome.
 
 - One plain page (`index.html`), served by GitHub Pages at roartransfer.com (`CNAME`). No build step.
-- Sign in with a RoarMe account (Supabase project RoarMe). Files go straight from the browser to Cloudflare R2
+- Sign in with a RoarMe account (Supabase project RoarMe).
+  Sign in with Roar Account (3 Nov 2026, Alex: one sign-in for every Roar app) is the main button above the email
+  sign-in: the page asks the Edge Function `roar-connect` (RoarMe's project, verify_jwt off) for a code, opens
+  themadlions.com/account/?connect=CODE in a new tab and shows a waiting card (the code, Open the page again, Cancel);
+  every 2 s it polls, and once Allow is pressed there it trades the one-time `token_hash` for its own session
+  (`verifyOtp` magiclink). An account with two-step verification (a verified authenticator) types its 6-digit code
+  before the page goes on (`afterIn`, `mfaVerify`); the email sign-in goes through the same step. The email way stays. Files go straight from the browser to Cloudflare R2
   (bucket `roartransfer`, `free/<account>/…`, deleted by R2 after 3 days; `pro/` after 30, for later) in 16 MB pieces.
 - The Edge Function `roartransfer-r2` (in alexisdigipro-hub/roarme, `supabase/functions/`) holds the R2 keys, signs
   each piece and makes the link; `roar-transfer-get` turns a link (`?t=…`) into a download.
