@@ -154,6 +154,21 @@ h1 b { font-weight: 800; }
 .field input { height: 48px; padding: 0 18px; border-radius: 999px; background: rgba(0,0,0,.22); border: 1px solid var(--line-2); font-size: 16px; outline: none; transition: border-color .2s; }
 .field input:focus { border-color: rgba(255,90,80,.7); }
 .err { margin: 0; padding: 10px 14px; border-radius: 14px; background: rgba(212,0,0,.12); border: 1px solid rgba(255,90,80,.4); color: #ffb4ad; font-size: 13.5px; line-height: 1.45; }
+/* Sign in with Roar Account (3 Nov 2026): the main button, the email way under "or", a waiting card while the other tab allows */
+.rc-go { width: 100%; }
+.rc-go svg { width: 19px; height: 19px; }
+.rc-or { display: flex; align-items: center; gap: 12px; margin: -4px 0; font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.rc-or::before, .rc-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.rc-wait { display: grid; gap: 12px; justify-items: center; text-align: center; padding: 20px 18px; border-radius: 24px; background: rgba(255,255,255,.06); border: 1px solid var(--glass-edge); animation: up .4s var(--ease) both; }
+.rc-wait[hidden] { display: none; }
+.rc-wait b { font-size: 17px; font-weight: 750; color: #fff; }
+.rc-wait p { margin: -4px 0 0; max-width: 34ch; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+.rc-wait .err { max-width: none; }
+.rc-wait .pill, .rc-wait .field { width: 100%; }
+.rc-wait .field input { text-align: center; font-family: var(--mono); font-size: 22px; letter-spacing: .3em; }
+.rc-code { padding: 8px 18px; border-radius: 999px; background: rgba(0,0,0,.25); border: 1px solid var(--line-2); font-family: var(--mono); font-size: 20px; font-weight: 600; letter-spacing: .14em; color: #fff; }
+.rc-x { border: 0; background: none; padding: 4px 10px; cursor: pointer; font: inherit; font-size: 13.5px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+#v-in.rc-on > :not(h1):not(.tag):not(.rc-wait) { display: none !important; }
 .alt { display: grid; gap: 8px; padding-top: 4px; border-top: 1px solid var(--line); }
 .alt p { margin: 10px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
 .alt a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
@@ -537,6 +552,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.5A6.5 6.5 0 0 1 21.5 20"/></g></symbol>
   <symbol id="i-box" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></g></symbol>
   <symbol id="i-cal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g></symbol>
+  <symbol id="i-roar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></g></symbol>
   <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></g></symbol>
 </defs></svg>
 
@@ -624,12 +640,33 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     <!-- what the big ones are known for doing, and we do not (Alex, 23 Oct) -->
     <p class="clean" data-t="clean">No ads. No AI training on your files.</p>
     <p class="sub" id="in-sub"></p>
+    <!-- one sign-in for every Roar app (Alex, 3 Nov 2026): the account page on themadlions.com allows it in another tab
+         (Edge Function roar-connect in RoarMe's project); the email way stays below -->
+    <button type="button" class="pill main rc-go" id="rc-go"><svg><use href="#i-roar"/></svg><span data-t="rc.go">Sign in with Roar Account</span></button>
+    <p class="rc-or"><span data-t="rc.or">or with email</span></p>
+    <div class="rc-wait" id="rc-wait" hidden>
+      <b data-t="rc.wait">Allow RoarTransfer in the other tab</b>
+      <p data-t="rc.waitP">Sign in there with your Roar Account and press Allow. This page signs in by itself.</p>
+      <span class="rc-code" id="rc-code"></span>
+      <p class="err" id="rc-err" hidden></p>
+      <button type="button" class="pill" id="rc-again"><span data-t="rc.again">Open the page again</span></button>
+      <button type="button" class="rc-x" id="rc-x" data-t="rc.x">Cancel</button>
+    </div>
+    <!-- two-step verification (a verified authenticator): the session is aal1 until the 6-digit code -->
+    <div class="rc-wait" id="mfa" hidden>
+      <b data-t="mf.t">Two-step verification</b>
+      <p data-t="mf.p">Type the 6-digit code from your authenticator app.</p>
+      <div class="field"><input id="mfa-c" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" aria-label="Code"></div>
+      <p class="err" id="mfa-err" hidden></p>
+      <button type="submit" class="pill main" id="mfa-go"><span data-t="mf.go">Verify</span></button>
+      <button type="button" class="rc-x" id="mfa-x" data-t="rc.x">Cancel</button>
+    </div>
     <div class="field" id="nm-f" hidden><label for="nm" data-t="in.name">Your name</label><input id="nm" type="text" autocomplete="name" maxlength="80"></div>
     <div class="field"><label for="em" data-t="in.email">Email</label><input id="em" type="email" autocomplete="username" required inputmode="email"></div>
     <div class="field"><label for="pw" data-t="in.pass">Password</label><input id="pw" type="password" autocomplete="current-password" required minlength="6"></div>
     <p class="err" id="in-err" hidden></p>
     <p class="note ok" id="in-ok" hidden></p>
-    <button class="pill main" type="submit" id="in-go"><span id="in-go-t"></span></button>
+    <button class="pill" type="submit" id="in-go"><span id="in-go-t"></span></button>
     <p class="agree" data-t="agree" data-html>By continuing you accept the <a href="terms/">Terms</a> and the <a href="privacy/">Privacy Policy</a>.</p>
     <!-- sign in, or make an account right here (Alex, 21 Oct: "no link to RoarMe, put a sign up") -->
     <div class="alt"><p><span id="in-q"></span> <a href="#" id="in-switch"></a></p><p id="in-forgot-p"><a href="#" id="in-forgot" data-t="in.forgot">Forgot password?</a></p></div>
@@ -922,7 +959,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.dls': 'Κάθε αρχείο κατεβαίνει ως 5 φορές.', 'op.d7': '7 μέρες', 'op.d7s': 'ως 1 GB', 'op.eco': 'Η πιο πράσινη επιλογή είναι και η πιο μεγάλη: τα περισσότερα αρχεία παραλαμβάνονται την ίδια μέρα, οπότε ένα link μιας μέρας μένει λιγότερο στους servers μας και χωράει ως 5 GB.', 'op.notify': 'Στείλε μου email όταν κατέβει', 'op.pc': 'Να μείνει μόνο στο pCloud μου',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
-    'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · 1 GB · 24 ώρες · 1 λήψη · 3/μέρα', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
+    'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rc.go': 'Σύνδεση με Roar Account', 'rc.or': 'ή με email', 'rc.wait': 'Επίτρεψε το RoarTransfer στην άλλη καρτέλα', 'rc.waitP': 'Συνδέσου εκεί με τον Roar Account σου και πάτα Allow. Αυτή η σελίδα συνδέεται μόνη της.', 'rc.again': 'Άνοιξε ξανά τη σελίδα', 'rc.x': 'Άκυρο', 'mf.t': 'Επαλήθευση δύο βημάτων', 'mf.p': 'Γράψε τον 6ψήφιο κωδικό από την εφαρμογή επαλήθευσης.', 'mf.go': 'Επαλήθευση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · 1 GB · 24 ώρες · 1 λήψη · 3/μέρα', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
     'gr.exp': 'Αυτή η αποστολή έληξε', 'gr.t': 'Μία τελευταία<br><em>λήψη</em>', 'gr.p': 'Κάνε δωρεάν εγγραφή και μπορείς να το κατεβάσεις ακόμα, μία τελευταία φορά.', 'gr.up': 'Δωρεάν εγγραφή', 'gr.in': 'Σύνδεση', 'gr.last': 'Το link έληξε: αυτή είναι η τελευταία σου λήψη για κάθε αρχείο.',
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
@@ -971,6 +1008,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       stOf: 'of 10 GB free', stLeft: function (g) { return g + ' left' }, stOver: function (g) { return g + ' over the free 10 GB' }, stFiles: function (n) { return n + (n === 1 ? ' file' : ' files') }, stAcc: 'Accounts', stOther: 'Other', stOpen: function (n) { return n + ' unfinished ' + (n === 1 ? 'upload' : 'uploads') + ' (cleared in 7 days)' },
       stHint: function (c) { return 'Files delete themselves when their link ends (1 to 7 days), so this is about the last few days of uploads. Above 10 GB Cloudflare charges about $0.015 per GB a month: about $' + c + ' a month at today’s size.' },
       accSum: function (w7, sent, unc) { return w7 + ' new this week · ' + sent + ' have sent · ' + unc + ' not confirmed yet' }, joined: 'Joined', unconfC: 'Not confirmed', lastSent: 'last sent', lastIn: 'last in', noAcc: 'No accounts yet.',
+      rcOld: 'The request expired. Press Sign in with Roar Account again.', rcBlocked: 'The browser blocked the new tab. Press Open the page again.', mfBad: 'That code is not right. Type the newest one from the app.', mfShort: 'Type the 6 digits.',
       wait: 'Too many tries. Wait a few minutes and try again.', badMail: 'This does not look like an email.', unconf: 'Confirm your email first: open the email we sent you.', forgotMail: 'Write your email above, then press Forgot password.', resetSent: 'If there is an account with this email, a link to choose a new password is on its way.', linkOld: 'This link has expired or was already used. Try again.', k_video: 'Video', k_image: 'Pictures', k_audio: 'Audio', k_other: 'Other'
     },
     el: {
@@ -1013,6 +1051,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       stOf: 'από τα 10 GB δωρεάν', stLeft: function (g) { return 'μένουν ' + g }, stOver: function (g) { return g + ' πάνω από τα δωρεάν 10 GB' }, stFiles: function (n) { return n + (n === 1 ? ' αρχείο' : ' αρχεία') }, stAcc: 'Λογαριασμοί', stOther: 'Άλλα', stOpen: function (n) { return n + ' ημιτελή ανεβάσματα (σβήνονται σε 7 μέρες)' },
       stHint: function (c) { return 'Τα αρχεία σβήνονται μόνα τους όταν λήξει το link τους (1 με 7 μέρες), οπότε αυτό είναι περίπου τα ανεβάσματα των τελευταίων ημερών. Πάνω από 10 GB το Cloudflare χρεώνει περίπου $0.015 το GB τον μήνα: περίπου $' + c + ' τον μήνα με το σημερινό μέγεθος.' },
       accSum: function (w7, sent, unc) { return w7 + ' νέοι αυτή την εβδομάδα · ' + sent + ' έχουν στείλει · ' + unc + ' δεν επιβεβαίωσαν ακόμα' }, joined: 'Εγγραφή', unconfC: 'Χωρίς επιβεβαίωση', lastSent: 'τελευταία αποστολή', lastIn: 'τελευταία σύνδεση', noAcc: 'Κανένας λογαριασμός ακόμα.',
+      rcOld: 'Το αίτημα έληξε. Πάτα ξανά Σύνδεση με Roar Account.', rcBlocked: 'Ο browser μπλόκαρε τη νέα καρτέλα. Πάτα Άνοιξε ξανά τη σελίδα.', mfBad: 'Ο κωδικός δεν είναι σωστός. Γράψε τον πιο πρόσφατο από την εφαρμογή.', mfShort: 'Γράψε τα 6 ψηφία.',
       wait: 'Πολλές προσπάθειες. Περίμενε λίγα λεπτά και δοκίμασε ξανά.', badMail: 'Αυτό δεν μοιάζει με email.', unconf: 'Επιβεβαίωσε πρώτα το email σου: άνοιξε το email που σου στείλαμε.', forgotMail: 'Γράψε το email σου πάνω και πάτα Ξέχασα τον κωδικό.', resetSent: 'Αν υπάρχει λογαριασμός με αυτό το email, έρχεται σύνδεσμος για νέο κωδικό.', linkOld: 'Ο σύνδεσμος έληξε ή χρησιμοποιήθηκε ήδη. Δοκίμασε ξανά.', k_video: 'Βίντεο', k_image: 'Εικόνες', k_audio: 'Ήχος', k_other: 'Άλλα'
     }
   }
@@ -1094,6 +1133,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   $('in-switch').addEventListener('click', function (e) { e.preventDefault(); signUp = !signUp; $('in-err').hidden = true; $('in-ok').hidden = true; paintIn() })
   $('v-in').addEventListener('submit', function (e) {
     e.preventDefault()
+    if (!$('mfa').hidden) { mfaVerify(); return }
+    if ($('v-in').classList.contains('rc-on')) return
     var err = $('in-err'); err.hidden = true; $('in-ok').hidden = true
     var email = $('em').value.trim(), pass = $('pw').value
     if (signUp && pass.length < 6) { err.textContent = w('upShort'); err.hidden = false; return }
@@ -1113,9 +1154,101 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       ? authFn({ action: 'signup', email: email, password: pass, name: $('nm').value }).then(function (d) {
           return d.ok ? { data: { session: null } } : { error: { message: d.error === 'taken' ? 'already' : d.error === 'wait' ? w('wait') : d.error === 'email' ? w('badMail') : d.error || '' } }
         })
-      : sb.auth.signInWithPassword({ email: email, password: pass })
-    call.then(done).catch(function () { $('in-go').disabled = false; err.textContent = w('offline'); err.hidden = false })
+      : (gate = true, gated = false, sb.auth.signInWithPassword({ email: email, password: pass }).then(function (r) { if (r.error) ungate(); else afterIn(); return r }))
+    call.then(done).catch(function () { ungate(); $('in-go').disabled = false; err.textContent = w('offline'); err.hidden = false })
   })
+
+  // ---- Sign in with Roar Account (Alex, 3 Nov 2026: one sign-in for every Roar app) ----
+  // roar-connect (RoarMe's project, verify_jwt off): start gives a code and a secret, the account page on themadlions.com
+  // allows it in another tab, poll hands back a one-time token_hash, verifyOtp turns it into this page's own session
+  var RC = URL_ + '/functions/v1/roar-connect', rc = null
+  function rcCall(body) {
+    return fetch(RC, { method: 'POST', headers: { apikey: KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return { error: 'Error ' + r.status } }) })
+  }
+  function rcMode(on, which) {
+    $('v-in').classList.toggle('rc-on', !!on)
+    $('v-in').noValidate = !!on // the hidden email fields must not stop the code's Verify
+    $('rc-wait').hidden = !(on && which === 'wait')
+    $('mfa').hidden = !(on && which === 'mfa')
+  }
+  function rcStop() { if (rc) { clearTimeout(rc.timer); rc.stopped = true } rc = null }
+  function rcFail(msg) { rcStop(); rcMode(false); $('rc-go').disabled = false; var e = $('in-err'); e.textContent = msg; e.hidden = false }
+  $('rc-go').addEventListener('click', function () {
+    if (rc) return
+    $('in-err').hidden = true; $('in-ok').hidden = true; $('rc-err').hidden = true
+    // the tab opens now, from the click, so the browser does not block it; it gets its address when the code is back
+    var tw = null
+    try { tw = window.open('', '_blank') } catch (e) {}
+    $('rc-go').disabled = true
+    var me = rc = { stopped: false, timer: 0 }
+    rcCall({ do: 'start', app: 'roartransfer' }).then(function (d) {
+      if (me.stopped) { if (tw) tw.close(); return }
+      if (!d || !d.code || !d.secret || !d.url) { if (tw) tw.close(); rcFail(d && d.error ? String(d.error) : w('offline')); return }
+      me.code = d.code; me.secret = d.secret; me.url = d.url; me.until = Date.now() + (d.expires_in || 600) * 1000
+      if (tw) { try { tw.location.href = d.url } catch (e) { tw = null } }
+      $('rc-code').textContent = d.code
+      if (!tw) { $('rc-err').textContent = w('rcBlocked'); $('rc-err').hidden = false }
+      rcMode(true, 'wait')
+      me.timer = setTimeout(poll, 2000)
+    }).catch(function () { if (tw) tw.close(); if (!me.stopped) rcFail(w('offline')) })
+    function poll() {
+      if (me.stopped) return
+      if (Date.now() > me.until) { rcFail(w('rcOld')); return }
+      rcCall({ do: 'poll', code: me.code, secret: me.secret }).then(function (d) {
+        if (me.stopped) return
+        if (d && d.token_hash) {
+          rcStop()
+          gate = true; gated = false
+          sb.auth.verifyOtp({ type: 'magiclink', token_hash: d.token_hash }).then(function (r) {
+            if (r.error) { ungate(); rcFail(r.error.message || w('rcOld')); return }
+            $('rc-go').disabled = false; rcMode(false); afterIn()
+          }).catch(function () { ungate(); rcFail(w('offline')) })
+          return
+        }
+        if (d && d.expired) { rcFail(w('rcOld')); return }
+        me.timer = setTimeout(poll, 2000)
+      }).catch(function () { if (!me.stopped) me.timer = setTimeout(poll, 2000) })
+    }
+  })
+  $('rc-again').addEventListener('click', function () {
+    if (!rc || !rc.url) return
+    var t = null
+    try { t = window.open(rc.url, '_blank') } catch (e) {}
+    $('rc-err').hidden = !!t
+  })
+  $('rc-x').addEventListener('click', function () {
+    var c = rc; rcStop(); rcMode(false); $('rc-go').disabled = false
+    if (c && c.code) rcCall({ do: 'deny', code: c.code }).catch(function () {})
+  })
+  // signed in (aal1): an account with a verified authenticator still needs its 6-digit code before the page goes on
+  function afterIn() {
+    sb.auth.mfa.getAuthenticatorAssuranceLevel().then(function (a) {
+      var l = a && a.data
+      if (l && l.nextLevel === 'aal2' && l.currentLevel !== 'aal2') {
+        $('mfa-c').value = ''; $('mfa-err').hidden = true; $('in-err').hidden = true; rcMode(true, 'mfa'); $('mfa-c').focus()
+      } else ungate()
+    }).catch(function () { ungate() })
+  }
+  function ungate() {
+    if (!gate) return
+    gate = false
+    if (gated) { gated = false; sb.auth.getSession().then(function (r) { onAuth('SIGNED_IN', r.data.session) }) }
+  }
+  async function mfaVerify() {
+    var c = $('mfa-c').value.replace(/\D/g, ''), e = $('mfa-err'); e.hidden = true
+    if (c.length !== 6) { e.textContent = w('mfShort'); e.hidden = false; return }
+    $('mfa-go').disabled = true
+    try {
+      var f = await sb.auth.mfa.listFactors()
+      var t = ((f.data && f.data.totp) || []).filter(function (x) { return x.status === 'verified' })[0]
+      if (!t) { rcMode(false); ungate(); return }
+      var r = await sb.auth.mfa.challengeAndVerify({ factorId: t.id, code: c })
+      if (r.error) { e.textContent = /invalid|expired|code/i.test(r.error.message || '') ? w('mfBad') : r.error.message; e.hidden = false; $('mfa-c').select(); return }
+      rcMode(false); ungate()
+    } catch (x) { e.textContent = w('offline'); e.hidden = false } finally { $('mfa-go').disabled = false }
+  }
+  $('mfa-x').addEventListener('click', function () { rcMode(false); gate = false; gated = false; $('pw').value = ''; sb.auth.signOut() })
   function authFn(body) {
     return fetch(URL_ + '/functions/v1/roartransfer-auth', { method: 'POST', headers: { apikey: KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().catch(function () { return { error: 'Error ' + r.status } }) })
@@ -1150,7 +1283,10 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     })
   })
   $('out').addEventListener('click', function () { if (busy) return; sb.auth.signOut() })
-  sb.auth.onAuthStateChange(function (ev, session) {
+  // while a sign-in waits for its two-step code (or for the check whether it needs one), the page stays signed out
+  var gate = false, gated = false
+  sb.auth.onAuthStateChange(function (ev, session) { if (gate) { gated = true; return } onAuth(ev, session) })
+  function onAuth(ev, session) {
     if (getting || dropping) {
       user = session && session.user || null
       // signed in from an ended link: back to it, now with the one last download
@@ -1164,7 +1300,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     else if (resetting) { $('who').hidden = true }
     else if (view === 'v-wait' || view === 'v-in' || was !== user.id) { $('pw').value = ''; signedIn() }
     else $('who').hidden = false
-  })
+  }
   sb.auth.getSession().then(function (r) { if (!r.data.session && !getting && !dropping) { show('v-in'); loadGuest() } })
   // without an account: how many of today's transfers are left
   function loadGuest() { if (user) return; bridge({ action: 'guest' }).then(function (d) { guestLeft = d.left; paint() }).catch(function () {}) }
