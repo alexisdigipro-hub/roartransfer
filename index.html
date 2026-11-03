@@ -365,6 +365,9 @@ h2 .cnt { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 
 .in:focus { border-color: rgba(255,90,80,.7); }
 .chk { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); cursor: pointer; padding: 2px 4px; }
 .chk input { width: 18px; height: 18px; accent-color: var(--red); }
+.mails { display: grid; gap: 8px; margin-top: 22px; padding: 16px 18px; border-radius: 18px; background: rgba(255,255,255,.045); border: 1px solid var(--line); }
+.mails-h { font-size: 14px; }
+.mails-n { color: var(--muted); font-size: 12px; padding: 0 4px; }
 .pwrow { position: relative; } .pwrow .in { padding-right: 48px; }
 .eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; display: grid; place-items: center; }
 .eye svg { width: 18px; height: 18px; } .eye:hover { color: var(--text); }
@@ -785,6 +788,13 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
       <p class="pro-sub" id="pro-got"></p>
       <ul class="files tall" id="pro-list"></ul>
     </div>
+    <!-- the emails RoarTransfer sends this account, each one can be turned off (Alex, 3 Nov) -->
+    <div class="mails" id="mine-mails" hidden>
+      <b class="mails-h" data-t="em.h">Emails from RoarTransfer</b>
+      <label class="chk"><input type="checkbox" id="em-dl" checked><span data-t="em.dl">When someone downloads what I sent</span></label>
+      <label class="chk" id="em-got-row" hidden><input type="checkbox" id="em-got" checked><span data-t="em.got">When someone sends me files on my page</span></label>
+      <small class="mails-n" data-t="em.note">Sign-up and password emails always come.</small>
+    </div>
   </div>
 
   <!-- Admin: every account's transfers and the overall numbers (supabase/transfer-panel.sql answers only the admin) -->
@@ -918,7 +928,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
-    'ad.days': 'Ανά μέρα', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.tx': 'Αποστολές', 'ad.ov': 'Επισκόπηση', 'va.free': 'Δες το σαν Free χρήστης', 'va.pro': 'Δες το σαν Pro χρήστης', 'va.back': 'Πίσω στο Admin', 'mt.sent': 'Στάλθηκαν', 'mt.got': 'Ήρθαν', 'mt.pro': 'Pro', 'ad.web': 'Ιστότοπος', 'wb.d7': '7 μέρες', 'wb.d30': '30 μέρες', 'wb.d90': '90 μέρες', 'wb.all': 'Από την αρχή', 'wb.days': 'Επισκέπτες ανά μέρα', 'wb.co': 'Χώρες', 'wb.ref': 'Από πού ήρθαν', 'wb.pg': 'Σελίδες', 'wb.dev': 'Συσκευές', 'wb.lang': 'Γλώσσες', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
+    'ad.days': 'Ανά μέρα', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.tx': 'Αποστολές', 'ad.ov': 'Επισκόπηση', 'va.free': 'Δες το σαν Free χρήστης', 'va.pro': 'Δες το σαν Pro χρήστης', 'va.back': 'Πίσω στο Admin', 'em.h': 'Email από το RoarTransfer', 'em.dl': 'Όταν κάποιος κατεβάζει ό,τι έστειλα', 'em.got': 'Όταν κάποιος μου στέλνει αρχεία στη σελίδα μου', 'em.note': 'Τα email εγγραφής και κωδικού έρχονται πάντα.', 'mt.sent': 'Στάλθηκαν', 'mt.got': 'Ήρθαν', 'mt.pro': 'Pro', 'ad.web': 'Ιστότοπος', 'wb.d7': '7 μέρες', 'wb.d30': '30 μέρες', 'wb.d90': '90 μέρες', 'wb.all': 'Από την αρχή', 'wb.days': 'Επισκέπτες ανά μέρα', 'wb.co': 'Χώρες', 'wb.ref': 'Από πού ήρθαν', 'wb.pg': 'Σελίδες', 'wb.dev': 'Συσκευές', 'wb.lang': 'Γλώσσες', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
   }
   var W = {
     en: {
@@ -1542,6 +1552,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     tab = 'send'; sendView = busy ? 'v-up' : 'v-pick'
     go(h === 'mine' ? 'mine' : 'send')
     loadPro()
+    loadMails()
     sb.rpc('roar_is_admin').then(function (r) {
       isAdmin = r.data === true
       if (!isAdmin) viewAs = ''
@@ -1656,7 +1667,33 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   }
 
   // ---- My transfers ----
+  // Emails from RoarTransfer (Alex, 3 Nov): "downloaded" and "someone sent you files" can be turned off, both on until
+  // then (roar_transfer_mail_prefs, supabase/transfer-mail-prefs.sql in roarme; the Edge Functions skip who turned one off)
+  var mails = { downloads: true, received: true }
+  function loadMails() {
+    if (!user) return
+    sb.from('roar_transfer_mail_prefs').select('downloads, received').maybeSingle().then(function (r) {
+      if (r.error) return
+      mails = r.data || { downloads: true, received: true }
+      $('em-dl').checked = mails.downloads; $('em-got').checked = mails.received
+      $('op-notify').checked = mails.downloads // a new transfer's own box follows it
+      $('mine-mails').hidden = false
+    })
+  }
+  function setMail(k, v) {
+    if (!user) return
+    var row = { user_id: user.id, downloads: mails.downloads, received: mails.received }
+    row[k] = v
+    sb.from('roar_transfer_mail_prefs').upsert(row).then(function (r) {
+      if (r.error) { $(k === 'downloads' ? 'em-dl' : 'em-got').checked = !v; return }
+      mails = { downloads: row.downloads, received: row.received }
+      if (k === 'downloads') $('op-notify').checked = v
+    })
+  }
+  $('em-dl').addEventListener('change', function () { setMail('downloads', this.checked) })
+  $('em-got').addEventListener('change', function () { setMail('received', this.checked) })
   function loadMine() {
+    loadMails()
     sb.rpc('roar_my_transfers').then(function (r) {
       if (r.error) { $('mine-err').textContent = r.error.message; $('mine-err').hidden = false; return }
       $('mine-err').hidden = true; mine = r.data || []; paintMine()
@@ -2555,6 +2592,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
     // a Pro's tab and title say Pro (Alex, 25 Oct)
     if (!PT) return
     var isPro = !!pro && !!user
+    $('em-got-row').hidden = !isPro // only a Pro has a page people send files to
     // the PRO mark on the account at the top (Alex, 25 Oct)
     $('who-pro').hidden = !isPro
     $('tab-mine').textContent = isPro ? pw('tab') : ((lang === 'el' ? EL : EN)['tb.mine'] || EN['tb.mine'])
