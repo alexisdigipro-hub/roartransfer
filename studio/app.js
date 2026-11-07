@@ -114,6 +114,13 @@
 
   // ---- the function, as the member or as the share link ----
   var session = null, me = null, share = null // share: { token, password, data }
+  function copyText(t, ok) {
+    var done = false
+    try { var ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0'; document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0, t.length); done = document.execCommand('copy'); ta.remove() } catch (e) {}
+    if (done) { toast(ok || 'Copied'); return }
+    var p = navigator.clipboard && navigator.clipboard.writeText(t)
+    if (p) p.then(function () { toast(ok || 'Copied') }, function () { toast('Could not copy: select the link and copy it') }); else toast('Could not copy: select the link and copy it')
+  }
   function api(action, body) {
     body = Object.assign({ action: action }, body || {})
     var h = { apikey: KEY, 'Content-Type': 'application/json' }
@@ -1354,7 +1361,7 @@
         if (pad && !$('#npad-t').dataset.loaded) sb.from('roarstudio_notepads').select('body').eq('user_id', session.user.id).eq('track_id', id).maybeSingle().then(function (r) { var t = $('#npad-t'); if (!t) return; t.value = (r.data && r.data.body) || ''; t.dataset.loaded = '1'; t.focus() })
       }
       var padTimer = null
-      $('#npad-t').oninput = function () {
+      if ($('#npad-t')) $('#npad-t').oninput = function () {
         var v = this.value; $('#npad-s').textContent = 'Saving…'; clearTimeout(padTimer)
         padTimer = setTimeout(function () { sb.from('roarstudio_notepads').upsert({ user_id: session.user.id, track_id: id, body: v, updated_at: new Date().toISOString() }).then(function (r) { if ($('#npad-s')) $('#npad-s').textContent = r.error ? 'Could not save' : 'Saved' }) }, 700)
       }
@@ -1437,7 +1444,7 @@
       : '<div class="empty glass"><span class="ico" style="width:64px;height:64px">' + ic('folder') + '</span><h2>No final files yet</h2><p>' + (share ? 'Nothing here yet. Check back later.' : 'Open any file and press Make it final: it shows up here, ready to send as one link.') + '</p></div>')
     view.insertAdjacentHTML('beforeend', creditsHtml(c.project.credits, edit))
     if ($('#cr-edit')) $('#cr-edit').onclick = function () { creditsBox(c, function () { drawFinals(c) }) }
-    if ($('#cr-copy')) $('#cr-copy').onclick = function () { var t = creditsText(c.project.credits, c.project.title); var pr = navigator.clipboard && navigator.clipboard.writeText(t); if (pr) pr.then(function () { toast('Credits copied') }, function () { toast('Could not copy') }) }
+    if ($('#cr-copy')) $('#cr-copy').onclick = function () { copyText(creditsText(c.project.credits, c.project.title), 'Credits copied') }
     if ($('#back')) $('#back').onclick = function () { go('#p/' + c.project.id) }
     $$('canvas[data-wave]').forEach(function (cv) { var v = files.filter(function (x) { return x.id === cv.dataset.wave })[0]; drawMini(cv, v && v.peaks) })
     $$('[data-prev], [data-prev2]').forEach(function (b) { b.onclick = function () { preview(files.filter(function (x) { return x.id === (b.dataset.prev || b.dataset.prev2) })[0]) } })
@@ -1957,7 +1964,7 @@
           $('#s-out', m).hidden = false; $('#s-link', m).value = base + '?s=' + d.token; $('#s-link', m).select(); oldLinks()
         })
       }
-      $('#s-copy', m).onclick = function () { var t = $('#s-link', m); var p = navigator.clipboard && navigator.clipboard.writeText(t.value); if (p) p.then(function () { toast('Link copied') }, function () { t.select() }); else t.select() }
+      $('#s-copy', m).onclick = function () { copyText($('#s-link', m).value, 'Link copied') }
       function oldLinks() {
         var q = sb.from('roarstudio_shares').select('*').eq('project_id', c.project.id).order('created_at', { ascending: false })
         q.then(function (r) {
@@ -1967,7 +1974,7 @@
             var ended = s.expires_at && new Date(s.expires_at) < new Date()
             return '<div class="person"><div class="nm"><b class="mono" style="font-size:12.5px">?s=' + esc(s.token) + '</b><span>' + esc(what) + ' · ' + (ended ? 'ended' : s.expires_at ? 'ends ' + new Date(s.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'no end') + '</span></div><button class="ico sm" data-cp="' + s.token + '" aria-label="Copy link">' + ic('copy') + '</button><button class="ico sm danger" data-sd="' + s.token + '" aria-label="Delete link">' + ic('trash') + '</button></div>'
           }).join('') + '</div></div>' : ''
-          $$('[data-cp]', m).forEach(function (b) { b.onclick = function () { var u = base + '?s=' + b.dataset.cp; var p = navigator.clipboard && navigator.clipboard.writeText(u); if (p) p.then(function () { toast('Link copied') }, function () { toast(u) }); else toast(u) } })
+          $$('[data-cp]', m).forEach(function (b) { b.onclick = function () { copyText(base + '?s=' + b.dataset.cp, 'Link copied') } })
           $$('[data-sd]', m).forEach(function (b) { b.onclick = function () { sb.from('roarstudio_shares').delete().eq('token', b.dataset.sd).then(oldLinks) } })
         })
       }
