@@ -89,7 +89,7 @@
     var f = $('input, textarea', m); if (f) setTimeout(function () { f.focus() }, 50)
     return m
   }
-  function close() { $('#layer').innerHTML = '' }
+  function close() { $('#layer').innerHTML = ''; if (typeof pvAudio !== 'undefined' && pvAudio) { pvAudio.pause(); pvAudio = null } }
   function confirmBox(title, text, yes, fn) {
     modal('<div class="spread"><h2>' + esc(title) + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><p class="muted" style="margin:0">' + esc(text) + '</p><div class="row end"><button class="btn" data-x>Cancel</button><button class="btn main" id="cf-yes">' + esc(yes) + '</button></div>', function (c) {
       $('#cf-yes', c).onclick = function () { this.disabled = true; Promise.resolve(fn()).then(close, close) }
@@ -181,6 +181,7 @@
   function route() {
     if (location.hash === '#settings') return { kind: 'settings' }
     if (location.hash === '#storage') return { kind: 'storage' }
+    if (location.hash === '#admin') return { kind: 'admin' }
     var m = location.hash.match(/^#([ptfdl])\/([0-9a-f-]{36})/); return m ? { kind: m[1], id: m[2] } : { kind: 'home' }
   }
   function go(h) { if (location.hash === h) render(); else location.hash = h }
@@ -205,10 +206,11 @@
       e.stopPropagation()
       var old = $('.menu'); if (old) { old.remove(); return }
       var m = document.createElement('div'); m.className = 'menu'
-      m.innerHTML = '<div class="who">' + esc(session.user.email || '') + '</div><button id="mn-set">' + ic('gear') + ' Settings</button><button id="mn-sto">' + ic('disk') + ' Storage</button><button id="mn-acc">' + ic('people') + ' My Roar account</button><button id="mn-rt">' + ic('out') + ' Open RoarTransfer</button><button id="mn-out">' + ic('back') + ' Sign out</button>'
+      m.innerHTML = '<div class="who">' + esc(session.user.email || '') + '</div><button id="mn-set">' + ic('gear') + ' Settings</button><button id="mn-sto">' + ic('disk') + ' Storage</button>' + (me && me.admin ? '<button id="mn-adm">' + ic('gear') + ' Admin</button>' : '') + '<button id="mn-acc">' + ic('people') + ' My Roar account</button><button id="mn-rt">' + ic('out') + ' Open RoarTransfer</button><button id="mn-out">' + ic('back') + ' Sign out</button>'
       document.body.appendChild(m)
       $('#mn-set').onclick = function () { m.remove(); go('#settings') }
       $('#mn-sto').onclick = function () { m.remove(); go('#storage') }
+      if ($('#mn-adm')) $('#mn-adm').onclick = function () { m.remove(); go('#admin') }
       $('#mn-acc').onclick = function () { m.remove(); window.open('https://themadlions.com/account/', '_blank') }
       $('#mn-rt').onclick = function () { location.href = '../' }
       $('#mn-out').onclick = function () { m.remove(); sb.auth.signOut() }
@@ -233,6 +235,7 @@
     if (r.kind === 'l') return renderPlaylist(r.id)
     if (r.kind === 'settings') return renderSettings()
     if (r.kind === 'storage') return renderStorage()
+    if (r.kind === 'admin') return renderAdmin()
     return renderProjects()
   }
 
@@ -1053,7 +1056,7 @@
     if ($('#cr-copy')) $('#cr-copy').onclick = function () { var t = creditsText(c.project.credits, c.project.title); var pr = navigator.clipboard && navigator.clipboard.writeText(t); if (pr) pr.then(function () { toast('Credits copied') }, function () { toast('Could not copy') }) }
     if ($('#back')) $('#back').onclick = function () { go('#p/' + c.project.id) }
     $$('canvas[data-wave]').forEach(function (cv) { var v = files.filter(function (x) { return x.id === cv.dataset.wave })[0]; drawMini(cv, v && v.peaks) })
-    $$('[data-prev], [data-prev2]').forEach(function (b) { b.onclick = function () { preview(files.filter(function (x) { return x.id === (b.dataset.prev || b.dataset.prev2) })[0], titleOf) } })
+    $$('[data-prev], [data-prev2]').forEach(function (b) { b.onclick = function () { preview(files.filter(function (x) { return x.id === (b.dataset.prev || b.dataset.prev2) })[0]) } })
     $$('[data-dl]').forEach(function (b) { b.onclick = function () { download(files.filter(function (x) { return x.id === b.dataset.dl })[0]) } })
     $$('[data-open]').forEach(function (b) { b.onclick = function () { go('#t/' + b.dataset.open) } })
     if ($('#fin-share')) $('#fin-share').onclick = function () { shareBox(c, null, true) }
@@ -1169,19 +1172,50 @@
       })
     }).catch(function (e) { done(); toast(e.message) })
   }
-  // a final file up close: the player, the video or the picture, in the shared window
-  function preview(v, titleOf) {
+  // a final file up close (Alex, 7 Nov): only the thing itself, a waveform for sound, one Download; no names, a hairline frame
+  var pvAudio = null
+  function preview(v) {
     if (!v) return
     var k = kindOf(v)
     audio.pause()
-    modal('<div class="spread"><h2 style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(titleOf(v)) + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="pv" id="pv"><div class="spin"></div></div><div class="row" style="justify-content:space-between"><span class="muted" style="font-size:13px;min-width:0;overflow-wrap:anywhere">' + esc(v.file_name) + ' · ' + size(v.size) + '</span><button class="btn sm main" id="pv-dl">' + ic('down') + ' Download</button></div>', function (m) {
-      m.classList.add('wide')
-      $('#pv-dl', m).onclick = function () { download(v) }
-      urlFor(v).then(function (u) {
-        var box = $('#pv', m); if (!box) return
-        box.innerHTML = k === 'image' ? '<img src="' + esc(u) + '" alt="">' : k === 'video' ? '<video src="' + esc(u) + '" controls autoplay playsinline' + (v.thumb ? ' poster="' + v.thumb + '"' : '') + '></video>' : '<div class="pv-a"><audio src="' + esc(u) + '" controls autoplay></audio></div>'
-      }).catch(function (e) { toast(e.message) })
-    })
+    var m = modal('<div class="pv2" id="pv"><div class="spin"></div></div><div class="pv2-bar"><button class="btn sm main" id="pv-dl">' + ic('down') + ' Download</button><button class="ico sm" data-x aria-label="Close">' + ic('x') + '</button></div>')
+    var card = $('.sheet-card', m); card.classList.add('lightbox', 'lb-' + k)
+    $('#pv-dl', m).onclick = function () { download(v) }
+    urlFor(v).then(function (u) {
+      var box = $('#pv', m); if (!box) return
+      if (k === 'image') { box.innerHTML = '<img src="' + esc(u) + '" alt="">'; return }
+      if (k === 'video') { box.innerHTML = '<video src="' + esc(u) + '" controls autoplay playsinline' + (v.thumb ? ' poster="' + v.thumb + '"' : '') + '></video>'; return }
+      // sound: our own waveform, a play button, the time
+      box.innerHTML = '<div class="pva"><button class="play" id="pva-p" aria-label="Play">' + ic('pause') + '</button><div class="pva-w" id="pva-w"><canvas id="pva-c"></canvas></div><span class="time" id="pva-t">0:00</span></div>'
+      if (pvAudio) pvAudio.pause()
+      var a = pvAudio = new Audio(u); a.preload = 'auto'
+      var pk = v.peaks || [], cv = $('#pva-c', m), wrap = $('#pva-w', m), drag = false
+      var draw = function () {
+        if (!document.body.contains(cv)) { a.pause(); return }
+        var r = cv.getBoundingClientRect(), dpr = devicePixelRatio || 1
+        if (cv.width !== Math.round(r.width * dpr)) { cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr) }
+        var g = cv.getContext('2d'), w = cv.width, h = cv.height, dur = a.duration || v.duration || 0, pos = dur ? a.currentTime / dur * w : 0
+        g.clearRect(0, 0, w, h)
+        var bars = Math.floor(w / (3 * dpr)), per = pk.length / Math.max(1, bars)
+        for (var i = 0; i < bars; i++) {
+          var mx = .05; if (pk.length) { mx = 0; for (var j = Math.floor(i * per); j < Math.floor((i + 1) * per); j++) mx = Math.max(mx, pk[j] || 0) }
+          var bh = Math.max(2 * dpr, mx * h * .9), bx = i * 3 * dpr
+          g.fillStyle = bx < pos ? '#a78bfa' : 'rgba(214,220,228,.32)'; g.fillRect(bx, (h - bh) / 2, 2 * dpr, bh)
+        }
+        g.fillStyle = '#fff'; g.fillRect(pos - dpr, 0, 2 * dpr, h)
+        $('#pva-t', m).textContent = mmss(a.currentTime) + ' / ' + mmss(dur)
+        requestAnimationFrame(draw)
+      }
+      var seek = function (e) { var r = wrap.getBoundingClientRect(), dur = a.duration || v.duration || 0; if (dur) a.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * dur }
+      wrap.onpointerdown = function (e) { drag = true; wrap.setPointerCapture(e.pointerId); seek(e) }
+      wrap.onpointermove = function (e) { if (drag) seek(e) }
+      wrap.onpointerup = wrap.onpointercancel = function () { drag = false }
+      var pp = $('#pva-p', m)
+      a.onplay = a.onpause = function () { pp.innerHTML = ic(a.paused ? 'play' : 'pause') }
+      pp.onclick = function () { if (a.paused) a.play(); else a.pause() }
+      a.play().catch(function () { pp.innerHTML = ic('play') })
+      requestAnimationFrame(draw)
+    }).catch(function (e) { toast(e.message) })
   }
 
   // =====================================================================================================
@@ -1302,6 +1336,15 @@
         '<section class="scard glass"><h2>Uploads</h2>' + row('Upload naming', 'Ask for a title before a new file, and a name before a new version', sw('pf-u', pf.upload_naming)) + '</section>' +
         '<section class="scard glass"><h2>Account</h2><p class="muted">Your name, picture, password and two-step verification live in your Roar account, the same for every Roar app.</p><div class="row"><a class="btn" href="https://themadlions.com/account/" target="_blank" rel="noopener">' + ic('out') + ' Open my Roar account</a><button class="btn" id="st-out">' + ic('back') + ' Sign out</button></div></section>' +
         '</div>'
+      // two columns that each stack their cards with the same gap, so no card leaves a hole (Alex, 7 Nov)
+      ;(function () {
+        var g = $('.sgrid'), secs = $$('.scard', g), L = document.createElement('div'), R = document.createElement('div')
+        L.className = R.className = 'scol'
+        secs.forEach(function (sec, i) { sec.style.order = i })
+        ;[0, 4, 5].forEach(function (i) { if (secs[i]) L.appendChild(secs[i]) })
+        ;[1, 2, 3].forEach(function (i) { if (secs[i]) R.appendChild(secs[i]) })
+        g.appendChild(L); g.appendChild(R)
+      })()
       $('#st-role').value = st.invite_role || 'commenter'
       var thg = $('#st-theme'), th = store.get('rs-theme') || 'dark'
       $$('button', thg).forEach(function (b) { b.classList.toggle('on', b.dataset.t === th) }); setTimeout(function () { lens(thg) }, 30)
@@ -1339,6 +1382,26 @@
         '<div class="tracks" style="margin-top:14px">' + ps.map(function (p) { return '<button class="srow2 glass" data-p="' + p.id + '"><span class="nm"><b>' + esc(p.title) + '</b><small>' + p.files + ' file' + (p.files === 1 ? '' : 's') + (p.finals ? ' · ' + size(p.finals) + ' final' : '') + '</small></span><span class="pbar"><i style="width:' + Math.max(1, p.bytes / top * 100) + '%"></i></span><span class="t">' + size(p.bytes) + '</span></button>' }).join('') + '</div>'
       $$('[data-p]').forEach(function (b) { b.onclick = function () { go('#p/' + b.dataset.p) } })
       $('#go-set').onclick = function () { go('#settings') }
+    })
+  }
+
+  // ---- Admin: who uses RoarStudio and how (Alex, 7 Nov) ----
+  function renderAdmin() {
+    setTop(['Admin'])
+    var view = $('#view'); view.innerHTML = '<div class="spin"></div>'
+    api('admin-stats').then(function (d) {
+      if (d.error) { view.innerHTML = errorBox(d.error === 'not allowed' ? 'Only RoarStudio’s admins see this page.' : d.error); return }
+      var t = d.totals, days = d.days || [], top = Math.max(1, days.reduce(function (a, x) { return Math.max(a, x.uploads + x.notes) }, 0))
+      var kpi = function (n, l, s2) { return '<div class="kpi glass"><b>' + n + '</b><span>' + l + '</span>' + (s2 ? '<small>' + s2 + '</small>' : '') + '</div>' }
+      var kt = d.kinds, kb = Math.max(1, kt.audio.bytes + kt.video.bytes + kt.image.bytes)
+      view.innerHTML = '<div class="head"><div><h1>Admin</h1><div class="sub">Everyone on RoarStudio, what they use and how · ' + new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</div></div><div class="tools"><button class="btn" id="ad-re">' + ic('rot') + ' Refresh</button></div></div>' +
+        '<div class="kpis">' + kpi(t.accounts, 'Accounts', t.active7 + ' active this week') + kpi(t.projects, 'Projects', t.folders + ' folders · ' + t.playlists + ' playlists') + kpi(t.files, 'Files', t.finals + ' final · ' + t.approved + ' approved') + kpi(size(t.storage), 'Stored') + kpi(t.notes, 'Notes', t.guest_notes + ' from guests') + kpi(t.links, 'Links', t.finals_links + ' Finals links') + '</div>' +
+        '<div class="adgrid"><section class="scard glass"><h2>Last 30 days</h2><div class="chart" role="img" aria-label="Uploads and notes per day">' + days.map(function (x) { return '<div class="col" title="' + x.day + ': ' + x.uploads + ' uploads, ' + x.notes + ' notes, ' + x.views + ' link plays/views"><i class="u" style="height:' + (x.uploads / top * 100) + '%"></i><i class="n" style="height:' + (x.notes / top * 100) + '%"></i></div>' }).join('') + '</div><div class="klegend"><span><i style="background:#a78bfa"></i>Uploads</span><span><i style="background:#22d3ee"></i>Notes</span><span>Links: ' + d.link_activity.view + ' opened · ' + d.link_activity.stream + ' played · ' + d.link_activity.download + ' downloaded</span></div></section>' +
+        '<section class="scard glass"><h2>What they upload</h2>' + ['audio', 'video', 'image'].map(function (k) { return '<div class="srow"><div><b><i class="kdot k-' + k + '"></i>' + KIND_PLURAL[k] + '</b><small>' + kt[k].files + ' file' + (kt[k].files === 1 ? '' : 's') + '</small></div><span class="pbar" style="width:40%"><i style="width:' + Math.max(1, kt[k].bytes / kb * 100) + '%"></i></span><span class="mono" style="font-size:13px">' + size(kt[k].bytes) + '</span></div>' }).join('') + '</section></div>' +
+        '<section class="scard glass" style="margin-top:14px"><h2>Accounts</h2><div class="atable"><div class="arow ah"><span>Account</span><span>Joined</span><span>Last active</span><span>Projects</span><span>Uploads</span><span>Notes</span><span>Storage</span></div>' +
+        d.accounts.map(function (a) { return '<div class="arow"><span class="who2"><b>' + esc(a.name || a.email.split('@')[0]) + '</b><small>' + esc(a.email) + '</small></span><span>' + new Date(a.joined).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' }) + '</span><span>' + (a.last ? ago(a.last) : '—') + '</span><span>' + a.projects + (a.member_of ? ' <small>+' + a.member_of + ' shared</small>' : '') + '</span><span>' + a.uploads + '</span><span>' + a.notes + '</span><span>' + size(a.storage) + '</span></div>' }).join('') + '</div></section>' +
+        '<section class="scard glass" style="margin-top:14px"><h2>Biggest projects</h2>' + d.top.map(function (p) { return '<div class="srow"><div><b>' + esc(p.title) + '</b><small>' + esc(p.owner) + ' · ' + p.files + ' files · ' + ago(p.updated) + '</small></div><span class="mono" style="font-size:13px">' + size(p.bytes) + '</span></div>' }).join('') + '</section>'
+      $('#ad-re').onclick = renderAdmin
     })
   }
 
@@ -1594,6 +1657,7 @@
     me = { name: md.name || md.full_name || (s.user.email || '').split('@')[0], avatar: md.avatar_url || null, prefs: {}, studio: null }
     sb.from('roarstudio_prefs').select('*').eq('user_id', s.user.id).maybeSingle().then(function (r) { if (me && r.data) me.prefs = r.data })
     sb.from('roarstudio_studios').select('*').eq('owner', s.user.id).maybeSingle().then(function (r) { if (me) me.studio = r.data || null })
+    setTimeout(function () { api('admin-check').then(function (d) { if (me) me.admin = !!d.admin }) }, 300)
   }
   // a new session goes on only at the level its account asks for: one with a verified authenticator types its code first
   function onSession(s) {
