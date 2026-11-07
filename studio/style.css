@@ -913,3 +913,19 @@ html[data-theme="light"] .facts span:first-child { color: #6d28d9 }
 /* the Finals open with the project's cover, like an album sleeve (Alex, 7 Nov) */
 .pcover.art { width: 76px; height: 76px; border-radius: 16px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 14px 30px -18px rgba(0,0,0,.9) }
 @media (max-width: 600px) { .pcover.art { width: 60px; height: 60px; border-radius: 13px } }
+
+/* the background, chosen in Settings, shown at 25% (Alex, 7 Nov) */
+body::before { background-image: var(--bgimg, url('bg-waves.webp')); background-size: cover; background-position: center; opacity: .25; filter: none }
+html[data-theme="light"] body::before { opacity: .12; filter: grayscale(.2) }
+body.custom-bd::before { background-image: var(--bd); opacity: .3 }
+.bgpick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px }
+.bgpick button { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: #0b0910 center / cover no-repeat; cursor: pointer; overflow: hidden; padding: 0 }
+.bgpick button span { position: absolute; left: 6px; bottom: 6px; font: 600 11px var(--sans); color: #fff; padding: 2px 8px; border-radius: 999px; background: rgba(0,0,0,.55) }
+.bgpick button.on { border-color: rgba(196,181,253,.8); box-shadow: 0 0 0 2px rgba(139,92,246,.5) }
+.bgpick button:hover { border-color: rgba(196,181,253,.45) }
+
+/* back to RoarTransfer, quietly (Alex, 7 Nov) */
+.rtlink { height: 34px; padding: 0 12px; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--muted); background: transparent !important; border-color: rgba(255,255,255,.08) !important; box-shadow: none !important }
+.rtlink:hover { color: var(--text); border-color: rgba(196,181,253,.35) !important }
+.rtlink svg { width: 14px; height: 14px }
+@media (max-width: 600px) { .rtlink span { display: none } .rtlink { width: 34px; padding: 0 } }

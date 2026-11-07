@@ -63,6 +63,12 @@ body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-even
 .credit:hover b { text-decoration: underline; text-underline-offset: 3px; }
 .top .more { display: inline-flex; align-items: center; height: 34px; padding: 0 14px; border-radius: 999px; background: rgba(255,255,255,.92); color: #16181c; font-size: 13px; font-weight: 700; text-decoration: none; transition: background .2s; }
 .top .more:hover { background: #fff; }
+/* the way to RoarStudio (Alex, 7 Nov): a purple glass pill next to About Us */
+.top .more.studio { gap: 7px; padding: 0 12px 0 6px; color: #fff; background: linear-gradient(135deg, rgba(139,92,246,.55), rgba(76,29,149,.5)); border: 1px solid rgba(196,181,253,.45); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px) }
+.top .more.studio:hover { background: linear-gradient(135deg, rgba(167,139,250,.65), rgba(109,40,217,.6)) }
+.top .more.studio i { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; background: conic-gradient(from 210deg, #a78bfa, #6d28d9, #3b0764, #7c3aed, #a78bfa) }
+.top .more.studio em { font-style: normal; font-weight: 600; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .75 }
+@media (max-width: 640px) { .top .more.studio em { display: none } }
 a { color: inherit; }
 button, input { font: inherit; color: inherit; }
 svg { display: block; }
@@ -562,6 +568,8 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
   <a class="mark" href="./" aria-label="RoarTransfer by The Mad Lions"><b>Roar<span>Transfer</span></b><small class="by">By The<strong>Mad</strong>Lions</small></a>
   <a class="credit" id="credit" target="_blank" rel="noopener" hidden><span><small data-t="cr">A still from</small><b id="credit-t"></b></span></a>
   <div class="end">
+    <!-- RoarStudio (Alex, 7 Nov 2026): review and delivery for audio, video and pictures, at studio.roartransfer.com -->
+    <a class="more studio" href="https://studio.roartransfer.com/" title="RoarStudio: review and delivery for audio, video and pictures"><i aria-hidden="true"><svg viewBox="0 0 14 14" width="12" height="12"><path d="M1 9V5M4 11V3M7 13V1M10 10V4M13 8V6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></i><span>Studio</span><em>Delivery</em></a>
     <a class="more" href="about/" data-t="more">About Us</a>
     <button type="button" class="more in" id="signin" hidden data-t="sgn">Sign in</button>
     <div class="who" id="who" hidden><b class="badge who-pro" id="who-pro" hidden>PRO</b><span id="who-mail"></span><button type="button" id="out" data-t="out">Sign out</button></div>
