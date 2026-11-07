@@ -143,4 +143,8 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
   - **Finals** as a gold room; **Download all** makes one .zip (../zip.js and ../zip-sw.js, as RoarTransfer).
   - Files load with `?v=<release>` in index.html, so a release shows at once (bump it with every change).
   - Database: `supabase/studio-more.sql` in roarme.
+- RoarStudio 2 (Alex, 7 Nov): a delivery tool for audio, video and pictures. Glassmorphism with neumorphism (raised
+  buttons and cards, fields pressed into the surface), dark purple as the accent (logo too), Sora for headings, a fine
+  technical grid behind, the mixing desk recoloured purple, 1340 px wide (100 more). **Credits** on the Finals
+  (`projects.credits`): templates Music (with lyrics), Video, Photo, Custom; Copy; shown on the Finals link.
 - Database: `supabase/studio.sql` in roarme (roarstudio_* tables with RLS, roarstudio_people, roarstudio_invite).
