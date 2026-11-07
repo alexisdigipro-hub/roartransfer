@@ -902,3 +902,10 @@ html[data-theme="light"] .proj { background: rgba(255,255,255,.5); border-color:
 .facts span:first-child { color: #c4b5fd }
 html[data-theme="light"] .facts { background: rgba(255,255,255,.55); border-color: rgba(60,40,120,.1) }
 html[data-theme="light"] .facts span:first-child { color: #6d28d9 }
+
+/* no path in the top row (Alex, 7 Nov); the label over the Finals title has room under the banner */
+.crumbs { display: none !important }
+#view.lux .lux-hero { height: auto; margin: 22px 0 8px }
+#view.lux .banner + .lux-hero { margin-top: 28px }
+#view.lux .lux-k { position: static; display: inline-flex }
+#view.lux .head h1 { margin-top: 0 }
