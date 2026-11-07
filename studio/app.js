@@ -44,6 +44,7 @@
     folder: '<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
     star: '<path d="M12 4l2.4 5 5.4.6-4 3.7 1.1 5.3L12 16l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z"/>',
     next: '<path d="M9 5l7 7-7 7"/>',
+    zin: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5M8 10.5h5M10.5 8v5"/>', zout: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5M8 10.5h5"/>',
     big: '<rect x="4" y="4" width="7" height="7" rx="1.8"/><rect x="13" y="4" width="7" height="7" rx="1.8"/><rect x="4" y="13" width="7" height="7" rx="1.8"/><rect x="13" y="13" width="7" height="7" rx="1.8"/>',
     small: '<rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>',
     rows: '<rect x="4" y="5" width="4" height="4" rx="1"/><path d="M11 7h9"/><rect x="4" y="15" width="4" height="4" rx="1"/><path d="M11 17h9"/>',
@@ -349,7 +350,7 @@
       ;(r[1].data || []).forEach(function (t) { counts[t.project_id] = (counts[t.project_id] || 0) + 1 })
       view.innerHTML = '<div class="head"><div><h1>Projects</h1><div class="sub">' + ps.length + ' project' + (ps.length === 1 ? '' : 's') + (r[2] && r[2].bytes ? ' · ' + size(r[2].bytes) + ' stored' : '') + '</div></div><div class="tools">' + (ps.length ? '<div class="lens-group vmode" id="vmode"><span class="lens"></span><button data-m="big" aria-label="Big tiles" title="Big tiles">' + ic('big') + '</button><button data-m="small" aria-label="Small tiles" title="Small tiles">' + ic('small') + '</button><button data-m="list" aria-label="List" title="List">' + ic('rows') + '</button></div>' : '') + '<button class="btn main" id="np">' + ic('plus') + ' New project</button></div></div>' +
         (ps.length ? '<div class="grid g-' + (store.get('rs-view') || 'big') + '" id="pgrid">' + ps.map(function (p) {
-          return '<div class="proj glass" role="button" tabindex="0" data-p="' + p.id + '"><div class="cover" style="' + (p.cover ? "background:#000 url('" + p.cover + "') center/cover" : coverStyle(p.id)) + '"><b>' + esc(p.title) + '</b>' + (p.owner === session.user.id ? '<button class="ico sm danger pdel" data-pdel="' + p.id + '" aria-label="Delete ' + esc(p.title) + '">' + ic('trash') + '</button>' : '') + '</div><div class="meta" data-t="' + esc(p.title) + '"><span>' + esc(p.artist || (p.owner === session.user.id ? 'Yours' : 'Shared with you')) + '</span><span>' + (counts[p.id] || 0) + ' file' + (counts[p.id] === 1 ? '' : 's') + '</span><span class="when">' + ago(p.updated_at) + '</span></div></div>'
+          return '<div class="proj glass" role="button" tabindex="0" data-p="' + p.id + '"><div class="cover" style="' + (p.cover ? "background:#000 url('" + p.cover + "') center/cover" : coverStyle(p.id)) + '">' + (p.owner === session.user.id ? '<button class="ico sm danger pdel" data-pdel="' + p.id + '" aria-label="Delete ' + esc(p.title) + '">' + ic('trash') + '</button>' : '') + '</div><div class="pinfo"><b>' + esc(p.title) + '</b><span>' + esc(p.artist || (p.owner === session.user.id ? 'Yours' : 'Shared with you')) + ' · ' + (counts[p.id] || 0) + ' file' + (counts[p.id] === 1 ? '' : 's') + '</span><span class="when">' + ago(p.updated_at) + '</span></div></div>'
         }).join('') + '<button class="proj new-proj" id="np2"><span class="ico">' + ic('plus') + '</span>New project</button></div>'
         : '<div class="empty glass"><span class="ico" style="width:64px;height:64px">' + ic('music') + '</span><h2>Start your first project</h2><p>A project is an album, a single or a film score. Put tracks in it, upload versions, and invite the people you work with.</p><button class="btn main" id="np2">' + ic('plus') + ' New project</button></div>')
       $$('[data-p]').forEach(function (b) { b.onclick = function (e) { if (e.target.closest('[data-pdel]')) return; go('#p/' + b.dataset.p) }; b.onkeydown = function (e) { if (e.key === 'Enter') go('#p/' + b.dataset.p) } })
@@ -436,14 +437,17 @@
       (edit && !folder ? '<button class="btn" id="sh-btn">' + ic('share') + ' Share</button>' : '') +
       (!folder ? '<button class="btn" id="pp-btn">' + ic('people') + ' People</button>' : '') +
       (edit ? '<button class="ico" id="pm-btn" aria-label="More">' + ic('dots') + '</button>' : '')
-    var extra = ''
+    var extra = '', extraTop = ''
     if (!share && !folder) {
       var f = c.versions.filter(function (v) { return v.final_at })
       var tiles = ''
-      if (f.length) tiles += '<button class="tile glass gold" id="fin-btn"><span class="fi">' + ic('folder') + '</span><span class="nm"><b>Finals</b><span>' + f.length + ' final file' + (f.length === 1 ? '' : 's') + ' · ' + size(f.reduce(function (a, v) { return a + Number(v.size || 0) }, 0)) + '</span></span></button>'
+      if (f.length) {
+        var fk = { audio: 0, video: 0, image: 0 }; f.forEach(function (v) { fk[kindOf(v)]++ })
+        extraTop = '<button class="finbar" id="fin-btn"><span class="fb-ic">' + ic('star') + '</span><span class="nm"><small>Delivery</small><b>Finals</b></span><span class="fb-k">' + ['audio', 'video', 'image'].filter(function (k) { return fk[k] }).map(function (k) { return '<span><i class="kdot k-' + k + '"></i>' + fk[k] + ' ' + KIND_PLURAL[k] + '</span>' }).join('') + '</span><span class="fb-size">' + f.length + ' file' + (f.length === 1 ? '' : 's') + ' · ' + size(f.reduce(function (a, v) { return a + Number(v.size || 0) }, 0)) + '</span><span class="fb-go">' + ic('next') + '</span></button>'
+      }
       ;(c.playlists || []).forEach(function (pl) { tiles += '<button class="tile glass" data-pl="' + pl.id + '"><span class="fi" style="background:linear-gradient(160deg,#c4b5fd,#6d28d9);color:#fff">' + ic('list') + '</span><span class="nm"><b>' + esc(pl.title) + '</b><span>Playlist · ' + (pl.items || []).length + ' file' + ((pl.items || []).length === 1 ? '' : 's') + '</span></span></button>' })
       ;(c.folders || []).forEach(function (fd) { var n = c.tracks.filter(function (t) { return t.folder_id === fd.id }).length; tiles += '<button class="tile glass" data-fd="' + fd.id + '"><span class="fi" style="background:linear-gradient(160deg,#8fb8ff,#5b6cff);color:#0b1640">' + ic('folder') + '</span><span class="nm"><b>' + esc(fd.name) + '</b><span>' + n + ' file' + (n === 1 ? '' : 's') + '</span></span></button>' })
-      if (tiles) extra = '<div class="tiles">' + tiles + '</div>'
+      extra = extraTop + (tiles ? '<div class="tiles">' + tiles + '</div>' : '')
     }
     function row(t) {
         var v = latest(t.id); if (!v) return ''
@@ -452,7 +456,7 @@
         void k
         var lead = v.thumb ? '<button class="th" data-play="' + t.id + '" style="background-image:url(' + v.thumb + ')" aria-label="Open ' + esc(t.title) + '">' + (k === 'video' ? '<i>' + ic('play') + '</i>' : '') + '</button>'
           : k === 'image' ? '<button class="th" data-play="' + t.id + '" aria-label="Open ' + esc(t.title) + '"><i>' + ic('image') + '</i></button>'
-          : '<button class="pl" data-play="' + t.id + '" aria-label="Play ' + esc(t.title) + '">' + ic('play') + '</button>'
+          : '<button class="th au" data-play="' + t.id + '" style="' + coverAttr(c.project) + '" aria-label="Play ' + esc(t.title) + '"><i>' + ic('play') + '</i></button>'
         var mid = k === 'audio' ? '<canvas data-wave="' + v.id + '"></canvas>' : '<span class="kind">' + ic(k === 'video' ? 'film' : 'image') + ' ' + KIND_WORD[k] + (v.width ? ' · ' + v.width + '×' + v.height : '') + '</span>'
         return '<div class="trk glass k-' + k + '" data-t="' + t.id + '">' + lead + '<div class="nm"><b>' + esc(t.title) + '</b><span>' + esc(vname(v)) + ' · ' + n + ' version' + (n === 1 ? '' : 's') + (notes ? ' · ' + notes + ' open note' + (notes === 1 ? '' : 's') : '') + '</span></div>' + mid + '<span class="cnt">' + (hasFinal ? '<span class="chip fin">Final</span>' : v.approved_at ? '<span class="chip ok">Approved</span>' : notes ? '<span class="chip warn">In review</span>' : '<span class="chip">New</span>') + '</span><span class="t">' + (k === 'image' ? size(v.size) : mmss(v.duration)) + '</span></div>'
     }
@@ -703,7 +707,7 @@
       '<div class="media" id="media"></div>' +
       '<div class="wave" id="wave"><canvas id="wv"></canvas><div class="pins" id="pins"></div><span class="hover-t" id="hover-t" hidden></span></div>' +
       '<div class="ctl" id="ctl"><button class="ico sm" id="rew" aria-label="Back to the start" title="Back to the start">' + ic('prev') + '</button><button class="play" id="pb" aria-label="Play">' + ic('play') + '</button><span class="time" id="tm-t">0:00 <span>/ 0:00</span></span>' +
-      '<span class="pt"><span class="zoom"><button class="ico sm" id="zo" aria-label="Zoom out" title="Zoom out">−</button><b class="mono" id="zl"></b><button class="ico sm" id="zi" aria-label="Zoom in" title="Zoom in">+</button></span><button class="ico sm" id="spd" aria-label="Speed" title="Speed"><b class="mono" style="font-size:11px">1×</b></button><button class="ico sm" id="lp" aria-label="Loop" title="Loop">' + ic('loop') + '</button><button class="ico sm" id="pip" aria-label="Picture in picture" title="Picture in picture" hidden>' + ic('pip') + '</button><button class="ico sm" id="fs" aria-label="Full screen" title="Full screen" hidden>' + ic('full') + '</button></span>' +
+      '<span class="pt"><span class="zoom"><button class="ico sm" id="zo" aria-label="Zoom out" title="Zoom out">' + ic('zout') + '</button><b class="mono" id="zl"></b><button class="ico sm" id="zi" aria-label="Zoom in" title="Zoom in">' + ic('zin') + '</button></span><i class="pt-sep"></i><button class="ico sm" id="spd" aria-label="Speed" title="Speed"><b class="mono" style="font-size:11px">1×</b></button><button class="ico sm" id="lp" aria-label="Loop" title="Loop">' + ic('loop') + '</button><button class="ico sm" id="pip" aria-label="Picture in picture" title="Picture in picture" hidden>' + ic('pip') + '</button><button class="ico sm" id="fs" aria-label="Full screen" title="Full screen" hidden>' + ic('full') + '</button></span>' +
       '<span class="lm">Level match <button class="sw" id="lm" aria-pressed="' + matched + '" aria-label="Level match"></button><span class="lufs" id="lufs"></span></span></div>' +
       '<div class="facts" id="facts"></div>' +
       '<div class="appr" id="appr"></div>' +
@@ -759,7 +763,8 @@
       f.push(size(x.size))
       var who = share ? share.data.names[x.uploaded_by] : ctx.people[x.uploaded_by] && ctx.people[x.uploaded_by].name
       f.push((who ? who + ', ' : '') + ago(x.created_at))
-      $('#facts').innerHTML = f.map(function (t) { return '<span>' + esc(t) + '</span>' }).join('') + '<span>' + esc(x.file_name) + '</span>'
+      $('#facts').innerHTML = f.map(function (t) { return '<span>' + esc(t) + '</span>' }).join('')
+      $('#facts').title = x.file_name
     }
     function paintAppr() {
       var x = curV(), a = $('#appr'), h = ''
@@ -1032,13 +1037,15 @@
     view.innerHTML = brandBanner() + '<div class="lux-hero"><span class="lux-k">' + ic('star') + ' Final files</span></div><div class="head">' + (share ? '<span class="fi big">' + ic('folder') + '</span>' : '<button class="ico" id="back" aria-label="Back to the project">' + ic('back') + '</button>') +
       '<div style="min-width:0"><h1>' + (share ? esc(c.project.title) : 'Finals') + '</h1><div class="sub">' + (share ? 'Final files' + (share.data.project.owner_name ? ' from ' + esc(share.data.project.owner_name) : '') + ' · ' : esc(c.project.title) + ' · ') + files.length + ' file' + (files.length === 1 ? '' : 's') + ' · ' + size(total) + '</div></div>' +
       '<div class="tools">' + (files.length ? '<button class="btn" id="dl-all">' + ic('down') + ' Download all (.zip)</button>' : '') + (edit ? '<button class="btn main" id="fin-share">' + ic('share') + ' Share the Finals</button>' : '') + '</div></div>' +
-      (files.length ? '<div class="finals">' + files.map(function (v) {
+      (files.length ? '<div class="flist">' + files.map(function (v) {
         var k = kindOf(v)
-        return '<div class="fcard glass" data-v="' + v.id + '"><button class="fthumb" data-prev="' + v.id + '" aria-label="Open ' + esc(titleOf(v)) + '"' + (v.thumb ? ' style="background-image:url(' + v.thumb + ')"' : '') + '>' +
-          (v.thumb ? '' : k === 'audio' ? '<canvas data-wave="' + v.id + '"></canvas>' : '<i class="big">' + ic(k === 'video' ? 'film' : 'image') + '</i>') +
-          (k !== 'image' ? '<span class="pp">' + ic('play') + '</span>' : '') + '<span class="kchip">' + KIND_WORD[k] + '</span></button>' +
-          '<div class="fmeta"><b>' + esc(titleOf(v)) + '</b><span>v' + v.n + (v.label ? ' · ' + esc(v.label) : '') + ' · ' + size(v.size) + (k !== 'image' && v.duration ? ' · ' + mmss(v.duration) : '') + (v.width ? ' · ' + v.width + '×' + v.height : '') + '</span><span class="fn">' + esc(v.file_name) + '</span></div>' +
-          '<div class="fact"><button class="ico sm" data-dl="' + v.id + '" aria-label="Download">' + ic('down') + '</button>' + (edit ? '<button class="ico sm" data-open="' + v.track_id + '" aria-label="Open its page">' + ic('next') + '</button>' : '') + '</div></div>'
+        var art = v.thumb ? 'background-image:url(' + v.thumb + ')' : k === 'audio' ? coverAttr(c.project) : ''
+        var facts = [KIND_WORD[k], v.label || '', k !== 'image' && v.duration ? mmss(v.duration) : '', v.width ? v.width + '×' + v.height : '', k === 'audio' && v.sample_rate ? (v.sample_rate / 1000).toString().replace(/\.0$/, '') + ' kHz' : '', size(v.size)].filter(Boolean)
+        return '<div class="frow glass k-' + k + '" data-v="' + v.id + '"><button class="fmedia" data-prev="' + v.id + '" aria-label="Open ' + esc(titleOf(v)) + '" style="' + art + '">' +
+          (k === 'audio' ? '<canvas data-wave="' + v.id + '"></canvas>' : v.thumb ? '' : '<i class="big">' + ic(k === 'video' ? 'film' : 'image') + '</i>') +
+          '<span class="pp">' + ic(k === 'image' ? 'eye' : 'play') + '</span></button>' +
+          '<div class="finfo"><span class="fkind"><i class="kdot k-' + k + '"></i>' + KIND_WORD[k] + '</span><b>' + esc(titleOf(v)) + '</b><div class="ffacts">' + facts.slice(1).map(function (t) { return '<span>' + esc(t) + '</span>' }).join('') + '</div></div>' +
+          '<div class="fact2"><button class="btn sm" data-prev2="' + v.id + '">' + ic(k === 'image' ? 'eye' : 'play') + (k === 'image' ? ' View' : ' Play') + '</button><button class="ico" data-dl="' + v.id + '" aria-label="Download" title="Download">' + ic('down') + '</button>' + (edit ? '<button class="ico" data-open="' + v.track_id + '" aria-label="Open its page" title="Open its page">' + ic('next') + '</button>' : '') + '</div></div>'
       }).join('') + '</div>'
       : '<div class="empty glass"><span class="ico" style="width:64px;height:64px">' + ic('folder') + '</span><h2>No final files yet</h2><p>' + (share ? 'Nothing here yet. Check back later.' : 'Open any file and press Make it final: it shows up here, ready to send as one link.') + '</p></div>')
     view.insertAdjacentHTML('beforeend', creditsHtml(c.project.credits, edit))
@@ -1046,7 +1053,7 @@
     if ($('#cr-copy')) $('#cr-copy').onclick = function () { var t = creditsText(c.project.credits, c.project.title); var pr = navigator.clipboard && navigator.clipboard.writeText(t); if (pr) pr.then(function () { toast('Credits copied') }, function () { toast('Could not copy') }) }
     if ($('#back')) $('#back').onclick = function () { go('#p/' + c.project.id) }
     $$('canvas[data-wave]').forEach(function (cv) { var v = files.filter(function (x) { return x.id === cv.dataset.wave })[0]; drawMini(cv, v && v.peaks) })
-    $$('[data-prev]').forEach(function (b) { b.onclick = function () { preview(files.filter(function (x) { return x.id === b.dataset.prev })[0], titleOf) } })
+    $$('[data-prev], [data-prev2]').forEach(function (b) { b.onclick = function () { preview(files.filter(function (x) { return x.id === (b.dataset.prev || b.dataset.prev2) })[0], titleOf) } })
     $$('[data-dl]').forEach(function (b) { b.onclick = function () { download(files.filter(function (x) { return x.id === b.dataset.dl })[0]) } })
     $$('[data-open]').forEach(function (b) { b.onclick = function () { go('#t/' + b.dataset.open) } })
     if ($('#fin-share')) $('#fin-share').onclick = function () { shareBox(c, null, true) }
