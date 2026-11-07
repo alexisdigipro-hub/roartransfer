@@ -726,7 +726,7 @@
       '<div class="nfilter" id="nfilter"><label class="nsearch">' + ic('search') + '<input id="nq" placeholder="Search notes" aria-label="Search notes"></label><div class="chips" id="nchips"><button class="on" data-f="all">All</button><button data-f="open">Open</button><button data-f="done">Done</button>' + (share ? '' : '<button data-f="mine">Mine</button>') + '</div></div>' +
       '<div class="nlist" id="nlist"></div>' + (share ? '' : '<div class="npad" id="npad" hidden><textarea class="in" id="npad-t" placeholder="Only you see this notepad. Lists, ideas, what to fix next…"></textarea><span class="muted" id="npad-s" style="font-size:12px"></span></div>') +
       (canDo('commenter') ? '<form class="compose" id="cmp">' + (share && !store.get('rs-guest') ? '<input class="in" id="g-name" maxlength="60" placeholder="Your name" required>' : '') +
-        '<textarea class="in" id="cmp-t" rows="2" maxlength="4000" placeholder="Write a note…"></textarea><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
+        '<textarea class="in" id="cmp-t" rows="2" maxlength="4000" placeholder="Write a note… (Enter to post, Shift+Enter for a new line)"></textarea><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
       '</aside></div>'
 
     $('#back').onclick = function () { go(share && share.data.tracks.length === 1 && share.data.project ? '#t/' + id : '#p/' + ctx.project.id) }
@@ -910,7 +910,8 @@
     // posting a note: at the playhead, or about the whole version
     var replyTo = null
     if ($('#cmp')) {
-      $('#cmp-t').addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); $('#cmp').requestSubmit() } })
+      // Enter posts the note, Shift+Enter is a new line (Alex, 7 Nov); never while a Greek accent is being composed
+      $('#cmp-t').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); if ($('#cmp-t').value.trim() && !$('#cmp-go').disabled) $('#cmp').requestSubmit() } })
       $('#cmp-t').addEventListener('focus', function () { if (!audio.paused && store.get('rs-pause-on-type') !== '0') audio.pause() })
       $('#cmp').onsubmit = function (e) {
         e.preventDefault()
@@ -920,7 +921,7 @@
         $('#cmp-go').disabled = true
         var p = share ? api('share-comment', { version: x.id, body: body, at_sec: at, name: store.get('rs-guest'), parent: replyTo }).then(function (d) { if (d.error) throw new Error(d.error); share.data.comments.push(d.comment); return d.comment })
           : sb.from('roarstudio_comments').insert({ version_id: x.id, project_id: ctx.project.id, body: body, at_sec: at, author: session.user.id, parent_id: replyTo }).select().single().then(function (r) { if (r.error) throw new Error(r.error.message); return r.data })
-        p.then(function (c) { tview.notes.push(c); $('#cmp-t').value = ''; replyTo = null; $('#cmp-t').placeholder = 'Write a note…'; if ($('#g-name')) $('#g-name').remove(); paintNotes() }).catch(function (x2) { toast(x2.message) }).then(function () { $('#cmp-go').disabled = false })
+        p.then(function (c) { tview.notes.push(c); $('#cmp-t').value = ''; replyTo = null; $('#cmp-t').placeholder = 'Write a note… (Enter to post, Shift+Enter for a new line)'; if ($('#g-name')) $('#g-name').remove(); paintNotes() }).catch(function (x2) { toast(x2.message) }).then(function () { $('#cmp-go').disabled = false })
       }
     }
     function askName(then) {
