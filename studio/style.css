@@ -972,3 +972,37 @@ html[data-theme="light"] .zoom.zs input[type=range] { background: linear-gradien
 /* the longer name, RoarTransfer Studio (Alex, 7 Nov): it stays on one line, a little smaller on a phone */
 .logo span { white-space: nowrap }
 @media (max-width: 600px) { .logo span { font-size: 15px } .logo .beta { display: none } }
+
+/* Stills tab (Alex, 7 Nov) */
+.stills { overflow: auto; padding: 4px 2px 8px }
+.sgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px }
+.still-c { margin: 0; display: flex; flex-direction: column; gap: 6px }
+.still-i { position: relative; display: block; padding: 0; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 9; background: #0b0910; cursor: pointer }
+.still-i img { width: 100%; height: 100%; object-fit: cover; display: block }
+.still-i i { position: absolute; left: 6px; bottom: 6px; font: 600 10px var(--mono); font-style: normal; color: #fcd34d; background: rgba(10,8,16,.75); padding: 2px 6px; border-radius: 999px }
+.still-i:hover { border-color: rgba(250,204,21,.45) }
+.still-c figcaption { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted) }
+.still-c figcaption span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.still-c figcaption .ico.sm { width: 28px; height: 28px }
+.still-c figcaption .ico.sm svg { width: 14px; height: 14px }
+
+/* the player's controls in one glass frame from edge to edge (Alex, 7 Nov: "all the buttons in one frame, glassy, the zoom grows") */
+.stage .ctl { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; width: 100%; padding: 7px 8px; border-radius: 999px; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.09); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255,255,255,.06) }
+.stage .ctl .play { width: 44px; height: 44px; flex: none; background: linear-gradient(140deg, rgba(167,139,250,.55), rgba(91,33,182,.55)); border: 1px solid rgba(221,214,254,.4); box-shadow: inset 0 1px 0 rgba(255,255,255,.25) }
+.stage .ctl .play svg { width: 17px; height: 17px }
+.stage .ctl #rew, .stage .ctl .pt .ico.sm { width: 36px; height: 36px; flex: none; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: var(--muted); box-shadow: none }
+.stage .ctl #rew:hover, .stage .ctl .pt .ico.sm:hover { background: rgba(255,255,255,.12); color: var(--text); border-color: rgba(196,181,253,.3) }
+.stage .ctl .pt .ico.on { background: rgba(139,92,246,.3); color: #ede9fe; border-color: rgba(196,181,253,.45) }
+.stage .ctl .pt { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; padding: 0; background: none; border: 0; box-shadow: none }
+.stage .ctl .pt .pt-sep { display: none }
+.stage .ctl .pt .zoom.zs { flex: 1; min-width: 120px; height: 36px; margin: 0; background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.1) }
+.stage .ctl .zoom.zs input[type=range] { flex: 1; width: auto; min-width: 40px }
+.stage .ctl .grab { height: 36px; flex: none; margin: 0; border-radius: 999px }
+.stage .ctl .lm { flex: none; margin-left: 4px }
+.stage .ctl > .mono, .stage .ctl .time { flex: none }
+html[data-theme="light"] .stage .ctl { background: rgba(255,255,255,.55); border-color: rgba(60,40,110,.12) }
+html[data-theme="light"] .stage .ctl #rew, html[data-theme="light"] .stage .ctl .pt .ico.sm, html[data-theme="light"] .stage .ctl .pt .zoom.zs { background: rgba(255,255,255,.7); border-color: rgba(60,40,110,.12) }
+@media (max-width: 600px) { .stage .ctl { flex-wrap: wrap; border-radius: 22px } .stage .ctl .pt { flex-basis: 100%; order: 3 } .stage .ctl .pt .zoom.zs { min-width: 0 } }
+
+/* the count next to the tabs stays on one line */
+.notes header #ncount { white-space: nowrap; font-size: 12px }
