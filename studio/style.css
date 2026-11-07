@@ -968,3 +968,7 @@ html[data-theme="light"] .zoom.zs input[type=range] { background: linear-gradien
 .nframe.on canvas { opacity: 1 }
 .nframe i { position: absolute; left: 6px; bottom: 6px; font: 600 10.5px var(--mono); font-style: normal; color: #fcd34d; background: rgba(10,8,16,.72); padding: 2px 7px; border-radius: 999px }
 .nframe:hover { border-color: rgba(250,204,21,.45) }
+
+/* the longer name, RoarTransfer Studio (Alex, 7 Nov): it stays on one line, a little smaller on a phone */
+.logo span { white-space: nowrap }
+@media (max-width: 600px) { .logo span { font-size: 15px } .logo .beta { display: none } }
