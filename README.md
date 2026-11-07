@@ -94,7 +94,7 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   password and the download limit; each file's address carries an admin ticket (&c=, an HMAC of the token and a 6-hour
   slot) so the download is not counted and Download all (.zip) works through the Worker. Never past the link's end.
 
-## RoarStudio (studio.roartransfer.com)
+## RoarTransfer Studio (studio.roartransfer.com; called RoarStudio until 7 Nov 2026)
 
 The music cloud, a branch of RoarTransfer (Alex, 7 Nov 2026), in `studio/` (served at roartransfer.com/studio/;
 studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no build step: `studio/index.html`,

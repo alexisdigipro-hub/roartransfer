@@ -1,4 +1,4 @@
-// RoarStudio (Alex, 7 Nov 2026): the music cloud, a branch of RoarTransfer. One page, no build step.
+// RoarTransfer Studio (Alex, 7 Nov 2026): the music cloud, a branch of RoarTransfer. One page, no build step.
 // Members sign in with their Roar account (the same session as RoarTransfer on roartransfer.com) and read and write the
 // roarstudio_* tables under RLS (supabase/studio.sql in roarme); files go to R2 through the Edge Function roarstudio.
 // People without an account open ?s=<token>: everything they see and do goes through that function.
@@ -1453,23 +1453,23 @@
         '<section class="scard glass storage"><div class="big"><b>' + size(tot) + '</b><span>in ' + ps.length + ' project' + (ps.length === 1 ? '' : 's') + '</span></div>' +
         '<div class="kbar">' + seg(k.audio, '#a78bfa') + seg(k.video, '#22d3ee') + seg(k.image, '#ffd166') + '</div>' +
         '<div class="klegend"><span><i style="background:#a78bfa"></i>Audio ' + size(k.audio) + '</span><span><i style="background:#22d3ee"></i>Video ' + size(k.video) + '</span><span><i style="background:#ffd166"></i>Pictures ' + size(k.image) + '</span></div>' +
-        '<p class="muted" style="margin:0;font-size:13px">Unlimited while RoarStudio is new. Files shared with you count for their owner.</p></section>' +
+        '<p class="muted" style="margin:0;font-size:13px">Unlimited while RoarTransfer Studio is new. Files shared with you count for their owner.</p></section>' +
         '<div class="tracks" style="margin-top:14px">' + ps.map(function (p) { return '<button class="srow2 glass" data-p="' + p.id + '"><span class="nm"><b>' + esc(p.title) + '</b><small>' + p.files + ' file' + (p.files === 1 ? '' : 's') + (p.finals ? ' · ' + size(p.finals) + ' final' : '') + '</small></span><span class="pbar"><i style="width:' + Math.max(1, p.bytes / top * 100) + '%"></i></span><span class="t">' + size(p.bytes) + '</span></button>' }).join('') + '</div>'
       $$('[data-p]').forEach(function (b) { b.onclick = function () { go('#p/' + b.dataset.p) } })
       $('#go-set').onclick = function () { go('#settings') }
     })
   }
 
-  // ---- Admin: who uses RoarStudio and how (Alex, 7 Nov) ----
+  // ---- Admin: who uses RoarTransfer Studio and how (Alex, 7 Nov) ----
   function renderAdmin() {
     setTop(['Admin'])
     var view = $('#view'); view.innerHTML = '<div class="spin"></div>'
     api('admin-stats').then(function (d) {
-      if (d.error) { view.innerHTML = errorBox(d.error === 'not allowed' ? 'Only RoarStudio’s admins see this page.' : d.error); return }
+      if (d.error) { view.innerHTML = errorBox(d.error === 'not allowed' ? 'Only RoarTransfer Studio’s admins see this page.' : d.error); return }
       var t = d.totals, days = d.days || [], top = Math.max(1, days.reduce(function (a, x) { return Math.max(a, x.uploads + x.notes) }, 0))
       var kpi = function (n, l, s2) { return '<div class="kpi glass"><b>' + n + '</b><span>' + l + '</span>' + (s2 ? '<small>' + s2 + '</small>' : '') + '</div>' }
       var kt = d.kinds, kb = Math.max(1, kt.audio.bytes + kt.video.bytes + kt.image.bytes)
-      view.innerHTML = '<div class="head"><div><h1>Admin</h1><div class="sub">Everyone on RoarStudio, what they use and how · ' + new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</div></div><div class="tools"><button class="btn" id="ad-re">' + ic('rot') + ' Refresh</button></div></div>' +
+      view.innerHTML = '<div class="head"><div><h1>Admin</h1><div class="sub">Everyone on RoarTransfer Studio, what they use and how · ' + new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</div></div><div class="tools"><button class="btn" id="ad-re">' + ic('rot') + ' Refresh</button></div></div>' +
         '<div class="kpis">' + kpi(t.accounts, 'Accounts', t.active7 + ' active this week') + kpi(t.projects, 'Projects', t.folders + ' folders · ' + t.playlists + ' playlists') + kpi(t.files, 'Files', t.finals + ' final · ' + t.approved + ' approved') + kpi(size(t.storage), 'Stored') + kpi(t.notes, 'Notes', t.guest_notes + ' from guests') + kpi(t.links, 'Links', t.finals_links + ' Finals links') + '</div>' +
         '<div class="adgrid"><section class="scard glass"><h2>Last 30 days</h2><div class="chart" role="img" aria-label="Uploads and notes per day">' + days.map(function (x) { return '<div class="col" title="' + x.day + ': ' + x.uploads + ' uploads, ' + x.notes + ' notes, ' + x.views + ' link plays/views"><i class="u" style="height:' + (x.uploads / top * 100) + '%"></i><i class="n" style="height:' + (x.notes / top * 100) + '%"></i></div>' }).join('') + '</div><div class="klegend"><span><i style="background:#a78bfa"></i>Uploads</span><span><i style="background:#22d3ee"></i>Notes</span><span>Links: ' + d.link_activity.view + ' opened · ' + d.link_activity.stream + ' played · ' + d.link_activity.download + ' downloaded</span></div></section>' +
         '<section class="scard glass"><h2>What they upload</h2>' + ['audio', 'video', 'image'].map(function (k) { return '<div class="srow"><div><b><i class="kdot k-' + k + '"></i>' + KIND_PLURAL[k] + '</b><small>' + kt[k].files + ' file' + (kt[k].files === 1 ? '' : 's') + '</small></div><span class="pbar" style="width:40%"><i style="width:' + Math.max(1, kt[k].bytes / kb * 100) + '%"></i></span><span class="mono" style="font-size:13px">' + size(kt[k].bytes) + '</span></div>' }).join('') + '</section></div>' +
@@ -1615,7 +1615,7 @@
   }
 
   function shareBox(c, track, finals, pl) {
-    // the links people get carry RoarStudio's own address (Cloudflare sends studio.roartransfer.com to this page)
+    // the links people get carry RoarTransfer Studio's own address (Cloudflare sends studio.roartransfer.com to this page)
     var base = location.hostname === 'roartransfer.com' ? 'https://studio.roartransfer.com/' : location.origin + location.pathname
     modal('<div class="spread"><h2>Share ' + (finals ? 'the Finals' : track ? '“' + esc(track.title) + '”' : 'the project') + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div>' +
       '<p class="muted" style="margin:0">' + (finals ? 'One link to the final files of “' + esc(c.project.title) + '”. Anyone with it can look, listen and download, without an account. Files you make final later show up in it too.' : 'Anyone with the link can listen in the browser, without an account.') + '</p>' +
