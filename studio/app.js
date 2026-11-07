@@ -711,7 +711,7 @@
 
     var firstV = versions[0], byName = share ? share.data.names[firstV.uploaded_by] : ctx.people[firstV.uploaded_by] && ctx.people[firstV.uploaded_by].name
     view.innerHTML = '<div class="head"><button class="ico" id="back" aria-label="Back to the project">' + ic('back') + '</button><span class="pcover sm" style="' + coverAttr(ctx.project) + '"></span><div style="min-width:0"><h1>' + esc(track.title) + '</h1><div class="sub">' + esc(ctx.project.title) + (byName ? ' · by ' + esc(byName) : '') + ' · ' + new Date(firstV.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + '</div></div><div class="tools">' +
-      (versions.some(function (q) { return q.lufs != null }) ? '<button class="btn" id="lvl">' + ic('disk').replace('disk', '') + 'Levels</button>' : '') +
+      (kindOf(versions[versions.length - 1]) === 'audio' && versions.some(function (q) { return q.lufs != null }) ? '<button class="btn" id="lvl">' + ic('disk').replace('disk', '') + 'Levels</button>' : '') +
       (edit && !share ? '<button class="btn main" id="nv">' + ic('up') + ' New version</button><button class="btn" id="tsh">' + ic('share') + ' Share</button><button class="ico" id="tm" aria-label="More">' + ic('dots') + '</button>' : '') + '</div></div>' +
       '<div class="player"><section class="stage glass">' +
       '<div class="vers" id="vers"></div>' +
@@ -723,9 +723,9 @@
       '<div class="facts" id="facts"></div>' +
       '<div class="appr" id="appr"></div>' +
       (edit && !share ? '<input type="file" id="nvf" accept="audio/*,video/*,image/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.mov,.mp4,.heic,.tif,.tiff,.psd" hidden><div class="ups" id="ups"></div>' : '') +
-      '</section><aside class="notes glass"><header>' + (share ? '<b>Notes</b>' : '<div class="lens-group" id="ntab"><span class="lens"></span><button class="on" data-tab="n">Notes</button><button data-tab="p">Notepad</button></div>') + '<span class="muted" id="ncount"></span></header>' +
+      '</section><aside class="notes glass"><header>' + '<div class="lens-group" id="ntab"><span class="lens"></span><button class="on" data-tab="n">Notes</button>' + (share ? '' : '<button data-tab="p">Notepad</button>') + '<button data-tab="s" hidden>Stills</button></div>' + '<span class="muted" id="ncount"></span></header>' +
       '<div class="nfilter" id="nfilter"><label class="nsearch">' + ic('search') + '<input id="nq" placeholder="Search notes" aria-label="Search notes"></label><div class="chips" id="nchips"><button class="on" data-f="all">All</button><button data-f="open">Open</button><button data-f="done">Done</button>' + (share ? '' : '<button data-f="mine">Mine</button>') + '</div></div>' +
-      '<div class="nlist" id="nlist"></div>' + (share ? '' : '<div class="npad" id="npad" hidden><textarea class="in" id="npad-t"></textarea><span class="muted" id="npad-s" style="font-size:12px"></span></div>') +
+      '<div class="nlist" id="nlist"></div><div class="stills" id="stills" hidden></div>' + (share ? '' : '<div class="npad" id="npad" hidden><textarea class="in" id="npad-t"></textarea><span class="muted" id="npad-s" style="font-size:12px"></span></div>') +
       (canDo('commenter') ? '<form class="compose" id="cmp">' + (share && !store.get('rs-guest') ? '<input class="in" id="g-name" maxlength="60" placeholder="Your name" required>' : '') +
         '<textarea class="in" id="cmp-t" rows="2" maxlength="4000"></textarea><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
       '</aside></div>'
@@ -745,7 +745,9 @@
       $('.lm').hidden = k !== 'audio'
       if ($('#cmp-at')) $('.attime').hidden = k === 'image'
       if ($('#fs')) { $('#fs').hidden = k !== 'video'; $('#pip').hidden = k !== 'video' || !document.pictureInPictureEnabled }
-      if ($('#grab')) $('#grab').hidden = k !== 'video'
+      if ($('#grab')) $('#grab').hidden = k !== 'video' || (share && !share.data.can.comment)
+      var stb = $('#ntab [data-tab="s"]')
+      if (stb) { stb.hidden = k !== 'video'; if (k !== 'video' && stb.classList.contains('on')) $('#ntab [data-tab="n"]').click(); else if (stb.classList.contains('on')) loadStills(); setTimeout(function () { if ($('#ntab')) lens($('#ntab')) }, 30) }
       // a video gets a lower waveform, a strip to scrub (Alex, 7 Nov)
       var stg = $('.stage'); if (stg) stg.classList.toggle('is-video', k === 'video')
       if (k === 'video') {
@@ -933,6 +935,24 @@
         if (fv.dataset.v !== q.v.id) { fv.dataset.v = q.v.id; fv.src = u; fv.addEventListener('loadedmetadata', seek, { once: true }); fv.load() } else if (fv.readyState >= 1) seek(); else fv.addEventListener('loadedmetadata', seek, { once: true })
       }).catch(done)
     }
+    // Stills (Alex, 7 Nov): Grab still saves the frame, its time on it, into the Stills tab for everyone; download from there
+    function loadStills() {
+      var x = curV(); if (kindOf(x) !== 'video') return
+      var box = $('#stills'); if (!box) return
+      if (!tview.stills || tview.stillsV !== x.id) box.innerHTML = '<div class="spin"></div>'
+      api(share ? 'share-stills' : 'stills', { version: x.id }).then(function (d) { if (curV() !== x) return; tview.stills = d.stills || []; tview.stillsV = x.id; paintStills() }).catch(function () {})
+    }
+    function paintStills() {
+      var box = $('#stills'); if (!box) return
+      var list = tview.stills || [], me = session && session.user.id
+      box.innerHTML = list.length ? '<div class="sgrid">' + list.map(function (st) {
+        var mine = !share && (st.author === me || canDo('editor'))
+        return '<figure class="still-c"><button class="still-i" data-sj="' + st.at_sec + '" aria-label="Play from ' + mmss(st.at_sec) + '"><img src="' + st.url + '" alt="" loading="lazy"><i>' + tc(st.at_sec) + '</i></button>' +
+          '<figcaption><span>' + esc(st.by) + '</span><a class="ico sm" href="' + st.dl + '" download aria-label="Download this still" title="Download">' + ic('down') + '</a>' + (mine ? '<button class="ico sm danger" data-sdel="' + st.id + '" aria-label="Delete this still" title="Delete">' + ic('trash') + '</button>' : '') + '</figcaption></figure>'
+      }).join('') + '</div>' : '<p class="muted" style="padding:10px 8px;margin:0;font-size:14px">No stills yet. Pause on a frame and press Grab still.</p>'
+      $$('[data-sj]', box).forEach(function (b) { b.onclick = function () { jump({ id: '', at_sec: +b.dataset.sj }, false) } })
+      $$('[data-sdel]', box).forEach(function (b) { b.onclick = function () { var sid = b.dataset.sdel; tview.stills = tview.stills.filter(function (z) { return z.id !== sid }); paintStills(); api('still-delete', { still: sid }).then(function (d) { if (d.error) toast(d.error) }) } })
+    }
     // Grab still: the frame on screen at full size, its time written on it, saved as a PNG (Alex, 7 Nov)
     function tc(t) { var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), sec = Math.floor(t % 60), ms = Math.round((t % 1) * 1000); if (ms === 1000) { ms = 0; sec++ } var p2 = function (n) { return (n < 10 ? '0' : '') + n }; return p2(h) + ':' + p2(m) + ':' + p2(sec) + '.' + ('00' + ms).slice(-3) }
     function grabStill() {
@@ -944,11 +964,21 @@
       var tw = g.measureText(t).width, bw = tw + pad * 2, bh = fs + pad * 1.2, bx = pad, by = h - bh - pad
       g.fillStyle = 'rgba(10,8,16,.72)'; if (g.roundRect) { g.beginPath(); g.roundRect(bx, by, bw, bh, bh / 2.6); g.fill() } else g.fillRect(bx, by, bw, bh)
       g.fillStyle = '#fcd34d'; g.textBaseline = 'middle'; g.fillText(t, bx + pad, by + bh / 2 + 1)
-      var tk = ctx && ctx.tracks ? ctx.tracks.filter(function (z) { return z.id === x.track_id })[0] : null
-      var name = ((tk && tk.title) || (x.file_name || 'still').replace(/\.[^.]+$/, '')) + ' ' + t.replace(/:/g, '-') + '.png'
+      var atSec = Math.round(vidEl.currentTime * 1000) / 1000, gb = $('#grab'); if (gb) gb.disabled = true
+      var fail = function (m) { toast(m || 'Could not save the still'); if (gb) gb.disabled = false }
       try {
-        c.toBlob(function (bl) { if (!bl) { toast('This video does not allow a still here'); return } var u = URL.createObjectURL(bl), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u) }, 4000); toast('Still saved · ' + t) }, 'image/png')
-      } catch (e) { toast('This video does not allow a still here') }
+        c.toBlob(function (bl) {
+          if (!bl) { fail('This video does not allow a still here'); return }
+          api(share ? 'share-still-add' : 'still-add', { version: x.id, at_sec: atSec, width: w, height: h, size: bl.size }).then(function (d) {
+            if (!d.put) throw new Error(d.error || 'no address')
+            return fetch(d.put, { method: 'PUT', body: bl }).then(function (r) { if (!r.ok) { if (!share) api('still-delete', { still: d.id }); throw new Error('Upload failed (' + r.status + ')') } })
+          }).then(function () {
+            if (gb) gb.disabled = false
+            toast('Still saved in Stills · ' + t)
+            var stb = $('#ntab [data-tab="s"]'); if (stb && !stb.classList.contains('on')) stb.click(); else loadStills()
+          }).catch(function (e) { fail(e.message) })
+        }, 'image/jpeg', 0.93)
+      } catch (e) { fail('This video does not allow a still here') }
     }
     var lastActive = null
     function activeNote() {
@@ -1044,8 +1074,11 @@
       ntab.onclick = function (e) {
         var b = e.target.closest('button'); if (!b) return
         $$('button', ntab).forEach(function (x) { x.classList.toggle('on', x === b) }); lens(ntab)
-        var pad = b.dataset.tab === 'p'
-        $('#nlist').hidden = pad; $('#nfilter').hidden = pad || tview.notes.filter(function (c) { return c.version_id === tview.version && !c.parent_id }).length < 2; $('#npad').hidden = !pad; if ($('#cmp')) $('#cmp').hidden = pad
+        var tab = b.dataset.tab, pad = tab === 'p'
+        $('#nlist').hidden = tab !== 'n'; $('#nfilter').hidden = tab !== 'n' || tview.notes.filter(function (c) { return c.version_id === tview.version && !c.parent_id }).length < 2
+        if ($('#npad')) $('#npad').hidden = !pad
+        $('#stills').hidden = tab !== 's'; if ($('#cmp')) $('#cmp').hidden = tab !== 'n'
+        if (tab === 's') loadStills()
         if (pad && !$('#npad-t').dataset.loaded) sb.from('roarstudio_notepads').select('body').eq('user_id', session.user.id).eq('track_id', id).maybeSingle().then(function (r) { var t = $('#npad-t'); if (!t) return; t.value = (r.data && r.data.body) || ''; t.dataset.loaded = '1'; t.focus() })
       }
       var padTimer = null
@@ -1070,7 +1103,7 @@
     $('#spd').querySelector('b').textContent = (audio.playbackRate || 1) + '×'
     $('#lp').onclick = function () { var on = !audEl.loop; audEl.loop = vidEl.loop = on; this.classList.toggle('on', on) }
     $('#lp').classList.toggle('on', audEl.loop)
-    if ($('#grab')) $('#grab').onclick = grabStill
+    if ($('#grab')) $('#grab').onclick = function () { if (share && !store.get('rs-guest')) askName(grabStill); else grabStill() }
     $('#fs').onclick = function () { var el = $('#media'); try { (el.requestFullscreen || el.webkitRequestFullscreen).call(el) } catch (e) { try { vidEl.webkitEnterFullscreen() } catch (x) {} } }
     $('#pip').onclick = function () { try { if (document.pictureInPictureElement) document.exitPictureInPicture(); else vidEl.requestPictureInPicture() } catch (e) {} }
 
@@ -1523,7 +1556,7 @@
   function cropBox(o) {
     var img = null, zoom = 1, rot = 0, ox = 0, oy = 0
     var m = modal('<div class="spread"><h2>' + esc(o.title) + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div>' +
-      '<div class="crop" id="cr" style="aspect-ratio:' + o.w + '/' + o.h + '"><canvas id="cr-c"></canvas><div class="crop-empty" id="cr-e"><span class="ico" style="width:54px;height:54px">' + ic('image') + '</span><b>Choose a photo</b><small>JPG, PNG, WebP or HEIC from your phone</small></div></div>' +
+      '<div class="crop" id="cr" style="aspect-ratio:' + o.w + '/' + o.h + ';max-height:none;width:min(100%, calc(60vh * ' + o.w + ' / ' + o.h + '))"><canvas id="cr-c"></canvas><div class="crop-empty" id="cr-e"><span class="ico" style="width:54px;height:54px">' + ic('image') + '</span><b>Choose a photo</b><small>JPG, PNG, WebP or HEIC from your phone</small></div></div>' +
       '<input type="file" id="cr-f" accept="image/*" hidden>' +
       '<div class="cropctl"><button class="ico sm" id="cr-out" aria-label="Zoom out">−</button><input type="range" id="cr-z" min="1" max="4" step="0.01" value="1" aria-label="Zoom"><button class="ico sm" id="cr-in" aria-label="Zoom in">+</button><button class="ico sm" id="cr-r" aria-label="Turn" title="Turn">' + ic('rot') + '</button></div>' +
       '<p class="muted" style="margin:0;font-size:13px">Drag the photo to move it, pinch or scroll to zoom.</p>' +
@@ -1531,7 +1564,8 @@
     var card = $('.sheet-card', m); card.classList.add('wide')
     var cv = $('#cr-c', m), box = $('#cr', m)
     var fit = function () { var r = box.getBoundingClientRect(), d = devicePixelRatio || 1; cv.width = r.width * d; cv.height = r.height * d }
-    var base = function () { var w = rot % 180 ? img.height : img.width, h = rot % 180 ? img.width : img.height; return Math.max(cv.width / w, cv.height / h) }
+    var baseFor = function (W, H) { var w = rot % 180 ? img.height : img.width, h = rot % 180 ? img.width : img.height; return Math.max(W / w, H / h) }
+    var base = function () { return baseFor(cv.width, cv.height) }
     var clamp = function () {
       var s = base() * zoom, w = (rot % 180 ? img.height : img.width) * s, h = (rot % 180 ? img.width : img.height) * s
       var mx = Math.max(0, (w - cv.width) / 2), my = Math.max(0, (h - cv.height) / 2)
@@ -1539,8 +1573,10 @@
     }
     var drawTo = function (c2, W, H, k) {
       var g = c2.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, W, H)
-      g.save(); g.translate(W / 2 + ox * k, H / 2 + oy * k); g.rotate(rot * Math.PI / 180)
-      var s = base() * zoom * k; g.drawImage(img, -img.width * s / 2, -img.height * s / 2, img.width * s, img.height * s); g.restore()
+      // the picture always covers the whole target, even when its shape differs from the preview (no black bands, Alex 7 Nov)
+      var kk = k === 1 ? 1 : baseFor(W, H) / base()
+      g.save(); g.translate(W / 2 + ox * kk, H / 2 + oy * kk); g.rotate(rot * Math.PI / 180)
+      var s = (k === 1 ? base() : baseFor(W, H)) * zoom; g.drawImage(img, -img.width * s / 2, -img.height * s / 2, img.width * s, img.height * s); g.restore()
     }
     var draw = function () { if (!img) return; clamp(); drawTo(cv, cv.width, cv.height, 1) }
     var setImg = function (src) {
