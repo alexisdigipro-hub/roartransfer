@@ -1047,3 +1047,5 @@ html[data-theme="light"] .stage .ctl #rew, html[data-theme="light"] .stage .ctl 
 .stage .ctl .pt .zoom.zs { min-width: 90px }
 .stage .ctl .time span { font-size: 10.5px; opacity: .7 }
 .stage .ctl .fstep { width: 32px !important; height: 32px !important }
+
+.media.cmp-on .vinfo { display: none }

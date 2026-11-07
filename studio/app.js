@@ -904,7 +904,7 @@
       var one = function (c, reply) {
         var n = nameOf(c), mine = !share && session && c.author === session.user.id
         var reps = tview.notes.filter(function (z) { return z.parent_id === c.id })
-        return '<div class="note' + (c.done ? ' done' : '') + '" data-n="' + c.id + '">' + avatar(n.short || n.name, n.avatar, n.id) + '<div style="min-width:0"><div class="who"><b>' + esc(n.name) + '</b>' + (c.at_sec != null && !reply ? '<button class="at" data-at="' + c.id + '">' + (kindOf(curV()) === 'video' ? tcf(c.at_sec, +store.get('rs-fps-' + curV().id)) : mmss(c.at_sec)) + '</button>' : '') + '<span>' + ago(c.created_at) + '</span></div>' + (c.at_sec != null && !reply && kindOf(curV()) === 'video' ? '<button class="nframe" data-fr="' + c.id + '" data-t="' + c.at_sec + '" aria-label="Play from ' + mmss(c.at_sec) + '"><canvas width="320" height="180"></canvas><i>' + mmss(c.at_sec) + '</i></button>' : '') + '<div class="body">' + esc(c.body) + '</div>' +
+        return '<div class="note' + (c.done ? ' done' : '') + '" data-n="' + c.id + '">' + avatar(n.short || n.name, n.avatar, n.id) + '<div style="min-width:0"><div class="who"><b>' + esc(n.name) + '</b>' + (c.at_sec != null && !reply ? '<button class="at" data-at="' + c.id + '">' + (kindOf(curV()) === 'video' ? tcf(c.at_sec, +store.get('rs-fps-' + curV().id)) : mmss(c.at_sec)) + '</button>' : '') + '<span>' + ago(c.created_at) + '</span></div>' + (c.at_sec != null && !reply && kindOf(curV()) === 'video' ? '<button class="nframe" data-fr="' + c.id + '" data-t="' + c.at_sec + '" aria-label="Play from ' + mmss(c.at_sec) + '"><canvas width="320" height="180"></canvas><i>' + tcf(c.at_sec, +store.get('rs-fps-' + curV().id)) + '</i></button>' : '') + '<div class="body">' + esc(c.body) + '</div>' +
           (reply ? '' : '<div class="acts">' + (canDo('commenter') ? '<button class="ico sm" data-rep="' + c.id + '" aria-label="Reply">' + ic('reply') + '</button>' : '') + (!share && (canDo('editor') || mine) ? '<button class="ico sm" data-done="' + c.id + '" aria-label="' + (c.done ? 'Open again' : 'Mark as done') + '" title="' + (c.done ? 'Open again' : 'Done') + '">' + ic('check') + '</button>' : '') + (mine || (!share && ctx.role === 'owner') ? '<button class="ico sm danger" data-del="' + c.id + '" aria-label="Delete note">' + ic('trash') + '</button>' : '') + '</div>') +
           (reps.length ? '<div class="replies">' + reps.map(function (r) { return one(r, true) }).join('') + '</div>' : '') + '</div></div>'
       }
@@ -1190,6 +1190,7 @@
       if (!vs.cmp) return
       try { vs.cmp.el.pause(); vs.cmp.el.removeAttribute('src'); vs.cmp.el.load() } catch (e) {}
       ;[vs.cmp.el, vs.cmp.handle, vs.cmp.la, vs.cmp.lb].forEach(function (n) { n.remove() }); vs.cmp = null
+      if ($('#media')) $('#media').classList.remove('cmp-on')
       if ($('#vcmp')) $('#vcmp').classList.remove('on'); paintOv()
     }
     function compareOn(otherId) {
@@ -1202,6 +1203,7 @@
       var lb = document.createElement('button'); lb.className = 'cmpl r'; lb.title = 'Pick the version on the right'; lb.textContent = vname(other) + (list.length > 1 ? ' ▾' : '')
       box.appendChild(el); box.appendChild(handle); box.appendChild(la); box.appendChild(lb)
       vs.cmp = { el: el, handle: handle, la: la, lb: lb, at: 0.5, v: other }
+      box.classList.add('cmp-on')
       lb.onclick = function () { var i = list.indexOf(other); compareOn(list[(i + 1) % list.length].id) }
       handle.addEventListener('pointerdown', function (e) {
         e.preventDefault(); handle.setPointerCapture(e.pointerId)
