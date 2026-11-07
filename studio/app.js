@@ -25,6 +25,13 @@
     var mt = document.querySelector('meta[name=theme-color]'); if (mt) mt.content = light ? '#ebe8f3' : '#0d0b14'
   }
   wearTheme()
+  // the picture behind everything (Alex, 7 Nov: new high-tech backgrounds, Nano Banana, at 25%), chosen in Settings, kept per device
+  var BGS = [{ id: 'waves', name: 'Waves' }, { id: 'city', name: 'Spectrum' }, { id: 'fibre', name: 'Fibre' }, { id: 'studio', name: 'Studio' }, { id: 'desk', name: 'Desk' }, { id: 'none', name: 'None' }]
+  function wearBg() {
+    var b = store.get('rs-bg') || 'waves'
+    document.documentElement.style.setProperty('--bgimg', b === 'none' ? 'none' : "url('" + (b === 'desk' ? 'bg.webp' : 'bg-' + b + '.webp') + "')")
+  }
+  wearBg()
   if (window.matchMedia) matchMedia('(prefers-color-scheme: light)').addEventListener('change', wearTheme)
 
   // ---- line icons ----
@@ -201,7 +208,7 @@
     }
     if (!session) { r.innerHTML = ''; return }
     var name = (me && me.name) || (session.user.email || '').split('@')[0]
-    r.innerHTML = '<button class="ico bell" id="bell" aria-label="Notifications">' + ic('bell') + '<b id="bell-n" hidden></b></button><button class="me" id="me-btn" aria-label="Account" style="' + (me && me.avatar ? "background-image:url('" + esc(me.avatar) + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)') + '">' + (me && me.avatar ? '' : esc(initials(name))) + '</button>'
+    r.innerHTML = '<a class="btn sm rtlink" href="../" title="Send files with RoarTransfer">' + ic('out') + '<span>RoarTransfer</span></a><button class="ico bell" id="bell" aria-label="Notifications">' + ic('bell') + '<b id="bell-n" hidden></b></button><button class="me" id="me-btn" aria-label="Account" style="' + (me && me.avatar ? "background-image:url('" + esc(me.avatar) + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)') + '">' + (me && me.avatar ? '' : esc(initials(name))) + '</button>'
     $('#me-btn').onclick = function (e) {
       e.stopPropagation()
       var old = $('.menu'); if (old) { old.remove(); return }
@@ -1332,7 +1339,8 @@
         row('Approvals and finals', 'A version is approved or made final', sw('pf-a', pf.notify_approvals)) +
         row('Shared with me', 'Someone adds you to a project', sw('pf-s', pf.notify_shared)) +
         row('Once a day', 'One email a day instead of a few minutes after', sw('pf-d', pf.digest)) + '</section>' +
-        '<section class="scard glass"><h2>Look</h2>' + row('Theme', 'Kept on this device', '<div class="lens-group" id="st-theme"><span class="lens"></span><button data-t="dark">Dark</button><button data-t="light">Light</button><button data-t="system">System</button></div>') + '</section>' +
+        '<section class="scard glass"><h2>Look</h2>' + row('Theme', 'Kept on this device', '<div class="lens-group" id="st-theme"><span class="lens"></span><button data-t="dark">Dark</button><button data-t="light">Light</button><button data-t="system">System</button></div>') +
+        '<div class="field"><label>Background</label><div class="bgpick" id="st-bg">' + BGS.map(function (b) { return '<button type="button" data-b="' + b.id + '" style="' + (b.id === 'none' ? '' : "background-image:url('" + (b.id === 'desk' ? 'bg.webp' : 'bg-' + b.id + '-s.webp') + "')") + '"><span>' + b.name + '</span></button>' }).join('') + '</div></div></section>' +
         '<section class="scard glass"><h2>Uploads</h2>' + row('Upload naming', 'Ask for a title before a new file, and a name before a new version', sw('pf-u', pf.upload_naming)) + '</section>' +
         '<section class="scard glass"><h2>Account</h2><p class="muted">Your name, picture, password and two-step verification live in your Roar account, the same for every Roar app.</p><div class="row"><a class="btn" href="https://themadlions.com/account/" target="_blank" rel="noopener">' + ic('out') + ' Open my Roar account</a><button class="btn" id="st-out">' + ic('back') + ' Sign out</button></div></section>' +
         '</div>'
@@ -1348,6 +1356,9 @@
       $('#st-role').value = st.invite_role || 'commenter'
       var thg = $('#st-theme'), th = store.get('rs-theme') || 'dark'
       $$('button', thg).forEach(function (b) { b.classList.toggle('on', b.dataset.t === th) }); setTimeout(function () { lens(thg) }, 30)
+      var bgg = $('#st-bg'), bnow = store.get('rs-bg') || 'waves'
+      $$('button', bgg).forEach(function (b) { b.classList.toggle('on', b.dataset.b === bnow) })
+      bgg.onclick = function (e) { var b = e.target.closest('button'); if (!b) return; store.set('rs-bg', b.dataset.b); $$('button', bgg).forEach(function (x) { x.classList.toggle('on', x === b) }); wearBg() }
       thg.onclick = function (e) { var b = e.target.closest('button'); if (!b) return; store.set('rs-theme', b.dataset.t); $$('button', thg).forEach(function (x) { x.classList.toggle('on', x === b) }); lens(thg); wearTheme() }
       var saveSt = function (patch, msg) { Object.assign(st, patch, { owner: session.user.id, updated_at: new Date().toISOString() }); return sb.from('roarstudio_studios').upsert(st).then(function (q) { if (q.error) toast(q.error.message); else { if (msg) toast(msg); if (me) me.studio = st } }) }
       var savePf = function (patch) { Object.assign(pf, patch, { user_id: session.user.id, updated_at: new Date().toISOString() }); return sb.from('roarstudio_prefs').upsert(pf).then(function (q) { if (q.error) toast(q.error.message); else { if (me) me.prefs = pf; toast('Saved') } }) }
