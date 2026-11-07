@@ -699,7 +699,8 @@
   }
 
   function shareBox(c, track) {
-    var base = location.origin + location.pathname
+    // the links people get carry RoarStudio's own address (Cloudflare sends studio.roartransfer.com to this page)
+    var base = location.hostname === 'roartransfer.com' ? 'https://studio.roartransfer.com/' : location.origin + location.pathname
     modal('<div class="spread"><h2>Share ' + (track ? '“' + esc(track.title) + '”' : 'the project') + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div>' +
       '<p class="muted" style="margin:0">Anyone with the link can listen in the browser, without an account.</p>' +
       '<div class="opts"><div class="opt"><span>Comments<small>They can leave notes on the waveform</small></span><button type="button" class="sw" id="s-c" aria-pressed="true" aria-label="Comments"></button></div>' +
