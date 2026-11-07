@@ -115,4 +115,12 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
 - People: add someone by the email of their Roar account as Can upload and edit / Can listen and comment / Can listen.
 - Share: a link (`?s=<token>`) for the whole project or one track, for people without an account: comments, approve and
   download each on or off, an end (never, 1, 7, 30 days) and a password. Guests type their name once.
+- Video and pictures (Alex, 7 Nov): a video plays as a video on its page (with its sound's waveform when the browser can
+  read it), a picture shows as a picture; the page makes a small JPEG of a video's frame or a picture (`thumb`) and keeps
+  its size. Up to 20 GB a file.
+- Make it final (Alex, 7 Nov): any version of any file (audio, video, picture) goes into the project's **Finals** folder
+  (`#f/<project>`), with Download all and **Share the Finals**: one link (`kind: 'finals'`) where anyone can look, listen
+  and download the final files, without an account; files made final later show up in it too.
+- Look (Alex, 7 Nov): liquid-glass buttons and cards, a mixing desk in the dark behind everything at 15% (`studio/bg.webp`,
+  Higgsfield Soul 2).
 - Database: `supabase/studio.sql` in roarme (roarstudio_* tables with RLS, roarstudio_people, roarstudio_invite).
