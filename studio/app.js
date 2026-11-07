@@ -1037,7 +1037,7 @@
     var total = files.reduce(function (a, v) { return a + Number(v.size || 0) }, 0)
     setTop([c.project.title, 'Finals'])
     view.classList.add('lux')
-    view.innerHTML = brandBanner() + '<div class="lux-hero"><span class="lux-k">' + ic('star') + ' Final files</span></div><div class="head">' + (share ? '<span class="fi big">' + ic('folder') + '</span>' : '<button class="ico" id="back" aria-label="Back to the project">' + ic('back') + '</button>') +
+    view.innerHTML = brandBanner() + '<div class="lux-hero"><span class="lux-k">' + ic('star') + ' Final files</span></div><div class="head">' + (share ? '' : '<button class="ico" id="back" aria-label="Back to the project">' + ic('back') + '</button>') + '<span class="pcover art" style="' + coverAttr(c.project) + '"></span>' +
       '<div style="min-width:0"><h1>' + (share ? esc(c.project.title) : 'Finals') + '</h1><div class="sub">' + (share ? 'Final files' + (share.data.project.owner_name ? ' from ' + esc(share.data.project.owner_name) : '') + ' · ' : esc(c.project.title) + ' · ') + files.length + ' file' + (files.length === 1 ? '' : 's') + ' · ' + size(total) + '</div></div>' +
       '<div class="tools">' + (files.length ? '<button class="btn" id="dl-all">' + ic('down') + ' Download all (.zip)</button>' : '') + (edit ? '<button class="btn main" id="fin-share">' + ic('share') + ' Share the Finals</button>' : '') + '</div></div>' +
       (files.length ? '<div class="flist">' + files.map(function (v) {
