@@ -288,3 +288,264 @@ b.fin { color: #ffd166 }
 @keyframes pop { from { opacity: 0; transform: scale(.96) translateY(8px) } }
 @keyframes fade { from { opacity: 0 } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important } }
+
+/* ===================== round 3 (Alex, 7 Nov): folders, playlists, settings, storage, the bell, the bar at the foot ===================== */
+
+/* motion everywhere: pages rise in, lists come in one after the other, buttons answer */
+@keyframes rise { from { opacity: 0; transform: translateY(14px) } }
+@keyframes riseSm { from { opacity: 0; transform: translateY(8px) scale(.98) } }
+@keyframes slideUp { from { transform: translateY(120%) } }
+@keyframes shine { from { transform: translateX(-120%) skewX(-20deg) } to { transform: translateX(220%) skewX(-20deg) } }
+@keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,209,102,0) } 50% { box-shadow: 0 0 34px -6px rgba(255,209,102,.45) } }
+#view.enter > * { animation: rise .5s var(--ease) both }
+#view.enter > *:nth-child(2) { animation-delay: .04s } #view.enter > *:nth-child(3) { animation-delay: .08s } #view.enter > *:nth-child(4) { animation-delay: .12s } #view.enter > *:nth-child(5) { animation-delay: .16s }
+.trk, .proj, .tile, .fcard, .scard, .acrow, .srow2, .newcard, .lvrow, .pick { animation: riseSm .45s var(--ease) both }
+.tracks > :nth-child(2), .grid > :nth-child(2), .tiles > :nth-child(2), .finals > :nth-child(2), .sgrid > :nth-child(2) { animation-delay: .04s }
+.tracks > :nth-child(3), .grid > :nth-child(3), .tiles > :nth-child(3), .finals > :nth-child(3), .sgrid > :nth-child(3) { animation-delay: .08s }
+.tracks > :nth-child(4), .grid > :nth-child(4), .tiles > :nth-child(4), .finals > :nth-child(4), .sgrid > :nth-child(4) { animation-delay: .12s }
+.tracks > :nth-child(5), .grid > :nth-child(5), .tiles > :nth-child(5), .finals > :nth-child(5), .sgrid > :nth-child(5) { animation-delay: .16s }
+.tracks > :nth-child(n+6), .grid > :nth-child(n+6), .finals > :nth-child(n+6) { animation-delay: .2s }
+.btn, .ico, .play, .tile, .trk, .proj, .fcard { will-change: transform }
+.btn:hover, .ico:hover { transform: translateY(-1px) }
+.btn.main { overflow: hidden }
+.btn.main::after { content: ''; position: absolute; inset: 0 auto 0 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent); transform: translateX(-120%) skewX(-20deg); pointer-events: none }
+.btn.main:hover::after { animation: shine .8s var(--ease) }
+.trk:hover { transform: translateX(3px) }
+.ico.on { background: linear-gradient(180deg, rgba(255,59,47,.45), rgba(227,18,11,.25)); border-color: rgba(255,120,110,.55); color: #fff }
+.grid.swap > * { animation: riseSm .4s var(--ease) both }
+
+/* the top row */
+.ico.bell { position: relative }
+.ico.bell b { position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--red-hi); color: #fff; font: 700 10.5px/18px var(--sans); box-shadow: 0 0 0 2px var(--bg); animation: riseSm .3s var(--ease) }
+.brand { display: flex; align-items: center; gap: 10px; animation: riseSm .4s var(--ease) }
+.brand img { width: 34px; height: 34px; border-radius: 10px; object-fit: cover; box-shadow: 0 6px 16px -8px rgba(0,0,0,.7) }
+.brand b { font: 600 15px var(--disp) }
+.banner { height: clamp(90px, 16vw, 180px); border-radius: 24px; background: center / cover no-repeat; margin-bottom: 18px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 30px 60px -40px rgba(0,0,0,.9) }
+body.custom-bd::before { background-image: var(--bd); opacity: .3 }
+
+/* a project's head: its cover, which an editor can change */
+.pcover { width: 72px; height: 72px; border-radius: 18px; border: 1px solid rgba(255,255,255,.12); padding: 0; flex: none; position: relative; overflow: hidden; box-shadow: 0 14px 30px -16px rgba(0,0,0,.8); display: grid; place-items: center; color: #fff }
+.pcover.sm { width: 52px; height: 52px; border-radius: 14px }
+.pcover.edit { cursor: pointer }
+.pcover.edit i { opacity: 0; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: rgba(0,0,0,.55); transition: opacity .2s }
+.pcover.edit:hover i { opacity: 1 }
+.pcover i svg { width: 17px; height: 17px }
+
+/* tiles: Finals, playlists, folders */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-bottom: 14px }
+.tile { display: flex; align-items: center; gap: 12px; padding: 12px 14px 12px 12px; border-radius: 20px; cursor: pointer; text-align: left; transition: transform .25s var(--ease), background .2s }
+.tile:hover { transform: translateY(-3px) }
+.tile .nm { min-width: 0 }
+.tile .nm b { display: block; font: 600 16px var(--disp); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.tile .nm span { font-size: 12.5px; color: var(--muted) }
+/* Finals: the gold room */
+.tile.gold { background: linear-gradient(135deg, rgba(255,209,102,.22), rgba(120,70,0,.18) 60%, rgba(255,209,102,.1)); border-color: rgba(255,209,102,.45); position: relative; overflow: hidden; animation: riseSm .45s var(--ease) both, glow 4s ease-in-out 1s infinite }
+.tile.gold::after { content: ''; position: absolute; inset: 0 auto 0 0; width: 35%; background: linear-gradient(90deg, transparent, rgba(255,240,200,.25), transparent); animation: shine 3.5s ease-in-out 1.5s infinite }
+.tile.gold .nm b { color: #ffe2a0 }
+.tile.gold .fi { background: linear-gradient(160deg, #fff0c2, #f5b942 45%, #b9790b); box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 10px 26px -10px rgba(245,158,11,.9) }
+#view.lux .lux-hero { height: 0; position: relative }
+#view.lux .lux-hero::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(70% 55% at 50% 0%, rgba(255,209,102,.16), transparent 70%), radial-gradient(60% 40% at 50% 100%, rgba(185,121,11,.12), transparent 70%) }
+#view.lux .lux-k { position: absolute; top: -14px; left: 0; display: inline-flex; gap: 6px; align-items: center; font: 700 10.5px var(--sans); letter-spacing: .22em; text-transform: uppercase; color: #ffd166 }
+#view.lux .lux-k svg { width: 12px; height: 12px }
+#view.lux .head h1 { background: linear-gradient(180deg, #fff6dc, #f5c45e 70%, #c98a1b); -webkit-background-clip: text; background-clip: text; color: transparent; margin-top: 6px }
+#view.lux .fi { background: linear-gradient(160deg, #fff0c2, #f5b942 45%, #b9790b) }
+#view.lux .fcard { border-color: rgba(255,209,102,.28); background: linear-gradient(180deg, rgba(255,209,102,.09), rgba(255,255,255,.02)) }
+#view.lux .fcard:hover { border-color: rgba(255,209,102,.55); transform: translateY(-3px) }
+#view.lux .fcard { transition: transform .25s var(--ease), border-color .2s }
+#view.lux .kchip { background: rgba(30,20,0,.6); color: #ffe2a0; border: 1px solid rgba(255,209,102,.35) }
+#view.lux .btn.main { background: linear-gradient(180deg, #ffd977, #e0a325); border-color: rgba(255,230,160,.7); color: #2a1a00; box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 10px 30px -10px rgba(245,158,11,.8) }
+
+/* + New */
+.newgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px }
+.newcard { border-radius: 20px; padding: 22px 12px; display: grid; justify-items: center; gap: 8px; cursor: pointer; text-align: center; transition: transform .25s var(--ease), background .2s }
+.newcard:hover { transform: translateY(-4px) }
+.newcard span svg { width: 34px; height: 34px; color: var(--red-hi) }
+.newcard b { font: 600 15px var(--disp) }
+.newcard small { color: var(--muted); font-size: 12px }
+@media (max-width: 520px) { .newgrid { grid-template-columns: 1fr } .newcard { grid-template-columns: auto 1fr; justify-items: start; text-align: left; padding: 14px } .newcard span { grid-row: span 2 } }
+
+/* kinds: tabs, groups, a colour each (audio red, video violet-blue, pictures gold) */
+.ktabs { margin-bottom: 12px; max-width: 100%; overflow-x: auto }
+.ktabs small { color: var(--dim); margin-left: 4px; font-weight: 600 }
+.kdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px }
+.kdot.k-audio { background: #ff3b2f; box-shadow: 0 0 8px #ff3b2f } .kdot.k-video { background: #8f9bff; box-shadow: 0 0 8px #8f9bff } .kdot.k-image { background: #ffd166; box-shadow: 0 0 8px #ffd166 }
+.kgroup { display: flex; align-items: center; gap: 4px; font: 600 12px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 14px 4px 6px; border-bottom: 1px solid var(--edge); margin-bottom: 4px }
+.kgroup span { margin-left: auto; color: var(--dim); letter-spacing: 0 }
+.kgroup:first-child { padding-top: 2px }
+.trk.k-audio { box-shadow: inset 3px 0 0 rgba(255,59,47,.85), inset 0 1px 0 rgba(255,255,255,.08) ; background: linear-gradient(90deg, rgba(255,59,47,.1), rgba(255,255,255,.03) 40%) }
+.trk.k-video { box-shadow: inset 3px 0 0 rgba(143,155,255,.9), inset 0 1px 0 rgba(255,255,255,.08); background: linear-gradient(90deg, rgba(143,155,255,.12), rgba(255,255,255,.03) 40%) }
+.trk.k-image { box-shadow: inset 3px 0 0 rgba(255,209,102,.9), inset 0 1px 0 rgba(255,255,255,.08); background: linear-gradient(90deg, rgba(255,209,102,.1), rgba(255,255,255,.03) 40%) }
+
+/* the player's extra controls */
+.ctl .pt { display: flex; gap: 6px; align-items: center }
+.ctl .zoom { display: inline-flex; gap: 4px; align-items: center; margin-right: 4px }
+.ctl .zoom .ico { font: 600 16px var(--sans) }
+.ctl .zoom b { font-size: 11px; color: var(--muted); min-width: 22px; text-align: center }
+.wave .hover-t { top: auto; bottom: 8px; z-index: 2 }
+.wave { cursor: ew-resize }
+.media .vinfo { position: absolute; left: 12px; top: 12px; font: 500 11px var(--mono); padding: 4px 9px; border-radius: 8px; background: rgba(0,0,0,.55); color: #eee; pointer-events: none; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px) }
+.notes header .lens-group { flex: none }
+.nfilter { padding: 0 12px 8px; display: grid; gap: 8px }
+.nsearch { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 999px; background: rgba(0,0,0,.28); border: 1px solid var(--edge) }
+.nsearch svg { width: 15px; height: 15px; color: var(--muted) }
+.nsearch input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font-size: 14px }
+.chips { display: flex; gap: 6px; flex-wrap: wrap }
+.chips button { height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--edge); background: var(--glass); color: var(--muted); font: 600 12.5px var(--sans); cursor: pointer; transition: background .2s, color .2s }
+.chips button.on { background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.08)); color: var(--text); border-color: rgba(255,255,255,.22) }
+.npad { padding: 0 12px 12px; display: grid; gap: 6px; flex: 1 }
+.npad textarea { min-height: 260px; border-radius: 18px; resize: vertical }
+.levels { display: grid; gap: 6px }
+.lvrow { display: grid; grid-template-columns: minmax(0, 1.2fr) 2fr auto auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; background: var(--glass); cursor: pointer; text-align: left; font-size: 13.5px }
+.lvrow.on { border-color: rgba(255,59,47,.5); background: var(--red-soft) }
+.lvrow b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.lvbar { height: 8px; border-radius: 999px; background: rgba(0,0,0,.35); overflow: hidden }
+.lvbar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #2fd36b, #ffc65c 70%, #ff3b2f) }
+@media (max-width: 520px) { .lvrow { grid-template-columns: 1fr auto; } .lvbar { grid-column: 1 / -1; grid-row: 2 } }
+
+/* playlists */
+.nowbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 22px; margin-bottom: 12px; animation: riseSm .35s var(--ease) }
+.nowbar .play { width: 46px; height: 46px }
+.nbmid { flex: 1; min-width: 0; display: grid; gap: 6px }
+.nbmid b { font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.nbbar, .mini-bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,.12); overflow: hidden; cursor: pointer; position: relative }
+.nbbar i, .mini-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--red), var(--red-hi)); border-radius: 999px }
+.plist .trk { grid-template-columns: 26px 56px minmax(0, 1fr) auto auto; cursor: pointer }
+.plist .trk.on { border-color: rgba(255,59,47,.55); background: var(--red-soft) }
+.plist .num { color: var(--dim); font-size: 12px; text-align: center }
+.plist .th { width: 56px; height: 40px; border-radius: 10px; background: #0b0c0e center / cover; display: grid; place-items: center; color: var(--muted) }
+.plist .th i svg { width: 18px; height: 18px }
+.racts { display: flex; gap: 4px }
+.muted-row { opacity: .5 }
+.picks { display: grid; gap: 6px; max-height: 50vh; overflow: auto }
+.pick { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: var(--glass); cursor: pointer }
+.pick input { accent-color: var(--red-hi); width: 18px; height: 18px }
+.pick .th { width: 48px; height: 34px; border-radius: 8px; background: #0b0c0e center / cover; display: grid; place-items: center; color: var(--muted) }
+.pick .th svg { width: 16px; height: 16px }
+.pick .nm { display: grid; min-width: 0 } .pick .nm b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis } .pick small { color: var(--muted); font-size: 12px }
+@media (max-width: 600px) { .plist .trk { grid-template-columns: 22px 48px minmax(0, 1fr) auto } .plist .t { display: none } }
+
+/* settings and storage */
+.sgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); gap: 14px; align-items: start }
+.scard { border-radius: 24px; padding: 22px; display: grid; gap: 12px }
+.scard h2 { font: 600 20px var(--disp); margin: 0 }
+.scard > p.muted { margin: 0; font-size: 13.5px }
+.srow { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 0; border-top: 1px solid var(--edge) }
+.srow b { display: block; font-size: 14.5px; font-weight: 600 }
+.srow small { color: var(--muted); font-size: 12.5px }
+.brandset { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap }
+.logo-pick, .banner-pick { border: 1.5px dashed rgba(255,255,255,.22); background: rgba(0,0,0,.25) center / cover no-repeat; border-radius: 18px; cursor: pointer; display: grid; place-items: center; color: var(--muted); transition: border-color .2s, transform .2s var(--ease) }
+.logo-pick:hover, .banner-pick:hover { border-color: var(--red-hi); transform: translateY(-2px) }
+.logo-pick { width: 96px; height: 96px }
+.banner-pick { width: 100%; height: 96px }
+.bd-pick { height: 120px }
+.logo-pick svg, .banner-pick svg { width: 22px; height: 22px }
+.storage .big { display: flex; align-items: baseline; gap: 12px }
+.storage .big b { font: 700 44px var(--disp); letter-spacing: -.02em }
+.storage .big span { color: var(--muted) }
+.kbar { display: flex; height: 12px; border-radius: 999px; overflow: hidden; background: rgba(0,0,0,.35) }
+.kbar i { display: block; height: 100%; transition: width .8s var(--ease) }
+.klegend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--muted) }
+.klegend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px }
+.srow2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 18px; cursor: pointer; text-align: left }
+.srow2 .nm { display: grid; min-width: 0 } .srow2 b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis } .srow2 small { color: var(--muted); font-size: 12px }
+.pbar { height: 8px; border-radius: 999px; background: rgba(0,0,0,.35); overflow: hidden }
+.pbar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--red), var(--red-hi)) }
+.srow2 .t { font: 500 13px var(--mono); color: var(--muted) }
+
+/* the bell: a drawer from the right */
+.modal.side { place-items: stretch end; padding: 0 }
+.sheet-card.drawer { width: min(460px, 100%); height: 100%; max-height: none; border-radius: 26px 0 0 26px; align-content: start; animation: drawer .4s var(--ease) }
+@keyframes drawer { from { transform: translateX(100%) } }
+.aclist { display: grid; gap: 6px; overflow: auto }
+.acrow { display: flex; gap: 12px; align-items: flex-start; padding: 10px; border-radius: 16px; border: 0; background: var(--glass); cursor: pointer; text-align: left; transition: background .2s }
+.acrow:hover { background: var(--glass-2) }
+.acrow .nm { display: grid; gap: 2px; min-width: 0 } .acrow b { font-size: 14px; font-weight: 600 } .acrow small { color: var(--muted); font-size: 12px }
+.acrow em { font-style: normal; font-size: 13px; color: var(--text); opacity: .85; margin-top: 4px; padding: 8px 10px; border-radius: 10px; background: rgba(0,0,0,.25) }
+@media (max-width: 600px) { .sheet-card.drawer { border-radius: 0 } }
+
+/* the cropper */
+.crop { position: relative; width: 100%; max-width: 100%; max-height: 60vh; border-radius: 18px; overflow: hidden; background: #050607; margin: 0 auto; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1) }
+.crop canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: none }
+.crop canvas:active { cursor: grabbing }
+.crop::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(rgba(255,255,255,.12), rgba(255,255,255,.12)) 33.3% 0 / 1px 100% no-repeat, linear-gradient(rgba(255,255,255,.12), rgba(255,255,255,.12)) 66.6% 0 / 1px 100% no-repeat, linear-gradient(rgba(255,255,255,.12), rgba(255,255,255,.12)) 0 33.3% / 100% 1px no-repeat, linear-gradient(rgba(255,255,255,.12), rgba(255,255,255,.12)) 0 66.6% / 100% 1px no-repeat }
+.crop-empty { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 8px; color: var(--muted); cursor: pointer; text-align: center }
+.crop-empty b { color: var(--text) }
+.cropctl { display: flex; align-items: center; gap: 10px }
+.cropctl input[type=range] { flex: 1; accent-color: var(--red-hi) }
+.cropctl .ico { font: 600 18px var(--sans) }
+
+/* projects: big tiles, small tiles, a list */
+.vmode button { height: 32px; width: 40px; padding: 0; display: grid; place-items: center }
+.vmode svg { width: 17px; height: 17px }
+.proj { position: relative }
+.proj .pdel { position: absolute; top: 10px; right: 10px; opacity: 0; transform: scale(.85); transition: opacity .2s, transform .2s var(--ease); background: rgba(0,0,0,.55) }
+.proj:hover .pdel, .proj:focus-within .pdel { opacity: 1; transform: none }
+@media (hover: none) { .proj .pdel { opacity: 1; transform: none } }
+.proj .meta .when { display: none }
+.grid.g-small { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px }
+.grid.g-small .proj { padding: 8px; border-radius: 16px; gap: 8px }
+.grid.g-small .cover { border-radius: 12px; padding: 10px }
+.grid.g-small .cover b { font-size: 15px }
+.grid.g-small .meta { font-size: 11.5px }
+.grid.g-small .new-proj { min-height: 160px }
+.grid.g-list { grid-template-columns: 1fr; gap: 8px }
+.grid.g-list .proj { grid-template-columns: 56px minmax(0, 1fr); align-items: center; padding: 8px 12px 8px 8px; border-radius: 18px }
+.grid.g-list .cover { width: 56px; height: 56px; aspect-ratio: auto; border-radius: 12px; padding: 0 }
+.grid.g-list .cover b { display: none }
+.grid.g-list .meta { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; font-size: 13px; padding-right: 44px }
+.grid.g-list .meta::before { content: attr(data-t) }
+.grid.g-list .meta .when { display: block; color: var(--dim) }
+.grid.g-list .proj .pdel { top: 50%; transform: translateY(-50%); right: 12px; opacity: 1 }
+.grid.g-list .new-proj { min-height: 64px; grid-template-columns: auto auto; justify-content: center }
+.grid.g-list .new-proj .ico { width: 36px; height: 36px }
+
+/* the bar at the foot */
+.mini { position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); width: min(880px, calc(100% - 24px)); z-index: 70; display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 8px; border-radius: 22px; background: linear-gradient(180deg, rgba(40,43,48,.88), rgba(24,26,30,.92)); transform: translate(-50%, 140%); transition: transform .45s var(--ease); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 24px 60px -20px rgba(0,0,0,.9) }
+.mini.on { transform: translate(-50%, 0) }
+.mini-art { width: 48px; height: 48px; border-radius: 13px; flex: none; overflow: hidden; background: #111; position: relative }
+.mini-art.video { width: 86px }
+.mini-v { position: absolute; inset: 0 }
+.mini-v video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none }
+.mini-txt { min-width: 0; width: 170px; display: grid }
+.mini-txt b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.mini-txt small { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.mini .play { width: 44px; height: 44px }
+.mini .play svg { width: 17px; height: 17px }
+.mini-seek { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--muted) }
+.mini-bar { flex: 1; height: 6px }
+body.has-mini main { padding-bottom: 110px }
+@media (max-width: 640px) {
+  .mini-txt { width: auto; flex: 1 }
+  .mini-seek { position: absolute; left: 14px; right: 14px; bottom: 3px; gap: 0 }
+  .mini-seek span { display: none }
+  .mini-bar { height: 3px }
+  #mini-back { display: none }
+}
+@media (prefers-reduced-motion: reduce) { .tile.gold, .tile.gold::after, .btn.main::after { animation: none !important } }
+
+/* ===================== Light theme (Alex, 7 Nov: "light and dark in Settings") ===================== */
+html[data-theme="light"] { --bg: #eceae6; --panel: #ffffff; --glass: rgba(255,255,255,.62); --glass-2: rgba(255,255,255,.85); --edge: rgba(20,22,25,.1); --text: #16181c; --muted: rgba(22,24,28,.62); --dim: rgba(22,24,28,.4); --red-soft: rgba(212,0,0,.08); color-scheme: light }
+html[data-theme="light"] body::before { opacity: .07; filter: grayscale(.3) }
+html[data-theme="light"] body::after { background: radial-gradient(60% 50% at 50% 0%, rgba(227,18,11,.08), transparent 70%) }
+html[data-theme="light"] .glass { background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.55)); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 18px 40px -30px rgba(40,30,20,.45) }
+html[data-theme="light"] .btn, html[data-theme="light"] .ico, html[data-theme="light"] .chips button { background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.65)); border-color: rgba(20,22,25,.12); box-shadow: inset 0 1px 0 #fff, 0 4px 12px -8px rgba(40,30,20,.5); color: var(--text) }
+html[data-theme="light"] .btn:hover, html[data-theme="light"] .ico:hover { background: #fff }
+html[data-theme="light"] .btn.main { color: #fff; background: linear-gradient(180deg, #ff5a4b, #d40000); border-color: transparent }
+html[data-theme="light"] .ico.on { color: #fff; background: linear-gradient(180deg, #ff5a4b, #d40000) }
+html[data-theme="light"] .top { background: rgba(236,234,230,.72) }
+html[data-theme="light"] .in, html[data-theme="light"] .nsearch, html[data-theme="light"] .linkbox { background: rgba(255,255,255,.75); box-shadow: inset 0 1px 3px rgba(0,0,0,.08) }
+html[data-theme="light"] .wave { background: rgba(255,255,255,.6) }
+html[data-theme="light"] .sheet-card, html[data-theme="light"] .menu { background: rgba(250,249,247,.97); border-color: rgba(20,22,25,.1); box-shadow: 0 40px 80px -30px rgba(40,30,20,.45) }
+html[data-theme="light"] .modal { background: rgba(60,50,40,.25) }
+html[data-theme="light"] .mini { background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(244,242,238,.95)); box-shadow: inset 0 1px 0 #fff, 0 24px 60px -24px rgba(40,30,20,.55) }
+html[data-theme="light"] .lens-group .lens, html[data-theme="light"] .chips button.on { background: #fff; border-color: rgba(20,22,25,.14) }
+html[data-theme="light"] .lvbar, html[data-theme="light"] .pbar, html[data-theme="light"] .kbar, html[data-theme="light"] .nbbar, html[data-theme="light"] .mini-bar { background: rgba(0,0,0,.08) }
+html[data-theme="light"] .acrow em, html[data-theme="light"] .code { background: rgba(0,0,0,.05) }
+html[data-theme="light"] .trk .th, html[data-theme="light"] .fthumb { background-color: #ddd }
+html[data-theme="light"] .tile.gold .nm b { color: #8a5a00 }
+html[data-theme="light"] #view.lux .head h1 { background: linear-gradient(180deg, #b77a10, #7a4d00); -webkit-background-clip: text; background-clip: text }
+html[data-theme="light"] .toast { background: #fff; color: var(--text) }
+
+.logo .beta { font: 700 9.5px var(--sans); letter-spacing: .14em; text-transform: uppercase; font-style: normal; color: var(--red-hi); border: 1px solid rgba(255,59,47,.5); border-radius: 999px; padding: 3px 7px; margin-left: 2px; align-self: center }
+
+.grid.g-list .cover { position: static }

@@ -123,4 +123,24 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
   and download the final files, without an account; files made final later show up in it too.
 - Look (Alex, 7 Nov): liquid-glass buttons and cards, a mixing desk in the dark behind everything at 15% (`studio/bg.webp`,
   Higgsfield Soul 2).
+- Round 3 (Alex, 7 Nov, from mixup.media's pages):
+  - **+ New**: New file, New playlist (audio or video, in order, played one after the other, with its own link
+    `kind: 'playlist'`), New folder (files move between folders from their page's ⋯).
+  - **Cover**: a project's picture, picked and cropped in the page (zoom, drag, pinch, turn) to a square JPEG.
+  - Projects as big tiles, small tiles or a list (kept per browser), each with a delete icon for its owner.
+  - Inside a project: tabs All / Audio / Video / Pictures; All groups them, each kind with its colour.
+  - A file's page: drag on the waveform to scrub, the time under the pointer, zoom, back to the start, speed, loop,
+    picture in picture, full screen, the video's size and bitrate on it, Levels (every version's LUFS and peak),
+    search and filters on the notes, a private Notepad (roarstudio_notepads).
+  - **The bar at the foot**: what plays keeps playing (a video keeps its picture) while you go elsewhere.
+  - **Settings** (`#settings`): your studio (name, square logo, wide banner, a background for the pages you send),
+    defaults for invitations and links, Hide version numbers on links, Theme (Dark / Light / System, per device),
+    Upload naming, the emails (notes, versions, approvals, shared with me, once a day), a button to the Roar account.
+  - **Storage** (`#storage`): what each project takes and what kind of files.
+  - **The bell**: My projects / Shared with me, filters for comments, approvals, downloads, plays, views, uploads.
+  - **Emails**: pg_cron `roarstudio-notify` every 5 minutes calls the Edge Function's notify-sweep, which groups what
+    happened per person (Resend, noreply@themadlions.com).
+  - **Finals** as a gold room; **Download all** makes one .zip (../zip.js and ../zip-sw.js, as RoarTransfer).
+  - Files load with `?v=<release>` in index.html, so a release shows at once (bump it with every change).
+  - Database: `supabase/studio-more.sql` in roarme.
 - Database: `supabase/studio.sql` in roarme (roarstudio_* tables with RLS, roarstudio_people, roarstudio_invite).
