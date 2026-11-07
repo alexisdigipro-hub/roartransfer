@@ -664,3 +664,187 @@ html[data-theme="light"] .crow small { color: #8a5a00 }
 html[data-theme="light"] .facts span, html[data-theme="light"] .chip, html[data-theme="light"] .vers button.v { background: #e6e2f0 }
 
 html[data-theme="light"] .logo .beta { color: #6d28d9; border-color: rgba(109,40,217,.45); background: rgba(124,58,237,.1) }
+
+
+/* ===================== fresher files (Alex, 7 Nov): Finals as a bar in the accent, wide rows, sleeves for sound ===================== */
+/* the notes stay level with the player (the panel rule above had taken their sticky place away) */
+.notes { position: sticky; top: 84px }
+@media (max-width: 980px) { .notes { position: relative; top: 0 } }
+
+/* the Finals bar: full width, dark purple, a soft light passing */
+.finbar { width: 100%; display: flex; align-items: center; gap: 16px; padding: 14px 18px 14px 14px; margin-bottom: 14px; border-radius: 22px; cursor: pointer; text-align: left; color: #fff; position: relative; overflow: hidden;
+  background: linear-gradient(120deg, rgba(91,33,182,.85), rgba(46,16,101,.9) 55%, rgba(76,29,149,.85)); border: 1px solid rgba(196,181,253,.35);
+  box-shadow: 12px 12px 28px rgba(0,0,0,.55), -6px -6px 20px rgba(167,139,250,.07), inset 0 1px 0 rgba(255,255,255,.18), 0 0 40px -12px rgba(124,58,237,.7);
+  transition: transform .25s var(--ease), box-shadow .25s; animation: riseSm .45s var(--ease) both }
+.finbar::after { content: ''; position: absolute; inset: 0 auto 0 0; width: 30%; background: linear-gradient(90deg, transparent, rgba(221,214,254,.18), transparent); animation: shine 4s ease-in-out 1.2s infinite; pointer-events: none }
+.finbar:hover { transform: translateY(-2px); box-shadow: 14px 14px 32px rgba(0,0,0,.6), -6px -6px 20px rgba(167,139,250,.09), inset 0 1px 0 rgba(255,255,255,.22), 0 0 50px -10px rgba(139,92,246,.85) }
+.fb-ic { width: 48px; height: 48px; border-radius: 15px; display: grid; place-items: center; flex: none; background: radial-gradient(120% 100% at 30% 20%, #ddd6fe, #8b5cf6 50%, #4c1d95); box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 8px 20px -8px rgba(0,0,0,.6) }
+.fb-ic svg { width: 22px; height: 22px; color: #fff }
+.finbar .nm { display: grid; min-width: 0 }
+.finbar .nm small { font: 600 10.5px var(--mono); letter-spacing: .2em; text-transform: uppercase; color: #c4b5fd }
+.finbar .nm b { font: 600 20px var(--disp); letter-spacing: -.01em }
+.fb-k { display: flex; gap: 14px; margin-left: 10px; font-size: 13px; color: #ddd6fe; flex-wrap: wrap }
+.fb-k span { white-space: nowrap }
+.fb-size { margin-left: auto; font: 500 13px var(--mono); color: #ddd6fe; white-space: nowrap }
+.fb-go svg { width: 18px; height: 18px; color: #ddd6fe }
+@media (max-width: 700px) { .fb-k { display: none } .finbar .nm b { font-size: 18px } }
+
+/* sound in a list: the project's cover as a sleeve, a play sign on it */
+.trk .th.au { position: relative; overflow: hidden }
+.trk .th.au::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(76,29,149,.25), rgba(0,0,0,.35)) }
+.trk .th, .plist .th { border-radius: 12px; box-shadow: 0 6px 16px -8px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,255,255,.12) }
+.trk .th i { position: relative; background: rgba(124,58,237,.75); box-shadow: 0 0 14px rgba(124,58,237,.8) }
+
+/* the Finals page: wide rows */
+.flist { display: grid; gap: 12px }
+.frow { display: grid; grid-template-columns: 220px minmax(0, 1fr) auto; gap: 20px; align-items: center; padding: 10px 16px 10px 10px; border-radius: 24px; animation: riseSm .45s var(--ease) both; transition: transform .25s var(--ease) }
+.frow:hover { transform: translateY(-2px) }
+.fmedia { position: relative; height: 124px; border-radius: 17px; border: 0; padding: 0; overflow: hidden; cursor: pointer; display: grid; place-items: center; color: #c4b5fd;
+  background: radial-gradient(120% 120% at 20% 0%, rgba(124,58,237,.35), rgba(13,11,20,.9)) center / cover no-repeat; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 10px 24px -14px rgba(0,0,0,.9) }
+.fmedia[style*="background-image"], .fmedia[style*="url("] { background-size: cover; background-position: center }
+.fmedia::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(8,6,14,.65)) }
+.frow.k-audio .fmedia::before { background: linear-gradient(135deg, rgba(76,29,149,.55), rgba(8,6,14,.7)) }
+.fmedia canvas { position: absolute; left: 10%; right: 10%; top: 26%; width: 80%; height: 48%; opacity: .95 }
+.fmedia .big svg { width: 38px; height: 38px }
+.fmedia .pp { position: absolute; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: rgba(124,58,237,.55); border: 1px solid rgba(221,214,254,.5); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 0 20px rgba(124,58,237,.7); opacity: 0; transform: scale(.85); transition: opacity .2s, transform .25s var(--ease) }
+.frow:hover .fmedia .pp, .fmedia:focus-visible .pp { opacity: 1; transform: none }
+@media (hover: none) { .fmedia .pp { opacity: 1; transform: none } }
+.fmedia .pp svg { width: 18px; height: 18px }
+.finfo { display: grid; gap: 6px; min-width: 0 }
+.fkind { font: 600 10.5px var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center }
+.finfo b { font: 600 20px var(--disp); letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.ffacts { display: flex; gap: 6px; flex-wrap: wrap }
+.ffacts span { font: 500 12px var(--mono); color: var(--muted); padding: 4px 10px; border-radius: 999px; background: rgba(10,8,16,.5); box-shadow: inset 2px 2px 5px rgba(0,0,0,.45) }
+.fact2 { display: flex; gap: 8px; align-items: center }
+@media (max-width: 760px) {
+  .frow { grid-template-columns: 1fr; gap: 12px; padding: 10px }
+  .fmedia { height: auto; aspect-ratio: 16 / 9 }
+  .finfo { padding: 0 6px }
+  .fact2 { padding: 0 6px 6px }
+  .fact2 .btn { flex: 1 }
+}
+
+/* the Finals room in the accent instead of gold */
+#view.lux .lux-hero::before { background: radial-gradient(70% 55% at 50% 0%, rgba(124,58,237,.22), transparent 70%), radial-gradient(60% 40% at 50% 100%, rgba(76,29,149,.18), transparent 70%) }
+#view.lux .lux-k { color: #c4b5fd }
+#view.lux .head h1 { background: linear-gradient(180deg, #f5f3ff, #c4b5fd 60%, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent }
+#view.lux .fi { background: radial-gradient(120% 100% at 30% 20%, #ddd6fe, #8b5cf6 50%, #4c1d95); color: #fff }
+#view.lux .btn.main { background: linear-gradient(135deg, #8b5cf6, #6d28d9 55%, #4c1d95); border-color: rgba(196,181,253,.4); color: #fff; box-shadow: 0 10px 30px -8px rgba(124,58,237,.85), inset 0 1px 0 rgba(255,255,255,.35) }
+#view.lux .frow { border-color: rgba(167,139,250,.22) }
+.ctpl { color: #c4b5fd; border-color: rgba(167,139,250,.45); background: rgba(124,58,237,.14) }
+.crow { border-bottom-color: rgba(167,139,250,.14) }
+.crow small { color: #c4b5fd }
+.crow b { color: #f5f3ff }
+.lyrics { color: #ede9fe }
+/* final everywhere in the accent */
+.chip.fin, b.fin, .vers button.v .tick { color: #c4b5fd }
+.btn.fin-btn svg { color: #c4b5fd }
+.btn.fin-on { background: linear-gradient(135deg, rgba(124,58,237,.6), rgba(76,29,149,.6)); border-color: rgba(196,181,253,.5); color: #fff }
+.appr .state b { color: #c4b5fd }
+html[data-theme="light"] .finbar { color: #fff }
+html[data-theme="light"] .crow b, html[data-theme="light"] .lyrics { color: #2a2340 }
+html[data-theme="light"] .crow small, html[data-theme="light"] .ctpl { color: #6d28d9 }
+html[data-theme="light"] .ffacts span { background: #e6e2f0; box-shadow: inset 2px 2px 5px rgba(110,95,150,.25) }
+html[data-theme="light"] #view.lux .head h1 { background: linear-gradient(180deg, #4c1d95, #6d28d9); -webkit-background-clip: text; background-clip: text }
+
+/* the accent as frosted glass (Alex, 7 Nov: "the purple buttons more transparent, blurred, softer") */
+.btn.main, #view.lux .btn.main { background: linear-gradient(135deg, rgba(139,92,246,.42), rgba(109,40,217,.32)); border: 1px solid rgba(196,181,253,.38); color: #f5f3ff;
+  -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); box-shadow: 0 8px 22px -12px rgba(124,58,237,.7), inset 0 1px 0 rgba(255,255,255,.22) }
+.btn.main:hover, #view.lux .btn.main:hover { background: linear-gradient(135deg, rgba(167,139,250,.5), rgba(124,58,237,.4)); box-shadow: 0 10px 26px -12px rgba(139,92,246,.8), inset 0 1px 0 rgba(255,255,255,.3) }
+.play, .trk .pl { background: radial-gradient(120% 100% at 30% 20%, rgba(221,214,254,.55), rgba(124,58,237,.45) 55%, rgba(76,29,149,.45)); border: 1px solid rgba(221,214,254,.45);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 0 0 5px rgba(124,58,237,.08), 0 10px 24px -10px rgba(124,58,237,.7) }
+.play:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 0 0 8px rgba(124,58,237,.12), 0 12px 28px -10px rgba(139,92,246,.8) }
+.ico.on, .chips button.on, .vers button.v.on, .tplpick button.on, .btn.fin-on { background: linear-gradient(135deg, rgba(139,92,246,.38), rgba(76,29,149,.3)); border-color: rgba(196,181,253,.4); color: #f5f3ff; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: inset 0 1px 0 rgba(255,255,255,.18) }
+.sw[aria-pressed="true"] { background: linear-gradient(135deg, rgba(124,58,237,.38), rgba(76,29,149,.3)) }
+.trk .th i { background: rgba(124,58,237,.45); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 0 10px rgba(124,58,237,.5) }
+.fb-ic { background: radial-gradient(120% 100% at 30% 20%, rgba(221,214,254,.6), rgba(139,92,246,.45) 55%, rgba(76,29,149,.45)); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px) }
+.finbar { background: linear-gradient(120deg, rgba(91,33,182,.45), rgba(46,16,101,.5) 55%, rgba(76,29,149,.42)); -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5); box-shadow: 12px 12px 28px rgba(0,0,0,.5), -6px -6px 20px rgba(167,139,250,.06), inset 0 1px 0 rgba(255,255,255,.14), 0 0 30px -14px rgba(124,58,237,.6) }
+html[data-theme="light"] .btn.main, html[data-theme="light"] .ico.on, html[data-theme="light"] .chips button.on, html[data-theme="light"] .vers button.v.on { background: linear-gradient(135deg, rgba(139,92,246,.75), rgba(109,40,217,.7)); color: #fff }
+
+
+/* ===================== cleaner controls (Alex, 7 Nov: "the + − 1× buttons look odd, make them fresher; Final, Download too") ===================== */
+/* the transport: back to start as a quiet icon, the big play, then one slim glass bar for zoom, speed and loop */
+.ctl { gap: 14px }
+.ctl #rew { background: transparent; border: 0; box-shadow: none; color: var(--muted); width: 34px; height: 34px }
+.ctl #rew:hover { color: var(--text); background: rgba(255,255,255,.06) }
+.ctl .pt { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255,255,255,.06) }
+.ctl .pt .zoom { display: inline-flex; align-items: center; gap: 0; margin: 0 }
+.ctl .pt .ico.sm { width: 34px; height: 30px; border-radius: 999px; background: transparent; border: 0; box-shadow: none; color: var(--muted); transform: none }
+.ctl .pt .ico.sm:hover { background: rgba(255,255,255,.08); color: var(--text) }
+.ctl .pt .ico.sm:active { box-shadow: none !important; background: rgba(255,255,255,.12) }
+.ctl .pt .ico.sm svg { width: 16px; height: 16px }
+.ctl .pt .ico.on { background: rgba(139,92,246,.28); color: #ede9fe; box-shadow: none }
+.ctl .pt #spd b { font: 600 11.5px var(--mono); letter-spacing: -.02em; color: inherit }
+.ctl .pt .zoom b { font: 600 10.5px var(--mono); color: #c4b5fd; min-width: 0; padding: 0 2px }
+.ctl .pt .zoom b:empty { display: none }
+.pt-sep { width: 1px; height: 16px; background: rgba(255,255,255,.1); margin: 0 3px }
+.ctl .lm { gap: 8px; font-size: 12.5px }
+
+/* the actions under the player: slim frosted pills, one row, the main one in purple glass */
+.appr .btn, .appr .ico.sm { height: 34px; border-radius: 999px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); font-weight: 600; font-size: 13px; padding: 0 14px; transform: none }
+.appr .ico.sm { width: 34px; padding: 0 }
+.appr .btn:hover, .appr .ico.sm:hover { background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.16) }
+.appr .btn svg { width: 15px; height: 15px }
+.appr .btn.main { background: linear-gradient(135deg, rgba(139,92,246,.38), rgba(109,40,217,.28)); border-color: rgba(196,181,253,.38); color: #f5f3ff }
+.appr .btn.main:hover { background: linear-gradient(135deg, rgba(167,139,250,.46), rgba(124,58,237,.36)) }
+.appr .btn.fin-btn { border-color: rgba(196,181,253,.3); color: #ddd6fe }
+.appr .btn.fin-btn svg, .appr .btn.fin-on svg { color: #c4b5fd }
+.appr .btn.fin-on { background: rgba(139,92,246,.2); border-color: rgba(196,181,253,.45); color: #ede9fe }
+.appr .state { font-size: 13px }
+.appr .state b, .appr .state b.fin { color: #c4b5fd }
+/* versions as soft pills */
+.vers button.v { height: 30px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.04); box-shadow: none; color: var(--muted) }
+.vers button.v.on { background: rgba(139,92,246,.3); border-color: rgba(196,181,253,.45); color: #f5f3ff; box-shadow: 0 0 18px -8px rgba(139,92,246,.9) }
+html[data-theme="light"] .ctl .pt, html[data-theme="light"] .appr .btn, html[data-theme="light"] .appr .ico.sm, html[data-theme="light"] .vers button.v { background: rgba(255,255,255,.6); border-color: rgba(60,40,120,.12) }
+html[data-theme="light"] .appr .btn.main, html[data-theme="light"] .vers button.v.on { background: linear-gradient(135deg, rgba(139,92,246,.8), rgba(109,40,217,.75)); color: #fff }
+html[data-theme="light"] .appr .btn.fin-btn, html[data-theme="light"] .appr .btn.fin-on { color: #5b21b6 }
+
+/* ===================== flat glass (Alex, 7 Nov: "less shadow behind, not floating, flatter; I like the glass") ===================== */
+.glass { box-shadow: inset 0 1px 0 rgba(255,255,255,.07) }
+.btn, .ico, .chips button { box-shadow: inset 0 1px 0 rgba(255,255,255,.07) }
+.btn:hover, .ico:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.1); transform: none }
+.btn:active, .ico:active, .chips button:active { box-shadow: none !important; transform: scale(.98) }
+.btn.main, .btn.main:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.2) }
+.play, .play:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 0 0 4px rgba(124,58,237,.1) }
+.trk.k-audio, .trk.k-video, .trk.k-image { box-shadow: inset 3px 0 0 var(--kc, rgba(167,139,250,.9)) }
+.trk.k-audio { --kc: rgba(167,139,250,.9) } .trk.k-video { --kc: rgba(34,211,238,.9) } .trk.k-image { --kc: rgba(255,209,102,.9) }
+.trk:hover, .tile:hover, .proj:hover, .frow:hover, .finbar:hover, .newcard:hover { transform: none }
+.trk:hover, .frow:hover, .tile:hover, .proj:hover { background-color: rgba(255,255,255,.04) }
+.finbar, .finbar:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.12) }
+.mini { box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 10px 30px -18px rgba(0,0,0,.8) }
+.sheet-card, .menu { box-shadow: 0 20px 50px -30px rgba(0,0,0,.8) }
+.in, .nsearch, .linkbox, .wave, .sw, .lens-group, .lyrics, .ffacts span, .vers button.v { box-shadow: none }
+.lens-group .lens { box-shadow: inset 0 1px 0 rgba(255,255,255,.08) }
+.pcover, .fmedia, .trk .th, .plist .th, .brand img { box-shadow: inset 0 0 0 1px rgba(255,255,255,.1) }
+.btn.main::after { display: none }
+.tile.gold { animation: riseSm .45s var(--ease) both }
+html[data-theme="light"] .glass, html[data-theme="light"] .btn, html[data-theme="light"] .ico, html[data-theme="light"] .chips button { box-shadow: inset 0 1px 0 rgba(255,255,255,.8) }
+html[data-theme="light"] .in, html[data-theme="light"] .nsearch, html[data-theme="light"] .linkbox, html[data-theme="light"] .wave, html[data-theme="light"] .sw, html[data-theme="light"] .lens-group, html[data-theme="light"] .lyrics { box-shadow: inset 0 1px 2px rgba(60,40,120,.12) }
+
+
+/* ===================== project cards (Alex, 7 Nov): a hairline bezel, nothing written on the picture, the name below ===================== */
+.proj { padding: 4px; gap: 10px; border-radius: 18px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); box-shadow: none }
+.proj .cover { border-radius: 14px; padding: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06) }
+.proj .cover b { display: none }
+.pinfo { display: grid; gap: 2px; padding: 0 8px 8px; min-width: 0 }
+.pinfo b { font: 600 15.5px var(--disp); letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.pinfo span { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.pinfo .when { display: none }
+.proj:hover { background: rgba(255,255,255,.06); border-color: rgba(196,181,253,.28) }
+.proj:hover .cover { transform: scale(1.015) }
+.proj .cover { transition: transform .4s var(--ease) }
+.new-proj { padding: 4px; border-radius: 18px }
+.grid.g-small .proj { padding: 3px; gap: 8px; border-radius: 14px }
+.grid.g-small .cover { border-radius: 11px }
+.grid.g-small .pinfo { padding: 0 6px 6px }
+.grid.g-small .pinfo b { font-size: 13.5px }
+.grid.g-small .pinfo span { font-size: 11.5px }
+.grid.g-list .proj { grid-template-columns: 52px minmax(0, 1fr); padding: 4px 56px 4px 4px; gap: 14px }
+.grid.g-list .cover { width: 52px; height: 52px; border-radius: 12px }
+.grid.g-list .pinfo { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; padding: 0; align-items: center }
+.grid.g-list .pinfo b { grid-column: 1 }
+.grid.g-list .pinfo span { grid-column: 1 }
+.grid.g-list .pinfo .when { display: block; grid-column: 2; grid-row: 1 / span 2; color: var(--dim) }
+html[data-theme="light"] .proj { background: rgba(255,255,255,.5); border-color: rgba(60,40,120,.1) }
