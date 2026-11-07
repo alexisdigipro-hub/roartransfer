@@ -46,6 +46,7 @@
     dots: '<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>',
     reply: '<path d="M10 8L5 12l5 4M5 12h9a5 5 0 0 1 5 5v1"/>', out: '<path d="M14 4h6v6M20 4l-9 9M18 14v5H5V6h5"/>', copy: '<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 15V5h10"/>',
     music: '<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>',
+    cam: '<path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.8l1.4-2h4.6l1.4 2h1.8A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.4"/>',
     image: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/>',
     film: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M10 9.5v5l4-2.5z" fill="currentColor"/>',
     folder: '<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
@@ -717,16 +718,16 @@
       '<div class="media" id="media"></div>' +
       '<div class="wave" id="wave"><canvas id="wv"></canvas><div class="pins" id="pins"></div><span class="hover-t" id="hover-t" hidden></span></div>' +
       '<div class="ctl" id="ctl"><button class="ico sm" id="rew" aria-label="Back to the start" title="Back to the start">' + ic('prev') + '</button><button class="play" id="pb" aria-label="Play">' + ic('play') + '</button><span class="time" id="tm-t">0:00 <span>/ 0:00</span></span>' +
-      '<span class="pt"><span class="zoom"><button class="ico sm" id="zo" aria-label="Zoom out" title="Zoom out">' + ic('zout') + '</button><b class="mono" id="zl"></b><button class="ico sm" id="zi" aria-label="Zoom in" title="Zoom in">' + ic('zin') + '</button></span><i class="pt-sep"></i><button class="ico sm" id="spd" aria-label="Speed" title="Speed"><b class="mono" style="font-size:11px">1×</b></button><button class="ico sm" id="lp" aria-label="Loop" title="Loop">' + ic('loop') + '</button><button class="ico sm" id="pip" aria-label="Picture in picture" title="Picture in picture" hidden>' + ic('pip') + '</button><button class="ico sm" id="fs" aria-label="Full screen" title="Full screen" hidden>' + ic('full') + '</button></span>' +
+      '<span class="pt"><label class="zoom zs" title="Zoom the waveform (double-click for all of it)">' + ic('zin') + '<input type="range" id="zr" min="0" max="100" step="1" value="0" aria-label="Zoom"><b class="mono" id="zl">1×</b></label><i class="pt-sep"></i><button class="ico sm" id="spd" aria-label="Speed" title="Speed"><b class="mono" style="font-size:11px">1×</b></button><button class="ico sm" id="lp" aria-label="Loop" title="Loop">' + ic('loop') + '</button><button class="ico sm" id="pip" aria-label="Picture in picture" title="Picture in picture" hidden>' + ic('pip') + '</button><button class="ico sm" id="fs" aria-label="Full screen" title="Full screen" hidden>' + ic('full') + '</button></span><button class="btn sm grab" id="grab" hidden title="Save this frame as a picture, with its time on it">' + ic('cam') + '<span>Grab still</span></button>' +
       '<span class="lm">Level match <button class="sw" id="lm" aria-pressed="' + matched + '" aria-label="Level match"></button><span class="lufs" id="lufs"></span></span></div>' +
       '<div class="facts" id="facts"></div>' +
       '<div class="appr" id="appr"></div>' +
       (edit && !share ? '<input type="file" id="nvf" accept="audio/*,video/*,image/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.mov,.mp4,.heic,.tif,.tiff,.psd" hidden><div class="ups" id="ups"></div>' : '') +
       '</section><aside class="notes glass"><header>' + (share ? '<b>Notes</b>' : '<div class="lens-group" id="ntab"><span class="lens"></span><button class="on" data-tab="n">Notes</button><button data-tab="p">Notepad</button></div>') + '<span class="muted" id="ncount"></span></header>' +
       '<div class="nfilter" id="nfilter"><label class="nsearch">' + ic('search') + '<input id="nq" placeholder="Search notes" aria-label="Search notes"></label><div class="chips" id="nchips"><button class="on" data-f="all">All</button><button data-f="open">Open</button><button data-f="done">Done</button>' + (share ? '' : '<button data-f="mine">Mine</button>') + '</div></div>' +
-      '<div class="nlist" id="nlist"></div>' + (share ? '' : '<div class="npad" id="npad" hidden><textarea class="in" id="npad-t" placeholder="Only you see this notepad. Lists, ideas, what to fix next…"></textarea><span class="muted" id="npad-s" style="font-size:12px"></span></div>') +
+      '<div class="nlist" id="nlist"></div>' + (share ? '' : '<div class="npad" id="npad" hidden><textarea class="in" id="npad-t"></textarea><span class="muted" id="npad-s" style="font-size:12px"></span></div>') +
       (canDo('commenter') ? '<form class="compose" id="cmp">' + (share && !store.get('rs-guest') ? '<input class="in" id="g-name" maxlength="60" placeholder="Your name" required>' : '') +
-        '<textarea class="in" id="cmp-t" rows="2" maxlength="4000" placeholder="Write a note… (Enter to post, Shift+Enter for a new line)"></textarea><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
+        '<textarea class="in" id="cmp-t" rows="2" maxlength="4000"></textarea><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
       '</aside></div>'
 
     $('#back').onclick = function () { go(share && share.data.tracks.length === 1 && share.data.project ? '#t/' + id : '#p/' + ctx.project.id) }
@@ -744,6 +745,9 @@
       $('.lm').hidden = k !== 'audio'
       if ($('#cmp-at')) $('.attime').hidden = k === 'image'
       if ($('#fs')) { $('#fs').hidden = k !== 'video'; $('#pip').hidden = k !== 'video' || !document.pictureInPictureEnabled }
+      if ($('#grab')) $('#grab').hidden = k !== 'video'
+      // a video gets a lower waveform, a strip to scrub (Alex, 7 Nov)
+      var stg = $('.stage'); if (stg) stg.classList.toggle('is-video', k === 'video')
       if (k === 'video') {
         if (vidEl.parentNode !== box) { box.innerHTML = ''; box.appendChild(vidEl); var vi = document.createElement('span'); vi.className = 'vinfo'; box.appendChild(vi) }
         var info = $('.vinfo', box); if (info) info.textContent = [x.width ? x.width + '×' + x.height : '', size(x.size), x.duration ? (x.size * 8 / x.duration / 1e6).toFixed(1) + ' Mbps' : ''].filter(Boolean).join(' · ')
@@ -860,7 +864,8 @@
       var x = curV(), dur = x.duration || audio.duration || 0
       zw.z = Math.max(1, Math.min(32, z)); var sp = span(dur)
       zw.start = Math.max(0, Math.min(dur - sp, (around == null ? nowT() : around) - sp / 2))
-      $('#zl').textContent = zw.z > 1 ? Math.round(zw.z) + '×' : ''
+      $('#zl').textContent = (zw.z < 10 ? Math.round(zw.z * 10) / 10 : Math.round(zw.z)) + '×'
+      var zr = $('#zr'); if (zr) { var v = Math.round(Math.log(zw.z) / Math.log(32) * 100); if (document.activeElement !== zr) zr.value = v; zr.style.setProperty('--zv', v + '%') }
       drawWave()
     }
 
@@ -880,21 +885,70 @@
       $('#ncount').textContent = all.length ? open + ' open · ' + all.length + ' in all' : ''
       setTimeout(drawWave)
       $('#nfilter').hidden = all.length < 2
-      $('#pins').innerHTML = dur ? top.filter(function (c) { return c.at_sec != null }).map(function (c) { var n = nameOf(c); return '<button class="pin' + (c.done ? ' done' : '') + '" data-c="' + c.id + '" data-at="' + c.at_sec + '" style="left:' + (c.at_sec / dur * 100) + '%;background:hsl(' + hue(n.id) + ',60%,45%)" aria-label="Note at ' + mmss(c.at_sec) + '"><span>' + esc(initials(n.name)[0]) + '</span></button>' }).join('') : ''
-      $$('#pins .pin').forEach(function (p) { p.onclick = function (e) { e.stopPropagation(); var c = tview.notes.filter(function (z) { return z.id === p.dataset.c })[0]; jump(c) } })
+      $('#pins').innerHTML = dur ? top.filter(function (c) { return c.at_sec != null }).map(function (c) { var n = nameOf(c); return '<button class="pin' + (c.done ? ' done' : '') + '" data-c="' + c.id + '" data-at="' + c.at_sec + '" style="left:' + (c.at_sec / dur * 100) + '%" aria-label="Note at ' + mmss(c.at_sec) + ' by ' + esc(n.name) + '"><span>' + esc(initials(n.name)[0]) + '</span><em class="pin-tip"><b>' + esc(n.name) + ' · ' + mmss(c.at_sec) + '</b>' + esc((c.body || '').slice(0, 140)) + '</em></button>' }).join('') : ''
+      // a pin plays from its second and brings its note into view (Alex, 7 Nov: "when you press them, something should happen")
+      $$('#pins .pin').forEach(function (p) { p.addEventListener('pointerdown', function (e) { e.stopPropagation() }); p.onclick = function (e) { e.stopPropagation(); var c = tview.notes.filter(function (z) { return z.id === p.dataset.c })[0]; jump(c, true) } })
       var one = function (c, reply) {
         var n = nameOf(c), mine = !share && session && c.author === session.user.id
         var reps = tview.notes.filter(function (z) { return z.parent_id === c.id })
-        return '<div class="note' + (c.done ? ' done' : '') + '" data-n="' + c.id + '">' + avatar(n.short || n.name, n.avatar, n.id) + '<div style="min-width:0"><div class="who"><b>' + esc(n.name) + '</b>' + (c.at_sec != null && !reply ? '<button class="at" data-at="' + c.id + '">' + mmss(c.at_sec) + '</button>' : '') + '<span>' + ago(c.created_at) + '</span></div><div class="body">' + esc(c.body) + '</div>' +
+        return '<div class="note' + (c.done ? ' done' : '') + '" data-n="' + c.id + '">' + avatar(n.short || n.name, n.avatar, n.id) + '<div style="min-width:0"><div class="who"><b>' + esc(n.name) + '</b>' + (c.at_sec != null && !reply ? '<button class="at" data-at="' + c.id + '">' + mmss(c.at_sec) + '</button>' : '') + '<span>' + ago(c.created_at) + '</span></div>' + (c.at_sec != null && !reply && kindOf(curV()) === 'video' ? '<button class="nframe" data-fr="' + c.id + '" data-t="' + c.at_sec + '" aria-label="Play from ' + mmss(c.at_sec) + '"><canvas width="320" height="180"></canvas><i>' + mmss(c.at_sec) + '</i></button>' : '') + '<div class="body">' + esc(c.body) + '</div>' +
           (reply ? '' : '<div class="acts">' + (canDo('commenter') ? '<button class="ico sm" data-rep="' + c.id + '" aria-label="Reply">' + ic('reply') + '</button>' : '') + (!share && (canDo('editor') || mine) ? '<button class="ico sm" data-done="' + c.id + '" aria-label="' + (c.done ? 'Open again' : 'Mark as done') + '" title="' + (c.done ? 'Open again' : 'Done') + '">' + ic('check') + '</button>' : '') + (mine || (!share && ctx.role === 'owner') ? '<button class="ico sm danger" data-del="' + c.id + '" aria-label="Delete note">' + ic('trash') + '</button>' : '') + '</div>') +
           (reps.length ? '<div class="replies">' + reps.map(function (r) { return one(r, true) }).join('') + '</div>' : '') + '</div></div>'
       }
       $('#nlist').innerHTML = top.length ? top.map(function (c) { return one(c) }).join('') : '<p class="muted" style="padding:10px 8px;margin:0;font-size:14px">' + (all.length ? 'No notes match.' : canDo('commenter') ? 'No notes on this version yet. Play it, pause where something needs work and write below.' : 'No notes on this version yet.') + '</p>'
-      $$('[data-at]').forEach(function (b) { b.onclick = function () { jump(tview.notes.filter(function (z) { return z.id === b.dataset.at })[0]) } })
+      $$('#nlist [data-fr]').forEach(function (b) { b.onclick = function () { jump(tview.notes.filter(function (z) { return z.id === b.dataset.fr })[0], true) } })
+      fillFrames()
+      $$('#nlist [data-at]').forEach(function (b) { b.onclick = function () { jump(tview.notes.filter(function (z) { return z.id === b.dataset.at })[0]) } })
       $$('[data-rep]').forEach(function (b) { b.onclick = function () { replyTo = b.dataset.rep; var t = $('#cmp-t'); if (t) { t.placeholder = 'Reply to ' + nameOf(tview.notes.filter(function (z) { return z.id === replyTo })[0]).name + '…'; t.focus() } } })
       $$('[data-done]').forEach(function (b) { b.onclick = function () { var c = tview.notes.filter(function (z) { return z.id === b.dataset.done })[0]; c.done = !c.done; sb.from('roarstudio_comments').update({ done: c.done }).eq('id', c.id).then(function () {}); paintNotes() } })
       $$('[data-del]').forEach(function (b) { b.onclick = function () { var cid = b.dataset.del; sb.from('roarstudio_comments').delete().eq('id', cid).then(function () {}); tview.notes = tview.notes.filter(function (z) { return z.id !== cid && z.parent_id !== cid }); paintNotes() } })
       activeNote()
+    }
+    var frameCache = {}, frameQ = [], frameBusy = false, fv = null
+    function drawFrame(cv, src) { var g = cv.getContext('2d'), w = cv.width, h = cv.height, sw = src.videoWidth || src.width, sh = src.videoHeight || src.height; g.fillStyle = '#0b0910'; g.fillRect(0, 0, w, h); if (!sw) return; var sc = Math.max(w / sw, h / sh), dw = sw * sc, dh = sh * sc; g.drawImage(src, (w - dw) / 2, (h - dh) / 2, dw, dh) }
+    function fillFrames() {
+      var x = curV(); if (kindOf(x) !== 'video') return
+      $$('#nlist .nframe').forEach(function (b) {
+        var key = x.id + '@' + b.dataset.t, cv = $('canvas', b)
+        if (frameCache[key]) { drawFrame(cv, frameCache[key]); b.classList.add('on') } else if (!frameQ.some(function (q) { return q.key === key })) frameQ.push({ key: key, t: +b.dataset.t, v: x })
+      })
+      nextFrame()
+    }
+    function nextFrame() {
+      if (frameBusy || !frameQ.length) return
+      var q = frameQ.shift(); frameBusy = true
+      var done = function () { frameBusy = false; setTimeout(nextFrame) }
+      if (!fv) { fv = document.createElement('video'); fv.crossOrigin = 'anonymous'; fv.muted = true; fv.preload = 'auto'; fv.playsInline = true }
+      urlFor(q.v).then(function (u) {
+        var seek = function () {
+          var to = setTimeout(done, 8000)
+          fv.addEventListener('seeked', function () {
+            clearTimeout(to)
+            var c = document.createElement('canvas'); c.width = 320; c.height = 180; drawFrame(c, fv); frameCache[q.key] = c
+            $$('#nlist .nframe').forEach(function (b) { if (q.v.id + '@' + b.dataset.t === q.key) { drawFrame($('canvas', b), c); b.classList.add('on') } })
+            done()
+          }, { once: true })
+          try { fv.currentTime = Math.max(0.01, q.t) } catch (e) { clearTimeout(to); done() }
+        }
+        if (fv.dataset.v !== q.v.id) { fv.dataset.v = q.v.id; fv.src = u; fv.addEventListener('loadedmetadata', seek, { once: true }); fv.load() } else if (fv.readyState >= 1) seek(); else fv.addEventListener('loadedmetadata', seek, { once: true })
+      }).catch(done)
+    }
+    // Grab still: the frame on screen at full size, its time written on it, saved as a PNG (Alex, 7 Nov)
+    function tc(t) { var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), sec = Math.floor(t % 60), ms = Math.round((t % 1) * 1000); if (ms === 1000) { ms = 0; sec++ } var p2 = function (n) { return (n < 10 ? '0' : '') + n }; return p2(h) + ':' + p2(m) + ':' + p2(sec) + '.' + ('00' + ms).slice(-3) }
+    function grabStill() {
+      var x = curV(); if (kindOf(x) !== 'video' || !vidEl.videoWidth) { toast('Play the video once, then grab'); return }
+      var w = vidEl.videoWidth, h = vidEl.videoHeight, c = document.createElement('canvas'); c.width = w; c.height = h
+      var g = c.getContext('2d'); g.drawImage(vidEl, 0, 0, w, h)
+      var t = tc(vidEl.currentTime), fs = Math.max(16, Math.round(h / 26)), pad = Math.round(fs * .7)
+      g.font = '600 ' + fs + 'px "JetBrains Mono", ui-monospace, Menlo, monospace'
+      var tw = g.measureText(t).width, bw = tw + pad * 2, bh = fs + pad * 1.2, bx = pad, by = h - bh - pad
+      g.fillStyle = 'rgba(10,8,16,.72)'; if (g.roundRect) { g.beginPath(); g.roundRect(bx, by, bw, bh, bh / 2.6); g.fill() } else g.fillRect(bx, by, bw, bh)
+      g.fillStyle = '#fcd34d'; g.textBaseline = 'middle'; g.fillText(t, bx + pad, by + bh / 2 + 1)
+      var tk = ctx && ctx.tracks ? ctx.tracks.filter(function (z) { return z.id === x.track_id })[0] : null
+      var name = ((tk && tk.title) || (x.file_name || 'still').replace(/\.[^.]+$/, '')) + ' ' + t.replace(/:/g, '-') + '.png'
+      try {
+        c.toBlob(function (bl) { if (!bl) { toast('This video does not allow a still here'); return } var u = URL.createObjectURL(bl), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u) }, 4000); toast('Still saved · ' + t) }, 'image/png')
+      } catch (e) { toast('This video does not allow a still here') }
     }
     var lastActive = null
     function activeNote() {
@@ -905,7 +959,15 @@
       $$('#nlist > .note').forEach(function (n) { n.classList.toggle('on', n.dataset.n === best) })
       if (best) { var el = $('#nlist > [data-n="' + best + '"]'); if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }) }
     }
-    function jump(c) { if (!c) return; var x = curV(); var go2 = function () { audio.currentTime = c.at_sec || 0; drawWave() }; if (!cur.url || cur.version !== x) load(x, false, false).then(go2); else go2(); lastActive = null; $$('#nlist > .note').forEach(function (n) { n.classList.toggle('on', n.dataset.n === c.id) }) }
+    function jump(c, andPlay) {
+      if (!c) return; var x = curV()
+      // wait for the file's metadata, or load() puts the time back to 0 after we set it (why the pins seemed dead)
+      var go2 = function () { var set = function () { try { audio.currentTime = c.at_sec || 0 } catch (e) {} drawWave(); if (andPlay) play() }; if (audio.readyState >= 1) set(); else audio.addEventListener('loadedmetadata', function () { setTimeout(set) }, { once: true }) }
+      if (!cur.url || cur.version !== x) load(x, false, false).then(go2); else go2()
+      lastActive = null
+      $$('#nlist > .note').forEach(function (n) { var on = n.dataset.n === c.id; n.classList.toggle('on', on); if (on && play) { n.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); n.classList.remove('flash'); void n.offsetWidth; n.classList.add('flash') } })
+      $$('#pins .pin').forEach(function (p) { p.classList.toggle('on', p.dataset.c === c.id) })
+    }
 
     // posting a note: at the playhead, or about the whole version
     var replyTo = null
@@ -921,7 +983,7 @@
         $('#cmp-go').disabled = true
         var p = share ? api('share-comment', { version: x.id, body: body, at_sec: at, name: store.get('rs-guest'), parent: replyTo }).then(function (d) { if (d.error) throw new Error(d.error); share.data.comments.push(d.comment); return d.comment })
           : sb.from('roarstudio_comments').insert({ version_id: x.id, project_id: ctx.project.id, body: body, at_sec: at, author: session.user.id, parent_id: replyTo }).select().single().then(function (r) { if (r.error) throw new Error(r.error.message); return r.data })
-        p.then(function (c) { tview.notes.push(c); $('#cmp-t').value = ''; replyTo = null; $('#cmp-t').placeholder = 'Write a note… (Enter to post, Shift+Enter for a new line)'; if ($('#g-name')) $('#g-name').remove(); paintNotes() }).catch(function (x2) { toast(x2.message) }).then(function () { $('#cmp-go').disabled = false })
+        p.then(function (c) { tview.notes.push(c); $('#cmp-t').value = ''; replyTo = null; $('#cmp-t').placeholder = ''; if ($('#g-name')) $('#g-name').remove(); paintNotes() }).catch(function (x2) { toast(x2.message) }).then(function () { $('#cmp-go').disabled = false })
       }
     }
     function askName(then) {
@@ -1000,14 +1062,15 @@
         versions.slice().reverse().map(function (q) { return '<button class="lvrow' + (q.id === tview.version ? ' on' : '') + '" data-lv="' + q.id + '"><b>' + esc(vname(q)) + '</b><span class="lvbar"><i style="width:' + bar(q.lufs) + '%"></i></span><span class="mono">' + (q.lufs == null ? '—' : lufsText(q.lufs)) + '</span><span class="mono muted">' + (q.peak_db == null ? '' : (q.peak_db < 0 ? '−' : '') + Math.abs(q.peak_db).toFixed(1) + ' dBFS') + '</span></button>' }).join('') +
         '</div>', function (m) { $$('[data-lv]', m).forEach(function (b) { b.onclick = function () { close(); setVersion(b.dataset.lv, true) } }) })
     }
-    $('#zi').onclick = function () { setZoom(zw.z * 2) }
-    $('#zo').onclick = function () { setZoom(zw.z / 2) }
+    $('#zr').oninput = function () { setZoom(Math.pow(32, this.value / 100), zw.z > 1 ? zw.start + span(curV().duration || audio.duration || 0) / 2 : null); this.style.setProperty('--zv', this.value + '%') }
+    $('#zr').ondblclick = function () { this.value = 0; setZoom(1) }
     // speed, loop, picture in picture, full screen
     var SPEEDS = [1, 1.25, 1.5, 2, 0.5, 0.75]
     $('#spd').onclick = function () { var i = (SPEEDS.indexOf(audio.playbackRate) + 1) % SPEEDS.length; audEl.playbackRate = vidEl.playbackRate = SPEEDS[i]; this.querySelector('b').textContent = SPEEDS[i] + '×' }
     $('#spd').querySelector('b').textContent = (audio.playbackRate || 1) + '×'
     $('#lp').onclick = function () { var on = !audEl.loop; audEl.loop = vidEl.loop = on; this.classList.toggle('on', on) }
     $('#lp').classList.toggle('on', audEl.loop)
+    if ($('#grab')) $('#grab').onclick = grabStill
     $('#fs').onclick = function () { var el = $('#media'); try { (el.requestFullscreen || el.webkitRequestFullscreen).call(el) } catch (e) { try { vidEl.webkitEnterFullscreen() } catch (x) {} } }
     $('#pip').onclick = function () { try { if (document.pictureInPictureElement) document.exitPictureInPicture(); else vidEl.requestPictureInPicture() } catch (e) {} }
 
