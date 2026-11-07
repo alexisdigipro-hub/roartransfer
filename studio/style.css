@@ -1,0 +1,228 @@
+/* RoarStudio (Alex, 7 Nov 2026): RoarTransfer's graphite glass for the music cloud. Plain CSS, no library.
+   Every action is a real button: a flat matte glass pill or a round glass icon (Alex, 5 Nov). */
+:root {
+  --bg: #121417; --panel: #1a1d21; --glass: rgba(255,255,255,.055); --glass-2: rgba(255,255,255,.09); --edge: rgba(255,255,255,.11);
+  --text: #eef0f3; --muted: rgba(214,220,228,.64); --dim: rgba(214,220,228,.4);
+  --red: #e3120b; --red-hi: #ff3b2f; --red-soft: rgba(227,18,11,.15); --ok: #2fd36b; --warn: #ffc65c;
+  --disp: 'Jost', Futura, 'Avenir Next', sans-serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  color-scheme: dark;
+}
+* { box-sizing: border-box }
+html, body { margin: 0; min-height: 100% }
+body { background: var(--bg); color: var(--text); font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden }
+body::before { content: ''; position: fixed; inset: -20% -10% auto; height: 70vh; background: radial-gradient(50% 50% at 50% 30%, rgba(227,18,11,.12), transparent 70%); pointer-events: none; z-index: 0 }
+[hidden] { display: none !important }
+button, input, select, textarea { font: inherit; color: inherit }
+:focus-visible { outline: 2px solid var(--red-hi); outline-offset: 2px }
+.app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column }
+.wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)) }
+
+/* glass, pills, round icons */
+.glass { background: var(--glass); border: 1px solid var(--edge); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px) }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--edge); background: var(--glass); font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background .2s, transform .15s var(--ease), opacity .2s }
+.btn:hover { background: var(--glass-2) }
+.btn:active { transform: scale(.97) }
+.btn:disabled { opacity: .45; cursor: default; transform: none }
+.btn.main { background: linear-gradient(180deg, var(--red-hi), var(--red)); border-color: transparent; color: #fff; box-shadow: 0 8px 24px -10px var(--red) }
+.btn.sm { height: 32px; padding: 0 13px; font-size: 13px }
+.btn.danger { color: #ff7a70 }
+.btn svg, .ico svg { width: 17px; height: 17px; flex: none }
+.ico { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--edge); background: var(--glass); display: inline-grid; place-items: center; cursor: pointer; flex: none; transition: background .2s, transform .15s var(--ease) }
+.ico:hover { background: var(--glass-2) }
+.ico:active { transform: scale(.94) }
+.ico.sm { width: 32px; height: 32px }
+.ico.sm svg { width: 15px; height: 15px }
+.ico.danger { color: #ff7a70 }
+.field { display: grid; gap: 6px }
+.field label { font-size: 12.5px; color: var(--muted); font-weight: 600 }
+.in { height: 44px; border-radius: 999px; border: 1px solid var(--edge); background: rgba(0,0,0,.25); padding: 0 18px; outline: none; width: 100%; transition: border-color .2s }
+.in:focus { border-color: rgba(255,59,47,.6) }
+textarea.in { height: auto; min-height: 44px; border-radius: 20px; padding: 11px 16px; resize: none; line-height: 1.45 }
+select.in { appearance: none; padding-right: 36px; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 20px) 19px, calc(100% - 15px) 19px; background-size: 5px 5px; background-repeat: no-repeat }
+.err { color: #ff8a80; font-size: 13.5px }
+.ok { color: var(--ok); font-size: 13.5px }
+.muted { color: var(--muted) }
+.mono { font-family: var(--mono) }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; font: 600 11.5px var(--sans); background: var(--glass); border: 1px solid var(--edge); white-space: nowrap; color: var(--muted) }
+.chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor }
+.chip.ok { color: var(--ok) } .chip.red { color: var(--red-hi) } .chip.warn { color: var(--warn) }
+.lens-group { display: inline-flex; position: relative; padding: 3px; border-radius: 999px; background: var(--glass); border: 1px solid var(--edge) }
+.lens-group button { position: relative; z-index: 1; border: 0; background: none; height: 32px; padding: 0 14px; border-radius: 999px; font-weight: 600; font-size: 13px; color: var(--muted); cursor: pointer; white-space: nowrap }
+.lens-group button.on { color: var(--text) }
+.lens-group .lens { position: absolute; top: 3px; bottom: 3px; border-radius: 999px; background: var(--glass-2); border: 1px solid var(--edge); transition: left .35s var(--ease), width .35s var(--ease) }
+
+/* top row */
+.top { position: sticky; top: 0; z-index: 30; background: rgba(18,20,23,.72); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border-bottom: 1px solid var(--edge); padding-top: env(safe-area-inset-top) }
+.top .wrap { display: flex; align-items: center; gap: 12px; height: 62px }
+.logo { display: flex; align-items: center; gap: 10px; font: 500 21px var(--disp); letter-spacing: .01em; text-decoration: none; color: var(--text); cursor: pointer; background: none; border: 0; padding: 0 }
+.logo i { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(160deg, var(--red-hi), #9e0000); display: grid; place-items: center; box-shadow: 0 0 20px -3px var(--red) }
+.logo b { font-weight: 600 }
+.crumbs { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--muted); font-size: 14px }
+.crumbs span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.crumbs .sep { opacity: .4 }
+.top .right { margin-left: auto; display: flex; align-items: center; gap: 8px }
+.me { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--edge); background: var(--glass) center/cover; display: grid; place-items: center; font-weight: 700; font-size: 13px; cursor: pointer }
+.menu { position: absolute; right: 16px; top: 60px; min-width: 220px; border-radius: 18px; padding: 8px; display: grid; gap: 2px; background: rgba(28,31,35,.96); border: 1px solid var(--edge); box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); z-index: 40 }
+.menu .who { padding: 8px 12px 10px; font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--edge); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis }
+.menu button { text-align: left; border: 0; background: none; padding: 10px 12px; border-radius: 12px; cursor: pointer; display: flex; gap: 10px; align-items: center; font-size: 14px }
+.menu button:hover { background: var(--glass) }
+
+/* page head: one row, a bold title and every control in it */
+main { flex: 1; padding-block: 28px 60px }
+.head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 22px }
+.head h1 { font: 600 clamp(28px, 4vw, 40px)/1.05 var(--disp); letter-spacing: -.02em; margin: 0; min-width: 0; overflow-wrap: anywhere }
+.head .sub { color: var(--muted); font-size: 14px; margin-top: 4px }
+.head .tools { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap }
+
+/* signed out */
+.hello { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; padding-block: 50px }
+.hello h1 { font: 700 clamp(40px, 6vw, 72px)/1 var(--disp); letter-spacing: -.03em; margin: 0 0 18px }
+.hello h1 em { font-style: normal; background: linear-gradient(180deg, var(--red-hi), var(--red)); -webkit-background-clip: text; background-clip: text; color: transparent }
+.hello p { color: var(--muted); font-size: 17px; max-width: 52ch; margin: 0 0 22px }
+.hello ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px }
+.hello li { display: flex; gap: 10px; align-items: baseline }
+.hello li::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--red-hi); box-shadow: 0 0 10px var(--red-hi); flex: none; transform: translateY(-1px) }
+.card { border-radius: 26px; padding: 28px; display: grid; gap: 14px }
+.card h2 { font: 600 24px var(--disp); margin: 0 }
+.or { display: flex; align-items: center; gap: 12px; color: var(--dim); font-size: 12px; text-transform: uppercase; letter-spacing: .1em }
+.or::before, .or::after { content: ''; flex: 1; height: 1px; background: var(--edge) }
+.code { font: 600 30px var(--mono); letter-spacing: .2em; text-align: center; padding: 14px; border-radius: 18px; background: rgba(0,0,0,.3) }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center }
+.row.end { justify-content: flex-end }
+.spread { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap }
+@media (max-width: 860px) { .hello { grid-template-columns: 1fr; padding-block: 20px; gap: 26px } }
+
+/* projects grid */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px }
+.proj { border-radius: 22px; padding: 14px; display: grid; gap: 12px; cursor: pointer; text-align: left; transition: transform .25s var(--ease), background .2s }
+.proj:hover { transform: translateY(-3px); background: var(--glass-2) }
+.cover { aspect-ratio: 1; max-width: 100%; border-radius: 16px; position: relative; overflow: hidden; display: grid; place-items: end start; padding: 14px }
+.cover canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .9 }
+.cover b { position: relative; font: 600 22px/1.05 var(--disp); letter-spacing: -.01em; text-shadow: 0 2px 20px rgba(0,0,0,.5) }
+.proj .meta { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted) }
+.proj .meta span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.new-proj { border: 1.5px dashed var(--edge); background: transparent; display: grid; place-items: center; align-content: center; gap: 10px; min-height: 280px; color: var(--muted); font-weight: 600 }
+.new-proj .ico { width: 54px; height: 54px }
+.empty { border-radius: 26px; padding: 50px 24px; text-align: center; display: grid; gap: 12px; justify-items: center }
+.empty h2 { font: 600 26px var(--disp); margin: 0 }
+.empty p { color: var(--muted); margin: 0; max-width: 46ch }
+
+/* project: track tiles */
+.tracks { display: grid; gap: 8px }
+.trk { display: grid; grid-template-columns: 44px minmax(0, 1fr) minmax(0, 220px) auto auto; gap: 14px; align-items: center; padding: 10px 14px 10px 10px; border-radius: 18px; cursor: pointer; transition: background .2s }
+.trk:hover { background: var(--glass-2) }
+.trk .pl { width: 44px; height: 44px; border-radius: 50%; border: 0; background: linear-gradient(180deg, var(--red-hi), var(--red)); color: #fff; display: grid; place-items: center; cursor: pointer }
+.trk .nm { min-width: 0 }
+.trk .nm b { display: block; font-weight: 600; font-size: 15.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.trk .nm span { font-size: 12.5px; color: var(--muted) }
+.trk canvas { width: 100%; height: 34px; display: block }
+.trk .t { font: 500 13px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums }
+.drop { margin-top: 14px; border: 1.5px dashed var(--edge); border-radius: 22px; padding: 26px; display: grid; justify-items: center; gap: 8px; color: var(--muted); text-align: center; transition: border-color .2s, background .2s }
+.drop.over { border-color: var(--red-hi); background: var(--red-soft); color: var(--text) }
+.drop b { color: var(--text); font-size: 16px }
+.ups { display: grid; gap: 8px; margin-top: 12px }
+.up { border-radius: 16px; padding: 12px 14px; display: grid; gap: 8px }
+.up .bar { height: 5px; border-radius: 3px; background: var(--glass); overflow: hidden }
+.up .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--red), var(--red-hi)); transition: width .3s }
+.up .spread span { font-size: 13px }
+@media (max-width: 760px) {
+  .trk { grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px }
+  .trk canvas, .trk .cnt { display: none }
+  .trk .pl { width: 40px; height: 40px }
+}
+
+/* the player */
+.player { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start }
+.stage { border-radius: 26px; padding: 20px; display: grid; gap: 16px; min-width: 0 }
+.vers { display: flex; gap: 6px; flex-wrap: wrap; align-items: center }
+.vers button.v { height: 32px; padding: 0 13px; border-radius: 999px; border: 1px solid var(--edge); background: var(--glass); font: 600 12.5px var(--sans); color: var(--muted); cursor: pointer; display: inline-flex; gap: 6px; align-items: center }
+.vers button.v.on { background: var(--red); border-color: transparent; color: #fff }
+.vers button.v .tick { color: var(--ok) }
+.vers button.v.on .tick { color: #fff }
+.wave { position: relative; height: 150px; border-radius: 18px; background: rgba(0,0,0,.22); border: 1px solid var(--edge); cursor: pointer; touch-action: none }
+.wave canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block }
+.wave .pins { position: absolute; left: 0; right: 0; top: -10px; height: 22px; pointer-events: none }
+.pin { position: absolute; width: 22px; height: 22px; margin-left: -11px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid var(--panel); cursor: pointer; pointer-events: auto; display: grid; place-items: center; padding: 0 }
+.pin span { transform: rotate(45deg); font: 700 9px var(--sans); color: #fff }
+.pin.done { opacity: .45 }
+.wave .hover-t { position: absolute; top: 8px; padding: 2px 7px; border-radius: 6px; font: 500 11px var(--mono); background: rgba(0,0,0,.6); pointer-events: none; transform: translateX(-50%) }
+.wave .no-wave { position: absolute; inset: 0; display: grid; place-items: center; color: var(--dim); font-size: 13px }
+.ctl { display: flex; align-items: center; gap: 12px; flex-wrap: wrap }
+.play { width: 52px; height: 52px; border-radius: 50%; border: 0; background: linear-gradient(180deg, var(--red-hi), var(--red)); color: #fff; display: grid; place-items: center; cursor: pointer; box-shadow: 0 10px 26px -10px var(--red); flex: none }
+.play svg { width: 20px; height: 20px }
+.time { font: 500 14px var(--mono); font-variant-numeric: tabular-nums }
+.time span { color: var(--dim) }
+.lm { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted) }
+.sw { width: 46px; height: 28px; border-radius: 999px; border: 1px solid var(--edge); background: var(--glass); position: relative; cursor: pointer; padding: 0; flex: none }
+.sw::after { content: ''; position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: var(--muted); transition: left .25s var(--ease), background .25s }
+.sw[aria-pressed="true"] { background: var(--red-soft); border-color: rgba(255,59,47,.5) }
+.sw[aria-pressed="true"]::after { left: 22px; background: var(--red-hi) }
+.lufs { font: 600 13px var(--mono); color: var(--red-hi); font-variant-numeric: tabular-nums }
+.facts { display: flex; gap: 8px; flex-wrap: wrap }
+.facts span { font: 500 12px var(--mono); color: var(--muted); background: var(--glass); border: 1px solid var(--edge); border-radius: 999px; padding: 4px 10px }
+.appr { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-top: 4px; border-top: 1px solid var(--edge) }
+.appr .state { font-size: 13.5px; color: var(--muted); margin-right: auto }
+.appr .state b { color: var(--ok) }
+
+.notes { border-radius: 26px; display: flex; flex-direction: column; min-width: 0; max-height: calc(100vh - 120px); position: sticky; top: 80px }
+.notes header { padding: 16px 18px 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px }
+.notes header b { font: 600 18px var(--disp) }
+.nlist { padding: 0 10px 10px; display: grid; gap: 6px; overflow: auto; align-content: start; flex: 1; min-height: 120px }
+.note { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; padding: 10px; border-radius: 16px; border: 1px solid transparent; transition: background .2s }
+.note:hover { background: var(--glass) }
+.note.on { background: var(--red-soft); border-color: rgba(255,59,47,.35) }
+.note.done .body { opacity: .5; text-decoration: line-through }
+.av { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 700 11px var(--sans); color: #fff; flex: none; background-size: cover; background-position: center }
+.note .who { display: flex; gap: 8px; align-items: center; font-size: 12.5px; color: var(--muted); flex-wrap: wrap }
+.note .who b { color: var(--text); font-weight: 600 }
+.note .at { font: 600 11.5px var(--mono); color: var(--red-hi); background: var(--red-soft); border: 0; border-radius: 999px; padding: 2px 8px; cursor: pointer }
+.note .body { font-size: 14px; margin-top: 2px; white-space: pre-wrap; overflow-wrap: anywhere }
+.note .acts { display: flex; gap: 6px; margin-top: 6px }
+.note .replies { display: grid; gap: 6px; margin-top: 8px; padding-left: 10px; border-left: 2px solid var(--edge) }
+.note .replies .note { padding: 6px 8px }
+.compose { padding: 12px; border-top: 1px solid var(--edge); display: grid; gap: 8px }
+.compose .spread { font-size: 12.5px; color: var(--muted) }
+.compose .attime { display: inline-flex; align-items: center; gap: 8px; cursor: pointer }
+.compose .attime input { accent-color: var(--red-hi) }
+@media (max-width: 980px) {
+  .player { grid-template-columns: 1fr }
+  .notes { position: static; max-height: none }
+  .lm { margin-left: 0 }
+}
+@media (max-width: 480px) { .wave { height: 110px } .stage { padding: 14px } }
+
+@media (max-width: 600px) {
+  .crumbs { display: none }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px }
+  .proj { padding: 10px; border-radius: 18px }
+  .cover b { font-size: 16px }
+  .new-proj { min-height: 0 }
+  .head .tools { margin-left: 0; width: 100% }
+}
+
+/* the shared window: a glass card that pops in */
+.modal { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); background: rgba(5,6,8,.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: fade .2s }
+.sheet-card { width: min(520px, 100%); max-height: 100%; overflow: auto; border-radius: 26px; padding: 24px; display: grid; gap: 16px; background: rgba(28,31,35,.94); border: 1px solid var(--edge); box-shadow: 0 40px 80px -30px rgba(0,0,0,.8); animation: pop .35s var(--ease) }
+.sheet-card h2 { font: 600 24px var(--disp); margin: 0 }
+.sheet-card .x { margin-left: auto }
+.opts { display: grid; gap: 8px }
+.opt { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 16px; background: var(--glass); border: 1px solid var(--edge) }
+.opt span { font-size: 14px }
+.opt small { display: block; color: var(--muted); font-size: 12.5px }
+.linkbox { display: flex; gap: 8px; align-items: center; padding: 6px 6px 6px 16px; border-radius: 999px; background: rgba(0,0,0,.3); border: 1px solid var(--edge) }
+.linkbox input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font: 500 13px var(--mono) }
+.people { display: grid; gap: 6px }
+.person { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 16px; background: var(--glass) }
+.person .nm { flex: 1; min-width: 0 }
+.person .nm b { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.person .nm span { font-size: 12px; color: var(--muted) }
+.person select.in { width: auto; height: 34px; font-size: 13px; padding-left: 12px }
+.toast { position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 90; padding: 12px 20px; border-radius: 999px; background: rgba(30,33,37,.96); border: 1px solid var(--edge); box-shadow: 0 20px 40px -10px rgba(0,0,0,.6); font-size: 14px; animation: pop .3s var(--ease); max-width: calc(100% - 32px) }
+.spin { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--edge); border-top-color: var(--red-hi); animation: rot .8s linear infinite; margin: 40px auto }
+@keyframes rot { to { transform: rotate(360deg) } }
+@keyframes pop { from { opacity: 0; transform: scale(.96) translateY(8px) } }
+@keyframes fade { from { opacity: 0 } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important } }

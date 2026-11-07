@@ -8,6 +8,7 @@
 //   /og/<token>.jpg the link's picture (roar-transfer-get ?og=1: og/<token>.jpg in R2, made by the page when it was sent)
 // A transfer with a password shows only who sent it, how many files and until when; no names, no picture.
 // It holds no key: roar-transfer-get is public and answers only what the link itself would show.
+//   studio.roartransfer.com/… RoarStudio (Alex, 7 Nov 2026): sent on to roartransfer.com/studio/… (route studio.roartransfer.com/*)
 // Paste this whole file in Cloudflare > Workers & Pages > roartransfer-og > Edit code.
 const FN = 'https://bzmjhbnwhdwmncxkqkdl.supabase.co/functions/v1/roar-transfer-get'
 const SITE = 'https://roartransfer.com'
@@ -15,6 +16,8 @@ const SITE = 'https://roartransfer.com'
 export default {
   async fetch(req) {
     const url = new URL(req.url)
+    // RoarStudio's own address for now: the page lives at roartransfer.com/studio/, with the same sign-in as RoarTransfer
+    if (url.hostname === 'studio.roartransfer.com') return Response.redirect(`${SITE}/studio/${url.pathname.replace(/^\/+/, '')}${url.search}`, 302)
     if (req.method !== 'GET' && req.method !== 'HEAD') return fetch(req)
     // Download all as one .zip (Alex, 1 Nov 2026): the page reads each file to put it in the zip, and a browser may read
     // only what comes from its own site, so the file comes through here: /__dl/<token>[?c=<claim>] asks roar-transfer-get

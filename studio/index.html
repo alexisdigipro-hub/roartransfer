@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RoarStudio · the cloud for your music</title>
+<!-- RoarStudio (Alex, 7 Nov 2026): a branch of RoarTransfer for music. Projects, tracks and versions in Cloudflare R2
+     (Edge Function roarstudio in alexisdigipro-hub/roarme), notes on the second, level matching, roles and share links.
+     Database: supabase/studio.sql in roarme. Signs in with the Roar account, the same session as RoarTransfer. -->
+<meta name="description" content="RoarStudio: upload mixes, stems and versions, get notes on the exact second, compare at the same loudness and approve the master. By The Mad Lions.">
+<meta name="theme-color" content="#121417">
+<meta property="og:title" content="RoarStudio">
+<meta property="og:description" content="The cloud for your mixes, stems and versions. Notes on the second, level matching, one link for the artist.">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="wrap">
+      <button class="logo" id="home" aria-label="RoarStudio home"><i><svg width="15" height="15" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 9V5M4 11V3M7 13V1M10 10V4M13 8V6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></i><span>Roar<b>Studio</b></span></button>
+      <div class="crumbs" id="crumbs"></div>
+      <div class="right" id="right"></div>
+    </div>
+  </header>
+  <main><div class="wrap" id="view"><div class="spin"></div></div></main>
+</div>
+<div id="layer"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="audio.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
