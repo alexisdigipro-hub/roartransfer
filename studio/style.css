@@ -1006,3 +1006,44 @@ html[data-theme="light"] .stage .ctl #rew, html[data-theme="light"] .stage .ctl 
 
 /* the count next to the tabs stays on one line */
 .notes header #ncount { white-space: nowrap; font-size: 12px }
+
+/* video tools (Alex, 7 Nov): masks and drawing over the picture, compare, frame steps */
+.media .vov { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2 }
+.media .vov.drawing { pointer-events: auto; cursor: crosshair }
+.media .vdt { position: absolute; top: 10px; right: 10px; z-index: 4; display: flex; align-items: center; gap: 4px; padding: 5px; border-radius: 999px; background: rgba(14,10,22,.78); border: 1px solid rgba(250,204,21,.3); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px) }
+.media .vdt[hidden] { display: none }
+.media .vdt .ico.sm { width: 32px; height: 32px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: var(--muted) }
+.media .vdt .ico.sm.on { background: rgba(250,204,21,.2); border-color: rgba(250,204,21,.55); color: #fde68a }
+.media .vdt .ico.sm svg { width: 15px; height: 15px }
+.media .vdt i { width: 1px; height: 20px; background: rgba(255,255,255,.12); margin: 0 3px }
+.media .vdt .btn.sm { height: 32px }
+.media .cmpv { position: absolute; z-index: 1; background: #000; object-fit: contain; pointer-events: none }
+.media .cmph { position: absolute; z-index: 3; width: 2px; margin-left: -1px; background: #facc15; box-shadow: 0 0 0 1px rgba(0,0,0,.4); cursor: ew-resize; touch-action: none }
+.media .cmph::before { content: ''; position: absolute; inset: 0 -14px }
+.media .cmph span { position: absolute; top: 50%; left: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; display: grid; place-items: center; background: rgba(14,10,22,.85); border: 1px solid rgba(250,204,21,.6); color: #fde68a }
+.media .cmph span svg { width: 16px; height: 16px }
+.media .cmpl { position: absolute; z-index: 3; font: 600 11.5px var(--mono); color: #fff; padding: 4px 10px; border-radius: 999px; background: rgba(14,10,22,.75); border: 1px solid rgba(255,255,255,.15) }
+.media .cmpl.r { cursor: pointer; border-color: rgba(250,204,21,.45); color: #fde68a; font-family: var(--mono) }
+.media .vinfo { z-index: 3 }
+.stage .ctl .fstep { width: 34px; height: 34px }
+.stage .ctl .pt { position: relative }
+.vpop { position: absolute; bottom: calc(100% + 10px); transform: translateX(-50%); z-index: 20; display: flex; flex-direction: column; gap: 2px; padding: 6px; border-radius: 16px; background: rgba(18,13,28,.95); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 18px 40px -12px rgba(0,0,0,.8); min-width: 130px }
+.vpop button { height: 32px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font: 600 12.5px var(--sans); text-align: left; cursor: pointer }
+.vpop button:hover { background: rgba(255,255,255,.06); color: var(--text) }
+.vpop button.on { background: rgba(250,204,21,.14); color: #fde68a }
+.vpop i { height: 1px; background: rgba(255,255,255,.08); margin: 3px 4px }
+.cmp-sk { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; margin-bottom: 8px; border-radius: 999px; background: rgba(250,204,21,.1); border: 1px solid rgba(250,204,21,.3); color: #fde68a; font-size: 12.5px; font-weight: 600 }
+.cmp-sk[hidden] { display: none }
+.cmp-sk svg { width: 14px; height: 14px }
+.cmp-sk span { flex: 1 }
+.cmp-sk .ico.sm { width: 26px; height: 26px }
+.notes header #nexp { width: 30px; height: 30px; margin-left: 2px }
+.notes header #nexp svg { width: 15px; height: 15px }
+.stage .ctl .time { white-space: nowrap; font-variant-numeric: tabular-nums }
+
+/* the controls never push the player wider than its column; with many buttons they fold onto a second line */
+.player > .stage, .player > * { min-width: 0 }
+.stage .ctl { flex-wrap: wrap; row-gap: 6px; border-radius: 26px }
+.stage .ctl .pt .zoom.zs { min-width: 90px }
+.stage .ctl .time span { font-size: 10.5px; opacity: .7 }
+.stage .ctl .fstep { width: 32px !important; height: 32px !important }
