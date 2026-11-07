@@ -893,3 +893,12 @@ html[data-theme="light"] .proj { background: rgba(255,255,255,.5); border-color:
 .scard .srow { padding: 12px 0 }
 .scard .srow:last-child { padding-bottom: 0 }
 @media (max-width: 900px) { .sgrid { grid-template-columns: 1fr } .scol { display: contents } }
+
+/* a file's facts as one tidy line (Alex, 7 Nov: "more gathered, tidier") */
+.facts { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0; width: fit-content; max-width: 100%; padding: 7px 14px; border-radius: 999px;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06) }
+.facts span { background: none !important; border: 0 !important; box-shadow: none !important; padding: 0; border-radius: 0; font: 500 11.5px var(--mono); color: var(--muted); white-space: nowrap }
+.facts span + span::before { content: '·'; margin: 0 9px; color: var(--dim) }
+.facts span:first-child { color: #c4b5fd }
+html[data-theme="light"] .facts { background: rgba(255,255,255,.55); border-color: rgba(60,40,120,.1) }
+html[data-theme="light"] .facts span:first-child { color: #6d28d9 }
