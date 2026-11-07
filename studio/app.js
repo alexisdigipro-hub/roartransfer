@@ -22,7 +22,7 @@
     var t = store.get('rs-theme') || 'dark'
     var light = t === 'light' || (t === 'system' && window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches)
     document.documentElement.setAttribute('data-theme', light ? 'light' : 'dark')
-    var mt = document.querySelector('meta[name=theme-color]'); if (mt) mt.content = light ? '#eceae6' : '#121417'
+    var mt = document.querySelector('meta[name=theme-color]'); if (mt) mt.content = light ? '#ebe8f3' : '#0d0b14'
   }
   wearTheme()
   if (window.matchMedia) matchMedia('(prefers-color-scheme: light)').addEventListener('change', wearTheme)
@@ -240,9 +240,9 @@
   // =====================================================================================================
   function renderSignedOut(view) {
     view.innerHTML = '<section class="hello">' +
-      '<div><h1>Your music, <em>in one cloud</em> that listens.</h1>' +
-      '<p>Upload mixes, stems and every version. Get notes pinned to the exact second, compare versions at the same loudness, and send the artist one link to approve the master.</p>' +
-      '<ul><li>Projects, tracks and versions, stacked in order</li><li>Notes on the waveform, with replies</li><li>Level matching: every version at −14 LUFS</li><li>One link for artists and labels, no account needed</li><li>Stored on Cloudflare, with your Roar account</li></ul></div>' +
+      '<div><h1>Review and <em>deliver</em> audio, video and pictures.</h1>' +
+      '<p>Upload every version, get notes on the exact second or frame, have it approved, and send the client one beautiful Finals folder with the files, the credits and your brand.</p>' +
+      '<ul><li>Versions, notes and approvals for audio, video and pictures</li><li>Level matching for mixes, frame-accurate notes for picture</li><li>Finals: one branded link, Download all as .zip, credits and lyrics</li><li>Playlists, folders, people with roles</li><li>Stored on Cloudflare, with your Roar account</li></ul></div>' +
       '<form class="card glass" id="in" novalidate>' +
       '<div id="in-main" style="display:grid;gap:14px"><h2 id="in-h">Sign in</h2>' +
       '<button type="button" class="btn main" id="rc-go" style="height:46px">Sign in with Roar Account</button>' +
@@ -441,7 +441,7 @@
       var f = c.versions.filter(function (v) { return v.final_at })
       var tiles = ''
       if (f.length) tiles += '<button class="tile glass gold" id="fin-btn"><span class="fi">' + ic('folder') + '</span><span class="nm"><b>Finals</b><span>' + f.length + ' final file' + (f.length === 1 ? '' : 's') + ' · ' + size(f.reduce(function (a, v) { return a + Number(v.size || 0) }, 0)) + '</span></span></button>'
-      ;(c.playlists || []).forEach(function (pl) { tiles += '<button class="tile glass" data-pl="' + pl.id + '"><span class="fi" style="background:linear-gradient(160deg,#ff8a7a,#e3120b);color:#fff">' + ic('list') + '</span><span class="nm"><b>' + esc(pl.title) + '</b><span>Playlist · ' + (pl.items || []).length + ' file' + ((pl.items || []).length === 1 ? '' : 's') + '</span></span></button>' })
+      ;(c.playlists || []).forEach(function (pl) { tiles += '<button class="tile glass" data-pl="' + pl.id + '"><span class="fi" style="background:linear-gradient(160deg,#c4b5fd,#6d28d9);color:#fff">' + ic('list') + '</span><span class="nm"><b>' + esc(pl.title) + '</b><span>Playlist · ' + (pl.items || []).length + ' file' + ((pl.items || []).length === 1 ? '' : 's') + '</span></span></button>' })
       ;(c.folders || []).forEach(function (fd) { var n = c.tracks.filter(function (t) { return t.folder_id === fd.id }).length; tiles += '<button class="tile glass" data-fd="' + fd.id + '"><span class="fi" style="background:linear-gradient(160deg,#8fb8ff,#5b6cff);color:#0b1640">' + ic('folder') + '</span><span class="nm"><b>' + esc(fd.name) + '</b><span>' + n + ' file' + (n === 1 ? '' : 's') + '</span></span></button>' })
       if (tiles) extra = '<div class="tiles">' + tiles + '</div>'
     }
@@ -811,7 +811,7 @@
           for (var j = a; j < b && j < pk.length; j++) m = Math.max(m, pk[j] || 0)
         } else m = .04
         var bh = Math.max(2 * d, Math.min(1, m * amp) * h * .86), bx = i * 3 * d
-        g.fillStyle = bx < pos ? '#ff3b2f' : hoverX >= 0 && bx < hoverX ? 'rgba(255,255,255,.55)' : 'rgba(214,220,228,.36)'
+        g.fillStyle = bx < pos ? '#a78bfa' : hoverX >= 0 && bx < hoverX ? 'rgba(255,255,255,.55)' : 'rgba(214,220,228,.36)'
         g.fillRect(bx, (h - bh) / 2, 2 * d, bh)
       }
       g.fillStyle = '#fff'; g.fillRect(pos - d, 0, 2 * d, h)
@@ -1041,6 +1041,9 @@
           '<div class="fact"><button class="ico sm" data-dl="' + v.id + '" aria-label="Download">' + ic('down') + '</button>' + (edit ? '<button class="ico sm" data-open="' + v.track_id + '" aria-label="Open its page">' + ic('next') + '</button>' : '') + '</div></div>'
       }).join('') + '</div>'
       : '<div class="empty glass"><span class="ico" style="width:64px;height:64px">' + ic('folder') + '</span><h2>No final files yet</h2><p>' + (share ? 'Nothing here yet. Check back later.' : 'Open any file and press Make it final: it shows up here, ready to send as one link.') + '</p></div>')
+    view.insertAdjacentHTML('beforeend', creditsHtml(c.project.credits, edit))
+    if ($('#cr-edit')) $('#cr-edit').onclick = function () { creditsBox(c, function () { drawFinals(c) }) }
+    if ($('#cr-copy')) $('#cr-copy').onclick = function () { var t = creditsText(c.project.credits, c.project.title); var pr = navigator.clipboard && navigator.clipboard.writeText(t); if (pr) pr.then(function () { toast('Credits copied') }, function () { toast('Could not copy') }) }
     if ($('#back')) $('#back').onclick = function () { go('#p/' + c.project.id) }
     $$('canvas[data-wave]').forEach(function (cv) { var v = files.filter(function (x) { return x.id === cv.dataset.wave })[0]; drawMini(cv, v && v.peaks) })
     $$('[data-prev]').forEach(function (b) { b.onclick = function () { preview(files.filter(function (x) { return x.id === b.dataset.prev })[0], titleOf) } })
@@ -1049,6 +1052,65 @@
     if ($('#fin-share')) $('#fin-share').onclick = function () { shareBox(c, null, true) }
     if ($('#dl-all')) $('#dl-all').onclick = function () { zipAll(files, titleOf, c.project.title + ' - Finals', this) }
   }
+  // Credits (Alex, 7 Nov: "credits on the final folder, a template, music, lyrics, the video's credits")
+  var CREDIT_TPL = {
+    music: { name: 'Music', icon: 'music', roles: ['Artist', 'Title', 'Written by', 'Composed by', 'Lyrics by', 'Produced by', 'Mixed by', 'Mastered by', 'Recorded at', 'Label', 'Publisher', 'ISRC', 'Release date'], lyrics: true },
+    video: { name: 'Video', icon: 'film', roles: ['Director', 'Producer', 'Production company', 'Director of photography', 'Editor', 'Colourist', 'Sound design', 'Music', 'Cast', 'Client / Agency'] },
+    photo: { name: 'Photo', icon: 'image', roles: ['Photographer', 'Retouching', 'Styling', 'Hair & make-up', 'Model', 'Art direction', 'Client'] },
+    custom: { name: 'Custom', icon: 'pen', roles: ['Role'] }
+  }
+  function creditsHtml(cr, edit) {
+    var has = cr && ((cr.rows || []).some(function (r) { return r.name }) || cr.lyrics || cr.notes)
+    if (!has && !edit) return ''
+    var tpl = cr && CREDIT_TPL[cr.template]
+    return '<section class="credits glass" id="credits"><div class="ch"><h2>Credits</h2>' + (tpl ? '<span class="ctpl">' + tpl.name + '</span>' : '') +
+      '<div class="tools">' + (has ? '<button class="btn sm" id="cr-copy">' + ic('copy') + ' Copy</button>' : '') + (edit ? '<button class="btn sm' + (has ? '' : ' main') + '" id="cr-edit">' + ic(has ? 'pen' : 'plus') + (has ? ' Edit' : ' Add credits') + '</button>' : '') + '</div></div>' +
+      (has ? '<div class="cgrid">' + (cr.rows || []).filter(function (r) { return r.name }).map(function (r) { return '<div class="crow"><small>' + esc(r.role) + '</small><b>' + esc(r.name) + '</b></div>' }).join('') + '</div>' +
+        (cr.lyrics ? '<div><div class="kgroup" style="border:0;padding-left:0">Lyrics</div><div class="lyrics">' + esc(cr.lyrics) + '</div></div>' : '') +
+        (cr.notes ? '<div class="cnotes">' + esc(cr.notes) + '</div>' : '')
+        : '<p class="muted" style="margin:0">Put who made it next to the files: a music, video or photo template, lyrics and notes. Everyone with the Finals link sees them.</p>') + '</section>'
+  }
+  function creditsText(cr, title) {
+    var t = [title, ''].concat((cr.rows || []).filter(function (r) { return r.name }).map(function (r) { return r.role + ': ' + r.name }))
+    if (cr.lyrics) t.push('', 'Lyrics', cr.lyrics)
+    if (cr.notes) t.push('', cr.notes)
+    return t.join('\n')
+  }
+  function creditsBox(c, onSaved) {
+    var cr = JSON.parse(JSON.stringify(c.project.credits || { template: '', rows: [], lyrics: '', notes: '' }))
+    var m = modal('<div class="spread"><h2>Credits</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div>' +
+      '<div class="field"><label>Template</label><div class="tplpick" id="cr-tpl">' + Object.keys(CREDIT_TPL).map(function (k) { return '<button type="button" class="btn' + (cr.template === k ? ' on' : '') + '" data-k="' + k + '">' + ic(CREDIT_TPL[k].icon) + CREDIT_TPL[k].name + '</button>' }).join('') + '</div></div>' +
+      '<div class="credit-edit" id="cr-rows"></div><button type="button" class="btn sm" id="cr-add" style="justify-self:start">' + ic('plus') + ' Add a line</button>' +
+      '<div class="field" id="cr-ly-f"><label for="cr-ly">Lyrics</label><textarea class="in" id="cr-ly" rows="7" placeholder="The words of the song, as you want them shown"></textarea></div>' +
+      '<div class="field"><label for="cr-no">Notes</label><textarea class="in" id="cr-no" rows="2" placeholder="Thanks, links, anything else"></textarea></div>' +
+      '<div class="row end"><button class="btn" data-x>Cancel</button><button class="btn main" id="cr-save">Save credits</button></div>')
+    var card = $('.sheet-card', m); card.classList.add('wide')
+    var rowsEl = $('#cr-rows', m)
+    var paint = function () {
+      rowsEl.innerHTML = (cr.rows || []).map(function (r, i) { return '<div class="cedit-row"><input class="in" data-r="' + i + '" data-f="role" value="' + esc(r.role) + '" placeholder="Role"><input class="in" data-r="' + i + '" data-f="name" value="' + esc(r.name) + '" placeholder="Name"><button type="button" class="ico sm danger" data-del="' + i + '" aria-label="Remove line">' + ic('x') + '</button></div>' }).join('')
+      $$('input', rowsEl).forEach(function (inp) { inp.oninput = function () { cr.rows[+inp.dataset.r][inp.dataset.f] = inp.value } })
+      $$('[data-del]', rowsEl).forEach(function (b) { b.onclick = function () { cr.rows.splice(+b.dataset.del, 1); paint() } })
+      $('#cr-ly-f', m).hidden = !(cr.template === 'music' || cr.lyrics)
+    }
+    $('#cr-ly', m).value = cr.lyrics || ''; $('#cr-no', m).value = cr.notes || ''
+    $('#cr-tpl', m).onclick = function (e) {
+      var b = e.target.closest('button'); if (!b) return
+      var k = b.dataset.k; $$('#cr-tpl button', m).forEach(function (x) { x.classList.toggle('on', x === b) })
+      var kept = {}; (cr.rows || []).forEach(function (r) { if (r.name) kept[r.role] = r.name })
+      cr.template = k
+      cr.rows = CREDIT_TPL[k].roles.map(function (role) { return { role: role, name: kept[role] || '' } }).concat((cr.rows || []).filter(function (r) { return r.name && CREDIT_TPL[k].roles.indexOf(r.role) < 0 }))
+      paint()
+    }
+    $('#cr-add', m).onclick = function () { cr.rows = cr.rows || []; cr.rows.push({ role: '', name: '' }); paint(); var ins = $$('input', rowsEl); if (ins.length) ins[ins.length - 2].focus() }
+    $('#cr-save', m).onclick = function () {
+      cr.lyrics = $('#cr-ly', m).value.trim(); cr.notes = $('#cr-no', m).value.trim()
+      cr.rows = (cr.rows || []).map(function (r) { return { role: String(r.role || '').trim().slice(0, 60), name: String(r.name || '').trim().slice(0, 200) } }).filter(function (r) { return r.role || r.name }).slice(0, 60)
+      this.disabled = true
+      sb.from('roarstudio_projects').update({ credits: cr }).eq('id', c.project.id).then(function (r) { if (r.error) { toast(r.error.message); return } c.project.credits = cr; close(); toast('Credits saved'); onSaved() })
+    }
+    if (!cr.template && !(cr.rows || []).length) $('#cr-tpl [data-k="music"]', m).click(); else paint()
+  }
+
   // Download all as one .zip (Alex, 7 Nov), with RoarTransfer's own zip maker (../zip.js, ../zip-sw.js): where the browser
   // can, the service worker streams it straight to the disk, any size; otherwise made in memory up to 2 GB; past that,
   // one file after the other
@@ -1133,7 +1195,7 @@
     var total = items.reduce(function (a, t) { var v = latest(t.id); return a + ((v && v.duration) || 0) }, 0)
     var at = -1
     setTop([c.project.title, pl.title])
-    view.innerHTML = brandBanner() + '<div class="head">' + (share ? '<span class="fi big" style="background:linear-gradient(160deg,#ff8a7a,#e3120b);color:#fff">' + ic('list') + '</span>' : '<button class="ico" id="back" aria-label="Back to the project">' + ic('back') + '</button>') +
+    view.innerHTML = brandBanner() + '<div class="head">' + (share ? '<span class="fi big" style="background:linear-gradient(160deg,#c4b5fd,#6d28d9);color:#fff">' + ic('list') + '</span>' : '<button class="ico" id="back" aria-label="Back to the project">' + ic('back') + '</button>') +
       '<div style="min-width:0"><h1>' + esc(pl.title) + '</h1><div class="sub">' + (share ? 'Playlist' + (share.data.project.owner_name ? ' from ' + esc(share.data.project.owner_name) : '') : esc(c.project.title)) + ' · ' + items.length + ' file' + (items.length === 1 ? '' : 's') + (total ? ' · ' + mmss(total) : '') + '</div></div>' +
       '<div class="tools">' + (items.length ? '<button class="btn main" id="pl-play">' + ic('play') + ' Play all</button>' : '') + (edit ? '<button class="btn" id="pl-add">' + ic('plus') + ' Add files</button><button class="btn" id="pl-sh">' + ic('share') + ' Share</button><button class="ico" id="pl-m" aria-label="More">' + ic('dots') + '</button>' : '') + '</div></div>' +
       '<div class="media" id="pl-media" hidden></div>' +
@@ -1264,8 +1326,8 @@
       var seg = function (n, col) { return tot ? '<i style="width:' + (n / tot * 100) + '%;background:' + col + '"></i>' : '' }
       view.innerHTML = '<div class="head"><div><h1>Storage</h1><div class="sub">Your projects on Cloudflare, in Europe</div></div><div class="tools"><button class="btn" id="go-set">' + ic('gear') + ' Settings</button></div></div>' +
         '<section class="scard glass storage"><div class="big"><b>' + size(tot) + '</b><span>in ' + ps.length + ' project' + (ps.length === 1 ? '' : 's') + '</span></div>' +
-        '<div class="kbar">' + seg(k.audio, '#ff3b2f') + seg(k.video, '#8fb8ff') + seg(k.image, '#ffd166') + '</div>' +
-        '<div class="klegend"><span><i style="background:#ff3b2f"></i>Audio ' + size(k.audio) + '</span><span><i style="background:#8fb8ff"></i>Video ' + size(k.video) + '</span><span><i style="background:#ffd166"></i>Pictures ' + size(k.image) + '</span></div>' +
+        '<div class="kbar">' + seg(k.audio, '#a78bfa') + seg(k.video, '#22d3ee') + seg(k.image, '#ffd166') + '</div>' +
+        '<div class="klegend"><span><i style="background:#a78bfa"></i>Audio ' + size(k.audio) + '</span><span><i style="background:#22d3ee"></i>Video ' + size(k.video) + '</span><span><i style="background:#ffd166"></i>Pictures ' + size(k.image) + '</span></div>' +
         '<p class="muted" style="margin:0;font-size:13px">Unlimited while RoarStudio is new. Files shared with you count for their owner.</p></section>' +
         '<div class="tracks" style="margin-top:14px">' + ps.map(function (p) { return '<button class="srow2 glass" data-p="' + p.id + '"><span class="nm"><b>' + esc(p.title) + '</b><small>' + p.files + ' file' + (p.files === 1 ? '' : 's') + (p.finals ? ' · ' + size(p.finals) + ' final' : '') + '</small></span><span class="pbar"><i style="width:' + Math.max(1, p.bytes / top * 100) + '%"></i></span><span class="t">' + size(p.bytes) + '</span></button>' }).join('') + '</div>'
       $$('[data-p]').forEach(function (b) { b.onclick = function () { go('#p/' + b.dataset.p) } })
