@@ -746,6 +746,7 @@
       if ($('#cmp-at')) $('.attime').hidden = k === 'image'
       if ($('#fs')) { $('#fs').hidden = k !== 'video'; $('#pip').hidden = k !== 'video' || !document.pictureInPictureEnabled }
       if ($('#grab')) $('#grab').hidden = k !== 'video' || (share && !share.data.can.comment)
+      if (k === 'video') measureFps(x).then(function (f) { if (f && tview.stills && $('#stills') && !$('#stills').hidden) paintStills() })
       var stb = $('#ntab [data-tab="s"]')
       if (stb) { stb.hidden = k !== 'video'; if (k !== 'video' && stb.classList.contains('on')) $('#ntab [data-tab="n"]').click(); else if (stb.classList.contains('on')) loadStills(); setTimeout(function () { if ($('#ntab')) lens($('#ntab')) }, 30) }
       // a video gets a lower waveform, a strip to scrub (Alex, 7 Nov)
@@ -960,7 +961,7 @@
       var list = tview.stills || [], me = session && session.user.id
       box.innerHTML = list.length ? '<div class="sgrid">' + list.map(function (st) {
         var mine = !share && (st.author === me || canDo('editor'))
-        return '<figure class="still-c"><button class="still-i" data-sj="' + st.at_sec + '" aria-label="Play from ' + mmss(st.at_sec) + '"><img src="' + st.url + '" alt="" loading="lazy"><i>' + tc(st.at_sec) + '</i></button>' +
+        return '<figure class="still-c"><button class="still-i" data-sj="' + st.at_sec + '" aria-label="Play from ' + mmss(st.at_sec) + '"><img src="' + st.url + '" alt="" loading="lazy"><i>' + tcf(st.at_sec, +store.get('rs-fps-' + st.version_id)) + '</i></button>' +
           '<figcaption><span>' + esc(st.by) + '</span><a class="ico sm" href="' + st.dl + '" download aria-label="Download this still" title="Download">' + ic('down') + '</a>' + (mine ? '<button class="ico sm danger" data-sdel="' + st.id + '" aria-label="Delete this still" title="Delete">' + ic('trash') + '</button>' : '') + '</figcaption></figure>'
       }).join('') + '</div>' : '<p class="muted" style="padding:10px 8px;margin:0;font-size:14px">No stills yet. Pause on a frame and press Grab still.</p>'
       $$('[data-sj]', box).forEach(function (b) { b.onclick = function () { jump({ id: '', at_sec: +b.dataset.sj }, false) } })
@@ -968,16 +969,84 @@
     }
     // Grab still: the frame on screen at full size, its time written on it, saved as a PNG (Alex, 7 Nov)
     function tc(t) { var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), sec = Math.floor(t % 60), ms = Math.round((t % 1) * 1000); if (ms === 1000) { ms = 0; sec++ } var p2 = function (n) { return (n < 10 ? '0' : '') + n }; return p2(h) + ':' + p2(m) + ':' + p2(sec) + '.' + ('00' + ms).slice(-3) }
+    var FPS = [23.976, 24, 25, 29.97, 30, 48, 50, 59.94, 60]
+    function snapFps(f) { var best = FPS[0]; FPS.forEach(function (x) { if (Math.abs(x - f) < Math.abs(best - f)) best = x }); return Math.abs(best - f) / best < 0.04 ? best : Math.round(f * 100) / 100 }
+    var fpsWait = {}
+    function boxes(dv, from, to, cb) { var o = from; while (o + 8 <= to) { var sz = dv.getUint32(o), ty = String.fromCharCode(dv.getUint8(o + 4), dv.getUint8(o + 5), dv.getUint8(o + 6), dv.getUint8(o + 7)), hd = 8; if (sz === 1) { sz = dv.getUint32(o + 8) * 4294967296 + dv.getUint32(o + 12); hd = 16 } else if (sz === 0) sz = to - o; if (sz < hd) break; if (cb(ty, o + hd, Math.min(o + sz, to), o, sz) === false) return; o += sz } }
+    function fpsFromMoov(dv, a, b) {
+      var out = 0
+      boxes(dv, a, b, function (ty, s0, e0) {
+        if (ty !== 'trak') return
+        var vide = false, ts = 0, best = 0, bestN = 0
+        boxes(dv, s0, e0, function (t1, s1, e1) {
+          if (t1 !== 'mdia') return
+          boxes(dv, s1, e1, function (t2, s2, e2) {
+            if (t2 === 'hdlr') vide = String.fromCharCode(dv.getUint8(s2 + 8), dv.getUint8(s2 + 9), dv.getUint8(s2 + 10), dv.getUint8(s2 + 11)) === 'vide'
+            if (t2 === 'mdhd') ts = dv.getUint8(s2) === 1 ? dv.getUint32(s2 + 20) : dv.getUint32(s2 + 12)
+            if (t2 === 'minf') boxes(dv, s2, e2, function (t3, s3, e3) { if (t3 === 'stbl') boxes(dv, s3, e3, function (t4, s4) { if (t4 === 'stts') { var n = dv.getUint32(s4 + 4); for (var i = 0; i < Math.min(n, 4096); i++) { var c = dv.getUint32(s4 + 8 + i * 8), dl = dv.getUint32(s4 + 12 + i * 8); if (c > bestN) { bestN = c; best = dl } } } }) })
+          })
+        })
+        if (vide && ts && best) { out = snapFps(ts / best); return false }
+      })
+      return out
+    }
+    function fileFps(u) {
+      var get = function (a, b) { return fetch(u, { headers: { Range: 'bytes=' + a + '-' + b } }).then(function (r) { if (!r.ok && r.status !== 206) throw new Error('range'); return r.arrayBuffer() }) }
+      return get(0, 1048575).then(function (buf) {
+        var dv = new DataView(buf), moov = null
+        boxes(dv, 0, buf.byteLength, function (ty, s0, e0, o, sz) { if (ty === 'moov') { moov = { o: o, sz: sz, inside: o + sz <= buf.byteLength, s0: s0 }; return false } })
+        if (moov && moov.inside) return fpsFromMoov(dv, moov.s0, moov.o + moov.sz)
+        if (moov) return get(moov.o, moov.o + moov.sz - 1).then(function (b2) { return fpsFromMoov(new DataView(b2), 8, b2.byteLength) })
+        // moov after the media data: walk the top boxes by their sizes to find it
+        var o = 0, last = null
+        boxes(dv, 0, buf.byteLength, function (ty, s0, e0, oo, sz) { last = { o: oo, sz: sz } })
+        if (!last) return 0
+        o = last.o + last.sz
+        var hop = function (at, n) { if (n > 8) return 0; return get(at, at + 15).then(function (h) { var hv = new DataView(h); if (h.byteLength < 8) return 0; var sz = hv.getUint32(0), ty = String.fromCharCode(hv.getUint8(4), hv.getUint8(5), hv.getUint8(6), hv.getUint8(7)); if (sz === 1) sz = hv.getUint32(8) * 4294967296 + hv.getUint32(12); if (ty === 'moov') return get(at, at + sz - 1).then(function (b2) { return fpsFromMoov(new DataView(b2), 8, b2.byteLength) }); return sz > 8 ? hop(at + sz, n + 1) : 0 }) }
+        return hop(o, 0)
+      }).catch(function () { return 0 })
+    }
+    function measureFps(x) {
+      var key = 'rs-fps-' + x.id, had = +store.get(key); if (had) return Promise.resolve(had)
+      if (fpsWait[x.id]) return fpsWait[x.id]
+      return (fpsWait[x.id] = urlFor(x).then(function (u) {
+        return fileFps(u).then(function (ff) { if (ff) { store.set(key, String(ff)); return ff } return playFps(u, key) })
+      }).catch(function () { return 0 }))
+    }
+    function playFps(u, key) {
+        return new Promise(function (res) {
+          var m = document.createElement('video'); m.muted = true; m.playsInline = true; m.setAttribute('playsinline', ''); m.crossOrigin = 'anonymous'; m.preload = 'auto'
+          m.style.cssText = 'position:fixed;left:-9999px;top:0;width:160px;height:90px;opacity:0;pointer-events:none'; document.body.appendChild(m)
+          var times = [], fin = function (f) { try { m.pause(); m.removeAttribute('src'); m.load(); m.remove() } catch (e) {} if (f) store.set(key, String(f)); res(f || 0) }
+          var stop = setTimeout(function () { fin(calc()) }, 6000)
+          var calc = function () { if (times.length < 6) return 0; var ds = []; for (var i = 1; i < times.length; i++) { var dd = times[i] - times[i - 1]; if (dd > 0.004 && dd < 0.1) ds.push(dd) } if (ds.length < 4) return 0; ds.sort(function (a, b) { return a - b }); return snapFps(1 / ds[Math.floor(ds.length / 5)]) }
+          if (!m.requestVideoFrameCallback) { clearTimeout(stop); fin(0); return }
+          var tick = function (now, md) { times.push(md.mediaTime); if (times.length >= 16) { clearTimeout(stop); fin(calc()) } else m.requestVideoFrameCallback(tick) }
+          m.requestVideoFrameCallback(tick)
+          m.src = u; m.addEventListener('loadeddata', function () { var pr = m.play(); if (pr && pr.catch) pr.catch(function () { clearTimeout(stop); fin(0) }) }, { once: true })
+        })
+    }
+    function tcf(t, fps) {
+      if (!fps) return tc(t)
+      var nom = Math.round(fps), fr = Math.floor(t * fps + 1e-4), ff = fr % nom, all = Math.floor(fr / nom)
+      var p2 = function (n) { return (n < 10 ? '0' : '') + n }
+      return p2(Math.floor(all / 3600)) + ':' + p2(Math.floor(all % 3600 / 60)) + ':' + p2(all % 60) + ':' + p2(ff)
+    }
+    function fpsLabel(f) { return f ? (f % 1 ? f.toFixed(3).replace(/0+$/, '') : f) + ' fps' : '' }
     function grabStill() {
       var x = curV(); if (kindOf(x) !== 'video' || !vidEl.videoWidth) { toast('Play the video once, then grab'); return }
       var w = vidEl.videoWidth, h = vidEl.videoHeight, c = document.createElement('canvas'); c.width = w; c.height = h
       var g = c.getContext('2d'); g.drawImage(vidEl, 0, 0, w, h)
-      var t = tc(vidEl.currentTime), fs = Math.max(16, Math.round(h / 26)), pad = Math.round(fs * .7)
+      var atNow = vidEl.currentTime
+      measureFps(x).then(function (fps) { stampStill(x, c, g, w, h, atNow, fps) })
+    }
+    function stampStill(x, c, g, w, h, atNow, fps) {
+      var t = tcf(atNow, fps) + (fps ? '  ·  ' + fpsLabel(fps) : ''), fs = Math.max(16, Math.round(h / 26)), pad = Math.round(fs * .7)
       g.font = '600 ' + fs + 'px "JetBrains Mono", ui-monospace, Menlo, monospace'
       var tw = g.measureText(t).width, bw = tw + pad * 2, bh = fs + pad * 1.2, bx = pad, by = h - bh - pad
       g.fillStyle = 'rgba(10,8,16,.72)'; if (g.roundRect) { g.beginPath(); g.roundRect(bx, by, bw, bh, bh / 2.6); g.fill() } else g.fillRect(bx, by, bw, bh)
       g.fillStyle = '#fcd34d'; g.textBaseline = 'middle'; g.fillText(t, bx + pad, by + bh / 2 + 1)
-      var atSec = Math.round(vidEl.currentTime * 1000) / 1000, gb = $('#grab'); if (gb) gb.disabled = true
+      var atSec = Math.round(atNow * 1000) / 1000, gb = $('#grab'); if (gb) gb.disabled = true
       var fail = function (m) { toast(m || 'Could not save the still'); if (gb) gb.disabled = false }
       try {
         c.toBlob(function (bl) {
