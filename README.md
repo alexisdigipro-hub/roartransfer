@@ -93,3 +93,26 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   above all the Free ones"): roar-transfer-get (in roarme) sees an admin signed in on the download page and skips the
   password and the download limit; each file's address carries an admin ticket (&c=, an HMAC of the token and a 6-hour
   slot) so the download is not counted and Download all (.zip) works through the Worker. Never past the link's end.
+
+## RoarStudio (studio.roartransfer.com)
+
+The music cloud, a branch of RoarTransfer (Alex, 7 Nov 2026), in `studio/` (served at roartransfer.com/studio/;
+studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no build step: `studio/index.html`,
+`studio/app.js`, `studio/audio.js`, `studio/style.css`.
+
+- Sign in with the Roar account (Sign in with Roar Account first, email below, two-step code when the account has one);
+  same session as RoarTransfer on roartransfer.com.
+- Projects hold tracks, each track a stack of versions. Dropping files on a project makes tracks; New version on a track
+  adds v2, v3… Files go straight from the browser to R2 (bucket `roartransfer`, under `studio/<project>/`) in 16 MB pieces,
+  four at a time, through the Edge Function `roarstudio` (in alexisdigipro-hub/roarme). Up to 10 GB a file.
+- Before a file goes up, `studio/audio.js` reads it in the browser: the waveform (1000 points), the integrated loudness
+  (ITU-R BS.1770-4, checked against the EBU reference by `node studio/test-audio.js`), the sample peak, the length and the
+  file's own sample rate.
+- The player: versions as pills (switching keeps the position, so versions can be compared), the waveform with each note
+  as a pin, Level match (every version played at −14 LUFS), space to play or pause.
+- Notes on the second (or on the whole version), replies, Done, delete; they arrive live (Supabase realtime).
+- Approve a version (owner and editors, or a share link that allows it), Download.
+- People: add someone by the email of their Roar account as Can upload and edit / Can listen and comment / Can listen.
+- Share: a link (`?s=<token>`) for the whole project or one track, for people without an account: comments, approve and
+  download each on or off, an end (never, 1, 7, 30 days) and a password. Guests type their name once.
+- Database: `supabase/studio.sql` in roarme (roarstudio_* tables with RLS, roarstudio_people, roarstudio_invite).
