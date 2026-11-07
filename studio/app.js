@@ -47,6 +47,9 @@
     reply: '<path d="M10 8L5 12l5 4M5 12h9a5 5 0 0 1 5 5v1"/>', out: '<path d="M14 4h6v6M20 4l-9 9M18 14v5H5V6h5"/>', copy: '<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 15V5h10"/>',
     music: '<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>',
     cam: '<path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.8l1.4-2h4.6l1.4 2h1.8A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.4"/>',
+    fprev: '<path d="M15 6l-6 6 6 6"/><path d="M7 6v12"/>', fnext: '<path d="M9 6l6 6-6 6"/><path d="M17 6v12"/>',
+    mask: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M3 15h18"/>', split: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 3v18"/>',
+    arrow: '<path d="M5 19L19 5M10 5h9v9"/>', circle: '<circle cx="12" cy="12" r="7.5"/>', undo: '<path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12"/>', mark: '<path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/>',
     image: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/>',
     film: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M10 9.5v5l4-2.5z" fill="currentColor"/>',
     folder: '<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
@@ -717,17 +720,17 @@
       '<div class="vers" id="vers"></div>' +
       '<div class="media" id="media"></div>' +
       '<div class="wave" id="wave"><canvas id="wv"></canvas><div class="pins" id="pins"></div><span class="hover-t" id="hover-t" hidden></span></div>' +
-      '<div class="ctl" id="ctl"><button class="ico sm" id="rew" aria-label="Back to the start" title="Back to the start">' + ic('prev') + '</button><button class="play" id="pb" aria-label="Play">' + ic('play') + '</button><span class="time" id="tm-t">0:00 <span>/ 0:00</span></span>' +
-      '<span class="pt"><label class="zoom zs" title="Zoom the waveform (double-click for all of it)">' + ic('zin') + '<input type="range" id="zr" min="0" max="100" step="1" value="0" aria-label="Zoom"><b class="mono" id="zl">1×</b></label><i class="pt-sep"></i><button class="ico sm" id="spd" aria-label="Speed" title="Speed"><b class="mono" style="font-size:11px">1×</b></button><button class="ico sm" id="lp" aria-label="Loop" title="Loop">' + ic('loop') + '</button><button class="ico sm" id="pip" aria-label="Picture in picture" title="Picture in picture" hidden>' + ic('pip') + '</button><button class="ico sm" id="fs" aria-label="Full screen" title="Full screen" hidden>' + ic('full') + '</button></span><button class="btn sm grab" id="grab" hidden title="Save this frame as a picture, with its time on it">' + ic('cam') + '<span>Grab still</span></button>' +
+      '<div class="ctl" id="ctl"><button class="ico sm" id="rew" aria-label="Back to the start" title="Back to the start">' + ic('prev') + '</button><button class="ico sm fstep" id="fprev" hidden aria-label="One frame back" title="One frame back (←)">' + ic('fprev') + '</button><button class="play" id="pb" aria-label="Play">' + ic('play') + '</button><button class="ico sm fstep" id="fnext" hidden aria-label="One frame on" title="One frame on (→)">' + ic('fnext') + '</button><span class="time" id="tm-t">0:00 <span>/ 0:00</span></span>' +
+      '<span class="pt"><label class="zoom zs" title="Zoom the waveform (double-click for all of it)">' + ic('zin') + '<input type="range" id="zr" min="0" max="100" step="1" value="0" aria-label="Zoom"><b class="mono" id="zl">1×</b></label><i class="pt-sep"></i><button class="ico sm" id="vmask" hidden aria-label="Frame masks" title="Frame masks: 2.39, 1.85, 9:16, 4:5, safe areas">' + ic('mask') + '</button><button class="ico sm" id="vdraw" hidden aria-label="Draw on the frame" title="Draw on the frame, then write the note">' + ic('pen') + '</button><button class="ico sm" id="vcmp" hidden aria-label="Compare two versions" title="Two versions side by side">' + ic('split') + '</button><button class="ico sm" id="spd" aria-label="Speed" title="Speed"><b class="mono" style="font-size:11px">1×</b></button><button class="ico sm" id="lp" aria-label="Loop" title="Loop">' + ic('loop') + '</button><button class="ico sm" id="pip" aria-label="Picture in picture" title="Picture in picture" hidden>' + ic('pip') + '</button><button class="ico sm" id="fs" aria-label="Full screen" title="Full screen" hidden>' + ic('full') + '</button></span><button class="btn sm grab" id="grab" hidden title="Save this frame as a picture, with its time on it">' + ic('cam') + '<span>Grab still</span></button>' +
       '<span class="lm">Level match <button class="sw" id="lm" aria-pressed="' + matched + '" aria-label="Level match"></button><span class="lufs" id="lufs"></span></span></div>' +
       '<div class="facts" id="facts"></div>' +
       '<div class="appr" id="appr"></div>' +
       (edit && !share ? '<input type="file" id="nvf" accept="audio/*,video/*,image/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.mov,.mp4,.heic,.tif,.tiff,.psd" hidden><div class="ups" id="ups"></div>' : '') +
-      '</section><aside class="notes glass"><header>' + '<div class="lens-group" id="ntab"><span class="lens"></span><button class="on" data-tab="n">Notes</button>' + (share ? '' : '<button data-tab="p">Notepad</button>') + '<button data-tab="s" hidden>Stills</button></div>' + '<span class="muted" id="ncount"></span></header>' +
+      '</section><aside class="notes glass"><header>' + '<div class="lens-group" id="ntab"><span class="lens"></span><button class="on" data-tab="n">Notes</button>' + (share ? '' : '<button data-tab="p">Notepad</button>') + '<button data-tab="s" hidden>Stills</button></div>' + '<span class="muted" id="ncount"></span>' + (share ? '' : '<button class="ico sm" id="nexp" hidden aria-label="Notes as markers for the edit" title="Notes as markers for the edit (Resolve, Premiere)">' + ic('mark') + '</button>') + '</header>' +
       '<div class="nfilter" id="nfilter"><label class="nsearch">' + ic('search') + '<input id="nq" placeholder="Search notes" aria-label="Search notes"></label><div class="chips" id="nchips"><button class="on" data-f="all">All</button><button data-f="open">Open</button><button data-f="done">Done</button>' + (share ? '' : '<button data-f="mine">Mine</button>') + '</div></div>' +
       '<div class="nlist" id="nlist"></div><div class="stills" id="stills" hidden></div>' + (share ? '' : '<div class="npad" id="npad" hidden><textarea class="in" id="npad-t"></textarea><span class="muted" id="npad-s" style="font-size:12px"></span></div>') +
       (canDo('commenter') ? '<form class="compose" id="cmp">' + (share && !store.get('rs-guest') ? '<input class="in" id="g-name" maxlength="60" placeholder="Your name" required>' : '') +
-        '<textarea class="in" id="cmp-t" rows="2" maxlength="4000"></textarea><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
+        '<div class="cmp-sk" id="cmp-sk" hidden>' + ic('pen') + '<span>Drawing goes with this note</span><button type="button" class="ico sm" id="cmp-sk-x" aria-label="Remove the drawing">' + ic('x') + '</button></div><textarea class="in" id="cmp-t" rows="2" maxlength="4000"></textarea><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
       '</aside></div>'
 
     $('#back').onclick = function () { go(share && share.data.tracks.length === 1 && share.data.project ? '#t/' + id : '#p/' + ctx.project.id) }
@@ -746,6 +749,12 @@
       if ($('#cmp-at')) $('.attime').hidden = k === 'image'
       if ($('#fs')) { $('#fs').hidden = k !== 'video'; $('#pip').hidden = k !== 'video' || !document.pictureInPictureEnabled }
       if ($('#grab')) $('#grab').hidden = k !== 'video' || (share && !share.data.can.comment)
+      ;['#fprev', '#fnext', '#vmask'].forEach(function (q) { if ($(q)) $(q).hidden = k !== 'video' })
+      if ($('#vdraw')) $('#vdraw').hidden = k !== 'video' || !canDo('commenter')
+      if ($('#vcmp')) $('#vcmp').hidden = k !== 'video' || vidVersions().length < 2
+      if ($('#nexp')) $('#nexp').hidden = k !== 'video'
+      if ($('#vmask')) $('#vmask').classList.toggle('on', !!(vs.mask || vs.safe))
+      if (k !== 'video') { compareOff(); drawMode(false) } else if (vs.cmp && vs.cmp.v.id === x.id) compareOff()
       if (k === 'video') measureFps(x).then(function (f) { if (f && tview.stills && $('#stills') && !$('#stills').hidden) paintStills() })
       var stb = $('#ntab [data-tab="s"]')
       if (stb) { stb.hidden = k !== 'video'; if (k !== 'video' && stb.classList.contains('on')) $('#ntab [data-tab="n"]').click(); else if (stb.classList.contains('on')) loadStills(); setTimeout(function () { if ($('#ntab')) lens($('#ntab')) }, 30) }
@@ -756,6 +765,7 @@
         var info = $('.vinfo', box); if (info) info.textContent = [x.width ? x.width + '×' + x.height : '', size(x.size), x.duration ? (x.size * 8 / x.duration / 1e6).toFixed(1) + ' Mbps' : ''].filter(Boolean).join(' · ')
         if (x.thumb && !vidEl.src) vidEl.poster = x.thumb
         vidEl.onclick = function () { pb.click() }
+        setupOverlay(box); setTimeout(paintOv, 60)
         box.hidden = false
       } else if (k === 'image') {
         box.hidden = false
@@ -894,7 +904,7 @@
       var one = function (c, reply) {
         var n = nameOf(c), mine = !share && session && c.author === session.user.id
         var reps = tview.notes.filter(function (z) { return z.parent_id === c.id })
-        return '<div class="note' + (c.done ? ' done' : '') + '" data-n="' + c.id + '">' + avatar(n.short || n.name, n.avatar, n.id) + '<div style="min-width:0"><div class="who"><b>' + esc(n.name) + '</b>' + (c.at_sec != null && !reply ? '<button class="at" data-at="' + c.id + '">' + mmss(c.at_sec) + '</button>' : '') + '<span>' + ago(c.created_at) + '</span></div>' + (c.at_sec != null && !reply && kindOf(curV()) === 'video' ? '<button class="nframe" data-fr="' + c.id + '" data-t="' + c.at_sec + '" aria-label="Play from ' + mmss(c.at_sec) + '"><canvas width="320" height="180"></canvas><i>' + mmss(c.at_sec) + '</i></button>' : '') + '<div class="body">' + esc(c.body) + '</div>' +
+        return '<div class="note' + (c.done ? ' done' : '') + '" data-n="' + c.id + '">' + avatar(n.short || n.name, n.avatar, n.id) + '<div style="min-width:0"><div class="who"><b>' + esc(n.name) + '</b>' + (c.at_sec != null && !reply ? '<button class="at" data-at="' + c.id + '">' + (kindOf(curV()) === 'video' ? tcf(c.at_sec, +store.get('rs-fps-' + curV().id)) : mmss(c.at_sec)) + '</button>' : '') + '<span>' + ago(c.created_at) + '</span></div>' + (c.at_sec != null && !reply && kindOf(curV()) === 'video' ? '<button class="nframe" data-fr="' + c.id + '" data-t="' + c.at_sec + '" aria-label="Play from ' + mmss(c.at_sec) + '"><canvas width="320" height="180"></canvas><i>' + tcf(c.at_sec, +store.get('rs-fps-' + curV().id)) + '</i></button>' : '') + '<div class="body">' + esc(c.body) + '</div>' +
           (reply ? '' : '<div class="acts">' + (canDo('commenter') ? '<button class="ico sm" data-rep="' + c.id + '" aria-label="Reply">' + ic('reply') + '</button>' : '') + (!share && (canDo('editor') || mine) ? '<button class="ico sm" data-done="' + c.id + '" aria-label="' + (c.done ? 'Open again' : 'Mark as done') + '" title="' + (c.done ? 'Open again' : 'Done') + '">' + ic('check') + '</button>' : '') + (mine || (!share && ctx.role === 'owner') ? '<button class="ico sm danger" data-del="' + c.id + '" aria-label="Delete note">' + ic('trash') + '</button>' : '') + '</div>') +
           (reps.length ? '<div class="replies">' + reps.map(function (r) { return one(r, true) }).join('') + '</div>' : '') + '</div></div>'
       }
@@ -908,12 +918,31 @@
       activeNote()
     }
     var frameCache = {}, frameQ = [], frameBusy = false, fv = null
-    function drawFrame(cv, src) { var g = cv.getContext('2d'), w = cv.width, h = cv.height, sw = src.videoWidth || src.width, sh = src.videoHeight || src.height; g.fillStyle = '#0b0910'; g.fillRect(0, 0, w, h); if (!sw) return; var sc = Math.max(w / sw, h / sh), dw = sw * sc, dh = sh * sc; g.drawImage(src, (w - dw) / 2, (h - dh) / 2, dw, dh) }
+    function drawFrame(cv, src) { var g = cv.getContext('2d'), w = cv.width, h = cv.height, sw = src.videoWidth || src.width, sh = src.videoHeight || src.height; g.fillStyle = '#0b0910'; g.fillRect(0, 0, w, h); if (!sw) return; var sc = Math.min(w / sw, h / sh), dw = sw * sc, dh = sh * sc; g.drawImage(src, (w - dw) / 2, (h - dh) / 2, dw, dh) }
+    function containRect(w, h, ar) { var cw = w, ch = w / ar; if (ch > h) { ch = h; cw = h * ar } return { x: (w - cw) / 2, y: (h - ch) / 2, w: cw, h: ch } }
+    function vAr() { var x = curV(); return vidEl.videoWidth ? vidEl.videoWidth / vidEl.videoHeight : x && x.width && x.height ? x.width / x.height : 16 / 9 }
+    function drawSketch(g, sk, r, k) {
+      if (!sk || !sk.length) return
+      g.save(); g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#facc15'; g.lineWidth = Math.max(2, r.w / 200) * (k || 1); g.shadowColor = 'rgba(0,0,0,.7)'; g.shadowBlur = 4 * (k || 1)
+      sk.forEach(function (st) {
+        var P = st.p.map(function (q) { return [r.x + q[0] * r.w, r.y + q[1] * r.h] }), a = P[0], z = P[P.length - 1]
+        g.beginPath()
+        if (st.t === 'pen') { g.moveTo(a[0], a[1]); P.forEach(function (q) { g.lineTo(q[0], q[1]) }) }
+        else if (st.t === 'arrow') { var an = Math.atan2(z[1] - a[1], z[0] - a[0]), hl = Math.max(10, r.w / 40) * (k || 1); g.moveTo(a[0], a[1]); g.lineTo(z[0], z[1]); g.moveTo(z[0], z[1]); g.lineTo(z[0] - hl * Math.cos(an - .5), z[1] - hl * Math.sin(an - .5)); g.moveTo(z[0], z[1]); g.lineTo(z[0] - hl * Math.cos(an + .5), z[1] - hl * Math.sin(an + .5)) }
+        else if (st.t === 'circle') { var cx = (a[0] + z[0]) / 2, cy = (a[1] + z[1]) / 2, rx = Math.abs(z[0] - a[0]) / 2, ry = Math.abs(z[1] - a[1]) / 2; if (g.ellipse) g.ellipse(cx, cy, Math.max(2, rx), Math.max(2, ry), 0, 0, Math.PI * 2); else g.arc(cx, cy, Math.max(rx, ry), 0, Math.PI * 2) }
+        g.stroke()
+      })
+      g.restore()
+    }
+    function sketchOnThumb(b) {
+      var c = tview.notes.filter(function (z) { return z.id === b.dataset.fr })[0]; if (!c || !c.sketch) return
+      var cv = $('canvas', b); drawSketch(cv.getContext('2d'), c.sketch, containRect(cv.width, cv.height, vAr()), cv.width / 320)
+    }
     function fillFrames() {
       var x = curV(); if (kindOf(x) !== 'video') return
       $$('#nlist .nframe').forEach(function (b) {
         var key = x.id + '@' + b.dataset.t, cv = $('canvas', b)
-        if (frameCache[key]) { drawFrame(cv, frameCache[key]); b.classList.add('on') } else if (!frameQ.some(function (q) { return q.key === key })) frameQ.push({ key: key, t: +b.dataset.t, v: x })
+        if (frameCache[key]) { drawFrame(cv, frameCache[key]); sketchOnThumb(b); b.classList.add('on') } else if (!frameQ.some(function (q) { return q.key === key })) frameQ.push({ key: key, t: +b.dataset.t, v: x })
       })
       nextFrame()
     }
@@ -921,7 +950,7 @@
     function isBlack(c) { try { var px = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, lit = 0; for (var i = 0; i < px.length; i += 64) if (px[i] + px[i + 1] + px[i + 2] > 24) lit++; return lit < 3 } catch (e) { return false } }
     function putFrame(key, c) {
       frameCache[key] = c
-      $$('#nlist .nframe').forEach(function (b) { if (curV() && curV().id + '@' + b.dataset.t === key) { drawFrame($('canvas', b), c); b.classList.add('on') } })
+      $$('#nlist .nframe').forEach(function (b) { if (curV() && curV().id + '@' + b.dataset.t === key) { drawFrame($('canvas', b), c); sketchOnThumb(b); b.classList.add('on') } })
     }
     function nextFrame() {
       if (frameBusy || !frameQ.length) return
@@ -1062,6 +1091,162 @@
         }, 'image/jpeg', 0.93)
       } catch (e) { fail('This video does not allow a still here') }
     }
+    // ===== video tools (Alex, 7 Nov): frame steps, masks, drawing, compare, markers =====
+    var vs = { mask: store.get('rs-mask') || '', safe: store.get('rs-safe') === '1', drawing: [], show: null, draw: false, tool: 'circle', cmp: null }
+    var MASKS = [['', 'None'], ['2.39', '2.39:1'], ['1.85', '1.85:1'], ['1', '1:1'], ['0.8', '4:5'], ['0.5625', '9:16']]
+    function fpsNow() { var x = curV(); return +store.get('rs-fps-' + x.id) || 25 }
+    function stepFrame(dir) {
+      var x = curV(); if (kindOf(x) !== 'video' || audio !== vidEl) return
+      audio.pause(); var f = fpsNow(), idx = Math.round(audio.currentTime * f) + dir, dur = audio.duration || x.duration || 0
+      audio.currentTime = Math.max(0, Math.min(dur - 0.001, idx / f + 0.001)); vs.show = null; paintOv(); drawWave()
+    }
+    vstep = stepFrame
+    function vrect() {
+      var box = $('#media'); if (!box || !vidEl.parentNode) return null
+      var b = box.getBoundingClientRect(), e = vidEl.getBoundingClientRect(), ar = vAr(), r = containRect(e.width, e.height, ar)
+      return { x: e.left - b.left + r.x, y: e.top - b.top + r.y, w: r.w, h: r.h, bw: b.width, bh: b.height }
+    }
+    function paintOv() {
+      var cv = $('#vov'); if (!cv) return
+      var r = vrect(); if (!r) return
+      var dp = devicePixelRatio || 1; cv.width = r.bw * dp; cv.height = r.bh * dp
+      var g = cv.getContext('2d'); g.setTransform(dp, 0, 0, dp, 0, 0); g.clearRect(0, 0, r.bw, r.bh)
+      var a = +vs.mask
+      if (a) {
+        var va = r.w / r.h, mw = r.w, mh = r.h
+        if (a > va) mh = r.w / a; else mw = r.h * a
+        var mx = r.x + (r.w - mw) / 2, my = r.y + (r.h - mh) / 2
+        g.fillStyle = 'rgba(0,0,0,.72)'
+        g.fillRect(r.x, r.y, r.w, my - r.y); g.fillRect(r.x, my + mh, r.w, r.y + r.h - my - mh); g.fillRect(r.x, my, mx - r.x, mh); g.fillRect(mx + mw, my, r.x + r.w - mx - mw, mh)
+        g.strokeStyle = 'rgba(250,204,21,.7)'; g.lineWidth = 1; g.strokeRect(mx + .5, my + .5, mw - 1, mh - 1)
+        g.font = '600 11px ui-monospace, Menlo, monospace'; g.fillStyle = '#fcd34d'; g.fillText((MASKS.filter(function (m) { return m[0] === vs.mask })[0] || ['', ''])[1], mx + 8, my + 16)
+      }
+      if (vs.safe) {
+        g.setLineDash([5, 4]); g.lineWidth = 1
+        ;[[0.93, 'rgba(255,255,255,.55)'], [0.9, 'rgba(250,204,21,.65)']].forEach(function (q) { var w = r.w * q[0], h = r.h * q[0]; g.strokeStyle = q[1]; g.strokeRect(r.x + (r.w - w) / 2, r.y + (r.h - h) / 2, w, h) })
+        g.setLineDash([]); g.strokeStyle = 'rgba(255,255,255,.4)'; g.beginPath(); g.moveTo(r.x + r.w / 2 - 10, r.y + r.h / 2); g.lineTo(r.x + r.w / 2 + 10, r.y + r.h / 2); g.moveTo(r.x + r.w / 2, r.y + r.h / 2 - 10); g.lineTo(r.x + r.w / 2, r.y + r.h / 2 + 10); g.stroke()
+      }
+      drawSketch(g, vs.draw || vs.drawing.length ? vs.drawing : vs.show, r, 1)
+      // compare: the second picture covers the right side from the handle on
+      if (vs.cmp) {
+        var ce = vs.cmp.el, e = vidEl.getBoundingClientRect(), bx = $('#media').getBoundingClientRect()
+        ce.style.left = (e.left - bx.left) + 'px'; ce.style.top = (e.top - bx.top) + 'px'; ce.style.width = e.width + 'px'; ce.style.height = e.height + 'px'
+        var px = r.x + r.w * vs.cmp.at - (e.left - bx.left)
+        ce.style.clipPath = 'inset(0 0 0 ' + Math.max(0, px) + 'px)'
+        var hd = vs.cmp.handle; hd.style.left = (r.x + r.w * vs.cmp.at) + 'px'; hd.style.top = r.y + 'px'; hd.style.height = r.h + 'px'
+        vs.cmp.la.style.left = (r.x + 10) + 'px'; vs.cmp.la.style.top = (r.y + 10) + 'px'; vs.cmp.lb.style.right = (r.bw - r.x - r.w + 10) + 'px'; vs.cmp.lb.style.top = (r.y + 10) + 'px'
+      }
+    }
+    function drawMode(on) {
+      vs.draw = on; var cv = $('#vov'); if (cv) cv.classList.toggle('drawing', on)
+      var t = $('#vdt'); if (t) t.hidden = !on
+      if ($('#vdraw')) $('#vdraw').classList.toggle('on', on)
+      if (on) { audio.pause(); vs.show = null }
+      if ($('#cmp-sk')) $('#cmp-sk').hidden = !vs.drawing.length
+      paintOv()
+    }
+    function setupOverlay(box) {
+      if ($('#vov', box)) return
+      var cv = document.createElement('canvas'); cv.id = 'vov'; cv.className = 'vov'; box.appendChild(cv)
+      var bar = document.createElement('div'); bar.id = 'vdt'; bar.className = 'vdt'; bar.hidden = true
+      bar.innerHTML = '<button class="ico sm" data-tool="circle" aria-label="Circle" title="Circle">' + ic('circle') + '</button><button class="ico sm" data-tool="arrow" aria-label="Arrow" title="Arrow">' + ic('arrow') + '</button><button class="ico sm" data-tool="pen" aria-label="Pen" title="Pen">' + ic('pen') + '</button><i></i><button class="ico sm" data-do="undo" aria-label="Undo" title="Undo">' + ic('undo') + '</button><button class="ico sm" data-do="clear" aria-label="Clear" title="Clear">' + ic('trash') + '</button><button class="btn sm main" data-do="done">Done</button>'
+      box.appendChild(bar)
+      var tools = function () { $$('[data-tool]', bar).forEach(function (b) { b.classList.toggle('on', b.dataset.tool === vs.tool) }) }; tools()
+      bar.onclick = function (e) {
+        var b = e.target.closest('button'); if (!b) return
+        if (b.dataset.tool) { vs.tool = b.dataset.tool; tools() }
+        if (b.dataset.do === 'undo') vs.drawing.pop()
+        if (b.dataset.do === 'clear') vs.drawing = []
+        if (b.dataset.do === 'done') { drawMode(false); if ($('#cmp-t')) $('#cmp-t').focus() }
+        if ($('#cmp-sk')) $('#cmp-sk').hidden = !vs.drawing.length
+        paintOv()
+      }
+      var cur2 = null
+      var norm = function (e) { var r = vrect(), b = $('#media').getBoundingClientRect(); return [Math.max(0, Math.min(1, (e.clientX - b.left - r.x) / r.w)), Math.max(0, Math.min(1, (e.clientY - b.top - r.y) / r.h))] }
+      cv.addEventListener('pointerdown', function (e) { if (!vs.draw) return; e.preventDefault(); cv.setPointerCapture(e.pointerId); var q = norm(e); cur2 = { t: vs.tool, p: [q, q] }; vs.drawing.push(cur2); paintOv() })
+      cv.addEventListener('pointermove', function (e) { if (!cur2) return; var q = norm(e); if (cur2.t === 'pen') { var l = cur2.p[cur2.p.length - 1]; if (Math.abs(l[0] - q[0]) + Math.abs(l[1] - q[1]) > 0.004 && cur2.p.length < 400) cur2.p.push(q) } else cur2.p[1] = q; paintOv() })
+      var up = function () { if (!cur2) return; if (cur2.t === 'pen' && cur2.p.length > 2) cur2.p.shift(); cur2 = null; if ($('#cmp-sk')) $('#cmp-sk').hidden = !vs.drawing.length }
+      cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up)
+      cv.addEventListener('click', function () { if (!vs.draw) pb.click() })
+      if ('ResizeObserver' in window) new ResizeObserver(function () { paintOv() }).observe(box)
+      vidEl.addEventListener('loadedmetadata', paintOv)
+      vidEl.addEventListener('play', function () { if (vs.show) { vs.show = null; paintOv() } })
+    }
+    function maskMenu(btn) {
+      var old = $('.vpop'); if (old) { old.remove(); return }
+      var pop = document.createElement('div'); pop.className = 'vpop glass'
+      pop.innerHTML = MASKS.map(function (m) { return '<button class="' + (vs.mask === m[0] ? 'on' : '') + '" data-m="' + m[0] + '">' + m[1] + '</button>' }).join('') + '<i></i><button class="' + (vs.safe ? 'on' : '') + '" data-safe>Safe areas</button>'
+      btn.parentNode.appendChild(pop)
+      pop.style.left = (btn.offsetLeft + btn.offsetWidth / 2) + 'px'
+      pop.onclick = function (e) {
+        var b = e.target.closest('button'); if (!b) return
+        if (b.hasAttribute('data-safe')) { vs.safe = !vs.safe; store.set('rs-safe', vs.safe ? '1' : '0') } else { vs.mask = b.dataset.m; store.set('rs-mask', vs.mask) }
+        btn.classList.toggle('on', !!(vs.mask || vs.safe)); pop.remove(); paintOv()
+      }
+      setTimeout(function () { document.addEventListener('click', function away(e) { if (!pop.contains(e.target) && e.target !== btn && !btn.contains(e.target)) { pop.remove(); document.removeEventListener('click', away) } }) })
+    }
+    function vidVersions() { return versions.filter(function (q) { return kindOf(q) === 'video' }) }
+    function compareOff() {
+      if (!vs.cmp) return
+      try { vs.cmp.el.pause(); vs.cmp.el.removeAttribute('src'); vs.cmp.el.load() } catch (e) {}
+      ;[vs.cmp.el, vs.cmp.handle, vs.cmp.la, vs.cmp.lb].forEach(function (n) { n.remove() }); vs.cmp = null
+      if ($('#media')) $('#media').classList.remove('cmp-on')
+      if ($('#vcmp')) $('#vcmp').classList.remove('on'); paintOv()
+    }
+    function compareOn(otherId) {
+      compareOff()
+      var x = curV(), list = vidVersions().filter(function (q) { return q.id !== x.id }); if (!list.length) return
+      var other = list.filter(function (q) { return q.id === otherId })[0] || list.filter(function (q) { return q.n < x.n }).pop() || list[0]
+      var box = $('#media'), el = document.createElement('video'); el.className = 'cmpv'; el.muted = true; el.playsInline = true; el.setAttribute('playsinline', ''); el.crossOrigin = 'anonymous'; el.preload = 'auto'
+      var handle = document.createElement('div'); handle.className = 'cmph'; handle.innerHTML = '<span>' + ic('split') + '</span>'
+      var la = document.createElement('b'); la.className = 'cmpl'; la.textContent = vname(x)
+      var lb = document.createElement('button'); lb.className = 'cmpl r'; lb.title = 'Pick the version on the right'; lb.textContent = vname(other) + (list.length > 1 ? ' ▾' : '')
+      box.appendChild(el); box.appendChild(handle); box.appendChild(la); box.appendChild(lb)
+      vs.cmp = { el: el, handle: handle, la: la, lb: lb, at: 0.5, v: other }
+      box.classList.add('cmp-on')
+      lb.onclick = function () { var i = list.indexOf(other); compareOn(list[(i + 1) % list.length].id) }
+      handle.addEventListener('pointerdown', function (e) {
+        e.preventDefault(); handle.setPointerCapture(e.pointerId)
+        var mv = function (ev) { var r = vrect(), b = box.getBoundingClientRect(); vs.cmp.at = Math.max(0.02, Math.min(0.98, (ev.clientX - b.left - r.x) / r.w)); paintOv() }
+        var en = function () { handle.removeEventListener('pointermove', mv); handle.removeEventListener('pointerup', en) }
+        handle.addEventListener('pointermove', mv); handle.addEventListener('pointerup', en)
+      })
+      urlFor(other).then(function (u) { if (!vs.cmp || vs.cmp.el !== el) return; el.src = u; el.addEventListener('loadeddata', function () { el.currentTime = vidEl.currentTime; paintOv() }, { once: true }) })
+      if ($('#vcmp')) $('#vcmp').classList.add('on'); paintOv()
+    }
+    function syncCompare() {
+      if (!vs.cmp) return
+      var el = vs.cmp.el; if (el.readyState < 1) return
+      if (Math.abs(el.currentTime - vidEl.currentTime) > (vidEl.paused ? 0.02 : 0.12)) { try { el.currentTime = vidEl.currentTime } catch (e) {} }
+      if (el.playbackRate !== vidEl.playbackRate) el.playbackRate = vidEl.playbackRate
+      if (vidEl.paused && !el.paused) el.pause(); else if (!vidEl.paused && el.paused) { var pr = el.play(); if (pr && pr.catch) pr.catch(function () {}) }
+    }
+    // the notes as markers for the edit: Resolve (EDL), Premiere (XML), a spreadsheet (CSV)
+    function exportMarkers() {
+      var x = curV(), list = tview.notes.filter(function (c) { return c.version_id === x.id && !c.parent_id && c.at_sec != null }).sort(function (a, b) { return a.at_sec - b.at_sec })
+      if (!list.length) { toast('No notes with a time on this version yet'); return }
+      measureFps(x).then(function (f0) {
+        var f = f0 || 25, nom = Math.round(f), ntsc = Math.abs(f - nom) > 0.01, title = (track.title + ' ' + vname(x)).replace(/[^\w .-]+/g, '').trim() || 'Notes'
+        var one = function (c) { var n = nameOf(c); return (n.name + ': ' + c.body).replace(/[\r\n|]+/g, ' ').slice(0, 250) }
+        var hour = 3600 * nom
+        var fr = function (t) { return Math.floor(t * f + 1e-4) }
+        var tcOf = function (frames) { var p2 = function (v) { return (v < 10 ? '0' : '') + v }, ff = frames % nom, all = Math.floor(frames / nom); return p2(Math.floor(all / 3600)) + ':' + p2(Math.floor(all % 3600 / 60)) + ':' + p2(all % 60) + ':' + p2(ff) }
+        var edl = 'TITLE: ' + title + '\nFCM: NON-DROP FRAME\n\n' + list.map(function (c, i) { var a = tcOf(hour + fr(c.at_sec)), b = tcOf(hour + fr(c.at_sec) + 1), no = ('00' + (i + 1)).slice(-3); return no + '  001      V     C        ' + a + ' ' + b + ' ' + a + ' ' + b + '\n |C:ResolveColor' + (c.done ? 'Green' : 'Yellow') + ' |M:' + one(c) + ' |D:1\n' }).join('\n')
+        var xe = function (v) { return String(v).replace(/[<>&"]/g, function (ch) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[ch] }) }
+        var rate = '<rate><timebase>' + nom + '</timebase><ntsc>' + (ntsc ? 'TRUE' : 'FALSE') + '</ntsc></rate>'
+        var dur = Math.ceil((x.duration || audio.duration || 60) * f)
+        var xml = '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE xmeml>\n<xmeml version="4"><sequence id="rts-notes"><name>' + xe(title) + '</name><duration>' + dur + '</duration>' + rate + '<timecode>' + rate + '<string>01:00:00:00</string><frame>' + hour + '</frame><displayformat>NDF</displayformat></timecode><media><video><format><samplecharacteristics>' + rate + '<width>' + (x.width || 1920) + '</width><height>' + (x.height || 1080) + '</height></samplecharacteristics></format><track></track></video></media>' +
+          list.map(function (c) { var n = nameOf(c); return '<marker><name>' + xe(n.name) + '</name><comment>' + xe(c.body) + '</comment><in>' + fr(c.at_sec) + '</in><out>-1</out></marker>' }).join('') + '</sequence></xmeml>\n'
+        var q = function (v) { return '"' + String(v).replace(/"/g, '""') + '"' }
+        var csv = 'Timecode,Seconds,Author,Note,Status\n' + list.map(function (c) { return [tcOf(fr(c.at_sec)), c.at_sec, nameOf(c).name, c.body, c.done ? 'Done' : 'Open'].map(q).join(',') }).join('\n') + '\n'
+        var save = function (txt, name, type) { var u = URL.createObjectURL(new Blob([txt], { type: type })), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u) }, 4000) }
+        modal('<div class="spread"><h2>Markers for the edit</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><p class="muted" style="margin:0">' + list.length + ' note' + (list.length === 1 ? '' : 's') + ' at ' + fpsLabel(f) + (f0 ? '' : ' (taken as 25)') + ', timeline starting at 01:00:00:00.</p><div class="opts"><button class="btn" id="mk-edl">' + ic('down') + ' DaVinci Resolve (.edl)</button><button class="btn" id="mk-xml">' + ic('down') + ' Premiere Pro (.xml)</button><button class="btn" id="mk-csv">' + ic('down') + ' Spreadsheet (.csv)</button></div><p class="muted" style="margin:0;font-size:12.5px">Resolve: right-click the timeline > Timelines > Import > Timeline Markers from EDL. Premiere: File > Import the .xml, the markers come on a new sequence.</p>', function (m) {
+          $('#mk-edl', m).onclick = function () { save(edl, title + ' markers.edl', 'text/plain') }
+          $('#mk-xml', m).onclick = function () { save(xml, title + ' markers.xml', 'application/xml') }
+          $('#mk-csv', m).onclick = function () { save(csv, title + ' notes.csv', 'text/csv') }
+        })
+      })
+    }
     var lastActive = null
     function activeNote() {
       var t = audio.currentTime, best = null
@@ -1076,6 +1261,7 @@
       // wait for the file's metadata, or load() puts the time back to 0 after we set it (why the pins seemed dead)
       var go2 = function () { var set = function () { try { audio.currentTime = c.at_sec || 0 } catch (e) {} drawWave(); if (andPlay) play() }; if (audio.readyState >= 1) set(); else audio.addEventListener('loadedmetadata', function () { setTimeout(set) }, { once: true }) }
       if (!cur.url || cur.version !== x) load(x, false, false).then(go2); else go2()
+      vs.show = c.sketch || null; if (typeof paintOv === 'function') paintOv()
       lastActive = null
       $$('#nlist > .note').forEach(function (n) { var on = n.dataset.n === c.id; n.classList.toggle('on', on); if (on && play) { n.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); n.classList.remove('flash'); void n.offsetWidth; n.classList.add('flash') } })
       $$('#pins .pin').forEach(function (p) { p.classList.toggle('on', p.dataset.c === c.id) })
@@ -1091,12 +1277,13 @@
         e.preventDefault()
         var body = $('#cmp-t').value.trim(); if (!body) return
         if (share && $('#g-name')) { var gn = $('#g-name').value.trim(); if (!gn) { $('#g-name').focus(); return } store.set('rs-guest', gn) }
-        var x = curV(), at = replyTo || kindOf(x) === 'image' ? null : ($('#cmp-at').checked ? Math.round(audio.currentTime * 10) / 10 : null)
+        var x = curV(), at = replyTo || kindOf(x) === 'image' ? null : ($('#cmp-at').checked ? Math.round(audio.currentTime * (kindOf(x) === 'video' ? 1000 : 10)) / (kindOf(x) === 'video' ? 1000 : 10) : null)
+        var sketch = at != null && !replyTo && vs.drawing.length ? vs.drawing.slice() : null
         $('#cmp-go').disabled = true
-        var p = share ? api('share-comment', { version: x.id, body: body, at_sec: at, name: store.get('rs-guest'), parent: replyTo }).then(function (d) { if (d.error) throw new Error(d.error); share.data.comments.push(d.comment); return d.comment })
-          : sb.from('roarstudio_comments').insert({ version_id: x.id, project_id: ctx.project.id, body: body, at_sec: at, author: session.user.id, parent_id: replyTo }).select().single().then(function (r) { if (r.error) throw new Error(r.error.message); return r.data })
+        var p = share ? api('share-comment', { version: x.id, body: body, at_sec: at, name: store.get('rs-guest'), parent: replyTo, sketch: sketch }).then(function (d) { if (d.error) throw new Error(d.error); share.data.comments.push(d.comment); return d.comment })
+          : sb.from('roarstudio_comments').insert({ version_id: x.id, project_id: ctx.project.id, body: body, at_sec: at, author: session.user.id, parent_id: replyTo, sketch: sketch }).select().single().then(function (r) { if (r.error) throw new Error(r.error.message); return r.data })
         if (at != null && kindOf(x) === 'video' && vidEl.readyState >= 2 && Math.abs(vidEl.currentTime - at) < 0.3) { try { var fc = document.createElement('canvas'); fc.width = 320; fc.height = 180; drawFrame(fc, vidEl); if (!isBlack(fc)) frameCache[x.id + '@' + at] = fc } catch (e) {} }
-        p.then(function (c) { tview.notes.push(c); $('#cmp-t').value = ''; replyTo = null; $('#cmp-t').placeholder = ''; if ($('#g-name')) $('#g-name').remove(); paintNotes() }).catch(function (x2) { toast(x2.message) }).then(function () { $('#cmp-go').disabled = false })
+        p.then(function (c) { if (sketch) { vs.drawing = []; drawMode(false) } tview.notes.push(c); $('#cmp-t').value = ''; replyTo = null; $('#cmp-t').placeholder = ''; if ($('#g-name')) $('#g-name').remove(); paintNotes() }).catch(function (x2) { toast(x2.message) }).then(function () { $('#cmp-go').disabled = false })
       }
     }
     function askName(then) {
@@ -1116,8 +1303,10 @@
       if (!document.body.contains(wv)) return
       var x = curV(), dur = x.duration || audio.duration || 0
       var t = cur.version === x ? audio.currentTime : 0
-      $('#tm-t').innerHTML = mmss(t) + ' <span>/ ' + mmss(dur) + '</span>'
-      if ($('#cmp-time')) $('#cmp-time').textContent = mmss(t)
+      var isV = kindOf(x) === 'video', fq = isV ? +store.get('rs-fps-' + x.id) : 0
+      $('#tm-t').innerHTML = isV && fq ? tcf(t, fq) + ' <span>' + fpsLabel(fq) + '</span>' : mmss(t) + ' <span>/ ' + mmss(dur) + '</span>'
+      if ($('#cmp-time')) $('#cmp-time').textContent = isV && fq ? tcf(t, fq) : mmss(t)
+      syncCompare()
       drawWave(); activeNote(); requestAnimationFrame(tick)
     }
     ;[audEl, vidEl].forEach(function (el) {
@@ -1186,6 +1375,12 @@
     $('#spd').querySelector('b').textContent = (audio.playbackRate || 1) + '×'
     $('#lp').onclick = function () { var on = !audEl.loop; audEl.loop = vidEl.loop = on; this.classList.toggle('on', on) }
     $('#lp').classList.toggle('on', audEl.loop)
+    if ($('#fprev')) { $('#fprev').onclick = function () { stepFrame(-1) }; $('#fnext').onclick = function () { stepFrame(1) } }
+    if ($('#vmask')) $('#vmask').onclick = function (e) { e.stopPropagation(); maskMenu(this) }
+    if ($('#vdraw')) $('#vdraw').onclick = function () { drawMode(!vs.draw) }
+    if ($('#vcmp')) $('#vcmp').onclick = function () { if (vs.cmp) compareOff(); else compareOn() }
+    if ($('#nexp')) $('#nexp').onclick = exportMarkers
+    if ($('#cmp-sk-x')) $('#cmp-sk-x').onclick = function () { vs.drawing = []; drawMode(false) }
     if ($('#grab')) $('#grab').onclick = function () { if (share && !store.get('rs-guest')) askName(grabStill); else grabStill() }
     $('#fs').onclick = function () { var el = $('#media'); try { (el.requestFullscreen || el.webkitRequestFullscreen).call(el) } catch (e) { try { vidEl.webkitEnterFullscreen() } catch (x) {} } }
     $('#pip').onclick = function () { try { if (document.pictureInPictureElement) document.exitPictureInPicture(); else vidEl.requestPictureInPicture() } catch (e) {} }
@@ -1201,7 +1396,9 @@
     el.addEventListener('dragover', over); el.addEventListener('drop', function (e) { if (!e.dataTransfer || !e.dataTransfer.files.length) return; e.preventDefault(); fn(Array.prototype.slice.call(e.dataTransfer.files)) })
   }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && $('#layer').firstChild) close() })
+  var vstep = null
   document.addEventListener('keydown', function (e) {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && vstep && $('#vov') && !/input|textarea|select/i.test((e.target && e.target.tagName) || '') && !$('#layer').firstChild) { e.preventDefault(); vstep(e.key === 'ArrowLeft' ? -1 : 1); return }
     if (e.code !== 'Space' || /input|textarea|select|button/i.test((e.target && e.target.tagName) || '')) return
     var pb = $('#pb'); if (pb) { e.preventDefault(); pb.click() }
   })
