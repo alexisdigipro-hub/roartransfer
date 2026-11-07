@@ -916,23 +916,36 @@
       })
       nextFrame()
     }
+    // is a drawn frame only black? (a frame not decoded yet draws black, mostly in Safari)
+    function isBlack(c) { try { var px = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, lit = 0; for (var i = 0; i < px.length; i += 64) if (px[i] + px[i + 1] + px[i + 2] > 24) lit++; return lit < 3 } catch (e) { return false } }
+    function putFrame(key, c) {
+      frameCache[key] = c
+      $$('#nlist .nframe').forEach(function (b) { if (curV() && curV().id + '@' + b.dataset.t === key) { drawFrame($('canvas', b), c); b.classList.add('on') } })
+    }
     function nextFrame() {
       if (frameBusy || !frameQ.length) return
       var q = frameQ.shift(); frameBusy = true
       var done = function () { frameBusy = false; setTimeout(nextFrame) }
-      if (!fv) { fv = document.createElement('video'); fv.crossOrigin = 'anonymous'; fv.muted = true; fv.preload = 'auto'; fv.playsInline = true }
+      if (!fv) {
+        // kept in the page (out of sight): Safari decodes no pictures for a video that is not in the page
+        fv = document.createElement('video'); fv.crossOrigin = 'anonymous'; fv.muted = true; fv.preload = 'auto'; fv.playsInline = true; fv.setAttribute('playsinline', ''); fv.setAttribute('aria-hidden', 'true')
+        fv.style.cssText = 'position:fixed;left:-9999px;top:0;width:320px;height:180px;opacity:0;pointer-events:none'
+        document.body.appendChild(fv)
+      }
       urlFor(q.v).then(function (u) {
-        var seek = function () {
-          var to = setTimeout(done, 8000)
-          fv.addEventListener('seeked', function () {
-            clearTimeout(to)
-            var c = document.createElement('canvas'); c.width = 320; c.height = 180; drawFrame(c, fv); frameCache[q.key] = c
-            $$('#nlist .nframe').forEach(function (b) { if (q.v.id + '@' + b.dataset.t === q.key) { drawFrame($('canvas', b), c); b.classList.add('on') } })
-            done()
-          }, { once: true })
-          try { fv.currentTime = Math.max(0.01, q.t) } catch (e) { clearTimeout(to); done() }
+        var tries = 0
+        var grab = function () {
+          var c = document.createElement('canvas'); c.width = 320; c.height = 180; drawFrame(c, fv)
+          if (isBlack(c) && tries++ < 4) { setTimeout(grab, 250); return }
+          putFrame(q.key, c); done()
         }
-        if (fv.dataset.v !== q.v.id) { fv.dataset.v = q.v.id; fv.src = u; fv.addEventListener('loadedmetadata', seek, { once: true }); fv.load() } else if (fv.readyState >= 1) seek(); else fv.addEventListener('loadedmetadata', seek, { once: true })
+        var ready = function () { if (fv.requestVideoFrameCallback) { var fired = false; fv.requestVideoFrameCallback(function () { fired = true; grab() }); setTimeout(function () { if (!fired) grab() }, 600) } else setTimeout(grab, 120) }
+        var seek = function () {
+          var to = setTimeout(done, 10000)
+          fv.addEventListener('seeked', function () { clearTimeout(to); if (fv.readyState >= 2) ready(); else fv.addEventListener('loadeddata', ready, { once: true }) }, { once: true })
+          try { fv.currentTime = Math.max(0.04, q.t) } catch (e) { clearTimeout(to); done() }
+        }
+        if (fv.dataset.v !== q.v.id) { fv.dataset.v = q.v.id; fv.src = u; fv.addEventListener('loadeddata', seek, { once: true }); fv.load() } else if (fv.readyState >= 2) seek(); else fv.addEventListener('loadeddata', seek, { once: true })
       }).catch(done)
     }
     // Stills (Alex, 7 Nov): Grab still saves the frame, its time on it, into the Stills tab for everyone; download from there
@@ -1013,6 +1026,7 @@
         $('#cmp-go').disabled = true
         var p = share ? api('share-comment', { version: x.id, body: body, at_sec: at, name: store.get('rs-guest'), parent: replyTo }).then(function (d) { if (d.error) throw new Error(d.error); share.data.comments.push(d.comment); return d.comment })
           : sb.from('roarstudio_comments').insert({ version_id: x.id, project_id: ctx.project.id, body: body, at_sec: at, author: session.user.id, parent_id: replyTo }).select().single().then(function (r) { if (r.error) throw new Error(r.error.message); return r.data })
+        if (at != null && kindOf(x) === 'video' && vidEl.readyState >= 2 && Math.abs(vidEl.currentTime - at) < 0.3) { try { var fc = document.createElement('canvas'); fc.width = 320; fc.height = 180; drawFrame(fc, vidEl); if (!isBlack(fc)) frameCache[x.id + '@' + at] = fc } catch (e) {} }
         p.then(function (c) { tview.notes.push(c); $('#cmp-t').value = ''; replyTo = null; $('#cmp-t').placeholder = ''; if ($('#g-name')) $('#g-name').remove(); paintNotes() }).catch(function (x2) { toast(x2.message) }).then(function () { $('#cmp-go').disabled = false })
       }
     }
