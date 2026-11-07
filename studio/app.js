@@ -28,7 +28,12 @@
     x: '<path d="M6 6l12 12M18 6L6 18"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', back: '<path d="M15 5l-7 7 7 7"/>',
     dots: '<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>',
     reply: '<path d="M10 8L5 12l5 4M5 12h9a5 5 0 0 1 5 5v1"/>', out: '<path d="M14 4h6v6M20 4l-9 9M18 14v5H5V6h5"/>', copy: '<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 15V5h10"/>',
-    music: '<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>'
+    music: '<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>',
+    image: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/>',
+    film: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M10 9.5v5l4-2.5z" fill="currentColor"/>',
+    folder: '<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
+    star: '<path d="M12 4l2.4 5 5.4.6-4 3.7 1.1 5.3L12 16l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z"/>',
+    next: '<path d="M9 5l7 7-7 7"/>'
   }
   var ic = function (n) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + P[n] + '</svg>' }
 
@@ -79,19 +84,30 @@
     })
   }
 
-  // ---- the player: one audio element, a gain for level matching ----
-  var audio = new Audio(); audio.preload = 'auto'; audio.crossOrigin = 'anonymous'
+  // ---- what a file is: sound, picture in motion, or a still ----
+  function kindOf(v) {
+    var m = String((v && v.mime) || ''), n = String((v && (v.file_name || v.name)) || '').toLowerCase()
+    if (/^video\//.test(m) || /\.(mp4|mov|m4v|webm|mkv|avi|mxf)$/.test(n)) return 'video'
+    if (/^image\//.test(m) || /\.(jpe?g|png|gif|webp|heic|heif|tiff?|bmp|avif|psd|svg)$/.test(n)) return 'image'
+    return 'audio'
+  }
+  var KIND_WORD = { audio: 'Audio', video: 'Video', image: 'Picture' }
+
+  // ---- the player: an audio element with a gain for level matching, a video element for pictures in motion ----
+  var audEl = new Audio(); audEl.preload = 'auto'; audEl.crossOrigin = 'anonymous'
+  var vidEl = document.createElement('video'); vidEl.preload = 'metadata'; vidEl.crossOrigin = 'anonymous'; vidEl.playsInline = true; vidEl.setAttribute('playsinline', ''); vidEl.className = 'vid'
+  var audio = audEl // whichever is playing now
   var actx = null, gainNode = null, matched = store.get('rs-match') !== '0'
   var cur = { version: null, url: '', gain: 1 }
   function ensureGraph() {
     if (actx || !(window.AudioContext || window.webkitAudioContext)) return
-    try { actx = new (window.AudioContext || window.webkitAudioContext)(); var src = actx.createMediaElementSource(audio); gainNode = actx.createGain(); src.connect(gainNode).connect(actx.destination) } catch (e) { actx = null; gainNode = null }
+    try { actx = new (window.AudioContext || window.webkitAudioContext)(); var src = actx.createMediaElementSource(audEl); gainNode = actx.createGain(); src.connect(gainNode).connect(actx.destination) } catch (e) { actx = null; gainNode = null }
   }
   function applyGain() {
     var v = cur.version, g = 1
     if (matched && v && v.lufs != null) g = Math.pow(10, Math.max(-24, Math.min(12, TARGET - v.lufs)) / 20)
     cur.gain = g
-    if (gainNode) { gainNode.gain.value = g; audio.volume = 1 } else audio.volume = Math.min(1, g)
+    if (audio === audEl && gainNode) { gainNode.gain.value = g; audEl.volume = 1 } else audio.volume = Math.min(1, g)
   }
   var urlCache = {}
   function urlFor(v) {
@@ -103,7 +119,10 @@
   }
   function load(v, keepTime, autoplay) {
     var t = keepTime ? audio.currentTime : 0, was = !audio.paused
+    var el = kindOf(v) === 'video' ? vidEl : audEl
+    if (el !== audio) { audio.pause(); audio = el; cur.url = '' }
     cur.version = v; applyGain()
+    if (kindOf(v) === 'image') { audio.pause(); return Promise.resolve() }
     return urlFor(v).then(function (u) {
       if (cur.version !== v) return
       if (cur.url !== u) { cur.url = u; audio.src = u; audio.load() }
@@ -111,7 +130,7 @@
       if (audio.readyState >= 1) go(); else audio.addEventListener('loadedmetadata', go, { once: true })
     })
   }
-  function play() { ensureGraph(); if (actx && actx.state === 'suspended') actx.resume(); applyGain(); var p = audio.play(); if (p && p.catch) p.catch(function () {}) }
+  function play() { if (audio === audEl) { ensureGraph(); if (actx && actx.state === 'suspended') actx.resume() } applyGain(); var p = audio.play(); if (p && p.catch) p.catch(function () {}) }
   function download(v) {
     (share ? api('share-url', { version: v.id, download: true }) : api('url', { version: v.id, download: true })).then(function (d) {
       if (!d.url) { toast(d.error || 'Could not download'); return }
@@ -122,7 +141,7 @@
   // ---- routing ----
   var qs = new URLSearchParams(location.search)
   var shareToken = qs.get('s')
-  function route() { var m = location.hash.match(/^#([pt])\/([0-9a-f-]{36})/); return m ? { kind: m[1], id: m[2] } : { kind: 'home' } }
+  function route() { var m = location.hash.match(/^#([ptf])\/([0-9a-f-]{36})/); return m ? { kind: m[1], id: m[2] } : { kind: 'home' } }
   function go(h) { if (location.hash === h) render(); else location.hash = h }
   window.addEventListener('hashchange', function () { render() })
   $('#home').onclick = function () { go(share ? '#/' : '#/') }
@@ -151,12 +170,13 @@
 
   function render() {
     var view = $('#view')
-    unlisten()
+    unlisten(); close()
     if (share) return renderShare()
     if (!session) { setTop([]); return renderSignedOut(view) }
     var r = route()
     if (r.kind === 'p') return renderProject(r.id)
     if (r.kind === 't') return renderTrack(r.id)
+    if (r.kind === 'f') return renderFinals(r.id)
     return renderProjects()
   }
 
@@ -274,7 +294,7 @@
       ;(r[1].data || []).forEach(function (t) { counts[t.project_id] = (counts[t.project_id] || 0) + 1 })
       view.innerHTML = '<div class="head"><div><h1>Projects</h1><div class="sub">' + ps.length + ' project' + (ps.length === 1 ? '' : 's') + (r[2] && r[2].bytes ? ' · ' + size(r[2].bytes) + ' stored' : '') + '</div></div><div class="tools"><button class="btn main" id="np">' + ic('plus') + ' New project</button></div></div>' +
         (ps.length ? '<div class="grid">' + ps.map(function (p) {
-          return '<button class="proj glass" data-p="' + p.id + '"><div class="cover" style="' + coverStyle(p.id) + '"><b>' + esc(p.title) + '</b></div><div class="meta"><span>' + esc(p.artist || (p.owner === session.user.id ? 'Yours' : 'Shared with you')) + '</span><span>' + (counts[p.id] || 0) + ' track' + (counts[p.id] === 1 ? '' : 's') + '</span></div></button>'
+          return '<button class="proj glass" data-p="' + p.id + '"><div class="cover" style="' + coverStyle(p.id) + '"><b>' + esc(p.title) + '</b></div><div class="meta"><span>' + esc(p.artist || (p.owner === session.user.id ? 'Yours' : 'Shared with you')) + '</span><span>' + (counts[p.id] || 0) + ' file' + (counts[p.id] === 1 ? '' : 's') + '</span></div></button>'
         }).join('') + '<button class="proj new-proj" id="np2"><span class="ico">' + ic('plus') + '</span>New project</button></div>'
         : '<div class="empty glass"><span class="ico" style="width:64px;height:64px">' + ic('music') + '</span><h2>Start your first project</h2><p>A project is an album, a single or a film score. Put tracks in it, upload versions, and invite the people you work with.</p><button class="btn main" id="np2">' + ic('plus') + ' New project</button></div>')
       $$('[data-p]').forEach(function (b) { b.onclick = function () { go('#p/' + b.dataset.p) } })
@@ -328,22 +348,29 @@
     var view = $('#view'), pr = c.project, edit = canDo('editor')
     setTop([pr.title])
     var openNotes = function (tid) { var ids = c.versions.filter(function (v) { return v.track_id === tid }).map(function (v) { return v.id }); return c.comments.filter(function (n) { return ids.indexOf(n.version_id) >= 0 && !n.done && !n.parent_id }).length }
-    view.innerHTML = '<div class="head"><span class="cover" style="width:64px;height:64px;padding:0;border-radius:16px;' + coverStyle(pr.id) + '"></span><div style="min-width:0"><h1>' + esc(pr.title) + '</h1><div class="sub">' + esc(pr.artist || '') + (pr.artist ? ' · ' : '') + c.tracks.length + ' track' + (c.tracks.length === 1 ? '' : 's') + (share ? (share.data.project.owner_name ? ' · shared by ' + esc(share.data.project.owner_name) : '') : '') + '</div></div>' +
+    view.innerHTML = '<div class="head"><span class="cover" style="width:64px;height:64px;padding:0;border-radius:16px;' + coverStyle(pr.id) + '"></span><div style="min-width:0"><h1>' + esc(pr.title) + '</h1><div class="sub">' + esc(pr.artist || '') + (pr.artist ? ' · ' : '') + c.tracks.length + ' file' + (c.tracks.length === 1 ? '' : 's') + (share ? (share.data.project.owner_name ? ' · shared by ' + esc(share.data.project.owner_name) : '') : '') + '</div></div>' +
       '<div class="tools">' + (share ? '' :
         (edit ? '<button class="btn main" id="up-btn">' + ic('up') + ' Upload</button>' : '') +
         (edit ? '<button class="btn" id="sh-btn">' + ic('share') + ' Share</button>' : '') +
         '<button class="btn" id="pp-btn">' + ic('people') + ' People</button>' +
         (edit ? '<button class="ico" id="pm-btn" aria-label="More">' + ic('dots') + '</button>' : '')) + '</div></div>' +
+      (function () { var f = c.versions.filter(function (v) { return v.final_at }); return f.length && !share ? '<button class="folder glass" id="fin-btn"><span class="fi">' + ic('folder') + '</span><span class="nm"><b>Finals</b><span>' + f.length + ' final file' + (f.length === 1 ? '' : 's') + ' · ' + size(f.reduce(function (a, v) { return a + Number(v.size || 0) }, 0)) + '</span></span><span class="go">' + ic('next') + '</span></button>' : '' })() +
       '<div class="tracks" id="tracks">' + (c.tracks.length ? c.tracks.map(function (t) {
         var v = latest(t.id); if (!v) return ''
         var n = c.versions.filter(function (x) { return x.track_id === t.id }).length, notes = openNotes(t.id)
-        return '<div class="trk glass" data-t="' + t.id + '"><button class="pl" data-play="' + t.id + '" aria-label="Play ' + esc(t.title) + '">' + ic('play') + '</button><div class="nm"><b>' + esc(t.title) + '</b><span>v' + v.n + (v.label ? ' · ' + esc(v.label) : '') + ' · ' + n + ' version' + (n === 1 ? '' : 's') + (notes ? ' · ' + notes + ' open note' + (notes === 1 ? '' : 's') : '') + '</span></div><canvas data-wave="' + v.id + '"></canvas><span class="cnt">' + (v.approved_at ? '<span class="chip ok">Approved</span>' : notes ? '<span class="chip warn">In review</span>' : '<span class="chip">New</span>') + '</span><span class="t">' + mmss(v.duration) + '</span></div>'
+        var k = kindOf(v), hasFinal = c.versions.some(function (x) { return x.track_id === t.id && x.final_at })
+        var lead = v.thumb ? '<button class="th" data-play="' + t.id + '" style="background-image:url(' + v.thumb + ')" aria-label="Open ' + esc(t.title) + '">' + (k === 'video' ? '<i>' + ic('play') + '</i>' : '') + '</button>'
+          : k === 'image' ? '<button class="th" data-play="' + t.id + '" aria-label="Open ' + esc(t.title) + '"><i>' + ic('image') + '</i></button>'
+          : '<button class="pl" data-play="' + t.id + '" aria-label="Play ' + esc(t.title) + '">' + ic('play') + '</button>'
+        var mid = k === 'audio' ? '<canvas data-wave="' + v.id + '"></canvas>' : '<span class="kind">' + ic(k === 'video' ? 'film' : 'image') + ' ' + KIND_WORD[k] + (v.width ? ' · ' + v.width + '×' + v.height : '') + '</span>'
+        return '<div class="trk glass" data-t="' + t.id + '">' + lead + '<div class="nm"><b>' + esc(t.title) + '</b><span>v' + v.n + (v.label ? ' · ' + esc(v.label) : '') + ' · ' + n + ' version' + (n === 1 ? '' : 's') + (notes ? ' · ' + notes + ' open note' + (notes === 1 ? '' : 's') : '') + '</span></div>' + mid + '<span class="cnt">' + (hasFinal ? '<span class="chip fin">Final</span>' : v.approved_at ? '<span class="chip ok">Approved</span>' : notes ? '<span class="chip warn">In review</span>' : '<span class="chip">New</span>') + '</span><span class="t">' + (k === 'image' ? size(v.size) : mmss(v.duration)) + '</span></div>'
       }).join('') : '') + '</div>' +
-      (edit ? '<label class="drop" id="drop"><input type="file" id="files" multiple accept="audio/*,video/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.mov,.mp4" hidden><span class="ico" style="width:50px;height:50px">' + ic('up') + '</span><b>' + (c.tracks.length ? 'Drop more tracks here' : 'Drop your first tracks here') + '</b><span>WAV, AIFF, FLAC, MP3, M4A or a video, up to 10 GB each. Each file becomes a track.</span></label><div class="ups" id="ups"></div>'
-        : (!c.tracks.length ? '<div class="empty glass"><h2>No tracks yet</h2><p>When someone uploads a track it shows up here.</p></div>' : ''))
+      (edit ? '<label class="drop" id="drop"><input type="file" id="files" multiple accept="audio/*,video/*,image/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.mov,.mp4,.heic,.tif,.tiff,.psd" hidden><span class="ico" style="width:50px;height:50px">' + ic('up') + '</span><b>' + (c.tracks.length ? 'Drop more files here' : 'Drop your first files here') + '</b><span>Audio, video or pictures, up to 20 GB each. Each file gets its own page, with versions and notes.</span></label><div class="ups" id="ups"></div>'
+        : (!c.tracks.length ? '<div class="empty glass"><h2>Nothing here yet</h2><p>When someone uploads a file it shows up here.</p></div>' : ''))
     $$('canvas[data-wave]').forEach(function (cv) { var v = c.versions.filter(function (x) { return x.id === cv.dataset.wave })[0]; drawMini(cv, v && v.peaks) })
     $$('.trk').forEach(function (r) { r.onclick = function (e) { if (e.target.closest('[data-play]')) return; go('#t/' + r.dataset.t) } })
     $$('[data-play]').forEach(function (b) { b.onclick = function () { pendingPlay = true; go('#t/' + b.dataset.play) } })
+    if ($('#fin-btn')) $('#fin-btn').onclick = function () { go('#f/' + pr.id) }
     if (!share) {
       if ($('#pp-btn')) $('#pp-btn').onclick = function () { peopleBox(c) }
       if ($('#sh-btn')) $('#sh-btn').onclick = function () { shareBox(c, null) }
@@ -384,6 +411,42 @@
     drop.addEventListener('drop', function (e) { fn(Array.prototype.slice.call(e.dataTransfer.files || [])) })
   }
   var uploading = 0
+  // what the page reads from a file before it goes up: sound (waveform, loudness), a picture's or a video's size and a small JPEG
+  function analyseAny(file) {
+    var k = kindOf({ mime: file.type, file_name: file.name })
+    if (k === 'image') return imageMeta(file)
+    if (k === 'video') return videoMeta(file).then(function (vm) {
+      if (file.size > 400 * 1024 * 1024) return vm
+      return RSAudio.analyse(file).then(function (am) { return Object.assign({}, am || {}, vm || {}) })
+    })
+    return RSAudio.analyse(file)
+  }
+  function shrink(src, w, h) {
+    var s = Math.min(1, 480 / Math.max(w, h)), c = document.createElement('canvas')
+    c.width = Math.max(1, Math.round(w * s)); c.height = Math.max(1, Math.round(h * s))
+    c.getContext('2d').drawImage(src, 0, 0, c.width, c.height)
+    try { return c.toDataURL('image/jpeg', 0.72) } catch (e) { return null }
+  }
+  function imageMeta(file) {
+    return new Promise(function (ok) {
+      var u = URL.createObjectURL(file), img = new Image()
+      img.onload = function () { var r = { width: img.naturalWidth, height: img.naturalHeight, thumb: shrink(img, img.naturalWidth, img.naturalHeight) }; URL.revokeObjectURL(u); ok(r) }
+      img.onerror = function () { URL.revokeObjectURL(u); ok(null) }
+      img.src = u
+    })
+  }
+  function videoMeta(file) {
+    return new Promise(function (ok) {
+      var u = URL.createObjectURL(file), v = document.createElement('video'), done = false
+      var end = function (r) { if (done) return; done = true; URL.revokeObjectURL(u); ok(r) }
+      v.muted = true; v.playsInline = true; v.preload = 'auto'
+      v.onloadedmetadata = function () { try { v.currentTime = Math.min(1.5, (v.duration || 0) * 0.1) } catch (e) { end({ duration: v.duration }) } }
+      v.onseeked = function () { end({ duration: v.duration, width: v.videoWidth, height: v.videoHeight, thumb: v.videoWidth ? shrink(v, v.videoWidth, v.videoHeight) : null }) }
+      v.onerror = function () { end(null) }
+      setTimeout(function () { end(v.duration ? { duration: v.duration, width: v.videoWidth, height: v.videoHeight } : null) }, 10000)
+      v.src = u
+    })
+  }
   window.addEventListener('beforeunload', function (e) { if (uploading) { e.preventDefault(); e.returnValue = '' } })
   function uploadFile(file, opt) {
     var box = document.createElement('div'); box.className = 'up glass'
@@ -392,7 +455,7 @@
     var st = function (t) { $('.st', box).textContent = t }, bar = function (p) { $('.bar i', box).style.width = Math.round(p * 100) + '%' }
     uploading++
     var meta = null
-    return RSAudio.analyse(file).then(function (m) {
+    return analyseAny(file).then(function (m) {
       meta = m; st('Starting…')
       return api('upload-create', { project: opt.project, name: file.name, size: file.size, type: file.type || 'application/octet-stream' })
     }).then(function (made) {
@@ -482,12 +545,13 @@
       (edit && !share ? '<button class="btn main" id="nv">' + ic('up') + ' New version</button><button class="btn" id="tsh">' + ic('share') + ' Share</button><button class="ico" id="tm" aria-label="More">' + ic('dots') + '</button>' : '') + '</div></div>' +
       '<div class="player"><section class="stage glass">' +
       '<div class="vers" id="vers"></div>' +
+      '<div class="media" id="media"></div>' +
       '<div class="wave" id="wave"><canvas id="wv"></canvas><div class="pins" id="pins"></div></div>' +
-      '<div class="ctl"><button class="play" id="pb" aria-label="Play">' + ic('play') + '</button><span class="time" id="tm-t">0:00 <span>/ 0:00</span></span>' +
+      '<div class="ctl" id="ctl"><button class="play" id="pb" aria-label="Play">' + ic('play') + '</button><span class="time" id="tm-t">0:00 <span>/ 0:00</span></span>' +
       '<span class="lm">Level match <button class="sw" id="lm" aria-pressed="' + matched + '" aria-label="Level match"></button><span class="lufs" id="lufs"></span></span></div>' +
       '<div class="facts" id="facts"></div>' +
       '<div class="appr" id="appr"></div>' +
-      (edit && !share ? '<input type="file" id="nvf" accept="audio/*,video/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.mov,.mp4" hidden><div class="ups" id="ups"></div>' : '') +
+      (edit && !share ? '<input type="file" id="nvf" accept="audio/*,video/*,image/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.mov,.mp4,.heic,.tif,.tiff,.psd" hidden><div class="ups" id="ups"></div>' : '') +
       '</section><aside class="notes glass"><header><b>Notes</b><span class="muted" id="ncount"></span></header><div class="nlist" id="nlist"></div>' +
       (canDo('commenter') ? '<form class="compose" id="cmp">' + (share && !store.get('rs-guest') ? '<input class="in" id="g-name" maxlength="60" placeholder="Your name" required>' : '') +
         '<textarea class="in" id="cmp-t" rows="2" maxlength="4000" placeholder="Write a note…"></textarea><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
@@ -496,19 +560,39 @@
     $('#back').onclick = function () { go(share && share.data.tracks.length === 1 && share.data.project ? '#t/' + id : '#p/' + ctx.project.id) }
 
     function paintVersions() {
-      $('#vers').innerHTML = versions.map(function (x) { return '<button class="v' + (x.id === tview.version ? ' on' : '') + '" data-v="' + x.id + '">v' + x.n + (x.label ? ' · ' + esc(x.label) : '') + (x.approved_at ? ' <span class="tick">✓</span>' : '') + '</button>' }).join('')
+      $('#vers').innerHTML = versions.map(function (x) { return '<button class="v' + (x.id === tview.version ? ' on' : '') + '" data-v="' + x.id + '">v' + x.n + (x.label ? ' · ' + esc(x.label) : '') + (x.final_at ? ' <span class="tick">★</span>' : x.approved_at ? ' <span class="tick">✓</span>' : '') + '</button>' }).join('')
       $$('#vers [data-v]').forEach(function (b) { b.onclick = function () { setVersion(b.dataset.v, true) } })
     }
     function curV() { return versions.filter(function (x) { return x.id === tview.version })[0] || versions[versions.length - 1] }
+    // the picture: the video element for a video, the still for a picture, nothing for sound
+    function paintMedia() {
+      var x = curV(), k = kindOf(x), box = $('#media')
+      $('#wave').hidden = k === 'image' || (k === 'video' && !(x.peaks && x.peaks.length))
+      $('#ctl').hidden = k === 'image'
+      $('.lm').hidden = k !== 'audio'
+      if ($('#cmp-at')) $('.attime').hidden = k === 'image'
+      if (k === 'video') {
+        if (vidEl.parentNode !== box) { box.innerHTML = ''; box.appendChild(vidEl) }
+        if (x.thumb && !vidEl.src) vidEl.poster = x.thumb
+        vidEl.onclick = function () { pb.click() }
+        box.hidden = false
+      } else if (k === 'image') {
+        box.hidden = false
+        box.innerHTML = '<div class="still"' + (x.thumb ? ' style="background-image:url(' + x.thumb + ')"' : '') + '><img id="still" alt="' + esc(x.file_name) + '"></div>'
+        urlFor(x).then(function (u) { var im = $('#still'); if (im && curV() === x) { im.onload = function () { im.classList.add('on') }; im.src = u } }).catch(function () {})
+      } else { box.innerHTML = ''; box.hidden = true }
+    }
     function setVersion(vid, keep) {
       tview.version = vid; var x = curV()
-      paintVersions(); paintFacts(); paintNotes(); paintAppr(); drawWave()
+      paintVersions(); paintMedia(); paintFacts(); paintNotes(); paintAppr(); drawWave()
       load(x, keep, false).catch(function (e) { toast(e.message) })
     }
     function paintFacts() {
       var x = curV()
       $('#lufs').textContent = x.lufs == null ? 'not measured' : (matched ? lufsText(TARGET) + ' (' + lufsText(x.lufs) + ')' : lufsText(x.lufs))
-      var f = []
+      var f = [KIND_WORD[kindOf(x)]]
+      if (x.width) f.push(x.width + '×' + x.height)
+      if (kindOf(x) !== 'image' && x.duration) f.push(mmss(x.duration))
       if (x.sample_rate) f.push((x.sample_rate / 1000).toString().replace(/\.0$/, '') + ' kHz')
       if (x.channels) f.push(x.channels === 1 ? 'mono' : x.channels === 2 ? 'stereo' : x.channels === 6 ? '5.1' : x.channels + ' ch')
       if (x.peak_db != null) f.push('peak ' + (x.peak_db < 0 ? '−' : '') + Math.abs(x.peak_db).toFixed(1) + ' dBFS')
@@ -519,12 +603,15 @@
     }
     function paintAppr() {
       var x = curV(), a = $('#appr'), h = ''
-      h += '<span class="state">' + (x.approved_at ? '<b>✓ Approved</b> by ' + esc(x.approved_by || '') + ', ' + ago(x.approved_at) : 'v' + x.n + ' is waiting for approval') + '</span>'
+      h += '<span class="state">' + (x.final_at ? '<b class="fin">★ Final</b> · ' + esc(x.final_by || '') + ', ' + ago(x.final_at) : x.approved_at ? '<b>✓ Approved</b> by ' + esc(x.approved_by || '') + ', ' + ago(x.approved_at) : 'v' + x.n + ' is waiting for approval') + '</span>'
+      if (edit && !share) h += x.final_at ? '<button class="btn sm fin-on" id="fin-un" title="Take it out of Finals">' + ic('star') + ' Final</button>' : '<button class="btn sm fin-btn" id="fin">' + ic('star') + ' Make it final</button>'
       if (canDo('download')) h += '<button class="btn sm" id="dl">' + ic('down') + ' Download</button>'
       if (canDo('approve')) h += x.approved_at ? (share ? '' : '<button class="btn sm" id="ap-un">Undo approval</button>') : '<button class="btn sm main" id="ap">' + ic('check') + ' Approve v' + x.n + '</button>'
       if (edit && !share) h += '<button class="ico sm" id="vm" aria-label="This version">' + ic('dots') + '</button>'
       a.innerHTML = h
       if ($('#dl')) $('#dl').onclick = function () { download(x) }
+      if ($('#fin')) $('#fin').onclick = function () { api('final', { version: x.id }).then(function (d) { if (d.error) { toast(d.error); return } x.final_at = d.final_at; x.final_by = d.final_by; paintAppr(); paintVersions(); toast('In Finals') }) }
+      if ($('#fin-un')) $('#fin-un').onclick = function () { confirmBox('Take it out of Finals?', 'v' + x.n + ' stays here with its notes; it only leaves the Finals folder and its links.', 'Take it out', function () { return api('final', { version: x.id, undo: true }).then(function () { x.final_at = null; x.final_by = null; paintAppr(); paintVersions() }) }) }
       if ($('#ap')) $('#ap').onclick = function () {
         var doIt = function () { (share ? api('share-approve', { version: x.id, name: store.get('rs-guest') }) : api('approve', { version: x.id })).then(function (d) { if (d.error) { toast(d.error); return } x.approved_at = d.approved_at; x.approved_by = d.approved_by; paintAppr(); paintVersions(); toast('v' + x.n + ' approved') }) }
         if (share && !store.get('rs-guest')) askName(doIt); else doIt()
@@ -605,7 +692,7 @@
         e.preventDefault()
         var body = $('#cmp-t').value.trim(); if (!body) return
         if (share && $('#g-name')) { var gn = $('#g-name').value.trim(); if (!gn) { $('#g-name').focus(); return } store.set('rs-guest', gn) }
-        var at = replyTo ? null : ($('#cmp-at').checked ? Math.round(audio.currentTime * 10) / 10 : null), x = curV()
+        var x = curV(), at = replyTo || kindOf(x) === 'image' ? null : ($('#cmp-at').checked ? Math.round(audio.currentTime * 10) / 10 : null)
         $('#cmp-go').disabled = true
         var p = share ? api('share-comment', { version: x.id, body: body, at_sec: at, name: store.get('rs-guest'), parent: replyTo }).then(function (d) { if (d.error) throw new Error(d.error); share.data.comments.push(d.comment); return d.comment })
           : sb.from('roarstudio_comments').insert({ version_id: x.id, project_id: ctx.project.id, body: body, at_sec: at, author: session.user.id, parent_id: replyTo }).select().single().then(function (r) { if (r.error) throw new Error(r.error.message); return r.data })
@@ -633,9 +720,10 @@
       if ($('#cmp-time')) $('#cmp-time').textContent = mmss(t)
       drawWave(); activeNote(); requestAnimationFrame(tick)
     }
-    audio.onplay = audio.onpause = function () { if (document.body.contains(pb)) paintPlay() }
-    audio.onended = function () { if (document.body.contains(pb)) paintPlay() }
-    audio.onerror = function () { if (audio.src) toast('This file could not be played in the browser. Download it instead.') }
+    ;[audEl, vidEl].forEach(function (el) {
+      el.onplay = el.onpause = el.onended = function () { if (document.body.contains(pb) && el === audio) paintPlay() }
+      el.onerror = function () { if (el.src && el === audio) toast('This file could not be played in the browser. Download it instead.') }
+    })
 
     if (!share && edit) {
       $('#nv').onclick = function () { $('#nvf').click() }
@@ -648,12 +736,12 @@
           $('#tm-d', m).onclick = function () { confirmBox('Delete “' + track.title + '”?', 'Every version, file and note of this track is deleted. This cannot be undone.', 'Delete', function () { return api('delete-track', { track: id }).then(function () { audio.pause(); tview = null; go('#p/' + ctx.project.id) }) }) }
         })
       }
-      listen(ctx.project.id, function () { if (uploading) return; loadProject(ctx.project.id).then(function () { return loadNotes(id) }).then(function (ns) { var keepV = tview.version; tview.notes = ns; versions = ctx.versions.filter(function (q) { return q.track_id === id }); if (!versions.some(function (q) { return q.id === keepV })) tview.version = versions[versions.length - 1].id; paintVersions(); paintNotes(); paintAppr() }) })
+      listen(ctx.project.id, function () { if (uploading || !document.body.contains(wv)) return; loadProject(ctx.project.id).then(function () { return loadNotes(id) }).then(function (ns) { if (!document.body.contains(wv)) return; var keepV = tview.version; tview.notes = ns; versions = ctx.versions.filter(function (q) { return q.track_id === id }); if (!versions.some(function (q) { return q.id === keepV })) tview.version = versions[versions.length - 1].id; paintVersions(); paintNotes(); paintAppr() }) })
     }
 
-    paintVersions(); paintFacts(); paintNotes(); paintAppr(); paintPlay(); drawWave()
+    paintVersions(); paintMedia(); paintFacts(); paintNotes(); paintAppr(); paintPlay(); drawWave()
     requestAnimationFrame(tick)
-    if (fresh && cur.version && cur.version.track_id === id && versions.some(function (q) { return q.id === cur.version.id })) { tview.version = cur.version.id; paintVersions(); paintFacts(); paintNotes(); paintAppr() }
+    if (fresh && cur.version && cur.version.track_id === id && versions.some(function (q) { return q.id === cur.version.id })) { tview.version = cur.version.id; paintVersions(); paintMedia(); paintFacts(); paintNotes(); paintAppr() }
     else if (pendingPlay) { pendingPlay = false; load(curV(), false, true).catch(function (e) { toast(e.message) }) }
     else load(curV(), false, false).catch(function () {})
   }
@@ -666,6 +754,61 @@
     var pb = $('#pb'); if (pb) { e.preventDefault(); pb.click() }
   })
   window.addEventListener('resize', function () { $$('canvas[data-wave]').forEach(function (cv) { var v = ctx && ctx.versions.filter(function (x) { return x.id === cv.dataset.wave })[0]; drawMini(cv, v && v.peaks) }) })
+
+  // =====================================================================================================
+  // Finals (Alex, 7 Nov): the project's final files in one folder, to look at, download and send as one link
+  // =====================================================================================================
+  function renderFinals(id) {
+    var view = $('#view'); view.innerHTML = '<div class="spin"></div>'
+    ;(share ? Promise.resolve(ctx) : loadProject(id)).then(drawFinals).catch(function (e) { setTop([]); view.innerHTML = errorBox(e.message) })
+  }
+  function drawFinals(c) {
+    var view = $('#view'), edit = !share && canDo('editor')
+    var files = c.versions.filter(function (v) { return v.final_at }).sort(function (a, b) {
+      var ta = c.tracks.findIndex(function (t) { return t.id === a.track_id }), tb = c.tracks.findIndex(function (t) { return t.id === b.track_id })
+      return ta - tb || a.n - b.n
+    })
+    var titleOf = function (v) { var t = c.tracks.filter(function (x) { return x.id === v.track_id })[0]; return t ? t.title : v.file_name }
+    var total = files.reduce(function (a, v) { return a + Number(v.size || 0) }, 0)
+    setTop([c.project.title, 'Finals'])
+    view.innerHTML = '<div class="head">' + (share ? '<span class="fi big">' + ic('folder') + '</span>' : '<button class="ico" id="back" aria-label="Back to the project">' + ic('back') + '</button>') +
+      '<div style="min-width:0"><h1>' + (share ? esc(c.project.title) : 'Finals') + '</h1><div class="sub">' + (share ? 'Final files' + (share.data.project.owner_name ? ' from ' + esc(share.data.project.owner_name) : '') + ' · ' : esc(c.project.title) + ' · ') + files.length + ' file' + (files.length === 1 ? '' : 's') + ' · ' + size(total) + '</div></div>' +
+      '<div class="tools">' + (files.length ? '<button class="btn" id="dl-all">' + ic('down') + ' Download all</button>' : '') + (edit ? '<button class="btn main" id="fin-share">' + ic('share') + ' Share the Finals</button>' : '') + '</div></div>' +
+      (files.length ? '<div class="finals">' + files.map(function (v) {
+        var k = kindOf(v)
+        return '<div class="fcard glass" data-v="' + v.id + '"><button class="fthumb" data-prev="' + v.id + '" aria-label="Open ' + esc(titleOf(v)) + '"' + (v.thumb ? ' style="background-image:url(' + v.thumb + ')"' : '') + '>' +
+          (v.thumb ? '' : k === 'audio' ? '<canvas data-wave="' + v.id + '"></canvas>' : '<i class="big">' + ic(k === 'video' ? 'film' : 'image') + '</i>') +
+          (k !== 'image' ? '<span class="pp">' + ic('play') + '</span>' : '') + '<span class="kchip">' + KIND_WORD[k] + '</span></button>' +
+          '<div class="fmeta"><b>' + esc(titleOf(v)) + '</b><span>v' + v.n + (v.label ? ' · ' + esc(v.label) : '') + ' · ' + size(v.size) + (k !== 'image' && v.duration ? ' · ' + mmss(v.duration) : '') + (v.width ? ' · ' + v.width + '×' + v.height : '') + '</span><span class="fn">' + esc(v.file_name) + '</span></div>' +
+          '<div class="fact"><button class="ico sm" data-dl="' + v.id + '" aria-label="Download">' + ic('down') + '</button>' + (edit ? '<button class="ico sm" data-open="' + v.track_id + '" aria-label="Open its page">' + ic('next') + '</button>' : '') + '</div></div>'
+      }).join('') + '</div>'
+      : '<div class="empty glass"><span class="ico" style="width:64px;height:64px">' + ic('folder') + '</span><h2>No final files yet</h2><p>' + (share ? 'Nothing here yet. Check back later.' : 'Open any file and press Make it final: it shows up here, ready to send as one link.') + '</p></div>')
+    if ($('#back')) $('#back').onclick = function () { go('#p/' + c.project.id) }
+    $$('canvas[data-wave]').forEach(function (cv) { var v = files.filter(function (x) { return x.id === cv.dataset.wave })[0]; drawMini(cv, v && v.peaks) })
+    $$('[data-prev]').forEach(function (b) { b.onclick = function () { preview(files.filter(function (x) { return x.id === b.dataset.prev })[0], titleOf) } })
+    $$('[data-dl]').forEach(function (b) { b.onclick = function () { download(files.filter(function (x) { return x.id === b.dataset.dl })[0]) } })
+    $$('[data-open]').forEach(function (b) { b.onclick = function () { go('#t/' + b.dataset.open) } })
+    if ($('#fin-share')) $('#fin-share').onclick = function () { shareBox(c, null, true) }
+    if ($('#dl-all')) $('#dl-all').onclick = function () {
+      // one after the other: the browser may ask once to allow several downloads
+      var i = 0; toast('Downloading ' + files.length + ' file' + (files.length === 1 ? '' : 's') + '…')
+      ;(function next() { if (i >= files.length) return; download(files[i++]); setTimeout(next, 1200) })()
+    }
+  }
+  // a final file up close: the player, the video or the picture, in the shared window
+  function preview(v, titleOf) {
+    if (!v) return
+    var k = kindOf(v)
+    audio.pause()
+    modal('<div class="spread"><h2 style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(titleOf(v)) + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="pv" id="pv"><div class="spin"></div></div><div class="row" style="justify-content:space-between"><span class="muted" style="font-size:13px;min-width:0;overflow-wrap:anywhere">' + esc(v.file_name) + ' · ' + size(v.size) + '</span><button class="btn sm main" id="pv-dl">' + ic('down') + ' Download</button></div>', function (m) {
+      m.classList.add('wide')
+      $('#pv-dl', m).onclick = function () { download(v) }
+      urlFor(v).then(function (u) {
+        var box = $('#pv', m); if (!box) return
+        box.innerHTML = k === 'image' ? '<img src="' + esc(u) + '" alt="">' : k === 'video' ? '<video src="' + esc(u) + '" controls autoplay playsinline' + (v.thumb ? ' poster="' + v.thumb + '"' : '') + '></video>' : '<div class="pv-a"><audio src="' + esc(u) + '" controls autoplay></audio></div>'
+      }).catch(function (e) { toast(e.message) })
+    })
+  }
 
   // =====================================================================================================
   // people and share links
@@ -698,12 +841,12 @@
     })
   }
 
-  function shareBox(c, track) {
+  function shareBox(c, track, finals) {
     // the links people get carry RoarStudio's own address (Cloudflare sends studio.roartransfer.com to this page)
     var base = location.hostname === 'roartransfer.com' ? 'https://studio.roartransfer.com/' : location.origin + location.pathname
-    modal('<div class="spread"><h2>Share ' + (track ? '“' + esc(track.title) + '”' : 'the project') + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div>' +
-      '<p class="muted" style="margin:0">Anyone with the link can listen in the browser, without an account.</p>' +
-      '<div class="opts"><div class="opt"><span>Comments<small>They can leave notes on the waveform</small></span><button type="button" class="sw" id="s-c" aria-pressed="true" aria-label="Comments"></button></div>' +
+    modal('<div class="spread"><h2>Share ' + (finals ? 'the Finals' : track ? '“' + esc(track.title) + '”' : 'the project') + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div>' +
+      '<p class="muted" style="margin:0">' + (finals ? 'One link to the final files of “' + esc(c.project.title) + '”. Anyone with it can look, listen and download, without an account. Files you make final later show up in it too.' : 'Anyone with the link can listen in the browser, without an account.') + '</p>' +
+      '<div class="opts"' + (finals ? ' hidden' : '') + '><div class="opt"><span>Comments<small>They can leave notes on the waveform</small></span><button type="button" class="sw" id="s-c" aria-pressed="true" aria-label="Comments"></button></div>' +
       '<div class="opt"><span>Approve<small>They can approve a version</small></span><button type="button" class="sw" id="s-a" aria-pressed="false" aria-label="Approve"></button></div>' +
       '<div class="opt"><span>Download<small>They can download the files</small></span><button type="button" class="sw" id="s-d" aria-pressed="false" aria-label="Download"></button></div></div>' +
       '<div class="field"><label>Ends</label><div class="lens-group" id="s-e"><span class="lens"></span><button type="button" class="on" data-d="0">Never</button><button type="button" data-d="1">1 day</button><button type="button" data-d="7">7 days</button><button type="button" data-d="30">30 days</button></div></div>' +
@@ -716,7 +859,7 @@
       var on = function (id) { return $(id, m).getAttribute('aria-pressed') === 'true' }
       $('#s-go', m).onclick = function () {
         this.disabled = true
-        api('share-create', { project: c.project.id, track: track ? track.id : null, comment: on('#s-c'), approve: on('#s-a'), download: on('#s-d'), days: Number($('button.on', eg).dataset.d), password: $('#s-p', m).value }).then(function (d) {
+        api('share-create', { project: c.project.id, kind: finals ? 'finals' : 'review', track: track ? track.id : null, comment: on('#s-c'), approve: on('#s-a'), download: on('#s-d'), days: Number($('button.on', eg).dataset.d), password: $('#s-p', m).value }).then(function (d) {
           $('#s-go', m).disabled = false
           if (!d.token) { toast(d.error || 'Could not make the link'); return }
           $('#s-out', m).hidden = false; $('#s-link', m).value = base + '?s=' + d.token; $('#s-link', m).select(); oldLinks()
@@ -726,7 +869,7 @@
       function oldLinks() {
         var q = sb.from('roarstudio_shares').select('*').eq('project_id', c.project.id).order('created_at', { ascending: false })
         q.then(function (r) {
-          var rows = (r.data || []).filter(function (s) { return track ? s.track_id === track.id : !s.track_id })
+          var rows = (r.data || []).filter(function (s) { return finals ? s.kind === 'finals' : s.kind !== 'finals' && (track ? s.track_id === track.id : !s.track_id) })
           $('#s-old', m).innerHTML = rows.length ? '<div class="field"><label>Links made</label><div class="people">' + rows.map(function (s) {
             var what = [s.can_comment ? 'comments' : '', s.can_approve ? 'approve' : '', s.can_download ? 'download' : '', s.password_hash ? 'password' : ''].filter(Boolean).join(', ') || 'listen only'
             var ended = s.expires_at && new Date(s.expires_at) < new Date()
@@ -752,11 +895,12 @@
         if (d.error) { setTop([]); view.innerHTML = '<div class="empty glass"><h2>' + esc(d.error) + '</h2><p>Ask the person who sent it for a new link.</p></div>'; return }
         share.data = d
         ctx = { project: d.project, tracks: d.tracks || [], versions: d.versions || [], comments: d.comments || [], people: {}, peopleList: [], role: 'guest' }
-        if (d.tracks && d.tracks.length === 1 && !location.hash) { location.replace('#t/' + d.tracks[0].id); return }
+        if (d.kind !== 'finals' && d.tracks && d.tracks.length === 1 && !location.hash) { location.replace('#t/' + d.tracks[0].id); return }
         renderShare()
       })
       return
     }
+    if (share.data.kind === 'finals') return drawFinals(ctx)
     var r = route()
     if (r.kind === 't') return renderTrack(r.id)
     return drawProject(ctx)
