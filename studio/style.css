@@ -1319,3 +1319,31 @@ body.noscroll { overflow: hidden }
 .plb-pins { position: absolute; inset: 0; pointer-events: none }
 .plb-pins .ppin { pointer-events: auto; font: 700 11px var(--sans); color: #1a1228 }
 @keyframes fadeIn { from { opacity: 0 } }
+/* notes from Frame.io (Alex, 8 Nov): reactions, a picture with a note, @names, the viewer's name, Views */
+.reacts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; position: relative }
+.rchip { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border-radius: 999px; border: 1px solid var(--edge); background: rgba(255,255,255,.05); color: var(--text); font: 600 12px var(--sans); cursor: pointer }
+.rchip b { font-weight: 600; color: var(--muted) }
+.rchip.on { background: rgba(139,92,246,.22); border-color: rgba(167,139,250,.5) } .rchip.on b { color: #ede9fe }
+.rchip.radd { color: var(--dim); padding: 0 7px; opacity: 0; transition: opacity .2s } .rchip.radd svg { width: 15px; height: 15px }
+.note:hover .rchip.radd, .rchip.radd:focus-visible { opacity: 1 }
+@media (hover: none) { .rchip.radd { opacity: .8 } }
+.rpick { position: absolute; z-index: 30; left: 0; top: 32px; display: flex; gap: 2px; padding: 5px; border-radius: 999px }
+.rpick button { width: 34px; height: 34px; border: 0; border-radius: 50%; background: transparent; font-size: 18px; cursor: pointer; transition: transform .15s }
+.rpick button:hover { transform: scale(1.22); background: rgba(255,255,255,.08) }
+.natt { display: block; margin-top: 8px; padding: 0; border: 1px solid var(--edge); border-radius: 12px; overflow: hidden; background: #0b0910; cursor: zoom-in; max-width: 240px }
+.natt img { display: block; width: 100%; max-height: 180px; object-fit: cover; min-height: 60px }
+.ment { color: #c4b5fd; font-weight: 600 }
+.mwrap { position: relative }
+.mpop { position: absolute; z-index: 30; left: 8px; bottom: calc(100% + 6px); min-width: 200px; display: grid; gap: 2px; padding: 5px; border-radius: 16px; background: rgba(20,15,32,.96); border: 1px solid var(--edge); box-shadow: 0 18px 40px -12px rgba(0,0,0,.8) }
+.mpop button { text-align: left; height: 34px; padding: 0 12px; border: 0; border-radius: 11px; background: transparent; color: var(--text); font: 500 14px var(--sans); cursor: pointer }
+.mpop button.on, .mpop button:hover { background: rgba(139,92,246,.25) }
+.media .wmark { z-index: 2 }
+.wmtag { position: absolute; z-index: 3; pointer-events: none; font: 700 13px var(--sans); color: rgba(255,255,255,.55); text-shadow: 0 1px 3px rgba(0,0,0,.6); white-space: nowrap; transition: left 1.2s ease, top 1.2s ease; transform: translate(-50%, -50%) }
+.views { display: grid; gap: 8px; padding: 4px 2px 8px; overflow: auto }
+.views .vhead { margin: 0 6px 4px; font-size: 12.5px }
+.vrow { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 16px; background: rgba(255,255,255,.03); border: 1px solid var(--edge) }
+.vrow .vnm { flex: 1; min-width: 0; display: grid; gap: 5px }
+.vrow .vnm b { font-size: 14px }
+.vrow .pbar { display: block; width: 100%; height: 6px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden }
+.vrow .pbar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #a78bfa, #22d3ee) }
+.vrow .vpc { font-size: 13px; color: #c4b5fd }
