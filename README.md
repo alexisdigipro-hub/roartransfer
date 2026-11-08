@@ -165,3 +165,16 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
   the app's buttons and captions in red, the safe box for text; `SOCIAL`). **Search everything** (the magnifier in the
   top bar, `/` or Cmd+K): projects, files and notes across every project you are in; a note opens at its moment
   (`searchBox`, `pendingNote`).
+- Review tools from Frame.io, part 2 (Alex, 8 Nov 2026): **reactions** on notes (👍 ❤️ 🔥 😂 👀 ✅, roarstudio_reactions), a
+  **picture with a note** (studio/<project>/att/, at most 1600 px, 25 MB), **@names** in notes (emailed once, `mention`),
+  the **viewer's name** over video and pictures on review links (Settings > Viewer's name on links, studios.watermark_viewer),
+  and **Views**: who played each version, how much and how far (roarstudio_watch, the Views tab for editors).
+  Database: supabase/studio-review.sql in roarme.
+- Pictures (Alex, 8 Nov): a click opens the picture big (100% on click, drag); a note on a spot only with **Pin a note**.
+- Security check (8 Nov 2026): picture addresses only from our own storage (CHECK constraints + `cssu()`), members update
+  only the columns the page needs, notes stay in their project (trigger), deletes only inside a project's own folder,
+  a limit on wrong link passwords, limits on link uploads, mentions and the waiting list; RoarTransfer's delete checks
+  its path. Database: supabase/studio-hardening.sql in roarme. RoarTransfer's hourly sweep never touches studio/ (it
+  deleted every Studio file older than six hours until 8 Nov).
+- Speed (8 Nov 2026): stills and backgrounds re-encoded (about 1.5 MB less), the lower pictures of the pages load when
+  near, supabase-js served from /vendor/, i18n.js only for Greek, no redraws while nothing plays (`frameLater`).
