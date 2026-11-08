@@ -178,3 +178,8 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
   deleted every Studio file older than six hours until 8 Nov).
 - Speed (8 Nov 2026): stills and backgrounds re-encoded (about 1.5 MB less), the lower pictures of the pages load when
   near, supabase-js served from /supabase-2.45.4.js (jsDelivr as a fallback; not /vendor/, which Cloudflare had cached as missing), i18n.js only for Greek, no redraws while nothing plays (`frameLater`).
+- Speed, part 2 (8 Nov 2026): the home page's styles and script are their own files (home.css, home.js; index.html went
+  from 244 KB to 38 KB and browsers keep the rest), the other pages share pages.css (el/, about/) and guide.css (iphone/,
+  wetransfer-alternative/, EN and EL). A file's ?v= is a hash of its content; edit home.css/home.js and change it.
+  studio/style.css lost 205 declarations that a later rule with the same selector always overrode (same look, checked
+  by comparing screenshots).
