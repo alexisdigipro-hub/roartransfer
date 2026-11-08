@@ -363,6 +363,41 @@
   // =====================================================================================================
   // projects
   // =====================================================================================================
+  // covers saved by the old cropper can carry black bands (Alex, 8 Nov): find the picture inside them, crop it square
+  // again and save it back once, so every cover fills its square
+  var coverChecked = {}
+  function fixCover(pr, then) {
+    if (!pr || !pr.cover || coverChecked[pr.id] || !/^data:image\//.test(pr.cover)) return
+    coverChecked[pr.id] = true
+    var im = new Image()
+    im.onload = function () {
+      var W = im.naturalWidth, H = im.naturalHeight; if (!W || !H) return
+      var c = document.createElement('canvas'); c.width = W; c.height = H; var g = c.getContext('2d'); g.drawImage(im, 0, 0)
+      var px; try { px = g.getImageData(0, 0, W, H).data } catch (e) { return }
+      var dark = function (i) { return px[i] + px[i + 1] + px[i + 2] < 42 }
+      var rowDark = function (y) { var n = 0; for (var x = 0; x < W; x += 2) if (dark((y * W + x) * 4)) n++; return n / Math.ceil(W / 2) > 0.985 }
+      var colDark = function (x) { var n = 0; for (var y = 0; y < H; y += 2) if (dark((y * W + x) * 4)) n++; return n / Math.ceil(H / 2) > 0.985 }
+      var t = 0, b = H - 1, l = 0, r = W - 1
+      while (t < H / 2 && rowDark(t)) t++
+      while (b > H / 2 && rowDark(b)) b--
+      while (l < W / 2 && colDark(l)) l++
+      while (r > W / 2 && colDark(r)) r--
+      var cw = r - l + 1, ch = b - t + 1
+      // letterbox bands are even: top like bottom, left like right; anything else is the photo's own darkness
+      if (Math.abs(t - (H - 1 - b)) > H * 0.03 + 2) { t = 0; b = H - 1 }
+      if (Math.abs(l - (W - 1 - r)) > W * 0.03 + 2) { l = 0; r = W - 1 }
+      cw = r - l + 1; ch = b - t + 1
+      if (cw >= W - 4 && ch >= H - 4) return
+      if (cw < W * 0.3 || ch < H * 0.3) return
+      var side = Math.min(cw, ch), sx = l + (cw - side) / 2, sy = t + (ch - side) / 2
+      var o = document.createElement('canvas'); o.width = 800; o.height = 800; o.getContext('2d').drawImage(c, sx, sy, side, side, 0, 0, 800, 800)
+      var url = o.toDataURL('image/jpeg', 0.86)
+      pr.cover = url
+      if (then) then(url)
+      if (!share && session) sb.from('roarstudio_projects').update({ cover: url }).eq('id', pr.id).then(function () {})
+    }
+    im.src = pr.cover
+  }
   function renderProjects() {
     setTop([])
     var view = $('#view'); view.innerHTML = '<div class="spin"></div>'
@@ -379,6 +414,7 @@
           return '<div class="proj glass" role="button" tabindex="0" data-p="' + p.id + '"><div class="cover" style="' + (p.cover ? "background:#000 url('" + p.cover + "') center/cover" : coverStyle(p.id)) + '">' + (p.owner === session.user.id ? '<button class="ico sm danger pdel" data-pdel="' + p.id + '" aria-label="Delete ' + esc(p.title) + '">' + ic('trash') + '</button>' : '') + '</div><div class="pinfo"><b>' + esc(p.title) + '</b><span>' + esc(p.artist || (p.owner === session.user.id ? 'Yours' : 'Shared with you')) + ' · ' + (counts[p.id] || 0) + ' file' + (counts[p.id] === 1 ? '' : 's') + '</span><span class="when">' + ago(p.updated_at) + '</span></div></div>'
         }).join('') + '<button class="proj new-proj" id="np2"><span class="ico">' + ic('plus') + '</span>New project</button></div>'
         : '<div class="empty glass"><span class="ico" style="width:64px;height:64px">' + ic('music') + '</span><h2>Start your first project</h2><p>A project is an album, a single or a film score. Put tracks in it, upload versions, and invite the people you work with.</p><button class="btn main" id="np2">' + ic('plus') + ' New project</button></div>')
+      ps.forEach(function (p) { fixCover(p, function (u) { var el = $('[data-p="' + p.id + '"] .cover'); if (el) el.style.background = "#000 url('" + u + "') center/cover" }) })
       $$('[data-p]').forEach(function (b) { b.onclick = function (e) { if (e.target.closest('[data-pdel]')) return; go('#p/' + b.dataset.p) }; b.onkeydown = function (e) { if (e.key === 'Enter') go('#p/' + b.dataset.p) } })
       $$('[data-pdel]').forEach(function (b) { b.onclick = function (e) {
         e.stopPropagation(); var pj = ps.filter(function (x) { return x.id === b.dataset.pdel })[0]
@@ -513,6 +549,7 @@
         var mid = k === 'audio' ? '<canvas data-wave="' + v.id + '"></canvas>' : '<span class="kind">' + ic(k === 'video' ? 'film' : 'image') + ' ' + KIND_WORD[k] + (v.width ? ' · ' + v.width + '×' + v.height : '') + '</span>'
         return '<div class="trk glass k-' + k + '" data-t="' + t.id + '">' + lead + '<div class="nm"><b>' + esc(t.title) + '</b><span>' + esc(vname(v)) + ' · ' + n + ' version' + (n === 1 ? '' : 's') + (notes ? ' · ' + notes + ' open note' + (notes === 1 ? '' : 's') : '') + '</span></div>' + mid + heart + '<span class="cnt">' + (hasFinal ? '<span class="chip fin">Final</span>' : v.approved_at ? '<span class="chip ok">Approved</span>' : notes ? '<span class="chip warn">In review</span>' : '<span class="chip">New</span>') + '</span><span class="t">' + (k === 'image' ? size(v.size) : mmss(v.duration)) + '</span></div>'
     }
+    fixCover(pr, function (u) { var el = $('#pcover'); if (el) el.style.background = "#000 url('" + u + "') center/cover" })
     view.innerHTML = brandBanner() + '<div class="head">' + head + '<div class="tools">' + tools + '</div></div>' + extra +
       (kinds.length > 1 ? '<div class="lens-group ktabs" id="ktabs"><span class="lens"></span><button data-k="all"' + (kindTab === 'all' ? ' class="on"' : '') + '>All <small>' + here.length + '</small></button>' + kinds.map(function (k) { return '<button data-k="' + k + '"' + (kindTab === k ? ' class="on"' : '') + '><i class="kdot k-' + k + '"></i>' + KIND_PLURAL[k] + ' <small>' + counts[k] + '</small></button>' }).join('') + '</div>' : '') +
       pickBar + '<div class="tracks" id="tracks">' + (function () {
