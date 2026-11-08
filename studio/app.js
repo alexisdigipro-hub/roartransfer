@@ -246,18 +246,19 @@
       r.innerHTML = langBtn() + (st && (st.logo || st.name) ? '<span class="brand" data-notr>' + (st.logo ? '<img src="' + st.logo + '" alt="">' : '') + (st.name ? '<b>' + esc(st.name) + '</b>' : '') + '</span>' : (session ? '' : '<a class="btn sm" href="./">Sign in</a>'))
       return
     }
-    if (!session) { r.innerHTML = langBtn() + '<a class="btn sm rtlink" href="https://themadlions.com/lab/roarstudio/" target="_blank" rel="noopener" title="About RoarTransfer Studio">' + ic('people') + '<span>About</span></a>'; return }
+    if (!session) { r.innerHTML = langBtn() + '<a class="btn sm rtlink about" href="https://themadlions.com/lab/roarstudio/" target="_blank" rel="noopener" title="About RoarTransfer Studio">' + ic('people') + '<span>About</span></a>'; return }
     var name = (me && me.name) || (session.user.email || '').split('@')[0]
-    r.innerHTML = langBtn() + '<a class="btn sm rtlink" href="https://themadlions.com/lab/roarstudio/" target="_blank" rel="noopener" title="About RoarTransfer Studio">' + ic('people') + '<span>About</span></a>' + '<a class="btn sm rtlink" href="../" title="Send files with RoarTransfer">' + ic('out') + '<span>RoarTransfer</span></a><button class="ico bell" id="bell" aria-label="Notifications">' + ic('bell') + '<b id="bell-n" hidden></b></button><button class="me" id="me-btn" aria-label="Account" style="' + (me && me.avatar ? "background-image:url('" + esc(me.avatar) + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)') + '">' + (me && me.avatar ? '' : esc(initials(name))) + '</button>'
+    r.innerHTML = langBtn() + '<a class="btn sm rtlink about" href="https://themadlions.com/lab/roarstudio/" target="_blank" rel="noopener" title="About RoarTransfer Studio">' + ic('people') + '<span>About</span></a>' + '<a class="btn sm rtlink" href="../" title="Send files with RoarTransfer">' + ic('out') + '<span>RoarTransfer</span></a><button class="ico bell" id="bell" aria-label="Notifications">' + ic('bell') + '<b id="bell-n" hidden></b></button><button class="me" id="me-btn" aria-label="Account" style="' + (me && me.avatar ? "background-image:url('" + esc(me.avatar) + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)') + '">' + (me && me.avatar ? '' : esc(initials(name))) + '</button>'
     $('#me-btn').onclick = function (e) {
       e.stopPropagation()
       var old = $('.menu'); if (old) { old.remove(); return }
       var m = document.createElement('div'); m.className = 'menu'
       var br = this.getBoundingClientRect(); m.style.position = 'fixed'; m.style.top = Math.round(br.bottom + 8) + 'px'; m.style.right = Math.max(8, Math.round(window.innerWidth - br.right)) + 'px'; m.style.left = 'auto'
-      m.innerHTML = '<div class="who">' + esc(session.user.email || '') + '</div><button id="mn-pic">' + ic('image') + ' Change picture</button><button id="mn-set">' + ic('gear') + ' Settings</button><button id="mn-sto">' + ic('disk') + ' Storage</button>' + (me && me.admin ? '<button id="mn-adm">' + ic('gear') + ' Admin</button>' : '') + '<button id="mn-acc">' + ic('people') + ' My Roar account</button><button id="mn-rt">' + ic('out') + ' Open RoarTransfer</button><button id="mn-out">' + ic('back') + ' Sign out</button>'
+      m.innerHTML = '<div class="who">' + esc(session.user.email || '') + '</div><button id="mn-pic">' + ic('image') + ' Change picture</button><button id="mn-set">' + ic('gear') + ' Settings</button><button id="mn-sto">' + ic('disk') + ' Storage</button>' + (me && me.admin ? '<button id="mn-adm">' + ic('gear') + ' Admin</button>' : '') + '<button id="mn-acc">' + ic('people') + ' My Roar account</button><button id="mn-rt">' + ic('out') + ' Open RoarTransfer</button><button id="mn-about" class="mn-about">' + ic('people') + ' About</button><button id="mn-out">' + ic('back') + ' Sign out</button>'
       document.body.appendChild(m)
       $('#mn-set').onclick = function () { m.remove(); go('#settings') }
       $('#mn-pic').onclick = function () { m.remove(); changePhoto() }
+      $('#mn-about').onclick = function () { m.remove(); window.open('https://themadlions.com/lab/roarstudio/', '_blank', 'noopener') }
       $('#mn-sto').onclick = function () { m.remove(); go('#storage') }
       if ($('#mn-adm')) $('#mn-adm').onclick = function () { m.remove(); go('#admin') }
       $('#mn-acc').onclick = function () { m.remove(); window.open('https://themadlions.com/account/', '_blank') }
