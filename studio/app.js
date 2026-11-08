@@ -53,6 +53,7 @@
     mic: '<rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v3"/>', range: '<path d="M4 7v10M20 7v10M7 12h10M10 9l-3 3 3 3M14 9l3 3-3 3"/>',
     stems: '<path d="M4 7h16M4 12h16M4 17h16"/><circle cx="8" cy="7" r="1.6" fill="currentColor"/><circle cx="15" cy="12" r="1.6" fill="currentColor"/><circle cx="11" cy="17" r="1.6" fill="currentColor"/>', wave: '<path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 11v2"/>',
     heart: '<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>', loupe: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21M8 10.5h5M10.5 8v5"/>', pin: '<path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/>',
+    chev: '<path d="M6 9l6 6 6-6"/>', scope: '<rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M6 15c2-6 4-6 6 0s4 6 6 0"/>',
     image: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/>',
     film: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M10 9.5v5l4-2.5z" fill="currentColor"/>',
     folder: '<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
@@ -153,11 +154,12 @@
   var audEl = new Audio(); audEl.preload = 'auto'; audEl.crossOrigin = 'anonymous'
   var vidEl = document.createElement('video'); vidEl.preload = 'metadata'; vidEl.crossOrigin = 'anonymous'; vidEl.playsInline = true; vidEl.setAttribute('playsinline', ''); vidEl.className = 'vid'
   var audio = audEl // whichever is playing now
+  var anNode = null
   var actx = null, gainNode = null, matched = store.get('rs-match') !== '0'
   var cur = { version: null, url: '', gain: 1 }
   function ensureGraph() {
     if (actx || !(window.AudioContext || window.webkitAudioContext)) return
-    try { actx = new (window.AudioContext || window.webkitAudioContext)(); var src = actx.createMediaElementSource(audEl); gainNode = actx.createGain(); src.connect(gainNode).connect(actx.destination) } catch (e) { actx = null; gainNode = null }
+    try { actx = new (window.AudioContext || window.webkitAudioContext)(); var src = actx.createMediaElementSource(audEl); gainNode = actx.createGain(); src.connect(gainNode).connect(actx.destination); anNode = actx.createAnalyser(); anNode.fftSize = 8192; anNode.smoothingTimeConstant = 0.72; anNode.minDecibels = -100; anNode.maxDecibels = -10; src.connect(anNode) } catch (e) { actx = null; gainNode = null }
   }
   function applyGain() {
     var v = cur.version, g = 1
@@ -770,7 +772,7 @@
       '<div class="facts" id="facts"></div><section class="stemp" id="stemp" hidden></section>' +
       '<div class="appr" id="appr"></div>' +
       (edit && !share ? '<input type="file" id="nvf" accept="audio/*,video/*,image/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.mov,.mp4,.heic,.tif,.tiff,.psd" hidden><div class="ups" id="ups"></div>' : '') +
-      '</section>' + (function () {
+      '</section><section class="extras glass" id="extras"><div class="ex-h"><b>' + ic('scope') + ' <span id="ex-title">Analyzer</span></b><span class="muted" id="ex-sub"></span><span class="grow"></span><div class="lens-group" id="ex-tabs" hidden><span class="lens"></span><button data-sc="wave" class="on">Waveform</button><button data-sc="parade">RGB parade</button></div><button class="ico sm" id="ex-tg" aria-label="Show or hide the analyzer">' + ic('chev') + '</button></div><div class="ex-b" id="ex-b"></div></section>' + (function () {
         var k = kindOf(versions[versions.length - 1]), out = ''
         if (k === 'audio' && store.get('rs-hint-ab') !== '0') out += '<div class="hint" data-hint="ab">' + ic('wave') + '<span><b>A/B</b> · press A/B at the top, then <kbd>Space</kbd>: you hear the next version (A → B → C) from the same second, without stopping.</span><button class="ico sm" aria-label="Hide this tip">' + ic('x') + '</button></div>'
         if (k !== 'image' && canDo('commenter') && store.get('rs-hint-rng') !== '0') out += '<div class="hint" data-hint="rng">' + ic('range') + '<span><b>A stretch</b> · hold <kbd>Shift</kbd> and drag on the waveform to pick a part (0:42 to 0:58): the note you write covers all of it.</span><button class="ico sm" aria-label="Hide this tip">' + ic('x') + '</button></div>'
@@ -799,6 +801,7 @@
       if ($('#cmp-at')) $('.attime').hidden = k === 'image'
       if ($('#fs')) { $('#fs').hidden = k !== 'video'; $('#pip').hidden = k !== 'video' || !document.pictureInPictureEnabled }
       if ($('#grab')) $('#grab').hidden = k !== 'video' || (share && !share.data.can.comment)
+      setTimeout(paintExtras)
       if ($('#strm')) $('#strm').hidden = k !== 'audio' || x.lufs == null
       if ($('#stems')) $('#stems').hidden = k !== 'audio'
       if ($('#abtn')) $('#abtn').hidden = k !== 'audio' || audVersions().length < 2
@@ -827,7 +830,7 @@
         box.hidden = false
         box.innerHTML = '<div class="still"' + (x.thumb ? ' style="background-image:url(' + x.thumb + ')"' : '') + '><span class="pwrap" id="pwrap"><img id="still" alt="' + esc(x.file_name) + '">' + wmLayer() + '<span class="ppins" id="ppins"></span><span class="loupe" id="loupe" hidden></span></span></div>' +
           '<div class="ptools">' + (!(share && share.data.kind === 'finals') ? heartBtn(x.track_id) : '') + '<span class="grow"></span>' + (imgVersions().length > 1 ? '<button class="btn sm" id="pcmp">' + ic('split') + ' Before / after</button>' : '') + '<button class="btn sm" id="ploupe" title="See the picture at 100% under the pointer">' + ic('loupe') + ' 100%</button>' + (canDo('commenter') ? '<span class="phint">' + ic('pin') + ' Click the picture to put a note on that spot</span>' : '') + '</div>'
-        urlFor(x).then(function (u) { var im = $('#still'); if (im && curV() === x) { im.onload = function () { im.classList.add('on'); paintPPins() }; im.src = u } }).catch(function () {})
+        urlFor(x).then(function (u) { var im = $('#still'); if (im && curV() === x) { im.crossOrigin = 'anonymous'; im.onload = function () { im.classList.add('on'); paintPPins(); ex.lastT = -3 }; im.src = u } }).catch(function () {})
         setupPicture(x)
       } else { box.innerHTML = ''; box.hidden = true }
     }
@@ -1524,6 +1527,140 @@
         hd.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); hd.setPointerCapture(e.pointerId); var mv = function (ev) { var r = wrap.getBoundingClientRect(); at = Math.max(0.02, Math.min(0.98, (ev.clientX - r.left) / r.width)); place() }, en = function () { hd.removeEventListener('pointermove', mv); hd.removeEventListener('pointerup', en) }; hd.addEventListener('pointermove', mv); hd.addEventListener('pointerup', en) })
       }
     }
+    // ===== the analyzer (Alex, 8 Nov): a spectrum for sound, scopes for pictures and video =====
+    var ex = { on: store.get('rs-extras') !== '0', tab: store.get('rs-scope') || 'wave', kind: null, raf: 0, last: 0, lastT: -1, hold: null, sc: null }
+    function exSize(cv) { var r = cv.getBoundingClientRect(), dp = devicePixelRatio || 1, w = Math.max(10, Math.round(r.width * dp)), h = Math.max(10, Math.round(r.height * dp)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h } return { w: w, h: h, dp: dp } }
+    function paintExtras() {
+      var box = $('#ex-b'), x = curV(), k = kindOf(x); if (!box) return
+      $('#extras').classList.toggle('closed', !ex.on); $('#ex-tg').classList.toggle('on', ex.on)
+      if (ex.kind !== k) {
+        ex.kind = k; ex.hold = null
+        $('#ex-title').textContent = k === 'audio' ? 'Spectrum' : 'Scopes'
+        $('#ex-sub').textContent = k === 'audio' ? 'what frequencies are playing, live' : k === 'video' ? 'brightness and colour of the frame on screen' : 'brightness and colour of the picture'
+        $('#ex-tabs').hidden = k === 'audio'
+        box.innerHTML = k === 'audio'
+          ? '<div class="ex-spec"><canvas id="ex-sp"></canvas><span class="ex-wait" id="ex-wait">Press play to see the spectrum</span></div><div class="ex-gram"><canvas id="ex-sg"></canvas></div>'
+          : '<div class="ex-grid"><figure><canvas id="ex-wf"></canvas><figcaption id="ex-wf-c">Waveform</figcaption></figure><figure><canvas id="ex-vs" class="sq"></canvas><figcaption>Vectorscope</figcaption></figure><figure><canvas id="ex-hi"></canvas><figcaption>Histogram</figcaption></figure></div>'
+        $$('#ex-tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.sc === ex.tab) }); setTimeout(function () { lens($('#ex-tabs')) }, 30)
+      }
+      ex.lastT = -1
+      if (ex.on && !ex.raf) ex.raf = requestAnimationFrame(exLoop)
+    }
+    function exLoop(now) {
+      ex.raf = 0
+      if (!document.body.contains(wv) || !ex.on) return
+      var k = kindOf(curV())
+      if (k === 'audio') drawSpectrum()
+      else if (now - ex.last > 110) {
+        var src = k === 'video' ? vidEl : $('#still'), t = k === 'video' ? vidEl.currentTime : 0
+        if (src && (k === 'video' ? vidEl.readyState >= 2 : src.complete && src.naturalWidth) && (t !== ex.lastT || (k === 'video' && !vidEl.paused))) { ex.last = now; ex.lastT = t; drawScopes(src) }
+      }
+      ex.raf = requestAnimationFrame(exLoop)
+    }
+    var FR = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000]
+    function drawSpectrum() {
+      var cv = $('#ex-sp'), sg = $('#ex-sg'); if (!cv) return
+      var on = anNode && audio === audEl && !audEl.paused
+      $('#ex-wait').hidden = !!(anNode && audio === audEl && (on || ex.hold))
+      var S = exSize(cv), g = cv.getContext('2d'), W = S.w, H = S.h, dp = S.dp
+      g.clearRect(0, 0, W, H)
+      var fx = function (f) { return Math.log(f / 20) / Math.log(1000) * W }
+      g.strokeStyle = 'rgba(255,255,255,.07)'; g.lineWidth = 1; g.fillStyle = 'rgba(255,255,255,.38)'; g.font = (10 * dp) + 'px ui-monospace, Menlo, monospace'
+      FR.forEach(function (f) { var xx = Math.round(fx(f)) + .5; g.beginPath(); g.moveTo(xx, 0); g.lineTo(xx, H); g.stroke(); if (f > 20 && f < 20000) g.fillText(f >= 1000 ? (f / 1000) + 'k' : String(f), xx + 3 * dp, H - 4 * dp) })
+      ;[-20, -40, -60, -80].forEach(function (db) { var yy = Math.round((-10 - db) / 90 * H) + .5; g.beginPath(); g.moveTo(0, yy); g.lineTo(W, yy); g.stroke(); g.fillText(db + ' dB', 4 * dp, yy - 3 * dp) })
+      if (!anNode || audio !== audEl) return
+      var n = anNode.frequencyBinCount, data = new Float32Array(n); anNode.getFloatFrequencyData(data)
+      var ny = actx.sampleRate / 2, cols = Math.floor(W / dp / 2)
+      if (!ex.hold || ex.hold.length !== cols) ex.hold = new Float32Array(cols).fill(-100)
+      var grad = g.createLinearGradient(0, H, 0, 0); grad.addColorStop(0, 'rgba(124,58,237,.35)'); grad.addColorStop(.6, 'rgba(167,139,250,.75)'); grad.addColorStop(1, 'rgba(250,204,21,.9)')
+      g.fillStyle = grad; g.beginPath(); g.moveTo(0, H)
+      var vals = new Float32Array(cols)
+      for (var c = 0; c < cols; c++) {
+        var f0 = 20 * Math.pow(1000, c / cols), f1 = 20 * Math.pow(1000, (c + 1) / cols), b0 = Math.floor(f0 / ny * n), b1 = Math.max(b0 + 1, Math.ceil(f1 / ny * n)), m = -120
+        for (var b = b0; b < b1 && b < n; b++) if (data[b] > m) m = data[b]
+        vals[c] = on ? m : ex.hold[c] - 0.6
+        if (on) ex.hold[c] = Math.max(m, ex.hold[c] - 0.35)
+        var yy = Math.max(0, Math.min(H, (-10 - vals[c]) / 90 * H))
+        g.lineTo(c / cols * W, yy); g.lineTo((c + 1) / cols * W, yy)
+      }
+      g.lineTo(W, H); g.closePath(); g.fill()
+      g.strokeStyle = 'rgba(250,204,21,.85)'; g.lineWidth = dp; g.beginPath()
+      for (var c2 = 0; c2 < cols; c2++) { var yh = Math.max(0, Math.min(H, (-10 - ex.hold[c2]) / 90 * H)); if (c2) g.lineTo((c2 + .5) / cols * W, yh); else g.moveTo(0, yh) }
+      g.stroke()
+      // the spectrogram: one new column a frame, low notes at the bottom
+      if (on && sg) {
+        var T = exSize(sg), gg = sg.getContext('2d'), w2 = T.w, h2 = T.h
+        gg.drawImage(sg, -2, 0)
+        for (var yv = 0; yv < h2; yv += 2) {
+          var fq = 20 * Math.pow(1000, 1 - yv / h2), bi = Math.min(n - 1, Math.floor(fq / ny * n)), v = Math.max(0, Math.min(1, (data[bi] + 100) / 85))
+          gg.fillStyle = v < .5 ? 'rgba(' + Math.round(40 + 160 * v) + ',' + Math.round(20 + 60 * v) + ',' + Math.round(80 + 300 * v) + ',1)' : 'rgba(' + Math.round(167 + 166 * (v - .5)) + ',' + Math.round(80 + 248 * (v - .5)) + ',' + Math.round(230 - 400 * (v - .5)) + ',1)'
+          gg.fillRect(w2 - 2, yv, 2, 2)
+        }
+      }
+    }
+    function drawScopes(src) {
+      var sw = src.videoWidth || src.naturalWidth, sh = src.videoHeight || src.naturalHeight; if (!sw) return
+      var w = 240, h = Math.max(40, Math.round(240 * sh / sw))
+      if (!ex.sc) ex.sc = document.createElement('canvas')
+      var c0 = ex.sc; if (c0.width !== w || c0.height !== h) { c0.width = w; c0.height = h }
+      var g0 = c0.getContext('2d', { willReadFrequently: true }), px
+      try { g0.drawImage(src, 0, 0, w, h); px = g0.getImageData(0, 0, w, h).data } catch (e) { $('#ex-b').innerHTML = '<p class="muted" style="margin:0">This file does not allow scopes here.</p>'; ex.kind = null; return }
+      // waveform or parade
+      var cv = $('#ex-wf'); if (!cv) return
+      var S = exSize(cv), W = S.w, H = S.h, g = cv.getContext('2d'), parade = ex.tab === 'parade'
+      $('#ex-wf-c').textContent = parade ? 'RGB parade' : 'Waveform (brightness)'
+      var acc = [new Float32Array(W * H), new Float32Array(W * H), new Float32Array(W * H)]
+      for (var y = 0; y < h; y++) for (var x = 0; x < w; x++) {
+        var i = (y * w + x) * 4, r = px[i], gr = px[i + 1], bl = px[i + 2]
+        if (parade) { var col0 = Math.floor(x / w * (W / 3)); [r, gr, bl].forEach(function (v, ch) { var row = H - 1 - Math.floor(v / 255 * (H - 1)); acc[ch][row * W + col0 + Math.floor(ch * W / 3)] += 1 }) }
+        else { var L = 0.2126 * r + 0.7152 * gr + 0.0722 * bl, row2 = H - 1 - Math.floor(L / 255 * (H - 1)), col = Math.floor(x / w * W); acc[0][row2 * W + col] += 1 }
+      }
+      var img = g.createImageData(W, H), dd = img.data, gain = 255 * 2.2 * (W / w) * (H / h) / Math.max(1, h) * 8
+      for (var j = 0; j < W * H; j++) {
+        var o = j * 4
+        if (parade) { dd[o] = Math.min(255, acc[0][j] * gain); dd[o + 1] = Math.min(255, acc[1][j] * gain); dd[o + 2] = Math.min(255, acc[2][j] * gain) }
+        else { var vv = Math.min(255, acc[0][j] * gain); dd[o] = vv * .75; dd[o + 1] = vv; dd[o + 2] = vv * .8 }
+        dd[o + 3] = 255
+      }
+      g.putImageData(img, 0, 0)
+      g.strokeStyle = 'rgba(255,255,255,.12)'; g.fillStyle = 'rgba(255,255,255,.4)'; g.font = (9 * S.dp) + 'px ui-monospace, Menlo, monospace'; g.lineWidth = 1
+      ;[0, 25, 50, 75, 100].forEach(function (pc) { var yy = Math.round(H - 1 - pc / 100 * (H - 1)) + .5; g.beginPath(); g.moveTo(0, yy); g.lineTo(W, yy); g.stroke(); g.fillText(String(pc), 3 * S.dp, Math.max(10 * S.dp, yy - 2 * S.dp)) })
+      if (parade) { g.strokeStyle = 'rgba(255,255,255,.18)'; [1, 2].forEach(function (k2) { var xx = Math.round(k2 * W / 3) + .5; g.beginPath(); g.moveTo(xx, 0); g.lineTo(xx, H); g.stroke() }) }
+      // vectorscope
+      var vc = $('#ex-vs'), V = exSize(vc), vg = vc.getContext('2d'), N = Math.min(V.w, V.h), cx = V.w / 2, cy = V.h / 2, R = N * 0.45
+      var va = new Float32Array(V.w * V.h)
+      for (var q = 0; q < px.length; q += 4) {
+        var rr = px[q], gg2 = px[q + 1], bb = px[q + 2], cb = -0.1687 * rr - 0.3313 * gg2 + 0.5 * bb, cr = 0.5 * rr - 0.4187 * gg2 - 0.0813 * bb
+        var vx = Math.round(cx + cb / 128 * R), vy = Math.round(cy - cr / 128 * R); if (vx >= 0 && vy >= 0 && vx < V.w && vy < V.h) va[vy * V.w + vx] += 1
+      }
+      var vi = vg.createImageData(V.w, V.h), vd = vi.data, vgain = 255 * 6 * (V.w * V.h) / (w * h) / 6
+      for (var z = 0; z < va.length; z++) { var vv2 = Math.min(255, va[z] * vgain); vd[z * 4] = vv2 * .85; vd[z * 4 + 1] = vv2; vd[z * 4 + 2] = vv2 * .9; vd[z * 4 + 3] = 255 }
+      vg.putImageData(vi, 0, 0)
+      vg.strokeStyle = 'rgba(255,255,255,.18)'; vg.lineWidth = 1; vg.beginPath(); vg.arc(cx, cy, R, 0, Math.PI * 2); vg.stroke(); vg.beginPath(); vg.moveTo(cx - R, cy); vg.lineTo(cx + R, cy); vg.moveTo(cx, cy - R); vg.lineTo(cx, cy + R); vg.stroke()
+      // the skin line, and where pure red, yellow, green, cyan, blue and magenta land (75%)
+      vg.strokeStyle = 'rgba(250,204,21,.55)'; vg.beginPath(); vg.moveTo(cx, cy); var sa = 123 * Math.PI / 180; vg.lineTo(cx + Math.cos(sa) * R, cy - Math.sin(sa) * R); vg.stroke()
+      vg.font = (9 * V.dp) + 'px ui-monospace, Menlo, monospace'
+      ;[['R', 191, 0, 0], ['Y', 191, 191, 0], ['G', 0, 191, 0], ['C', 0, 191, 191], ['B', 0, 0, 191], ['M', 191, 0, 191]].forEach(function (t) {
+        var cb2 = -0.1687 * t[1] - 0.3313 * t[2] + 0.5 * t[3], cr2 = 0.5 * t[1] - 0.4187 * t[2] - 0.0813 * t[3], tx = cx + cb2 / 128 * R, ty = cy - cr2 / 128 * R
+        vg.strokeStyle = 'rgba(255,255,255,.45)'; vg.strokeRect(tx - 4 * V.dp, ty - 4 * V.dp, 8 * V.dp, 8 * V.dp); vg.fillStyle = 'rgba(255,255,255,.55)'; vg.fillText(t[0], tx + 6 * V.dp, ty + 3 * V.dp)
+      })
+      // histogram
+      var hc = $('#ex-hi'), Hs = exSize(hc), hg = hc.getContext('2d'), hist = [new Uint32Array(256), new Uint32Array(256), new Uint32Array(256), new Uint32Array(256)]
+      for (var u = 0; u < px.length; u += 4) { hist[0][px[u]]++; hist[1][px[u + 1]]++; hist[2][px[u + 2]]++; hist[3][Math.round(0.2126 * px[u] + 0.7152 * px[u + 1] + 0.0722 * px[u + 2])]++ }
+      var top = 1; hist.forEach(function (hh) { for (var k3 = 1; k3 < 255; k3++) if (hh[k3] > top) top = hh[k3] })
+      hg.clearRect(0, 0, Hs.w, Hs.h); hg.globalCompositeOperation = 'lighter'
+      ;[[0, 'rgba(239,68,68,.55)'], [1, 'rgba(34,197,94,.55)'], [2, 'rgba(59,130,246,.6)']].forEach(function (cfg) {
+        hg.fillStyle = cfg[1]; hg.beginPath(); hg.moveTo(0, Hs.h)
+        for (var k4 = 0; k4 < 256; k4++) hg.lineTo(k4 / 255 * Hs.w, Hs.h - Math.min(1, hist[cfg[0]][k4] / top) * Hs.h * .95)
+        hg.lineTo(Hs.w, Hs.h); hg.closePath(); hg.fill()
+      })
+      hg.globalCompositeOperation = 'source-over'; hg.strokeStyle = 'rgba(255,255,255,.75)'; hg.lineWidth = Hs.dp; hg.beginPath()
+      for (var k5 = 0; k5 < 256; k5++) { var yy5 = Hs.h - Math.min(1, hist[3][k5] / top) * Hs.h * .95; if (k5) hg.lineTo(k5 / 255 * Hs.w, yy5); else hg.moveTo(0, yy5) }
+      hg.stroke()
+      var clipLo = hist[3][0] / (w * h), clipHi = hist[3][255] / (w * h)
+      hg.font = (9.5 * Hs.dp) + 'px ui-monospace, Menlo, monospace'; hg.fillStyle = clipLo > .01 ? '#fca5a5' : 'rgba(255,255,255,.45)'; hg.fillText('black ' + (clipLo * 100).toFixed(1) + '%', 4 * Hs.dp, 12 * Hs.dp)
+      hg.fillStyle = clipHi > .01 ? '#fca5a5' : 'rgba(255,255,255,.45)'; var tw = hg.measureText('white ' + (clipHi * 100).toFixed(1) + '%').width; hg.fillText('white ' + (clipHi * 100).toFixed(1) + '%', Hs.w - tw - 4 * Hs.dp, 12 * Hs.dp)
+    }
     var lastActive = null
     function activeNote() {
       var t = audio.currentTime, best = null
@@ -1656,6 +1793,8 @@
     $('#lp').onclick = function () { var on = !audEl.loop; audEl.loop = vidEl.loop = on; this.classList.toggle('on', on) }
     $('#lp').classList.toggle('on', audEl.loop)
     if ($('#abtn')) $('#abtn').onclick = abToggle
+    if ($('#ex-tg')) $('#ex-tg').onclick = function () { ex.on = !ex.on; store.set('rs-extras', ex.on ? '1' : '0'); paintExtras() }
+    if ($('#ex-tabs')) $('#ex-tabs').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; ex.tab = b.dataset.sc; store.set('rs-scope', ex.tab); $$('#ex-tabs button').forEach(function (q) { q.classList.toggle('on', q === b) }); lens($('#ex-tabs')); ex.lastT = -2 }
     $$('.hint').forEach(function (h) { $('button', h).onclick = function () { store.set('rs-hint-' + h.dataset.hint, '0'); h.classList.add('gone'); setTimeout(function () { h.remove(); var hs = $('.hints'); if (hs && !hs.children.length) hs.remove() }, 260) } })
     if ($('#cmp-pos-x')) $('#cmp-pos-x').onclick = function () { tview.ppos = null; $('#cmp-pos').hidden = true; paintPPins() }
     if ($('#strm')) $('#strm').onclick = streamCheck
