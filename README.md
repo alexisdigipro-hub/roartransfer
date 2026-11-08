@@ -177,4 +177,4 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
   its path. Database: supabase/studio-hardening.sql in roarme. RoarTransfer's hourly sweep never touches studio/ (it
   deleted every Studio file older than six hours until 8 Nov).
 - Speed (8 Nov 2026): stills and backgrounds re-encoded (about 1.5 MB less), the lower pictures of the pages load when
-  near, supabase-js served from /vendor/, i18n.js only for Greek, no redraws while nothing plays (`frameLater`).
+  near, supabase-js served from /supabase-2.45.4.js (jsDelivr as a fallback; not /vendor/, which Cloudflare had cached as missing), i18n.js only for Greek, no redraws while nothing plays (`frameLater`).

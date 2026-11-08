@@ -160,7 +160,15 @@
   // the screen redraws 60 times a second only while something plays; paused, 4 times a second is plenty (Alex, 8 Nov: faster)
   function frameLater(fn) { if (audio.paused) setTimeout(fn, 250); else requestAnimationFrame(fn) }
   // a file whose copy in the cloud is gone (Alex, 8 Nov: a cleanup job deleted the Studio's files): say so plainly
-  ;[audEl, vidEl].forEach(function (el) { el.addEventListener('error', function () { if (el.src && /r2\.cloudflarestorage/.test(el.src) && el.error && el.error.code !== 1) toast('This file is no longer in storage. Upload it again as a new version.') }) })
+  ;[audEl, vidEl].forEach(function (el) { el.addEventListener('error', function () { if (el.src && /r2\.cloudflarestorage/.test(el.src) && el.error && el.error.code !== 1) fileLost() }) })
+  // the file's copy in the cloud is gone (the 8 Nov cleanup bug): a clear panel on the player with Upload again (Alex, 8 Nov)
+  function fileLost() {
+    var box = $('#media'); if (!box || $('.lost', box)) return
+    var up = $('#nvf'), d = document.createElement('div'); d.className = 'lost'
+    d.innerHTML = '<b>This file is no longer in storage</b><span>It was lost on 8 November in a storage cleanup that has been fixed. Upload the same file again and its notes stay.</span>' + (up ? '<button class="btn main" type="button">' + ic('up') + ' Upload again</button>' : '<span>Ask the owner to upload it again.</span>')
+    box.hidden = false; box.appendChild(d)
+    var b = $('button', d); if (b) b.onclick = function () { up.click() }
+  }
   var anNode = null
   var actx = null, gainNode = null, matched = store.get('rs-match') !== '0'
   var cur = { version: null, url: '', gain: 1 }
@@ -968,7 +976,7 @@
         box.hidden = false
         box.innerHTML = '<div class="still"' + (x.thumb ? ' style="background-image:url(' + cssu(x.thumb) + ')"' : '') + '><span class="pwrap" id="pwrap"><img id="still" alt="' + esc(x.file_name) + '">' + wmLayer() + '<span class="ppins" id="ppins"></span><span class="loupe" id="loupe" hidden></span></span></div>' +
           '<div class="ptools">' + (!(share && share.data.kind === 'finals') ? heartBtn(x.track_id) : '') + '<span class="grow"></span>' + (imgVersions().length > 1 ? '<button class="btn sm" id="pcmp">' + ic('split') + ' Before / after</button>' : '') + '<button class="btn sm" id="ploupe" title="See the picture at 100% under the pointer">' + ic('loupe') + ' 100%</button>' + '<button class="btn sm" id="pview" title="Open the picture big (or click it)">' + ic('full') + ' View</button>' + (canDo('commenter') ? '<button class="btn sm" id="ppinb" title="Then click the spot the note is about">' + ic('pin') + ' Pin a note</button>' : '') + '</div>'
-        urlFor(x).then(function (u) { var im = $('#still'); if (im && curV() === x) { im.crossOrigin = 'anonymous'; im.onload = function () { im.classList.add('on'); paintPPins(); ex.lastT = -3 }; im.src = u } }).catch(function () {})
+        urlFor(x).then(function (u) { var im = $('#still'); if (im && curV() === x) { im.crossOrigin = 'anonymous'; im.onload = function () { im.classList.add('on'); paintPPins(); ex.lastT = -3 }; im.onerror = fileLost; im.src = u } }).catch(function () {})
         setupPicture(x)
       } else { box.innerHTML = ''; box.hidden = true }
     }
