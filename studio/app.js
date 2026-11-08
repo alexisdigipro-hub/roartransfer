@@ -2290,8 +2290,60 @@
         '<section class="scard glass"><h2>What they upload</h2>' + ['audio', 'video', 'image'].map(function (k) { return '<div class="srow"><div><b><i class="kdot k-' + k + '"></i>' + KIND_PLURAL[k] + '</b><small>' + kt[k].files + ' file' + (kt[k].files === 1 ? '' : 's') + '</small></div><span class="pbar" style="width:40%"><i style="width:' + Math.max(1, kt[k].bytes / kb * 100) + '%"></i></span><span class="mono" style="font-size:13px">' + size(kt[k].bytes) + '</span></div>' }).join('') + '</section></div>' +
         '<section class="scard glass" style="margin-top:14px"><h2>Accounts</h2><div class="atable"><div class="arow ah"><span>Account</span><span>Joined</span><span>Last active</span><span>Projects</span><span>Uploads</span><span>Notes</span><span>Storage</span></div>' +
         d.accounts.map(function (a) { return '<div class="arow"><span class="who2"><b>' + esc(a.name || a.email.split('@')[0]) + '</b><small>' + esc(a.email) + '</small></span><span>' + new Date(a.joined).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' }) + '</span><span>' + (a.last ? ago(a.last) : '—') + '</span><span>' + a.projects + (a.member_of ? ' <small>+' + a.member_of + ' shared</small>' : '') + '</span><span>' + a.uploads + '</span><span>' + a.notes + '</span><span>' + size(a.storage) + '</span></div>' }).join('') + '</div></section>' +
+        '<section class="scard glass" style="margin-top:14px" id="ad-pro"><h2>Studio Pro</h2><div class="spin"></div></section>' +
+        '<section class="scard glass" style="margin-top:14px" id="ad-wl"><h2>Waiting list</h2><div class="spin"></div></section>' +
         '<section class="scard glass" style="margin-top:14px"><h2>Biggest projects</h2>' + d.top.map(function (p) { return '<div class="srow"><div><b>' + esc(p.title) + '</b><small>' + esc(p.owner) + ' · ' + p.files + ' files · ' + ago(p.updated) + '</small></div><span class="mono" style="font-size:13px">' + size(p.bytes) + '</span></div>' }).join('') + '</section>'
       $('#ad-re').onclick = renderAdmin
+      adminPro(); adminWait()
+    })
+  }
+  // Admin > Studio Pro (Alex, 8 Nov 2026: "let me make people Pro in the Studio, as in RoarTransfer"): by email, for a month,
+  // a year or always; Studio Pro also gives RoarTransfer Pro to the same date (the roarstudio function, pro-*)
+  function adminPro() {
+    var box = $('#ad-pro'); if (!box) return
+    var months = 1
+    var day = function (iso) { return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) }
+    api('pro-list').then(function (d) {
+      if (d.error) { box.innerHTML = '<h2>Studio Pro</h2><p class="muted">' + esc(d.error) + '</p>'; return }
+      var ppl = d.people || []
+      box.innerHTML = '<div class="spread"><h2>Studio Pro</h2><small class="muted">' + ppl.filter(function (p) { return p.pro && !p.admin }).length + ' given · admins are always Pro</small></div>' +
+        '<p class="muted" style="margin:4px 0 12px;font-size:13px">Studio Pro includes RoarTransfer Pro: it is given to the same date (a longer RoarTransfer Pro they already have stays).</p>' +
+        '<div class="progrant"><input class="in" id="pg-em" type="email" placeholder="Their Roar account email" autocomplete="off"><div class="chips" id="pg-m"><button data-m="1" class="on">1 month</button><button data-m="12">1 year</button><button data-m="0">Always</button></div><button class="btn main" id="pg-go">' + ic('star') + ' Make Pro</button></div>' +
+        '<div class="prolist">' + (ppl.length ? ppl.map(function (p) {
+          var st = p.admin ? '<span class="pchip on">Admin · always</span>' : p.pro ? '<span class="pchip on">' + (p.until ? 'Pro until ' + day(p.until) : 'Pro · always') + '</span>' : '<span class="pchip">Ended' + (p.until ? ' ' + day(p.until) : '') + '</span>'
+          var act = p.admin ? '' : p.pro ? '<button class="ico sm" data-rv="' + p.id + '" aria-label="Take Pro away" title="Take Pro away">' + ic('trash') + '</button>' : '<button class="btn" data-ag="' + esc(p.email) + '">Give again</button>'
+          return '<div class="srow"><div><b>' + esc(p.name || p.email.split('@')[0]) + '</b><small>' + esc(p.email) + '</small></div><div class="row" style="gap:8px">' + st + act + '</div></div>'
+        }).join('') : '<p class="muted">Nobody yet.</p>') + '</div>'
+      $('#pg-m', box).onclick = function (e) { var b = e.target.closest('button'); if (!b) return; months = +b.dataset.m; $$('#pg-m button', box).forEach(function (x) { x.classList.toggle('on', x === b) }) }
+      var grant = function (email) {
+        email = String(email || '').trim(); if (!email) { $('#pg-em', box).focus(); return }
+        $('#pg-go', box).disabled = true
+        api('pro-grant', { email: email, months: months }).then(function (r) {
+          $('#pg-go', box).disabled = false
+          if (r.error) { toast(r.error); return }
+          toast(r.transfer === 'kept' ? 'Studio Pro given · their longer RoarTransfer Pro stays' : 'Studio Pro given, with RoarTransfer Pro'); adminPro()
+        })
+      }
+      $('#pg-go', box).onclick = function () { grant($('#pg-em', box).value) }
+      $('#pg-em', box).onkeydown = function (e) { if (e.key === 'Enter') grant(this.value) }
+      $$('[data-ag]', box).forEach(function (b) { b.onclick = function () { $('#pg-em', box).value = b.dataset.ag; grant(b.dataset.ag) } })
+      $$('[data-rv]', box).forEach(function (b) { b.onclick = function () {
+        if (!confirm('Take Studio Pro away now? The RoarTransfer Pro it gave ends too.')) return
+        api('pro-revoke', { id: b.dataset.rv }).then(function (r) { if (r.error) toast(r.error); else { toast('Studio Pro taken away'); adminPro() } })
+      } })
+    })
+  }
+  // the waiting list from the pricing pages (Alex, 8 Nov 2026: "pre-order next to Coming soon")
+  function adminWait() {
+    var box = $('#ad-wl'); if (!box) return
+    api('waitlist-list').then(function (d) {
+      if (d.error) { box.innerHTML = '<h2>Waiting list</h2><p class="muted">' + esc(d.error) + '</p>'; return }
+      var rows = d.rows || [], name = { 'studio-pro': 'Studio Pro', 'transfer-pro': 'RoarTransfer Pro' }
+      var n = function (p) { return rows.filter(function (r) { return r.plan === p }).length }
+      box.innerHTML = '<div class="spread"><h2>Waiting list</h2>' + (rows.length ? '<button class="btn" id="wl-cp">' + ic('copy') + ' Copy emails</button>' : '') + '</div>' +
+        '<p class="muted" style="margin:4px 0 8px;font-size:13px">People who asked to be told when paying opens, from the pricing pages · ' + n('studio-pro') + ' Studio Pro · ' + n('transfer-pro') + ' RoarTransfer Pro</p>' +
+        (rows.length ? rows.map(function (r) { return '<div class="srow"><div><b>' + esc(r.email) + '</b><small>' + name[r.plan] + (r.billing ? ' · ' + (r.billing === 'year' ? 'yearly' : 'monthly') : '') + (r.lang === 'el' ? ' · Greek' : '') + '</small></div><small class="muted">' + ago(r.created_at) + '</small></div>' }).join('') : '<p class="muted">Nobody yet.</p>')
+      var cp = $('#wl-cp', box); if (cp) cp.onclick = function () { copyText(rows.map(function (r) { return r.email }).filter(function (x, i, a) { return a.indexOf(x) === i }).join(', '), 'Emails copied') }
     })
   }
 

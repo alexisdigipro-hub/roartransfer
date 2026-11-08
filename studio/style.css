@@ -1217,3 +1217,11 @@ body.has-mini .sfoot { padding-bottom: 96px }
 /* the account menu opens under the picture (Alex, 8 Nov) */
 .menu { z-index: 60 }
 .me { background-size: cover !important; background-position: center !important }
+
+/* Admin > Studio Pro and the waiting list (Alex, 8 Nov) */
+.progrant { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px }
+.progrant .in { flex: 1 1 240px; width: auto }
+.prolist .srow .row { flex-wrap: wrap; justify-content: flex-end }
+.pchip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 11px; border-radius: 999px; font: 600 12px var(--sans); color: var(--muted); background: rgba(255,255,255,.06); border: 1px solid var(--edge); white-space: nowrap }
+.pchip::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.3) }
+.pchip.on { color: #fde68a; background: rgba(250,204,21,.1); border-color: rgba(250,204,21,.3) } .pchip.on::before { background: #facc15 }
