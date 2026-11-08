@@ -214,17 +214,19 @@
   var live = null // realtime channel of the open project
   function unlisten() { if (live) { sb.removeChannel(live); live = null } }
 
+  function langBtn() { var el = window.RSLang && RSLang.lang === 'el'; return '<button class="langb" id="langb" data-notr title="' + (el ? 'Switch to English' : 'Ελληνικά') + '">' + (el ? 'EN' : 'ΕΛ') + '</button>' }
+  document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('#langb'); if (b && window.RSLang) RSLang.set(RSLang.lang === 'el' ? 'en' : 'el') })
   function setTop(crumbs) {
     $('#crumbs').innerHTML = (crumbs || []).map(function (c, i) { return '<span class="sep">/</span><span>' + esc(c) + '</span>' }).join('')
     var r = $('#right')
     if (share) {
       var st = share.data && share.data.studio
-      r.innerHTML = st && (st.logo || st.name) ? '<span class="brand">' + (st.logo ? '<img src="' + st.logo + '" alt="">' : '') + (st.name ? '<b>' + esc(st.name) + '</b>' : '') + '</span>' : (session ? '' : '<a class="btn sm" href="./">Sign in</a>')
+      r.innerHTML = langBtn() + (st && (st.logo || st.name) ? '<span class="brand" data-notr>' + (st.logo ? '<img src="' + st.logo + '" alt="">' : '') + (st.name ? '<b>' + esc(st.name) + '</b>' : '') + '</span>' : (session ? '' : '<a class="btn sm" href="./">Sign in</a>'))
       return
     }
-    if (!session) { r.innerHTML = ''; return }
+    if (!session) { r.innerHTML = langBtn(); return }
     var name = (me && me.name) || (session.user.email || '').split('@')[0]
-    r.innerHTML = '<a class="btn sm rtlink" href="../" title="Send files with RoarTransfer">' + ic('out') + '<span>RoarTransfer</span></a><button class="ico bell" id="bell" aria-label="Notifications">' + ic('bell') + '<b id="bell-n" hidden></b></button><button class="me" id="me-btn" aria-label="Account" style="' + (me && me.avatar ? "background-image:url('" + esc(me.avatar) + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)') + '">' + (me && me.avatar ? '' : esc(initials(name))) + '</button>'
+    r.innerHTML = langBtn() + '<a class="btn sm rtlink" href="../" title="Send files with RoarTransfer">' + ic('out') + '<span>RoarTransfer</span></a><button class="ico bell" id="bell" aria-label="Notifications">' + ic('bell') + '<b id="bell-n" hidden></b></button><button class="me" id="me-btn" aria-label="Account" style="' + (me && me.avatar ? "background-image:url('" + esc(me.avatar) + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)') + '">' + (me && me.avatar ? '' : esc(initials(name))) + '</button>'
     $('#me-btn').onclick = function (e) {
       e.stopPropagation()
       var old = $('.menu'); if (old) { old.remove(); return }
@@ -409,7 +411,7 @@
       if (r[0].error) { view.innerHTML = errorBox(r[0].error.message); return }
       var ps = r[0].data || [], counts = {}
       ;(r[1].data || []).forEach(function (t) { counts[t.project_id] = (counts[t.project_id] || 0) + 1 })
-      view.innerHTML = '<div class="head"><div><h1>Projects</h1><div class="sub">' + ps.length + ' project' + (ps.length === 1 ? '' : 's') + (r[2] && r[2].bytes ? ' · ' + size(r[2].bytes) + ' stored' : '') + '</div></div><div class="tools">' + (ps.length ? '<div class="lens-group vmode" id="vmode"><span class="lens"></span><button data-m="big" aria-label="Big tiles" title="Big tiles">' + ic('big') + '</button><button data-m="small" aria-label="Small tiles" title="Small tiles">' + ic('small') + '</button><button data-m="list" aria-label="List" title="List">' + ic('rows') + '</button></div>' : '') + '<button class="btn main" id="np">' + ic('plus') + ' New project</button></div></div>' +
+      view.innerHTML = '<div class="head"><div><h1>Projects</h1><div class="sub">' + ps.length + ' project' + (ps.length === 1 ? '' : 's') + (r[2] && r[2].bytes ? ' · ' + size(r[2].bytes) + ' stored' : '') + '</div><p class="pdesc">Your workspace for sound, video and pictures: upload every version, collect notes on the exact second or spot, approve, and deliver the finals in one link.</p></div><div class="tools">' + (ps.length ? '<div class="lens-group vmode" id="vmode"><span class="lens"></span><button data-m="big" aria-label="Big tiles" title="Big tiles">' + ic('big') + '</button><button data-m="small" aria-label="Small tiles" title="Small tiles">' + ic('small') + '</button><button data-m="list" aria-label="List" title="List">' + ic('rows') + '</button></div>' : '') + '<button class="btn main" id="np">' + ic('plus') + ' New project</button></div></div>' +
         (ps.length ? '<div class="grid g-' + (store.get('rs-view') || 'big') + '" id="pgrid">' + ps.map(function (p) {
           return '<div class="proj glass" role="button" tabindex="0" data-p="' + p.id + '"><div class="cover" style="' + (p.cover ? "background:#000 url('" + p.cover + "') center/cover" : coverStyle(p.id)) + '">' + (p.owner === session.user.id ? '<button class="ico sm danger pdel" data-pdel="' + p.id + '" aria-label="Delete ' + esc(p.title) + '">' + ic('trash') + '</button>' : '') + '</div><div class="pinfo"><b>' + esc(p.title) + '</b><span>' + esc(p.artist || (p.owner === session.user.id ? 'Yours' : 'Shared with you')) + ' · ' + (counts[p.id] || 0) + ' file' + (counts[p.id] === 1 ? '' : 's') + '</span><span class="when">' + ago(p.updated_at) + '</span></div></div>'
         }).join('') + '<button class="proj new-proj" id="np2"><span class="ico">' + ic('plus') + '</span>New project</button></div>'
