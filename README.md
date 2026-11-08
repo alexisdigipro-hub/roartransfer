@@ -148,3 +148,14 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
   technical grid behind, the mixing desk recoloured purple, 1340 px wide (100 more). **Credits** on the Finals
   (`projects.credits`): templates Music (with lyrics), Video, Photo, Custom; Copy; shown on the Finals link.
 - Database: `supabase/studio.sql` in roarme (roarstudio_* tables with RLS, roarstudio_people, roarstudio_invite).
+- Pricing (Alex, 8 Nov 2026), public since 8 Nov: roartransfer.com/pricing/ (Free / Pro, 7 € a month or 70 € a year) and
+  roartransfer.com/studio/pricing/ (Studio Free / Studio Pro, 15 € a month or 150 € a year, RoarTransfer Pro included),
+  both EN/GR, linked from the footers and in the sitemap. Paying is not open: Pro says Coming soon, with **Reserve my
+  spot** under it (an email goes to `roarstudio_waitlist` through the roarstudio function, action `waitlist`, with the
+  plan and monthly or yearly). Built by a script from one template (both pages share the CSS and the toggle code).
+- Admin > Studio Pro (Alex, 8 Nov 2026): make an account Studio Pro by email for 1 month, 1 year or always; take it away
+  or give it again from the list. Studio Pro gives RoarTransfer Pro to the same date (a longer RoarTransfer Pro the
+  person already has stays), and taking Studio Pro away ends only the RoarTransfer Pro it gave. Admins are always Pro.
+  Admin > Waiting list shows who reserved a spot, with Copy emails. Database: `supabase/studio-pro.sql` in roarme
+  (roarstudio_pro, roarstudio_waitlist, roarstudio_user_by_email); the function's actions pro-list, pro-grant,
+  pro-revoke, waitlist-list (admins only) and pro-me.
