@@ -159,3 +159,9 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
   Admin > Waiting list shows who reserved a spot, with Copy emails. Database: `supabase/studio-pro.sql` in roarme
   (roarstudio_pro, roarstudio_waitlist, roarstudio_user_by_email); the function's actions pro-list, pro-grant,
   pro-revoke, waitlist-list (admins only) and pro-me.
+- From Frame.io (Alex, 8 Nov 2026): **Compare** has three ways, Wipe, Fade and Difference (Difference draws both frames on
+  a canvas with the difference blend, so only what changed is bright), for video and for Before / after on pictures
+  (`cmpModes`, `rs-cmpm`). **Social guides** in Frame masks: Instagram Reels, TikTok, YouTube Shorts (the 9:16 frame,
+  the app's buttons and captions in red, the safe box for text; `SOCIAL`). **Search everything** (the magnifier in the
+  top bar, `/` or Cmd+K): projects, files and notes across every project you are in; a note opens at its moment
+  (`searchBox`, `pendingNote`).

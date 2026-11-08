@@ -1270,3 +1270,33 @@ body.has-mini .sfoot { padding-bottom: 96px }
 @media (max-width: 600px) { .rtlink.about { display: none } }
 @media (max-width: 820px) { .player > .hints { display: none } }
 @media (min-width: 601px) { .menu .mn-about { display: none } }
+
+/* compare modes (Alex, 8 Nov, as Frame.io's comparison viewer): Wipe, Fade, Difference */
+.cmpm { position: absolute; z-index: 4; transform: translateX(-50%); display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(14,10,22,.82); border: 1px solid rgba(255,255,255,.14); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px) }
+.cmpm button { height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: rgba(255,255,255,.7); font: 600 12px var(--sans); cursor: pointer }
+.cmpm button.on { background: rgba(250,204,21,.18); color: #fde68a }
+.cmpm.in-pic { left: 50%; bottom: 12px }
+.media .cmph[hidden], .pwrap .cmph[hidden] { display: none }
+
+/* Search everything (Alex, 8 Nov) */
+.srcard { align-self: start; margin-top: 8vh }
+.srin { display: flex; align-items: center; gap: 10px }
+.srin .sri { color: var(--muted); display: grid } .srin .sri svg { width: 18px; height: 18px }
+.srin .in { flex: 1; height: 48px; font-size: 16px }
+.srres { margin-top: 10px; max-height: 62vh; overflow: auto; display: grid; gap: 4px }
+.srres h3 { margin: 12px 4px 4px; font: 700 11px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--dim) }
+.srrow { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 1px solid transparent; border-radius: 16px; background: transparent; color: var(--text); text-align: left; cursor: pointer }
+.srrow:hover, .srrow:focus-visible { background: var(--glass-2); border-color: var(--edge); outline: none }
+.srrow .nm { display: grid; min-width: 0 } .srrow b { font-weight: 600; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis } .srrow small { color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.srrow mark { background: rgba(250,204,21,.25); color: #fde68a; border-radius: 4px; padding: 0 2px }
+.srhint { padding: 14px 6px; margin: 0 }
+
+@media (max-width: 600px) { .rtlink:not(.about) { display: none } }
+@media (max-width: 600px) {
+  .ctl .pt { flex-wrap: wrap; border-radius: 20px; max-width: 100% }
+  .right { gap: 6px !important }
+  .right .ico, .right .langb, .right .me { width: 34px !important; height: 34px !important }
+}
+
+.media .cmpc { position: absolute; z-index: 2; pointer-events: none; background: #000 }
+.media .cmpc[hidden], .pcmpc[hidden] { display: none }

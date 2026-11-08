@@ -214,6 +214,58 @@
   var live = null // realtime channel of the open project
   function unlisten() { if (live) { sb.removeChannel(live); live = null } }
 
+  // ===== Search everything (Alex, 8 Nov, from Frame.io): projects, files and notes in every project you are in =====
+  function searchBox() {
+    if (!session || $('#sr-q')) return
+    var m = modal('<div class="srbox"><div class="srin"><span class="sri">' + ic('loupe') + '</span><input class="in" id="sr-q" placeholder="Search projects, files and notes" autocomplete="off" spellcheck="false"><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="srres" id="sr-r"><p class="muted srhint">Type at least two letters. Notes jump to their exact moment.</p></div></div>')
+    var card = $('.sheet-card', m); card.classList.add('wide', 'srcard')
+    var q = $('#sr-q', m), box = $('#sr-r', m), seq = 0, tmr = null
+    setTimeout(function () { q.focus() }, 30)
+    var mark = function (t, w) { var i = String(t || '').toLowerCase().indexOf(w.toLowerCase()); if (i < 0) return esc(t); return esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + w.length)) + '</mark>' + esc(t.slice(i + w.length)) }
+    var cut = function (t, w) { t = String(t || ''); var i = t.toLowerCase().indexOf(w.toLowerCase()); if (i > 60) t = '…' + t.slice(i - 40); return t.slice(0, 160) }
+    var run = function () {
+      var w = q.value.trim(), my = ++seq
+      if (w.length < 2) { box.innerHTML = '<p class="muted srhint">Type at least two letters. Notes jump to their exact moment.</p>'; return }
+      var like = '%' + w.replace(/[%_\\]/g, function (c) { return '\\' + c }) + '%', safe = w.replace(/[,()%*]/g, ' ')
+      box.innerHTML = '<div class="spin"></div>'
+      Promise.all([
+        sb.from('roarstudio_projects').select('id, title, artist, cover').or('title.ilike.*' + safe + '*,artist.ilike.*' + safe + '*').limit(8),
+        sb.from('roarstudio_tracks').select('id, title, project_id').ilike('title', like).limit(15),
+        sb.from('roarstudio_versions').select('id, track_id, project_id, file_name, n, label, mime').ilike('file_name', like).limit(15),
+        sb.from('roarstudio_comments').select('id, body, at_sec, version_id, project_id, guest_name, author').ilike('body', like).order('created_at', { ascending: false }).limit(20),
+        sb.from('roarstudio_projects').select('id, title')
+      ]).then(function (r) {
+        if (my !== seq) return
+        var pt = {}; (r[4].data || []).forEach(function (p) { pt[p.id] = p.title })
+        var vids = (r[3].data || []).map(function (c) { return c.version_id })
+        return (vids.length ? sb.from('roarstudio_versions').select('id, track_id, n, mime').in('id', vids) : Promise.resolve({ data: [] })).then(function (vv) {
+          var tids = (vv.data || []).map(function (v) { return v.track_id }).concat((r[2].data || []).map(function (v) { return v.track_id }))
+          return (tids.length ? sb.from('roarstudio_tracks').select('id, title').in('id', tids) : Promise.resolve({ data: [] })).then(function (tt) {
+            if (my !== seq) return
+            var tn = {}; (tt.data || []).forEach(function (t) { tn[t.id] = t.title })
+            var vt = {}; (vv.data || []).forEach(function (v) { vt[v.id] = v })
+            var files = (r[1].data || []).map(function (t) { return { t: t.id, title: t.title, sub: pt[t.project_id] || '' } })
+            ;(r[2].data || []).forEach(function (v) { if (!files.some(function (f) { return f.t === v.track_id })) files.push({ t: v.track_id, title: tn[v.track_id] || v.file_name, sub: (pt[v.project_id] || '') + ' · ' + v.file_name }) })
+            var html = ''
+            if ((r[0].data || []).length) html += '<h3>Projects</h3>' + r[0].data.map(function (p) { return '<button class="srrow" data-sp="' + p.id + '"><span class="ico sm">' + ic('folder') + '</span><span class="nm"><b>' + mark(p.title, w) + '</b><small>' + mark(p.artist || '', w) + '</small></span></button>' }).join('')
+            if (files.length) html += '<h3>Files</h3>' + files.slice(0, 15).map(function (f) { return '<button class="srrow" data-st="' + f.t + '"><span class="ico sm">' + ic('music') + '</span><span class="nm"><b>' + mark(f.title, w) + '</b><small>' + mark(f.sub, w) + '</small></span></button>' }).join('')
+            var notes = (r[3].data || []).filter(function (c) { return vt[c.version_id] })
+            if (notes.length) html += '<h3>Notes</h3>' + notes.map(function (c) { var v = vt[c.version_id]; return '<button class="srrow" data-sn="' + c.id + '" data-tk="' + v.track_id + '"><span class="ico sm">' + ic('reply') + '</span><span class="nm"><b>' + mark(cut(c.body, w), w) + '</b><small>' + esc((tn[v.track_id] || '') + ' · v' + v.n + (c.at_sec != null ? ' · ' + mmss(c.at_sec) : '') + ' · ' + (pt[c.project_id] || '')) + '</small></span></button>' }).join('')
+            box.innerHTML = html || '<p class="muted srhint">Nothing found for “' + esc(w) + '”.</p>'
+            $$('[data-sp]', box).forEach(function (b) { b.onclick = function () { m.remove(); go('#p/' + b.dataset.sp) } })
+            $$('[data-st]', box).forEach(function (b) { b.onclick = function () { m.remove(); go('#t/' + b.dataset.st) } })
+            $$('[data-sn]', box).forEach(function (b) { b.onclick = function () { m.remove(); pendingNote = b.dataset.sn; go('#t/' + b.dataset.tk) } })
+          })
+        })
+      }).catch(function (e) { box.innerHTML = '<p class="muted srhint">' + esc(e.message) + '</p>' })
+    }
+    q.oninput = function () { clearTimeout(tmr); tmr = setTimeout(run, 220) }
+    q.onkeydown = function (e) { if (e.key === 'Enter') { var f = $('.srrow', box); if (f) f.click() } }
+  }
+  document.addEventListener('keydown', function (e) {
+    var t = e.target, typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)
+    if (((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') || (!typing && e.key === '/')) { if (session && !share) { e.preventDefault(); searchBox() } }
+  })
   function langBtn() { var el = window.RSLang && RSLang.lang === 'el'; return '<button class="langb" id="langb" data-notr title="' + (el ? 'Switch to English' : 'Ελληνικά') + '">' + (el ? 'EN' : 'ΕΛ') + '</button>' }
   document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('#langb'); if (b && window.RSLang) RSLang.set(RSLang.lang === 'el' ? 'en' : 'el') })
   function paintMe() {
@@ -248,7 +300,7 @@
     }
     if (!session) { r.innerHTML = langBtn() + '<a class="btn sm rtlink about" href="https://themadlions.com/lab/roarstudio/" target="_blank" rel="noopener" title="About RoarTransfer Studio">' + ic('people') + '<span>About</span></a>'; return }
     var name = (me && me.name) || (session.user.email || '').split('@')[0]
-    r.innerHTML = langBtn() + '<a class="btn sm rtlink about" href="https://themadlions.com/lab/roarstudio/" target="_blank" rel="noopener" title="About RoarTransfer Studio">' + ic('people') + '<span>About</span></a>' + '<a class="btn sm rtlink" href="../" title="Send files with RoarTransfer">' + ic('out') + '<span>RoarTransfer</span></a><button class="ico bell" id="bell" aria-label="Notifications">' + ic('bell') + '<b id="bell-n" hidden></b></button><button class="me" id="me-btn" aria-label="Account" style="' + (me && me.avatar ? "background-image:url('" + esc(me.avatar) + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)') + '">' + (me && me.avatar ? '' : esc(initials(name))) + '</button>'
+    r.innerHTML = langBtn() + '<a class="btn sm rtlink about" href="https://themadlions.com/lab/roarstudio/" target="_blank" rel="noopener" title="About RoarTransfer Studio">' + ic('people') + '<span>About</span></a>' + '<a class="btn sm rtlink" href="../" title="Send files with RoarTransfer">' + ic('out') + '<span>RoarTransfer</span></a><button class="ico srch" id="srch-b" aria-label="Search" title="Search everything (/)">' + ic('loupe') + '</button><button class="ico bell" id="bell" aria-label="Notifications">' + ic('bell') + '<b id="bell-n" hidden></b></button><button class="me" id="me-btn" aria-label="Account" style="' + (me && me.avatar ? "background-image:url('" + esc(me.avatar) + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)') + '">' + (me && me.avatar ? '' : esc(initials(name))) + '</button>'
     $('#me-btn').onclick = function (e) {
       e.stopPropagation()
       var old = $('.menu'); if (old) { old.remove(); return }
@@ -267,6 +319,7 @@
       setTimeout(function () { document.addEventListener('click', function f() { m.remove(); document.removeEventListener('click', f) }) })
     }
     $('#bell').onclick = function () { activityPanel() }
+    $('#srch-b').onclick = searchBox
     bellCount()
   }
 
@@ -786,7 +839,7 @@
   // =====================================================================================================
   // a track: the player, its versions and the notes
   // =====================================================================================================
-  var pendingPlay = false, tview = null
+  var pendingPlay = false, pendingNote = null, tview = null
   function renderTrack(id) {
     var view = $('#view')
     var p
@@ -831,7 +884,7 @@
       '<div class="media" id="media"></div>' +
       '<div class="wave" id="wave"><canvas id="wv"></canvas><div class="pins" id="pins"></div><span class="hover-t" id="hover-t" hidden></span></div>' +
       '<div class="ctl" id="ctl"><button class="ico sm" id="rew" aria-label="Back to the start" title="Back to the start">' + ic('prev') + '</button><button class="ico sm fstep" id="fprev" hidden aria-label="One frame back" title="One frame back (←)">' + ic('fprev') + '</button><button class="play" id="pb" aria-label="Play">' + ic('play') + '</button><button class="ico sm fstep" id="fnext" hidden aria-label="One frame on" title="One frame on (→)">' + ic('fnext') + '</button><span class="time" id="tm-t">0:00 <span>/ 0:00</span></span>' +
-      '<span class="pt"><label class="zoom zs" title="Zoom the waveform (double-click for all of it)">' + ic('zin') + '<input type="range" id="zr" min="0" max="100" step="1" value="0" aria-label="Zoom"><b class="mono" id="zl">1×</b></label><i class="pt-sep"></i><button class="ico sm" id="vmask" hidden aria-label="Frame masks" title="Frame masks: 2.39, 1.85, 9:16, 4:5, safe areas">' + ic('mask') + '</button><button class="ico sm" id="vdraw" hidden aria-label="Draw on the frame" title="Draw on the frame, then write the note">' + ic('pen') + '</button><button class="ico sm" id="vcmp" hidden aria-label="Compare two versions" title="Two versions side by side">' + ic('split') + '</button><button class="ico sm" id="spd" aria-label="Speed" title="Speed"><b class="mono" style="font-size:11px">1×</b></button><button class="ico sm" id="lp" aria-label="Loop" title="Loop">' + ic('loop') + '</button><button class="ico sm" id="pip" aria-label="Picture in picture" title="Picture in picture" hidden>' + ic('pip') + '</button><button class="ico sm" id="fs" aria-label="Full screen" title="Full screen" hidden>' + ic('full') + '</button></span><button class="btn sm grab" id="grab" hidden title="Save this frame as a picture, with its time on it">' + ic('cam') + '<span>Grab still</span></button>' +
+      '<span class="pt"><label class="zoom zs" title="Zoom the waveform (double-click for all of it)">' + ic('zin') + '<input type="range" id="zr" min="0" max="100" step="1" value="0" aria-label="Zoom"><b class="mono" id="zl">1×</b></label><i class="pt-sep"></i><button class="ico sm" id="vmask" hidden aria-label="Frame masks" title="Frame masks: 2.39, 1.85, 9:16, 4:5, safe areas">' + ic('mask') + '</button><button class="ico sm" id="vdraw" hidden aria-label="Draw on the frame" title="Draw on the frame, then write the note">' + ic('pen') + '</button><button class="ico sm" id="vcmp" hidden aria-label="Compare two versions" title="Compare two versions: wipe, fade or difference">' + ic('split') + '</button><button class="ico sm" id="spd" aria-label="Speed" title="Speed"><b class="mono" style="font-size:11px">1×</b></button><button class="ico sm" id="lp" aria-label="Loop" title="Loop">' + ic('loop') + '</button><button class="ico sm" id="pip" aria-label="Picture in picture" title="Picture in picture" hidden>' + ic('pip') + '</button><button class="ico sm" id="fs" aria-label="Full screen" title="Full screen" hidden>' + ic('full') + '</button></span><button class="btn sm grab" id="grab" hidden title="Save this frame as a picture, with its time on it">' + ic('cam') + '<span>Grab still</span></button>' +
       '<span class="lm">Level match <button class="sw" id="lm" aria-pressed="' + matched + '" aria-label="Level match"></button><span class="lufs" id="lufs"></span></span></div>' +
       '<div class="facts" id="facts"></div><section class="stemp" id="stemp" hidden></section>' +
       '<div class="appr" id="appr"></div>' +
@@ -1227,7 +1280,9 @@
       } catch (e) { fail('This video does not allow a still here') }
     }
     // ===== video tools (Alex, 7 Nov): frame steps, masks, drawing, compare, markers =====
-    var vs = { mask: store.get('rs-mask') || '', safe: store.get('rs-safe') === '1', drawing: [], show: null, draw: false, tool: 'circle', cmp: null }
+    var vs = { mask: store.get('rs-mask') || '', safe: store.get('rs-safe') === '1', social: store.get('rs-social') || '', drawing: [], show: null, draw: false, tool: 'circle', cmp: null }
+    // where each app's buttons and captions sit on a vertical video, as parts of the 9:16 frame (top, bottom, left, right)
+    var SOCIAL = { reels: ['Instagram Reels', 0.14, 0.35, 0.06, 0.06], tiktok: ['TikTok', 0.08, 0.23, 0.06, 0.13], shorts: ['YouTube Shorts', 0.12, 0.25, 0.06, 0.12] }
     var MASKS = [['', 'None'], ['2.39', '2.39:1'], ['1.85', '1.85:1'], ['1', '1:1'], ['0.8', '4:5'], ['0.5625', '9:16']]
     function fpsNow() { var x = curV(); return +store.get('rs-fps-' + x.id) || 25 }
     function stepFrame(dir) {
@@ -1261,14 +1316,36 @@
         ;[[0.93, 'rgba(255,255,255,.55)'], [0.9, 'rgba(250,204,21,.65)']].forEach(function (q) { var w = r.w * q[0], h = r.h * q[0]; g.strokeStyle = q[1]; g.strokeRect(r.x + (r.w - w) / 2, r.y + (r.h - h) / 2, w, h) })
         g.setLineDash([]); g.strokeStyle = 'rgba(255,255,255,.4)'; g.beginPath(); g.moveTo(r.x + r.w / 2 - 10, r.y + r.h / 2); g.lineTo(r.x + r.w / 2 + 10, r.y + r.h / 2); g.moveTo(r.x + r.w / 2, r.y + r.h / 2 - 10); g.lineTo(r.x + r.w / 2, r.y + r.h / 2 + 10); g.stroke()
       }
+      // social guides (Alex, 8 Nov): the 9:16 frame and, in red, where the app's buttons and captions cover the picture
+      if (SOCIAL[vs.social]) {
+        var S = SOCIAL[vs.social], fw = r.w, fh = r.h
+        if (fw / fh > 0.5625) fw = fh * 0.5625; else fh = fw / 0.5625
+        var fx = r.x + (r.w - fw) / 2, fy = r.y + (r.h - fh) / 2
+        g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(r.x, r.y, fx - r.x, r.h); g.fillRect(fx + fw, r.y, r.x + r.w - fx - fw, r.h); g.fillRect(fx, r.y, fw, fy - r.y); g.fillRect(fx, fy + fh, fw, r.y + r.h - fy - fh)
+        var t = fh * S[1], bo = fh * S[2], l = fw * S[3], rt = fw * S[4]
+        g.fillStyle = 'rgba(239,68,68,.28)'
+        g.fillRect(fx, fy, fw, t); g.fillRect(fx, fy + fh - bo, fw, bo); g.fillRect(fx, fy + t, l, fh - t - bo); g.fillRect(fx + fw - rt, fy + t, rt, fh - t - bo)
+        g.setLineDash([5, 4]); g.strokeStyle = 'rgba(74,222,128,.9)'; g.lineWidth = 1.5; g.strokeRect(fx + l, fy + t, fw - l - rt, fh - t - bo); g.setLineDash([])
+        g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1; g.strokeRect(fx + .5, fy + .5, fw - 1, fh - 1)
+        g.font = '600 11px ui-monospace, Menlo, monospace'; g.fillStyle = '#fecaca'; g.fillText(S[0], fx + 8, fy + 16)
+        g.fillStyle = '#bbf7d0'; g.fillText('safe for text', fx + l + 6, fy + t + 16)
+      }
       drawSketch(g, vs.draw || vs.drawing.length ? vs.drawing : vs.show, r, 1)
       // compare: the second picture covers the right side from the handle on
       if (vs.cmp) {
         var ce = vs.cmp.el, e = vidEl.getBoundingClientRect(), bx = $('#media').getBoundingClientRect()
         ce.style.left = (e.left - bx.left) + 'px'; ce.style.top = (e.top - bx.top) + 'px'; ce.style.width = e.width + 'px'; ce.style.height = e.height + 'px'
-        var px = r.x + r.w * vs.cmp.at - (e.left - bx.left)
-        ce.style.clipPath = 'inset(0 0 0 ' + Math.max(0, px) + 'px)'
-        var hd = vs.cmp.handle; hd.style.left = (r.x + r.w * vs.cmp.at) + 'px'; hd.style.top = r.y + 'px'; hd.style.height = r.h + 'px'
+        var px = r.x + r.w * vs.cmp.at - (e.left - bx.left), md = cmpMode()
+        ce.style.clipPath = md === 'wipe' ? 'inset(0 0 0 ' + Math.max(0, px) + 'px)' : 'none'
+        ce.style.opacity = md === 'fade' ? String(vs.cmp.at) : md === 'diff' ? '0' : '1'
+        // Difference: both frames drawn on a canvas with the difference blend (CSS blending between two videos is unreliable)
+        if (md === 'diff') {
+          if (!vs.cmp.cv) { vs.cmp.cv = document.createElement('canvas'); vs.cmp.cv.className = 'cmpc'; $('#media').insertBefore(vs.cmp.cv, vs.cmp.handle) }
+          var cv2 = vs.cmp.cv; cv2.hidden = false; cv2.style.left = (r.x) + 'px'; cv2.style.top = r.y + 'px'; cv2.style.width = r.w + 'px'; cv2.style.height = r.h + 'px'
+          if (!vs.cmp.raf) { var loop = function () { if (!vs.cmp || cmpMode() !== 'diff') { if (vs.cmp) vs.cmp.raf = 0; return } var c2 = vs.cmp.cv, w2 = Math.round(c2.clientWidth * (devicePixelRatio || 1)), h2 = Math.round(c2.clientHeight * (devicePixelRatio || 1)); if (c2.width !== w2 || c2.height !== h2) { c2.width = w2; c2.height = h2 } var g2 = c2.getContext('2d'); g2.globalCompositeOperation = 'source-over'; try { g2.drawImage(vidEl, 0, 0, w2, h2); g2.globalCompositeOperation = 'difference'; g2.drawImage(vs.cmp.el, 0, 0, w2, h2) } catch (e) {} vs.cmp.raf = requestAnimationFrame(loop) }; vs.cmp.raf = requestAnimationFrame(loop) }
+        } else if (vs.cmp.cv) vs.cmp.cv.hidden = true
+        var hd = vs.cmp.handle; hd.hidden = md === 'diff'; hd.style.left = (r.x + r.w * vs.cmp.at) + 'px'; hd.style.top = r.y + 'px'; hd.style.height = r.h + 'px'
+        vs.cmp.bar.style.left = (r.x + r.w / 2) + 'px'; vs.cmp.bar.style.top = (r.y + r.h - 46) + 'px'
         vs.cmp.la.style.left = (r.x + 10) + 'px'; vs.cmp.la.style.top = (r.y + 10) + 'px'; vs.cmp.lb.style.right = (r.bw - r.x - r.w + 10) + 'px'; vs.cmp.lb.style.top = (r.y + 10) + 'px'
       }
     }
@@ -1310,21 +1387,31 @@
     function maskMenu(btn) {
       var old = $('.vpop'); if (old) { old.remove(); return }
       var pop = document.createElement('div'); pop.className = 'vpop glass'
-      pop.innerHTML = MASKS.map(function (m) { return '<button class="' + (vs.mask === m[0] ? 'on' : '') + '" data-m="' + m[0] + '">' + m[1] + '</button>' }).join('') + '<i></i><button class="' + (vs.safe ? 'on' : '') + '" data-safe>Safe areas</button>'
+      pop.innerHTML = MASKS.map(function (m) { return '<button class="' + (vs.mask === m[0] ? 'on' : '') + '" data-m="' + m[0] + '">' + m[1] + '</button>' }).join('') + '<i></i><button class="' + (vs.safe ? 'on' : '') + '" data-safe>Safe areas</button><i></i>' + Object.keys(SOCIAL).map(function (k) { return '<button class="' + (vs.social === k ? 'on' : '') + '" data-soc="' + k + '">' + SOCIAL[k][0] + '</button>' }).join('')
       btn.parentNode.appendChild(pop)
       pop.style.left = (btn.offsetLeft + btn.offsetWidth / 2) + 'px'
       pop.onclick = function (e) {
         var b = e.target.closest('button'); if (!b) return
-        if (b.hasAttribute('data-safe')) { vs.safe = !vs.safe; store.set('rs-safe', vs.safe ? '1' : '0') } else { vs.mask = b.dataset.m; store.set('rs-mask', vs.mask) }
-        btn.classList.toggle('on', !!(vs.mask || vs.safe)); pop.remove(); paintOv()
+        if (b.hasAttribute('data-safe')) { vs.safe = !vs.safe; store.set('rs-safe', vs.safe ? '1' : '0') } else if (b.dataset.soc) { vs.social = vs.social === b.dataset.soc ? '' : b.dataset.soc; store.set('rs-social', vs.social) } else { vs.mask = b.dataset.m; store.set('rs-mask', vs.mask) }
+        btn.classList.toggle('on', !!(vs.mask || vs.safe || vs.social)); pop.remove(); paintOv()
       }
       setTimeout(function () { document.addEventListener('click', function away(e) { if (!pop.contains(e.target) && e.target !== btn && !btn.contains(e.target)) { pop.remove(); document.removeEventListener('click', away) } }) })
+    }
+    function cmpMode() { var m = store.get('rs-cmpm'); return m === 'diff' || m === 'fade' ? m : 'wipe' }
+    function cmpModes(after) {
+      var bar = document.createElement('div'); bar.className = 'cmpm'
+      var M = [['wipe', 'Wipe', 'Drag the line to show one version on each side'], ['fade', 'Fade', 'Drag the line to fade from one version to the other'], ['diff', 'Difference', 'Only what changed between the versions shows bright']]
+      bar.innerHTML = M.map(function (m) { return '<button type="button" data-cm="' + m[0] + '" title="' + m[2] + '"' + (cmpMode() === m[0] ? ' class="on"' : '') + '>' + m[1] + '</button>' }).join('')
+      bar.addEventListener('pointerdown', function (e) { e.stopPropagation() })
+      bar.onclick = function (e) { var b = e.target.closest('button'); if (!b) return; e.stopPropagation(); store.set('rs-cmpm', b.dataset.cm); $$('button', bar).forEach(function (x) { x.classList.toggle('on', x === b) }); after() }
+      return bar
     }
     function vidVersions() { return versions.filter(function (q) { return kindOf(q) === 'video' }) }
     function compareOff() {
       if (!vs.cmp) return
       try { vs.cmp.el.pause(); vs.cmp.el.removeAttribute('src'); vs.cmp.el.load() } catch (e) {}
-      ;[vs.cmp.el, vs.cmp.handle, vs.cmp.la, vs.cmp.lb].forEach(function (n) { n.remove() }); vs.cmp = null
+      if (vs.cmp.raf) cancelAnimationFrame(vs.cmp.raf)
+      ;[vs.cmp.el, vs.cmp.handle, vs.cmp.la, vs.cmp.lb, vs.cmp.bar, vs.cmp.cv].forEach(function (n) { if (n) n.remove() }); vs.cmp = null
       if ($('#media')) $('#media').classList.remove('cmp-on')
       if ($('#vcmp')) $('#vcmp').classList.remove('on'); paintOv()
     }
@@ -1336,8 +1423,9 @@
       var handle = document.createElement('div'); handle.className = 'cmph'; handle.innerHTML = '<span>' + ic('split') + '</span>'
       var la = document.createElement('b'); la.className = 'cmpl'; la.textContent = vname(x)
       var lb = document.createElement('button'); lb.className = 'cmpl r'; lb.title = 'Pick the version on the right'; lb.textContent = vname(other) + (list.length > 1 ? ' ▾' : '')
-      box.appendChild(el); box.appendChild(handle); box.appendChild(la); box.appendChild(lb)
-      vs.cmp = { el: el, handle: handle, la: la, lb: lb, at: 0.5, v: other }
+      var bar = cmpModes(function () { paintOv() })
+      box.appendChild(el); box.appendChild(handle); box.appendChild(la); box.appendChild(lb); box.appendChild(bar)
+      vs.cmp = { el: el, handle: handle, la: la, lb: lb, bar: bar, at: 0.5, v: other }
       box.classList.add('cmp-on')
       lb.onclick = function () { var i = list.indexOf(other); compareOn(list[(i + 1) % list.length].id) }
       handle.addEventListener('pointerdown', function (e) {
@@ -1585,8 +1673,17 @@
         var hd = document.createElement('span'); hd.className = 'cmph'; hd.innerHTML = '<span>' + ic('split') + '</span>'
         var la = document.createElement('b'); la.className = 'cmpl'; la.textContent = 'Before · ' + vname(other)
         var lb2 = document.createElement('b'); lb2.className = 'cmpl r'; lb2.textContent = 'After · ' + vname(x)
-        wrap.appendChild(ov); wrap.appendChild(hd); wrap.appendChild(la); wrap.appendChild(lb2); pcmp = [ov, hd, la, lb2]; cb.classList.add('on')
-        var at = 0.5, place = function () { ov.style.clipPath = 'inset(0 ' + ((1 - at) * 100) + '% 0 0)'; hd.style.left = (at * 100) + '%' }; place()
+        var at = 0.5, place = function () { var md = cmpMode(); ov.style.clipPath = md === 'wipe' ? 'inset(0 ' + ((1 - at) * 100) + '% 0 0)' : 'none'; ov.style.setProperty('opacity', md === 'fade' ? String(1 - at) : '1', 'important'); pdiff(md === 'diff'); hd.hidden = md === 'diff'; hd.style.left = (at * 100) + '%' }
+        var dcv = null, pdiff = function (on) {
+          if (!on) { if (dcv) dcv.hidden = true; ov.style.visibility = ''; return }
+          var main = $('#still'); if (!main || !ov.complete || !ov.naturalWidth) { ov.onload = function () { place() }; return }
+          if (!dcv) { dcv = document.createElement('canvas'); dcv.className = 'pcmp-img pcmpc'; wrap.insertBefore(dcv, hd); pcmp && pcmp.push(dcv) }
+          dcv.hidden = false; ov.style.visibility = 'hidden'
+          dcv.width = main.naturalWidth; dcv.height = main.naturalHeight
+          var g3 = dcv.getContext('2d'); g3.globalCompositeOperation = 'source-over'; g3.drawImage(main, 0, 0); g3.globalCompositeOperation = 'difference'; g3.drawImage(ov, 0, 0, dcv.width, dcv.height)
+        }
+        var pbar = cmpModes(place); pbar.classList.add('in-pic')
+        wrap.appendChild(ov); wrap.appendChild(hd); wrap.appendChild(la); wrap.appendChild(lb2); wrap.appendChild(pbar); pcmp = [ov, hd, la, lb2, pbar]; cb.classList.add('on'); place()
         urlFor(other).then(function (u) { ov.src = u })
         hd.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); hd.setPointerCapture(e.pointerId); var mv = function (ev) { var r = wrap.getBoundingClientRect(); at = Math.max(0.02, Math.min(0.98, (ev.clientX - r.left) / r.width)); place() }, en = function () { hd.removeEventListener('pointermove', mv); hd.removeEventListener('pointerup', en) }; hd.addEventListener('pointermove', mv); hd.addEventListener('pointerup', en) })
       }
@@ -1888,6 +1985,10 @@
 
     paintVersions(); paintMedia(); paintFacts(); paintNotes(); paintAppr(); paintPlay(); drawWave()
     requestAnimationFrame(tick)
+    if (pendingNote) {
+      var pn = tview.notes.filter(function (q) { return q.id === pendingNote })[0]; pendingNote = null
+      if (pn) { tview.version = pn.version_id; paintVersions(); paintMedia(); paintFacts(); paintNotes(); paintAppr(); setTimeout(function () { jump(pn) }, 60); return }
+    }
     if (fresh && cur.version && cur.version.track_id === id && versions.some(function (q) { return q.id === cur.version.id })) { tview.version = cur.version.id; paintVersions(); paintMedia(); paintFacts(); paintNotes(); paintAppr() }
     else if (pendingPlay) { pendingPlay = false; load(curV(), false, true).catch(function (e) { toast(e.message) }) }
     else if (audio.paused) load(curV(), false, false).catch(function () {})
