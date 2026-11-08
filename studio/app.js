@@ -90,6 +90,8 @@
   function avatar(name, url, id) { return '<span class="av" style="' + (url ? "background-image:url('" + esc(url) + "')" : 'background:hsl(' + hue(id || name) + ',55%,42%)') + '">' + (url ? '' : esc(initials(name))) + '</span>' }
   function lufsText(v) { return v == null ? '' : (v < 0 ? '−' : '') + Math.abs(v).toFixed(1) + ' LUFS' }
   function toast(t) { var d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(function () { d.remove() }, 2800) }
+  // picture addresses from the database go into the page only from our own storage or as inline pictures (security check, 8 Nov)
+  function cssu(u) { u = String(u || ''); return /^(https:\/\/bzmjhbnwhdwmncxkqkdl\.supabase\.co\/storage\/v1\/object\/public\/|data:image\/(jpeg|png|webp);base64,|blob:https:\/\/roartransfer\.com\/)/.test(u) ? u.replace(/["'()\\\s<>]/g, function (c) { return encodeURIComponent(c) }) : '' }
   function coverStyle(id) { var h = hue(id); return 'background:radial-gradient(120% 90% at 80% 10%,hsl(' + ((h + 40) % 360) + ',70%,45%) 0%,transparent 55%),linear-gradient(160deg,hsl(' + h + ',55%,22%),hsl(' + ((h + 320) % 360) + ',70%,30%))' }
   function lens(g) { var on = $('button.on', g), l = $('.lens', g); if (on && l) { l.style.left = on.offsetLeft + 'px'; l.style.width = on.offsetWidth + 'px' } }
 
@@ -297,7 +299,7 @@
     var r = $('#right')
     if (share) {
       var st = share.data && share.data.studio
-      r.innerHTML = langBtn() + (st && (st.logo || st.name) ? '<span class="brand" data-notr>' + (st.logo ? '<img src="' + st.logo + '" alt="">' : '') + (st.name ? '<b>' + esc(st.name) + '</b>' : '') + '</span>' : (session ? '' : '<a class="btn sm" href="./">Sign in</a>'))
+      r.innerHTML = langBtn() + (st && (st.logo || st.name) ? '<span class="brand" data-notr>' + (st.logo ? '<img src="' + esc(cssu(st.logo)) + '" alt="">' : '') + (st.name ? '<b>' + esc(st.name) + '</b>' : '') + '</span>' : (session ? '' : '<a class="btn sm" href="./">Sign in</a>'))
       return
     }
     if (!session) { r.innerHTML = langBtn() + '<a class="btn sm rtlink about" href="https://themadlions.com/lab/roarstudio/" target="_blank" rel="noopener" title="About RoarTransfer Studio">' + ic('people') + '<span>About</span></a>'; return }
@@ -493,7 +495,7 @@
       ;(r[1].data || []).forEach(function (t) { counts[t.project_id] = (counts[t.project_id] || 0) + 1 })
       view.innerHTML = '<div class="head"><div><h1>Projects</h1><div class="sub">' + ps.length + ' project' + (ps.length === 1 ? '' : 's') + (r[2] && r[2].bytes ? ' · ' + size(r[2].bytes) + ' stored' : '') + '</div><p class="pdesc">Your workspace for sound, video and pictures: upload every version, collect notes on the exact second or spot, approve, and deliver the finals in one link.</p></div><div class="tools">' + (ps.length ? '<div class="lens-group vmode" id="vmode"><span class="lens"></span><button data-m="big" aria-label="Big tiles" title="Big tiles">' + ic('big') + '</button><button data-m="small" aria-label="Small tiles" title="Small tiles">' + ic('small') + '</button><button data-m="list" aria-label="List" title="List">' + ic('rows') + '</button></div>' : '') + '<button class="btn main" id="np">' + ic('plus') + ' New project</button></div></div>' +
         (ps.length ? '<div class="grid g-' + (store.get('rs-view') || 'big') + '" id="pgrid">' + ps.map(function (p) {
-          return '<div class="proj glass" role="button" tabindex="0" data-p="' + p.id + '"><div class="cover" style="' + (p.cover ? "background:#000 url('" + p.cover + "') center/cover" : coverStyle(p.id)) + '">' + (p.owner === session.user.id ? '<button class="ico sm danger pdel" data-pdel="' + p.id + '" aria-label="Delete ' + esc(p.title) + '">' + ic('trash') + '</button>' : '') + '</div><div class="pinfo"><b>' + esc(p.title) + '</b><span>' + esc(p.artist || (p.owner === session.user.id ? 'Yours' : 'Shared with you')) + ' · ' + (counts[p.id] || 0) + ' file' + (counts[p.id] === 1 ? '' : 's') + '</span><span class="when">' + ago(p.updated_at) + '</span></div></div>'
+          return '<div class="proj glass" role="button" tabindex="0" data-p="' + p.id + '"><div class="cover" style="' + (p.cover ? "background:#000 url('" + cssu(p.cover) + "') center/cover" : coverStyle(p.id)) + '">' + (p.owner === session.user.id ? '<button class="ico sm danger pdel" data-pdel="' + p.id + '" aria-label="Delete ' + esc(p.title) + '">' + ic('trash') + '</button>' : '') + '</div><div class="pinfo"><b>' + esc(p.title) + '</b><span>' + esc(p.artist || (p.owner === session.user.id ? 'Yours' : 'Shared with you')) + ' · ' + (counts[p.id] || 0) + ' file' + (counts[p.id] === 1 ? '' : 's') + '</span><span class="when">' + ago(p.updated_at) + '</span></div></div>'
         }).join('') + '<button class="proj new-proj" id="np2"><span class="ico">' + ic('plus') + '</span>New project</button></div>'
         : '<div class="empty glass"><span class="ico" style="width:64px;height:64px">' + ic('music') + '</span><h2>Start your first project</h2><p>A project is an album, a single or a film score. Put tracks in it, upload versions, and invite the people you work with.</p><button class="btn main" id="np2">' + ic('plus') + ' New project</button></div>')
       ps.forEach(function (p) { fixCover(p, function (u) { var el = $('[data-p="' + p.id + '"] .cover'); if (el) el.style.background = "#000 url('" + u + "') center/cover" }) })
@@ -561,7 +563,7 @@
   var curFolder = null // the folder open in a project, null for its top
   var kindTab = store.get('rs-kind') || 'all' // All / Audio / Video / Pictures in a project
   var KIND_PLURAL = { audio: 'Audio', video: 'Video', image: 'Pictures' }
-  function coverAttr(pr) { return pr.cover ? "background:#000 url('" + pr.cover + "') center/cover" : coverStyle(pr.id) }
+  function coverAttr(pr) { return pr.cover ? "background:#000 url('" + cssu(pr.cover) + "') center/cover" : coverStyle(pr.id) }
   // ===== picture tools (Alex, 8 Nov): picks, the watermark on links =====
   var pickOnly = false
   function myPick(tid) { var me = share ? (store.get('rs-guest') || '').toLowerCase() : session && session.user.id; return (ctx.picks || []).some(function (k) { return k.track_id === tid && (share ? !k.user_id && String(k.by).toLowerCase() === me : k.user_id === me) }) }
@@ -583,7 +585,7 @@
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180"><text x="160" y="96" fill="rgba(255,255,255,0.32)" font-family="Helvetica,Arial,sans-serif" font-size="22" font-weight="700" text-anchor="middle" transform="rotate(-24 160 90)">' + esc(t) + '</text></svg>'
     return '<i class="wmark" aria-hidden="true" style="background-image:url(&quot;data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg).replace(/'/g, '%27') + '&quot;)"></i>'
   }
-  function brandBanner() { var st = share && share.data && share.data.studio; return st && st.banner ? '<div class="banner" style="background-image:url(' + st.banner + ')"></div>' : '' }
+  function brandBanner() { var st = share && share.data && share.data.studio; return st && st.banner ? '<div class="banner" style="background-image:url(' + cssu(st.banner) + ')"></div>' : '' }
   function drawProject(c) {
     var view = $('#view'), pr = c.project, edit = canDo('editor')
     var folder = !share && curFolder ? (c.folders || []).filter(function (f) { return f.id === curFolder })[0] : null
@@ -624,7 +626,7 @@
         var n = c.versions.filter(function (x) { return x.track_id === t.id }).length, notes = openNotes(t.id)
         var k = kindOf(v), hasFinal = c.versions.some(function (x) { return x.track_id === t.id && x.final_at })
         void k
-        var lead = v.thumb ? '<button class="th" data-play="' + t.id + '" style="background-image:url(' + v.thumb + ')" aria-label="Open ' + esc(t.title) + '">' + (k === 'video' ? '<i>' + ic('play') + '</i>' : '') + '</button>'
+        var lead = v.thumb ? '<button class="th" data-play="' + t.id + '" style="background-image:url(' + cssu(v.thumb) + ')" aria-label="Open ' + esc(t.title) + '">' + (k === 'video' ? '<i>' + ic('play') + '</i>' : '') + '</button>'
           : k === 'image' ? '<button class="th" data-play="' + t.id + '" aria-label="Open ' + esc(t.title) + '"><i>' + ic('image') + '</i></button>'
           : '<button class="th au" data-play="' + t.id + '" style="' + coverAttr(c.project) + '" aria-label="Play ' + esc(t.title) + '"><i>' + ic('play') + '</i></button>'
         var heart = k === 'image' && !(share && share.data.kind === 'finals') ? heartBtn(t.id) : ''
@@ -947,7 +949,7 @@
         box.hidden = false
       } else if (k === 'image') {
         box.hidden = false
-        box.innerHTML = '<div class="still"' + (x.thumb ? ' style="background-image:url(' + x.thumb + ')"' : '') + '><span class="pwrap" id="pwrap"><img id="still" alt="' + esc(x.file_name) + '">' + wmLayer() + '<span class="ppins" id="ppins"></span><span class="loupe" id="loupe" hidden></span></span></div>' +
+        box.innerHTML = '<div class="still"' + (x.thumb ? ' style="background-image:url(' + cssu(x.thumb) + ')"' : '') + '><span class="pwrap" id="pwrap"><img id="still" alt="' + esc(x.file_name) + '">' + wmLayer() + '<span class="ppins" id="ppins"></span><span class="loupe" id="loupe" hidden></span></span></div>' +
           '<div class="ptools">' + (!(share && share.data.kind === 'finals') ? heartBtn(x.track_id) : '') + '<span class="grow"></span>' + (imgVersions().length > 1 ? '<button class="btn sm" id="pcmp">' + ic('split') + ' Before / after</button>' : '') + '<button class="btn sm" id="ploupe" title="See the picture at 100% under the pointer">' + ic('loupe') + ' 100%</button>' + '<button class="btn sm" id="pview" title="Open the picture big (or click it)">' + ic('full') + ' View</button>' + (canDo('commenter') ? '<button class="btn sm" id="ppinb" title="Then click the spot the note is about">' + ic('pin') + ' Pin a note</button>' : '') + '</div>'
         urlFor(x).then(function (u) { var im = $('#still'); if (im && curV() === x) { im.crossOrigin = 'anonymous'; im.onload = function () { im.classList.add('on'); paintPPins(); ex.lastT = -3 }; im.src = u } }).catch(function () {})
         setupPicture(x)
@@ -2069,7 +2071,7 @@
       '<div class="tools">' + (files.length ? '<button class="btn" id="dl-all">' + ic('down') + ' Download all (.zip)</button>' : '') + (edit ? '<button class="btn main" id="fin-share">' + ic('share') + ' Share the Finals</button>' : '') + '</div></div>' +
       (files.length ? '<div class="flist">' + files.map(function (v) {
         var k = kindOf(v)
-        var art = v.thumb ? 'background-image:url(' + v.thumb + ')' : k === 'audio' ? coverAttr(c.project) : ''
+        var art = v.thumb ? 'background-image:url(' + cssu(v.thumb) + ')' : k === 'audio' ? coverAttr(c.project) : ''
         var facts = [KIND_WORD[k], v.label || '', k !== 'image' && v.duration ? mmss(v.duration) : '', v.width ? v.width + '×' + v.height : '', k === 'audio' && v.sample_rate ? (v.sample_rate / 1000).toString().replace(/\.0$/, '') + ' kHz' : '', size(v.size)].filter(Boolean)
         return '<div class="frow glass k-' + k + '" data-v="' + v.id + '"><button class="fmedia" data-prev="' + v.id + '" aria-label="Open ' + esc(titleOf(v)) + '" style="' + art + '">' +
           (k === 'audio' ? '<canvas data-wave="' + v.id + '"></canvas>' : v.thumb ? '' : '<i class="big">' + ic(k === 'video' ? 'film' : 'image') + '</i>') +
@@ -2270,7 +2272,7 @@
       '<div class="nowbar glass" id="nowbar" hidden><button class="ico sm" id="nb-prev" aria-label="Previous">' + ic('prev') + '</button><button class="play" id="nb-pp" aria-label="Play">' + ic('play') + '</button><button class="ico sm" id="nb-next" aria-label="Next">' + ic('nextt') + '</button><div class="nbmid"><b id="nb-t"></b><div class="nbbar" id="nb-bar"><i></i></div></div><span class="time" id="nb-time">0:00</span></div>' +
       '<div class="tracks plist" id="plist">' + (items.length ? items.map(function (t, i) {
         var v = latest(t.id), k = v ? kindOf(v) : 'audio'
-        return '<div class="trk glass' + (playable(t) ? '' : ' muted-row') + '" data-i="' + i + '"><span class="num mono">' + (i + 1) + '</span>' + (v && v.thumb ? '<span class="th" style="background-image:url(' + v.thumb + ')"></span>' : '<span class="th"><i>' + ic(k === 'video' ? 'film' : k === 'image' ? 'image' : 'music') + '</i></span>') +
+        return '<div class="trk glass' + (playable(t) ? '' : ' muted-row') + '" data-i="' + i + '"><span class="num mono">' + (i + 1) + '</span>' + (v && v.thumb ? '<span class="th" style="background-image:url(' + cssu(v.thumb) + ')"></span>' : '<span class="th"><i>' + ic(k === 'video' ? 'film' : k === 'image' ? 'image' : 'music') + '</i></span>') +
           '<div class="nm"><b>' + esc(t.title) + '</b><span>' + esc(vname(v)) + ' · ' + KIND_WORD[k] + '</span></div><span class="t">' + (v && k !== 'image' ? mmss(v.duration) : '') + '</span>' +
           '<span class="racts">' + (share && share.data.can.download ? '<button class="ico sm" data-dl="' + t.id + '" aria-label="Download">' + ic('down') + '</button>' : '') + (edit ? '<button class="ico sm" data-up="' + i + '" aria-label="Move up">' + ic('up2') + '</button><button class="ico sm" data-dn="' + i + '" aria-label="Move down">' + ic('dn2') + '</button><button class="ico sm danger" data-rm="' + i + '" aria-label="Take out">' + ic('x') + '</button>' : '') + '</span></div>'
       }).join('') : '<div class="empty glass"><span class="ico" style="width:64px;height:64px">' + ic('list') + '</span><h2>An empty playlist</h2><p>' + (edit ? 'Press Add files and pick songs or videos from this project, in the order you want them played.' : 'Nothing here yet.') + '</p></div>') + '</div>'
@@ -2309,7 +2311,7 @@
       $('#pl-add').onclick = function () {
         var cand = c.tracks.filter(function (t) { var v = latest(t.id); return v && kindOf(v) !== 'image' && pl.items.indexOf(t.id) < 0 })
         modal('<div class="spread"><h2>Add to “' + esc(pl.title) + '”</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div>' +
-          (cand.length ? '<div class="picks">' + cand.map(function (t) { var v = latest(t.id); return '<label class="pick"><input type="checkbox" value="' + t.id + '"><span class="th"' + (v.thumb ? ' style="background-image:url(' + v.thumb + ')"' : '') + '>' + (v.thumb ? '' : '<i>' + ic(kindOf(v) === 'video' ? 'film' : 'music') + '</i>') + '</span><span class="nm"><b>' + esc(t.title) + '</b><small>' + KIND_WORD[kindOf(v)] + ' · ' + mmss(v.duration) + '</small></span></label>' }).join('') + '</div><div class="row end"><button class="btn" data-x>Cancel</button><button class="btn main" id="pk-go">Add</button></div>'
+          (cand.length ? '<div class="picks">' + cand.map(function (t) { var v = latest(t.id); return '<label class="pick"><input type="checkbox" value="' + t.id + '"><span class="th"' + (v.thumb ? ' style="background-image:url(' + cssu(v.thumb) + ')"' : '') + '>' + (v.thumb ? '' : '<i>' + ic(kindOf(v) === 'video' ? 'film' : 'music') + '</i>') + '</span><span class="nm"><b>' + esc(t.title) + '</b><small>' + KIND_WORD[kindOf(v)] + ' · ' + mmss(v.duration) + '</small></span></label>' }).join('') + '</div><div class="row end"><button class="btn" data-x>Cancel</button><button class="btn main" id="pk-go">Add</button></div>'
             : '<p class="muted" style="margin:0">Every song and video of this project is already in it. Upload more to the project first.</p>'), function (m) {
           if ($('#pk-go', m)) $('#pk-go', m).onclick = function () { $$('.pick input:checked', m).forEach(function (x) { pl.items.push(x.value) }); close(); save() }
         })
@@ -2342,9 +2344,9 @@
       view.innerHTML = '<div class="head"><div><h1>Settings</h1><div class="sub">Your studio, your defaults and your emails</div></div><div class="tools"><button class="btn" id="go-sto">' + ic('disk') + ' Storage</button></div></div>' +
         '<div class="sgrid">' +
         '<section class="scard glass"><h2>Your studio</h2><p class="muted">Shown at the top of every page you send: links, playlists and Finals.</p>' +
-        '<div class="brandset"><div class="field"><label>Square logo</label><button class="logo-pick" id="st-logo"' + (st.logo ? ' style="background-image:url(' + st.logo + ')"' : '') + ' aria-label="Choose the logo">' + (st.logo ? '' : ic('plus')) + '</button></div>' +
-        '<div class="field" style="flex:1;min-width:0"><label>Wide banner</label><button class="banner-pick" id="st-banner"' + (st.banner ? ' style="background-image:url(' + st.banner + ')"' : '') + ' aria-label="Choose the banner">' + (st.banner ? '' : ic('plus')) + '</button></div></div>' +
-        '<div class="field"><label>Background of your pages</label><button class="banner-pick bd-pick" id="st-bd"' + (st.backdrop ? ' style="background-image:url(' + st.backdrop + ')"' : '') + ' aria-label="Choose the background">' + (st.backdrop ? '' : ic('plus')) + '</button><small class="muted">Shown softly behind your Finals, playlists and links, under the glass.</small></div>' +
+        '<div class="brandset"><div class="field"><label>Square logo</label><button class="logo-pick" id="st-logo"' + (st.logo ? ' style="background-image:url(' + cssu(st.logo) + ')"' : '') + ' aria-label="Choose the logo">' + (st.logo ? '' : ic('plus')) + '</button></div>' +
+        '<div class="field" style="flex:1;min-width:0"><label>Wide banner</label><button class="banner-pick" id="st-banner"' + (st.banner ? ' style="background-image:url(' + cssu(st.banner) + ')"' : '') + ' aria-label="Choose the banner">' + (st.banner ? '' : ic('plus')) + '</button></div></div>' +
+        '<div class="field"><label>Background of your pages</label><button class="banner-pick bd-pick" id="st-bd"' + (st.backdrop ? ' style="background-image:url(' + cssu(st.backdrop) + ')"' : '') + ' aria-label="Choose the background">' + (st.backdrop ? '' : ic('plus')) + '</button><small class="muted">Shown softly behind your Finals, playlists and links, under the glass.</small></div>' +
         '<div class="row">' + (st.backdrop ? '<button class="btn sm" id="st-bd-x">Remove background</button>' : '') + (st.logo ? '<button class="btn sm" id="st-logo-x">Remove logo</button>' : '') + (st.banner ? '<button class="btn sm" id="st-banner-x">Remove banner</button>' : '') + '</div>' +
         '<div class="field"><label for="st-name">Studio name</label><div class="row" style="flex-wrap:nowrap"><input class="in" id="st-name" maxlength="80" value="' + esc(st.name) + '" placeholder="The Mad Lions"><button class="btn main" id="st-save">Save</button></div></div></section>' +
         '<section class="scard glass"><h2>Defaults</h2><p class="muted">What new invitations and links start with. You can change each one when you make it.</p>' +
@@ -2694,7 +2696,7 @@
         if (d.locked) { askPassword(d.error !== 'password' ? '' : share.password ? 'That password is not right.' : ''); return }
         if (d.error) { setTop([]); view.innerHTML = '<div class="empty glass"><h2>' + esc(d.error) + '</h2><p>Ask the person who sent it for a new link.</p></div>'; return }
         share.data = d
-        if (d.studio && d.studio.backdrop) { document.body.style.setProperty('--bd', 'url(' + d.studio.backdrop + ')'); document.body.classList.add('custom-bd') }
+        if (d.studio && d.studio.backdrop) { document.body.style.setProperty('--bd', 'url(' + cssu(d.studio.backdrop) + ')'); document.body.classList.add('custom-bd') }
         ctx = { project: d.project, tracks: d.tracks || [], versions: d.versions || [], comments: d.comments || [], people: {}, peopleList: [], role: 'guest', picks: d.picks || [] }
         if (d.kind === 'review' && d.tracks && d.tracks.length === 1 && !location.hash) { location.replace('#t/' + d.tracks[0].id); return }
         renderShare()
@@ -2732,7 +2734,7 @@
     document.body.classList.toggle('has-mini', want)
     if (want) {
       var m = cur.meta, d = audio.duration || cur.version.duration || 0
-      if ($('#mini-t').textContent !== m.title) { $('#mini-t').textContent = m.title; $('#mini-p').textContent = m.project; $('#mini-art').style.cssText = audio === vidEl ? '' : (m.cover ? "background:#000 url('" + m.cover + "') center/cover" : m.coverStyle) }
+      if ($('#mini-t').textContent !== m.title) { $('#mini-t').textContent = m.title; $('#mini-p').textContent = m.project; $('#mini-art').style.cssText = audio === vidEl ? '' : (m.cover ? "background:#000 url('" + cssu(m.cover) + "') center/cover" : m.coverStyle) }
       $('#mini-art').classList.toggle('video', audio === vidEl)
       $('#mini-c').textContent = mmss(audio.currentTime); $('#mini-d').textContent = mmss(d)
       $('#mini-bar i').style.width = (d ? audio.currentTime / d * 100 : 0) + '%'
