@@ -52,6 +52,7 @@
     arrow: '<path d="M5 19L19 5M10 5h9v9"/>', circle: '<circle cx="12" cy="12" r="7.5"/>', undo: '<path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12"/>', mark: '<path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/>',
     mic: '<rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v3"/>', range: '<path d="M4 7v10M20 7v10M7 12h10M10 9l-3 3 3 3M14 9l3 3-3 3"/>',
     stems: '<path d="M4 7h16M4 12h16M4 17h16"/><circle cx="8" cy="7" r="1.6" fill="currentColor"/><circle cx="15" cy="12" r="1.6" fill="currentColor"/><circle cx="11" cy="17" r="1.6" fill="currentColor"/>', wave: '<path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 11v2"/>',
+    heart: '<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>', loupe: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21M8 10.5h5M10.5 8v5"/>', pin: '<path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/>',
     image: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/>',
     film: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M10 9.5v5l4-2.5z" fill="currentColor"/>',
     folder: '<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
@@ -417,12 +418,13 @@
       sb.rpc('roarstudio_people', { p: id }),
       sb.rpc('roarstudio_role', { p: id }),
       sb.from('roarstudio_folders').select('*').eq('project_id', id).order('position').order('created_at'),
-      sb.from('roarstudio_playlists').select('*').eq('project_id', id).order('created_at')
+      sb.from('roarstudio_playlists').select('*').eq('project_id', id).order('created_at'),
+      sb.from('roarstudio_picks').select('track_id, user_id, guest_name, created_at').eq('project_id', id)
     ]).then(function (r) {
       if (!r[0].data) throw new Error('This project does not exist, or you are not in it.')
       var people = {}
       ;(r[4].data || []).forEach(function (x) { people[x.user_id] = { name: x.name, avatar: x.avatar, role: x.role, email: x.email } })
-      ctx = { project: r[0].data, tracks: r[1].data || [], versions: r[2].data || [], comments: r[3].data || [], people: people, peopleList: r[4].data || [], role: r[5].data || 'listener', folders: r[6].data || [], playlists: r[7].data || [], studio: null }
+      ctx = { project: r[0].data, tracks: r[1].data || [], versions: r[2].data || [], comments: r[3].data || [], people: people, peopleList: r[4].data || [], role: r[5].data || 'listener', folders: r[6].data || [], playlists: r[7].data || [], studio: null, picks: (r[8].data || []).map(function (k) { return { track_id: k.track_id, user_id: k.user_id, by: k.user_id ? (people[k.user_id] ? people[k.user_id].name : 'Member') : (k.guest_name || 'Guest') } }) }
       return sb.from('roarstudio_studios').select('*').eq('owner', r[0].data.owner).maybeSingle().then(function (q) { ctx.studio = q.data || null; return ctx })
     })
   }
@@ -440,6 +442,27 @@
   var kindTab = store.get('rs-kind') || 'all' // All / Audio / Video / Pictures in a project
   var KIND_PLURAL = { audio: 'Audio', video: 'Video', image: 'Pictures' }
   function coverAttr(pr) { return pr.cover ? "background:#000 url('" + pr.cover + "') center/cover" : coverStyle(pr.id) }
+  // ===== picture tools (Alex, 8 Nov): picks, the watermark on links =====
+  var pickOnly = false
+  function myPick(tid) { var me = share ? (store.get('rs-guest') || '').toLowerCase() : session && session.user.id; return (ctx.picks || []).some(function (k) { return k.track_id === tid && (share ? !k.user_id && String(k.by).toLowerCase() === me : k.user_id === me) }) }
+  function pickCount(tid) { return (ctx.picks || []).filter(function (k) { return k.track_id === tid }).length }
+  function pickBy(tid) { return (ctx.picks || []).filter(function (k) { return k.track_id === tid }).map(function (k) { return k.by }) }
+  function heartBtn(tid) { var n = pickCount(tid), on = myPick(tid); return '<button class="heart' + (on ? ' on' : '') + '" data-pick="' + tid + '" title="' + (n ? 'Picked by ' + esc(pickBy(tid).join(', ')) : 'Pick this picture') + '" aria-label="Pick">' + ic('heart') + (n ? '<b>' + n + '</b>' : '') + '</button>' }
+  function togglePick(tid, then) {
+    if (share && share.data.kind === 'finals') return
+    if (share && !store.get('rs-guest')) { prompt1('Your name', 'So the studio knows whose picks these are', '', 'Continue', function (v) { store.set('rs-guest', String(v).slice(0, 60)); togglePick(tid, then) }); return }
+    api(share ? 'share-pick' : 'pick', { track: tid }).then(function (d) {
+      if (d.error) { toast(d.error); return }
+      ctx.picks = (d.picks || []).map(function (k) { return { track_id: k.track_id, user_id: k.user_id, by: k.by } })
+      if (then) then(d.picked)
+    }).catch(function (e) { toast(e.message) })
+  }
+  function wmText() { var st = share && share.data && share.data.studio; if (!st || !st.watermark || share.data.kind === 'finals') return ''; return st.name || (share.data.project && share.data.project.owner_name) || 'RoarTransfer Studio' }
+  function wmLayer() {
+    var t = wmText(); if (!t) return ''
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180"><text x="160" y="96" fill="rgba(255,255,255,0.32)" font-family="Helvetica,Arial,sans-serif" font-size="22" font-weight="700" text-anchor="middle" transform="rotate(-24 160 90)">' + esc(t) + '</text></svg>'
+    return '<i class="wmark" aria-hidden="true" style="background-image:url(&quot;data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg).replace(/'/g, '%27') + '&quot;)"></i>'
+  }
   function brandBanner() { var st = share && share.data && share.data.studio; return st && st.banner ? '<div class="banner" style="background-image:url(' + st.banner + ')"></div>' : '' }
   function drawProject(c) {
     var view = $('#view'), pr = c.project, edit = canDo('editor')
@@ -453,6 +476,10 @@
     var kinds = ['audio', 'video', 'image'].filter(function (k) { return counts[k] })
     if (kinds.indexOf(kindTab) < 0) kindTab = 'all'
     var shown = kindTab === 'all' ? here : here.filter(function (t) { return kOf(t) === kindTab })
+    var pickedHere = here.filter(function (t) { return kOf(t) === 'image' && pickCount(t.id) })
+    if (pickOnly && !pickedHere.length) pickOnly = false
+    if (pickOnly) shown = shown.filter(function (t) { return kOf(t) === 'image' && pickCount(t.id) })
+    var pickBar = counts.image && !(share && share.data.kind === 'finals') ? '<div class="pickbar"><button class="chip-b' + (pickOnly ? ' on' : '') + '" id="pk-only"' + (pickedHere.length ? '' : ' disabled') + '>' + ic('heart') + ' Picked <b>' + pickedHere.length + '</b></button>' + (pickedHere.length ? '<button class="chip-b" id="pk-copy" title="The picked file names, ready for Lightroom\'s Library Filter (Text > Filename > Contains)">' + ic('copy') + ' Copy names for Lightroom</button>' : '') + '</div>' : ''
     var head = folder
       ? '<button class="ico" id="fback" aria-label="Back to ' + esc(pr.title) + '">' + ic('back') + '</button><span class="fi" style="background:linear-gradient(160deg,#8fb8ff,#5b6cff);color:#0b1640">' + ic('folder') + '</span><div style="min-width:0"><h1>' + esc(folder.name) + '</h1><div class="sub">' + esc(pr.title) + ' · ' + here.length + ' file' + (here.length === 1 ? '' : 's') + '</div></div>'
       : '<button class="pcover' + (edit && !share ? ' edit' : '') + '" id="pcover" style="' + coverAttr(pr) + '" aria-label="' + (edit && !share ? 'Change the cover' : esc(pr.title)) + '">' + (edit && !share ? '<i>' + ic('image') + '</i>' : '') + '</button><div style="min-width:0"><h1>' + esc(pr.title) + '</h1><div class="sub">' + esc(pr.artist || '') + (pr.artist ? ' · ' : '') + c.tracks.length + ' file' + (c.tracks.length === 1 ? '' : 's') + (share ? (share.data.project.owner_name ? ' · shared by ' + esc(share.data.project.owner_name) : '') : '') + '</div></div>'
@@ -480,12 +507,13 @@
         var lead = v.thumb ? '<button class="th" data-play="' + t.id + '" style="background-image:url(' + v.thumb + ')" aria-label="Open ' + esc(t.title) + '">' + (k === 'video' ? '<i>' + ic('play') + '</i>' : '') + '</button>'
           : k === 'image' ? '<button class="th" data-play="' + t.id + '" aria-label="Open ' + esc(t.title) + '"><i>' + ic('image') + '</i></button>'
           : '<button class="th au" data-play="' + t.id + '" style="' + coverAttr(c.project) + '" aria-label="Play ' + esc(t.title) + '"><i>' + ic('play') + '</i></button>'
+        var heart = k === 'image' && !(share && share.data.kind === 'finals') ? heartBtn(t.id) : ''
         var mid = k === 'audio' ? '<canvas data-wave="' + v.id + '"></canvas>' : '<span class="kind">' + ic(k === 'video' ? 'film' : 'image') + ' ' + KIND_WORD[k] + (v.width ? ' · ' + v.width + '×' + v.height : '') + '</span>'
-        return '<div class="trk glass k-' + k + '" data-t="' + t.id + '">' + lead + '<div class="nm"><b>' + esc(t.title) + '</b><span>' + esc(vname(v)) + ' · ' + n + ' version' + (n === 1 ? '' : 's') + (notes ? ' · ' + notes + ' open note' + (notes === 1 ? '' : 's') : '') + '</span></div>' + mid + '<span class="cnt">' + (hasFinal ? '<span class="chip fin">Final</span>' : v.approved_at ? '<span class="chip ok">Approved</span>' : notes ? '<span class="chip warn">In review</span>' : '<span class="chip">New</span>') + '</span><span class="t">' + (k === 'image' ? size(v.size) : mmss(v.duration)) + '</span></div>'
+        return '<div class="trk glass k-' + k + '" data-t="' + t.id + '">' + lead + '<div class="nm"><b>' + esc(t.title) + '</b><span>' + esc(vname(v)) + ' · ' + n + ' version' + (n === 1 ? '' : 's') + (notes ? ' · ' + notes + ' open note' + (notes === 1 ? '' : 's') : '') + '</span></div>' + mid + heart + '<span class="cnt">' + (hasFinal ? '<span class="chip fin">Final</span>' : v.approved_at ? '<span class="chip ok">Approved</span>' : notes ? '<span class="chip warn">In review</span>' : '<span class="chip">New</span>') + '</span><span class="t">' + (k === 'image' ? size(v.size) : mmss(v.duration)) + '</span></div>'
     }
     view.innerHTML = brandBanner() + '<div class="head">' + head + '<div class="tools">' + tools + '</div></div>' + extra +
       (kinds.length > 1 ? '<div class="lens-group ktabs" id="ktabs"><span class="lens"></span><button data-k="all"' + (kindTab === 'all' ? ' class="on"' : '') + '>All <small>' + here.length + '</small></button>' + kinds.map(function (k) { return '<button data-k="' + k + '"' + (kindTab === k ? ' class="on"' : '') + '><i class="kdot k-' + k + '"></i>' + KIND_PLURAL[k] + ' <small>' + counts[k] + '</small></button>' }).join('') + '</div>' : '') +
-      '<div class="tracks" id="tracks">' + (function () {
+      pickBar + '<div class="tracks" id="tracks">' + (function () {
         // in All, the files go in groups by kind, each under its own line
         var order = kindTab === 'all' && kinds.length > 1 ? kinds : [null]
         return order.map(function (k) {
@@ -498,6 +526,12 @@
     $$('canvas[data-wave]').forEach(function (cv) { var v = c.versions.filter(function (x) { return x.id === cv.dataset.wave })[0]; drawMini(cv, v && v.peaks) })
     $$('.trk').forEach(function (r) { r.onclick = function (e) { if (e.target.closest('[data-play]')) return; go('#t/' + r.dataset.t) } })
     $$('[data-play]').forEach(function (b) { b.onclick = function () { pendingPlay = true; go('#t/' + b.dataset.play) } })
+    $$('#tracks [data-pick]').forEach(function (b) { b.onclick = function (e) { e.stopPropagation(); togglePick(b.dataset.pick, function () { drawProject(c) }) } })
+    if ($('#pk-only')) $('#pk-only').onclick = function () { pickOnly = !pickOnly; drawProject(c) }
+    if ($('#pk-copy')) $('#pk-copy').onclick = function () {
+      var names = pickedHere.map(function (t) { var v = latest(t.id); return String((v && v.file_name) || t.title).replace(/\.[a-z0-9]{2,5}$/i, '') })
+      copyText(names.join(' '), names.length + ' name' + (names.length === 1 ? '' : 's') + ' copied: paste them in Lightroom, Library Filter > Text > Filename > Contains')
+    }
     if ($('#fin-btn')) $('#fin-btn').onclick = function () { go('#f/' + pr.id) }
     if ($('#ktabs')) { var kt = $('#ktabs'); setTimeout(function () { lens(kt) }, 30); kt.onclick = function (e) { var b = e.target.closest('button'); if (!b) return; kindTab = b.dataset.k; store.set('rs-kind', kindTab); drawProject(c) } }
     $$('[data-pl]').forEach(function (b) { b.onclick = function () { go('#l/' + b.dataset.pl) } })
@@ -736,18 +770,23 @@
       '<div class="facts" id="facts"></div><section class="stemp" id="stemp" hidden></section>' +
       '<div class="appr" id="appr"></div>' +
       (edit && !share ? '<input type="file" id="nvf" accept="audio/*,video/*,image/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.mov,.mp4,.heic,.tif,.tiff,.psd" hidden><div class="ups" id="ups"></div>' : '') +
-      '</section><aside class="notes glass"><header>' + '<div class="lens-group" id="ntab"><span class="lens"></span><button class="on" data-tab="n">Notes</button>' + (share ? '' : '<button data-tab="p">Notepad</button>') + '<button data-tab="s" hidden>Stills</button></div>' + '<span class="muted" id="ncount"></span>' + (share ? '' : '<button class="ico sm" id="nexp" hidden aria-label="Notes as markers for the edit" title="Notes as markers for the edit (Resolve, Premiere)">' + ic('mark') + '</button>') + '</header>' +
+      '</section>' + (function () {
+        var k = kindOf(versions[versions.length - 1]), out = ''
+        if (k === 'audio' && store.get('rs-hint-ab') !== '0') out += '<div class="hint" data-hint="ab">' + ic('wave') + '<span><b>A/B</b> · press A/B at the top, then <kbd>Space</kbd>: you hear the next version (A → B → C) from the same second, without stopping.</span><button class="ico sm" aria-label="Hide this tip">' + ic('x') + '</button></div>'
+        if (k !== 'image' && canDo('commenter') && store.get('rs-hint-rng') !== '0') out += '<div class="hint" data-hint="rng">' + ic('range') + '<span><b>A stretch</b> · hold <kbd>Shift</kbd> and drag on the waveform to pick a part (0:42 to 0:58): the note you write covers all of it.</span><button class="ico sm" aria-label="Hide this tip">' + ic('x') + '</button></div>'
+        return out ? '<div class="hints">' + out + '</div>' : ''
+      })() + '<aside class="notes glass"><header>' + '<div class="lens-group" id="ntab"><span class="lens"></span><button class="on" data-tab="n">Notes</button>' + (share ? '' : '<button data-tab="p">Notepad</button>') + '<button data-tab="s" hidden>Stills</button></div>' + '<span class="muted" id="ncount"></span>' + (share ? '' : '<button class="ico sm" id="nexp" hidden aria-label="Notes as markers for the edit" title="Notes as markers for the edit (Resolve, Premiere)">' + ic('mark') + '</button>') + '</header>' +
       '<div class="nfilter" id="nfilter"><label class="nsearch">' + ic('search') + '<input id="nq" placeholder="Search notes" aria-label="Search notes"></label><div class="chips" id="nchips"><button class="on" data-f="all">All</button><button data-f="open">Open</button><button data-f="done">Done</button>' + (share ? '' : '<button data-f="mine">Mine</button>') + '</div></div>' +
       '<div class="nlist" id="nlist"></div><div class="stills" id="stills" hidden></div>' + (share ? '' : '<div class="npad" id="npad" hidden><textarea class="in" id="npad-t"></textarea><span class="muted" id="npad-s" style="font-size:12px"></span></div>') +
       (canDo('commenter') ? '<form class="compose" id="cmp">' + (share && !store.get('rs-guest') ? '<input class="in" id="g-name" maxlength="60" placeholder="Your name" required>' : '') +
-        '<div class="cmp-sk" id="cmp-sk" hidden>' + ic('pen') + '<span>Drawing goes with this note</span><button type="button" class="ico sm" id="cmp-sk-x" aria-label="Remove the drawing">' + ic('x') + '</button></div><textarea class="in" id="cmp-t" rows="2" maxlength="4000"></textarea><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button type="button" class="ico sm rbtn" id="cmp-rng" title="A note over a stretch: press at the start, press again at the end (or Shift and drag on the waveform)" aria-label="A note over a stretch">' + ic('range') + '</button><span class="grow"></span><button type="button" class="ico sm mic" id="cmp-mic" title="Hold to speak a note, or click to start and click to stop" aria-label="Speak a note">' + ic('mic') + '<b class="mono" id="cmp-mic-t"></b></button><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
+        '<div class="cmp-sk" id="cmp-pos" hidden>' + ic('pin') + '<span>On the spot you clicked</span><button type="button" class="ico sm" id="cmp-pos-x" aria-label="No spot">' + ic('x') + '</button></div><div class="cmp-sk" id="cmp-sk" hidden>' + ic('pen') + '<span>Drawing goes with this note</span><button type="button" class="ico sm" id="cmp-sk-x" aria-label="Remove the drawing">' + ic('x') + '</button></div><textarea class="in" id="cmp-t" rows="2" maxlength="4000"></textarea><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button type="button" class="ico sm rbtn" id="cmp-rng" title="A note over a stretch: press at the start, press again at the end (or Shift and drag on the waveform)" aria-label="A note over a stretch">' + ic('range') + '</button><span class="grow"></span><button type="button" class="ico sm mic" id="cmp-mic" title="Hold to speak a note, or click to start and click to stop" aria-label="Speak a note">' + ic('mic') + '<b class="mono" id="cmp-mic-t"></b></button><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
       '</aside></div>'
 
     $('#back').onclick = function () { go(share && share.data.tracks.length === 1 && share.data.project ? '#t/' + id : '#p/' + ctx.project.id) }
 
     function paintVersions() {
       $('#vers').innerHTML = versions.map(function (x) { return '<button class="v' + (x.id === tview.version ? ' on' : '') + '" data-v="' + x.id + '">' + esc(vname(x)) + (x.final_at ? ' <span class="tick">★</span>' : x.approved_at ? ' <span class="tick">✓</span>' : '') + '</button>' }).join('')
-      $$('#vers [data-v]').forEach(function (b) { b.onclick = function () { if (ab && b.dataset.v !== ab.a && b.dataset.v !== ab.b) { ab.b = b.dataset.v; warm(b.dataset.v) } setVersion(b.dataset.v, true) } })
+      $$('#vers [data-v]').forEach(function (b) { b.onclick = function () { setVersion(b.dataset.v, true) } })
       paintAB()
     }
     function curV() { return versions.filter(function (x) { return x.id === tview.version })[0] || versions[versions.length - 1] }
@@ -786,8 +825,10 @@
         box.hidden = false
       } else if (k === 'image') {
         box.hidden = false
-        box.innerHTML = '<div class="still"' + (x.thumb ? ' style="background-image:url(' + x.thumb + ')"' : '') + '><img id="still" alt="' + esc(x.file_name) + '"></div>'
-        urlFor(x).then(function (u) { var im = $('#still'); if (im && curV() === x) { im.onload = function () { im.classList.add('on') }; im.src = u } }).catch(function () {})
+        box.innerHTML = '<div class="still"' + (x.thumb ? ' style="background-image:url(' + x.thumb + ')"' : '') + '><span class="pwrap" id="pwrap"><img id="still" alt="' + esc(x.file_name) + '">' + wmLayer() + '<span class="ppins" id="ppins"></span><span class="loupe" id="loupe" hidden></span></span></div>' +
+          '<div class="ptools">' + (!(share && share.data.kind === 'finals') ? heartBtn(x.track_id) : '') + '<span class="grow"></span>' + (imgVersions().length > 1 ? '<button class="btn sm" id="pcmp">' + ic('split') + ' Before / after</button>' : '') + '<button class="btn sm" id="ploupe" title="See the picture at 100% under the pointer">' + ic('loupe') + ' 100%</button>' + (canDo('commenter') ? '<span class="phint">' + ic('pin') + ' Click the picture to put a note on that spot</span>' : '') + '</div>'
+        urlFor(x).then(function (u) { var im = $('#still'); if (im && curV() === x) { im.onload = function () { im.classList.add('on'); paintPPins() }; im.src = u } }).catch(function () {})
+        setupPicture(x)
       } else { box.innerHTML = ''; box.hidden = true }
     }
     function setVersion(vid, keep) {
@@ -934,6 +975,7 @@
           (reps.length ? '<div class="replies">' + reps.map(function (r) { return one(r, true) }).join('') + '</div>' : '') + '</div></div>'
       }
       $('#nlist').innerHTML = top.length ? top.map(function (c) { return one(c) }).join('') : '<p class="muted" style="padding:10px 8px;margin:0;font-size:14px">' + (all.length ? 'No notes match.' : canDo('commenter') ? 'No notes on this version yet. Play it, pause where something needs work and write below.' : 'No notes on this version yet.') + '</p>'
+      setTimeout(paintPPins)
       $$('#nlist [data-vo]').forEach(function (b) { b.onclick = function () { playVoice(b) } })
       $$('#nlist [data-fr]').forEach(function (b) { b.onclick = function () { jump(tview.notes.filter(function (z) { return z.id === b.dataset.fr })[0], true) } })
       fillFrames()
@@ -1279,18 +1321,17 @@
     function warm(id) { var v = versions.filter(function (q) { return q.id === id })[0]; if (!v || abWarm[id]) return; urlFor(v).then(function (u) { var w = new Audio(); w.preload = 'auto'; w.crossOrigin = 'anonymous'; w.muted = true; w.src = u; abWarm[id] = w }) }
     function paintAB() {
       if ($('#abtn')) $('#abtn').classList.toggle('on', !!ab)
-      $$('#vers [data-v]').forEach(function (b) { b.dataset.ab = ab ? (b.dataset.v === ab.a ? 'A' : b.dataset.v === ab.b ? 'B' : '') : '' })
+      $$('#vers [data-v]').forEach(function (b) { var i = ab ? ab.list.indexOf(b.dataset.v) : -1; b.dataset.ab = i >= 0 ? 'ABCDEFGH'[i] || '' : '' })
     }
     function abToggle() {
       if (ab) { ab = null; paintAB(); return }
-      var x = curV(), list = audVersions().filter(function (q) { return q.id !== x.id }); if (!list.length) return
-      var other = list.filter(function (q) { return q.n < x.n }).pop() || list[0]
-      ab = { a: x.id, b: other.id }; warm(x.id); warm(other.id); paintAB()
-      toast('A/B on · Space switches ' + vname(x) + ' and ' + vname(other))
+      var list = audVersions().map(function (q) { return q.id }); if (list.length < 2) return
+      ab = { list: list, a: list[0], b: list[1] }; list.forEach(warm); paintAB()
+      toast('A/B on · Space goes ' + audVersions().map(function (q, i) { return 'ABCDEFGH'[i] }).join(' → ') + ' at the same point')
     }
     vspace = function () {
       if (!ab || !document.body.contains(wv)) return false
-      setVersion(tview.version === ab.a ? ab.b : ab.a, true); paintAB(); return true
+      var i = ab.list.indexOf(tview.version); setVersion(ab.list[(i + 1) % ab.list.length], true); paintAB(); return true
     }
     function paintRange() {
       var b = $('#cmp-rng'); if (!b) return
@@ -1435,6 +1476,54 @@
         if (m.readyState >= 1) go(); else m.addEventListener('loadedmetadata', go, { once: true })
       }
     }
+    // ===== picture tools (Alex, 8 Nov) =====
+    function imgVersions() { return versions.filter(function (q) { return kindOf(q) === 'image' }) }
+    function paintPPins() {
+      var box = $('#ppins'); if (!box) return
+      var list = topNotes().filter(function (c) { return c.pos }), n = 0
+      box.innerHTML = list.map(function (c) { n++; return '<button class="ppin" data-pp="' + c.id + '" style="left:' + (c.pos.x * 100) + '%;top:' + (c.pos.y * 100) + '%" title="' + esc(nameOf(c).name + ': ' + (c.body || '')) + '"><span>' + n + '</span></button>' }).join('') +
+        (tview.ppos ? '<span class="ppin new" style="left:' + (tview.ppos.x * 100) + '%;top:' + (tview.ppos.y * 100) + '%"><span>+</span></span>' : '')
+      $$('[data-pp]', box).forEach(function (b) { b.onclick = function (e) { e.stopPropagation(); var el = $('#nlist > [data-n="' + b.dataset.pp + '"]'); $$('#nlist > .note').forEach(function (q) { q.classList.toggle('on', q === el) }); if (el) { el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash') } $$('.ppin', box).forEach(function (q) { q.classList.toggle('on', q === b) }) } })
+      // the note's number beside its name
+      var k = 0; list.forEach(function (c) { k++; var el = $('#nlist > [data-n="' + c.id + '"] .who'); if (el && !el.querySelector('.pnum')) el.insertAdjacentHTML('afterbegin', '<span class="pnum">' + k + '</span>') })
+    }
+    var loupeOn = false, pcmp = null
+    function setupPicture(x) {
+      var wrap = $('#pwrap'), im = $('#still'); if (!wrap) return
+      wrap.onclick = function (e) {
+        if (loupeOn || pcmp || e.target.closest('.ppin') || !canDo('commenter')) return
+        var r = im.getBoundingClientRect(); if (!r.width) return
+        tview.ppos = { x: Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), y: Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)) }
+        paintPPins(); if ($('#cmp-pos')) $('#cmp-pos').hidden = false; if ($('#cmp-t')) $('#cmp-t').focus()
+      }
+      var hb = $('.ptools [data-pick]'); if (hb) hb.onclick = function () { togglePick(x.track_id, function () { hb.outerHTML = heartBtn(x.track_id); setupPicture(x) }) }
+      var lb = $('#ploupe'), lp = $('#loupe')
+      if (lb) lb.onclick = function () { loupeOn = !loupeOn; lb.classList.toggle('on', loupeOn); wrap.classList.toggle('looking', loupeOn); if (!loupeOn) lp.hidden = true }
+      wrap.onmousemove = function (e) {
+        if (!loupeOn || !im.naturalWidth) return
+        var r = im.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height
+        if (fx < 0 || fy < 0 || fx > 1 || fy > 1) { lp.hidden = true; return }
+        var sz = 220, sc = Math.max(1, im.naturalWidth / r.width)
+        lp.hidden = false; lp.style.left = (e.clientX - r.left - sz / 2) + 'px'; lp.style.top = (e.clientY - r.top - sz / 2) + 'px'
+        lp.style.backgroundImage = 'url(' + im.src + ')'; lp.style.backgroundSize = im.naturalWidth + 'px ' + im.naturalHeight + 'px'
+        lp.style.backgroundPosition = (-(fx * im.naturalWidth - sz / 2)) + 'px ' + (-(fy * im.naturalHeight - sz / 2)) + 'px'
+        lp.dataset.z = Math.round(sc * 100) + '%'
+      }
+      wrap.onmouseleave = function () { if (lp) lp.hidden = true }
+      var cb = $('#pcmp')
+      if (cb) cb.onclick = function () {
+        if (pcmp) { pcmp.forEach(function (n) { n.remove() }); pcmp = null; cb.classList.remove('on'); return }
+        var list = imgVersions().filter(function (q) { return q.id !== x.id }), other = list.filter(function (q) { return q.n < x.n }).pop() || list[0]; if (!other) return
+        var ov = document.createElement('img'); ov.className = 'pcmp-img'; ov.alt = ''
+        var hd = document.createElement('span'); hd.className = 'cmph'; hd.innerHTML = '<span>' + ic('split') + '</span>'
+        var la = document.createElement('b'); la.className = 'cmpl'; la.textContent = 'Before · ' + vname(other)
+        var lb2 = document.createElement('b'); lb2.className = 'cmpl r'; lb2.textContent = 'After · ' + vname(x)
+        wrap.appendChild(ov); wrap.appendChild(hd); wrap.appendChild(la); wrap.appendChild(lb2); pcmp = [ov, hd, la, lb2]; cb.classList.add('on')
+        var at = 0.5, place = function () { ov.style.clipPath = 'inset(0 ' + ((1 - at) * 100) + '% 0 0)'; hd.style.left = (at * 100) + '%' }; place()
+        urlFor(other).then(function (u) { ov.src = u })
+        hd.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); hd.setPointerCapture(e.pointerId); var mv = function (ev) { var r = wrap.getBoundingClientRect(); at = Math.max(0.02, Math.min(0.98, (ev.clientX - r.left) / r.width)); place() }, en = function () { hd.removeEventListener('pointermove', mv); hd.removeEventListener('pointerup', en) }; hd.addEventListener('pointermove', mv); hd.addEventListener('pointerup', en) })
+      }
+    }
     var lastActive = null
     function activeNote() {
       var t = audio.currentTime, best = null
@@ -1467,13 +1556,13 @@
         if (share && $('#g-name')) { var gn = $('#g-name').value.trim(); if (!gn) { $('#g-name').focus(); return } store.set('rs-guest', gn) }
         var x = curV(), at = replyTo || kindOf(x) === 'image' ? null : ($('#cmp-at').checked ? Math.round(audio.currentTime * (kindOf(x) === 'video' ? 1000 : 10)) / (kindOf(x) === 'video' ? 1000 : 10) : null)
         var sketch = at != null && !replyTo && vs.drawing.length ? vs.drawing.slice() : null
-        var endAt = null
+        var endAt = null, posAt = !replyTo && kindOf(x) === 'image' && tview.ppos ? tview.ppos : null
         if (!replyTo && tview.range && tview.range.b != null && kindOf(x) !== 'image') { at = Math.round(tview.range.a * 1000) / 1000; endAt = Math.round(tview.range.b * 1000) / 1000 }
         $('#cmp-go').disabled = true
-        var p = share ? api('share-comment', { version: x.id, body: body, at_sec: at, name: store.get('rs-guest'), parent: replyTo, sketch: sketch, end_sec: endAt }).then(function (d) { if (d.error) throw new Error(d.error); share.data.comments.push(d.comment); return d.comment })
-          : sb.from('roarstudio_comments').insert({ version_id: x.id, project_id: ctx.project.id, body: body, at_sec: at, author: session.user.id, parent_id: replyTo, sketch: sketch, end_sec: endAt }).select().single().then(function (r) { if (r.error) throw new Error(r.error.message); return r.data })
+        var p = share ? api('share-comment', { version: x.id, body: body, at_sec: at, name: store.get('rs-guest'), parent: replyTo, sketch: sketch, end_sec: endAt, pos: posAt }).then(function (d) { if (d.error) throw new Error(d.error); share.data.comments.push(d.comment); return d.comment })
+          : sb.from('roarstudio_comments').insert({ version_id: x.id, project_id: ctx.project.id, body: body, at_sec: at, author: session.user.id, parent_id: replyTo, sketch: sketch, end_sec: endAt, pos: posAt }).select().single().then(function (r) { if (r.error) throw new Error(r.error.message); return r.data })
         if (at != null && kindOf(x) === 'video' && vidEl.readyState >= 2 && Math.abs(vidEl.currentTime - at) < 0.3) { try { var fc = document.createElement('canvas'); fc.width = 320; fc.height = 180; drawFrame(fc, vidEl); if (!isBlack(fc)) frameCache[x.id + '@' + at] = fc } catch (e) {} }
-        p.then(function (c) { if (endAt != null) { tview.range = null; paintRange() } if (sketch) { vs.drawing = []; drawMode(false) } tview.notes.push(c); $('#cmp-t').value = ''; replyTo = null; $('#cmp-t').placeholder = ''; if ($('#g-name')) $('#g-name').remove(); paintNotes() }).catch(function (x2) { toast(x2.message) }).then(function () { $('#cmp-go').disabled = false })
+        p.then(function (c) { if (posAt) { tview.ppos = null; if ($('#cmp-pos')) $('#cmp-pos').hidden = true } if (endAt != null) { tview.range = null; paintRange() } if (sketch) { vs.drawing = []; drawMode(false) } tview.notes.push(c); $('#cmp-t').value = ''; replyTo = null; $('#cmp-t').placeholder = ''; if ($('#g-name')) $('#g-name').remove(); paintNotes() }).catch(function (x2) { toast(x2.message) }).then(function () { $('#cmp-go').disabled = false })
       }
     }
     function askName(then) {
@@ -1567,6 +1656,8 @@
     $('#lp').onclick = function () { var on = !audEl.loop; audEl.loop = vidEl.loop = on; this.classList.toggle('on', on) }
     $('#lp').classList.toggle('on', audEl.loop)
     if ($('#abtn')) $('#abtn').onclick = abToggle
+    $$('.hint').forEach(function (h) { $('button', h).onclick = function () { store.set('rs-hint-' + h.dataset.hint, '0'); h.classList.add('gone'); setTimeout(function () { h.remove(); var hs = $('.hints'); if (hs && !hs.children.length) hs.remove() }, 260) } })
+    if ($('#cmp-pos-x')) $('#cmp-pos-x').onclick = function () { tview.ppos = null; $('#cmp-pos').hidden = true; paintPPins() }
     if ($('#strm')) $('#strm').onclick = streamCheck
     if ($('#stems')) $('#stems').onclick = stemsToggle
     if ($('#cmp-rng')) $('#cmp-rng').onclick = function () {
@@ -1917,7 +2008,8 @@
         row('Links: comments', 'People with a link can leave notes', sw('st-lc', st.link_comment)) +
         row('Links: approve', 'People with a link can approve a version', sw('st-la', st.link_approve)) +
         row('Links: download', 'People with a link can download the files', sw('st-ld', st.link_download)) +
-        row('Hide version numbers', 'People on your links see a version’s name or date, never v1, v2…', sw('st-hv', st.hide_versions)) + '</section>' +
+        row('Hide version numbers', 'People on your links see a version’s name or date, never v1, v2…', sw('st-hv', st.hide_versions)) +
+        row('Watermark on links', 'Your studio’s name over pictures seen through review links; Finals stay clean', sw('st-wm', st.watermark)) + '</section>' +
         '<section class="scard glass"><h2>Emails</h2><p class="muted">Sent to ' + esc(session.user.email || '') + ', a few minutes after it happens, grouped together.</p>' +
         row('Notes', 'Someone leaves a note on your files', sw('pf-n', pf.notify_notes)) +
         row('New versions', 'Someone uploads a file or a new version', sw('pf-v', pf.notify_versions)) +
@@ -1948,7 +2040,7 @@
       var saveSt = function (patch, msg) { Object.assign(st, patch, { owner: session.user.id, updated_at: new Date().toISOString() }); return sb.from('roarstudio_studios').upsert(st).then(function (q) { if (q.error) toast(q.error.message); else { if (msg) toast(msg); if (me) me.studio = st } }) }
       var savePf = function (patch) { Object.assign(pf, patch, { user_id: session.user.id, updated_at: new Date().toISOString() }); return sb.from('roarstudio_prefs').upsert(pf).then(function (q) { if (q.error) toast(q.error.message); else { if (me) me.prefs = pf; toast('Saved') } }) }
       var flip = function (id, fn) { $(id).onclick = function () { var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', on); fn(on) } }
-      flip('#st-lc', function (on) { saveSt({ link_comment: on }, 'Saved') }); flip('#st-la', function (on) { saveSt({ link_approve: on }, 'Saved') }); flip('#st-ld', function (on) { saveSt({ link_download: on }, 'Saved') }); flip('#st-hv', function (on) { saveSt({ hide_versions: on }, 'Saved') })
+      flip('#st-lc', function (on) { saveSt({ link_comment: on }, 'Saved') }); flip('#st-la', function (on) { saveSt({ link_approve: on }, 'Saved') }); flip('#st-ld', function (on) { saveSt({ link_download: on }, 'Saved') }); flip('#st-wm', function (on) { saveSt({ watermark: on }, 'Saved') }); flip('#st-hv', function (on) { saveSt({ hide_versions: on }, 'Saved') })
       flip('#pf-n', function (on) { savePf({ notify_notes: on }) }); flip('#pf-v', function (on) { savePf({ notify_versions: on }) }); flip('#pf-a', function (on) { savePf({ notify_approvals: on }) }); flip('#pf-s', function (on) { savePf({ notify_shared: on }) }); flip('#pf-d', function (on) { savePf({ digest: on }) }); flip('#pf-u', function (on) { savePf({ upload_naming: on }) })
       $('#st-role').onchange = function () { saveSt({ invite_role: this.value }, 'Saved') }
       $('#st-save').onclick = function () { saveSt({ name: $('#st-name').value.trim() }, 'Studio name saved') }
@@ -2207,7 +2299,7 @@
         if (d.error) { setTop([]); view.innerHTML = '<div class="empty glass"><h2>' + esc(d.error) + '</h2><p>Ask the person who sent it for a new link.</p></div>'; return }
         share.data = d
         if (d.studio && d.studio.backdrop) { document.body.style.setProperty('--bd', 'url(' + d.studio.backdrop + ')'); document.body.classList.add('custom-bd') }
-        ctx = { project: d.project, tracks: d.tracks || [], versions: d.versions || [], comments: d.comments || [], people: {}, peopleList: [], role: 'guest' }
+        ctx = { project: d.project, tracks: d.tracks || [], versions: d.versions || [], comments: d.comments || [], people: {}, peopleList: [], role: 'guest', picks: d.picks || [] }
         if (d.kind === 'review' && d.tracks && d.tracks.length === 1 && !location.hash) { location.replace('#t/' + d.tracks[0].id); return }
         renderShare()
       })
