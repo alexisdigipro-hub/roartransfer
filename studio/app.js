@@ -216,6 +216,28 @@
 
   function langBtn() { var el = window.RSLang && RSLang.lang === 'el'; return '<button class="langb" id="langb" data-notr title="' + (el ? 'Switch to English' : 'Ελληνικά') + '">' + (el ? 'EN' : 'ΕΛ') + '</button>' }
   document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('#langb'); if (b && window.RSLang) RSLang.set(RSLang.lang === 'el' ? 'en' : 'el') })
+  function paintMe() {
+    var b = $('#me-btn'); if (!b || !session) return
+    var name = (me && me.name) || (session.user.email || '').split('@')[0]
+    b.style.cssText = me && me.avatar ? "background-image:url('" + String(me.avatar).replace(/'/g, '%27') + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)'
+    b.textContent = me && me.avatar ? '' : initials(name)
+  }
+  // a new picture for the Roar Account, from the Studio: it changes in every Roar app (roar-avatars/<id>/…, roar_profiles.avatar_url)
+  function changePhoto() {
+    cropBox({ title: 'Your picture', w: 400, h: 400, current: me && me.avatar, onDone: function (url) {
+      return fetch(url).then(function (r) { return r.blob() }).then(function (blob) {
+        var path = session.user.id + '/studio-' + Date.now() + '.jpg'
+        return sb.storage.from('roar-avatars').upload(path, blob, { contentType: 'image/jpeg', upsert: false }).then(function (u) {
+          if (u.error) throw new Error(u.error.message)
+          var pub = sb.storage.from('roar-avatars').getPublicUrl(path).data.publicUrl
+          return sb.from('roar_profiles').update({ avatar_url: pub }).eq('id', session.user.id).then(function (q) {
+            if (q.error) throw new Error(q.error.message)
+            me.avatar = pub; paintMe(); toast('Picture saved')
+          })
+        })
+      }).catch(function (e) { toast(e.message) })
+    } })
+  }
   function setTop(crumbs) {
     $('#crumbs').innerHTML = (crumbs || []).map(function (c, i) { return '<span class="sep">/</span><span>' + esc(c) + '</span>' }).join('')
     var r = $('#right')
@@ -231,9 +253,11 @@
       e.stopPropagation()
       var old = $('.menu'); if (old) { old.remove(); return }
       var m = document.createElement('div'); m.className = 'menu'
-      m.innerHTML = '<div class="who">' + esc(session.user.email || '') + '</div><button id="mn-set">' + ic('gear') + ' Settings</button><button id="mn-sto">' + ic('disk') + ' Storage</button>' + (me && me.admin ? '<button id="mn-adm">' + ic('gear') + ' Admin</button>' : '') + '<button id="mn-acc">' + ic('people') + ' My Roar account</button><button id="mn-rt">' + ic('out') + ' Open RoarTransfer</button><button id="mn-out">' + ic('back') + ' Sign out</button>'
+      var br = this.getBoundingClientRect(); m.style.position = 'fixed'; m.style.top = Math.round(br.bottom + 8) + 'px'; m.style.right = Math.max(8, Math.round(window.innerWidth - br.right)) + 'px'; m.style.left = 'auto'
+      m.innerHTML = '<div class="who">' + esc(session.user.email || '') + '</div><button id="mn-pic">' + ic('image') + ' Change picture</button><button id="mn-set">' + ic('gear') + ' Settings</button><button id="mn-sto">' + ic('disk') + ' Storage</button>' + (me && me.admin ? '<button id="mn-adm">' + ic('gear') + ' Admin</button>' : '') + '<button id="mn-acc">' + ic('people') + ' My Roar account</button><button id="mn-rt">' + ic('out') + ' Open RoarTransfer</button><button id="mn-out">' + ic('back') + ' Sign out</button>'
       document.body.appendChild(m)
       $('#mn-set').onclick = function () { m.remove(); go('#settings') }
+      $('#mn-pic').onclick = function () { m.remove(); changePhoto() }
       $('#mn-sto').onclick = function () { m.remove(); go('#storage') }
       if ($('#mn-adm')) $('#mn-adm').onclick = function () { m.remove(); go('#admin') }
       $('#mn-acc').onclick = function () { m.remove(); window.open('https://themadlions.com/account/', '_blank') }
@@ -2536,6 +2560,12 @@
   function loadMe(s) {
     var md = s.user.user_metadata || {}
     me = { name: md.name || md.full_name || (s.user.email || '').split('@')[0], avatar: md.avatar_url || null, prefs: {}, studio: null }
+    sb.rpc('roarstudio_me').then(function (r) {
+      var d = r.data && r.data[0]; if (!me || !d) return
+      if (d.display_name) me.name = d.display_name
+      if (d.avatar_url) me.avatar = d.avatar_url
+      paintMe()
+    })
     sb.from('roarstudio_prefs').select('*').eq('user_id', s.user.id).maybeSingle().then(function (r) { if (me && r.data) me.prefs = r.data })
     sb.from('roarstudio_studios').select('*').eq('owner', s.user.id).maybeSingle().then(function (r) { if (me) me.studio = r.data || null })
     setTimeout(function () { api('admin-check').then(function (d) { if (me) me.admin = !!d.admin }) }, 300)

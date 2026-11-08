@@ -21,7 +21,7 @@
     'Ask for a title before a new file, and a name before a new version': 'Ρώτα τίτλο πριν από νέο αρχείο και όνομα πριν από νέα εκδοχή', 'Someone leaves a note on your files': 'Κάποιος αφήνει σημείωση στα αρχεία σου',
     'Someone uploads a file or a new version': 'Κάποιος ανεβάζει αρχείο ή νέα εκδοχή', 'Approvals and finals': 'Εγκρίσεις και τελικά', 'A version is approved or made final': 'Μια εκδοχή εγκρίνεται ή γίνεται τελική',
     'Someone adds you to a project': 'Κάποιος σε προσθέτει σε project', 'Once a day': 'Μία φορά τη μέρα', 'One email a day instead of a few minutes after': 'Ένα email τη μέρα αντί για λίγα λεπτά μετά',
-    'by': 'από', 'Privacy': 'Απόρρητο', 'Terms': 'Όροι', 'Privacy & Terms': 'Απόρρητο & Όροι',
+    'by': 'από', 'Change picture': 'Αλλαγή φωτογραφίας', 'Your picture': 'Η φωτογραφία σου', 'Picture saved': 'Η φωτογραφία αποθηκεύτηκε', 'My Roar account': 'Το Roar Account μου', 'Open RoarTransfer': 'Άνοιγμα RoarTransfer', 'Privacy': 'Απόρρητο', 'Terms': 'Όροι', 'Privacy & Terms': 'Απόρρητο & Όροι',
     'Projects': 'Projects', 'Settings': 'Ρυθμίσεις', 'Storage': 'Χώρος', 'Admin': 'Διαχείριση', 'Sign out': 'Αποσύνδεση', 'Account': 'Λογαριασμός',
     'Notifications': 'Ειδοποιήσεις', 'Send files with RoarTransfer': 'Στείλε αρχεία με το RoarTransfer', 'Beta': 'Beta',
     'Sign in': 'Σύνδεση', 'Sign in with Roar Account': 'Σύνδεση με Roar Account', 'Create an account': 'Δημιουργία λογαριασμού', 'Forgot password': 'Ξέχασες τον κωδικό;',
