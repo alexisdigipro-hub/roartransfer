@@ -1300,3 +1300,22 @@ body.has-mini .sfoot { padding-bottom: 96px }
 
 .media .cmpc { position: absolute; z-index: 2; pointer-events: none; background: #000 }
 .media .cmpc[hidden], .pcmpc[hidden] { display: none }
+
+/* the picture big (Alex, 8 Nov: a click opens it to look closely; pins only with Pin a note) */
+.pwrap { cursor: zoom-in } .pwrap.pinning, .pwrap.pinning img { cursor: crosshair !important } .pwrap.looking { cursor: none }
+#ppinb.on { background: rgba(250,204,21,.18); border-color: rgba(250,204,21,.5); color: #fde68a }
+body.noscroll { overflow: hidden }
+.plb { position: fixed; inset: 0; z-index: 200; background: rgba(6,4,10,.94); display: grid; grid-template-rows: auto minmax(0, 1fr); animation: fadeIn .2s ease }
+.plb-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.08) }
+.plb-bar b { font: 600 14px var(--mono); color: var(--muted) }
+.plb-bar .grow { flex: 1 }
+.plb-bar .btn.on { background: rgba(250,204,21,.18); border-color: rgba(250,204,21,.5); color: #fde68a }
+.plb-st { overflow: hidden; display: grid; place-items: center; padding: 16px }
+.plb-w { position: relative; display: inline-block; line-height: 0 }
+.plb-w img { max-width: calc(100vw - 32px); max-height: calc(100vh - 100px); object-fit: contain; cursor: zoom-in; user-select: none; -webkit-user-drag: none }
+.plb.zoomed .plb-st { overflow: auto; place-items: start; cursor: grab }
+.plb.zoomed .plb-w img { max-width: none; max-height: none; cursor: zoom-out }
+.plb.pinning .plb-w img { cursor: crosshair }
+.plb-pins { position: absolute; inset: 0; pointer-events: none }
+.plb-pins .ppin { pointer-events: auto; font: 700 11px var(--sans); color: #1a1228 }
+@keyframes fadeIn { from { opacity: 0 } }
