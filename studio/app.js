@@ -50,6 +50,8 @@
     fprev: '<path d="M15 6l-6 6 6 6"/><path d="M7 6v12"/>', fnext: '<path d="M9 6l6 6-6 6"/><path d="M17 6v12"/>',
     mask: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M3 15h18"/>', split: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 3v18"/>',
     arrow: '<path d="M5 19L19 5M10 5h9v9"/>', circle: '<circle cx="12" cy="12" r="7.5"/>', undo: '<path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12"/>', mark: '<path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/>',
+    mic: '<rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v3"/>', range: '<path d="M4 7v10M20 7v10M7 12h10M10 9l-3 3 3 3M14 9l3 3-3 3"/>',
+    stems: '<path d="M4 7h16M4 12h16M4 17h16"/><circle cx="8" cy="7" r="1.6" fill="currentColor"/><circle cx="15" cy="12" r="1.6" fill="currentColor"/><circle cx="11" cy="17" r="1.6" fill="currentColor"/>', wave: '<path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 11v2"/>',
     image: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/>',
     film: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M10 9.5v5l4-2.5z" fill="currentColor"/>',
     folder: '<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
@@ -633,7 +635,7 @@
     var st = function (t) { $('.st', box).textContent = t }, bar = function (p) { $('.bar i', box).style.width = Math.round(p * 100) + '%' }
     uploading++
     var meta = null
-    return analyseAny(file).then(function (m) {
+    return (opt.stemOf ? Promise.resolve(null) : analyseAny(file)).then(function (m) {
       meta = m; st('Starting…')
       return api('upload-create', { project: opt.project, name: file.name, size: file.size, type: file.type || 'application/octet-stream' })
     }).then(function (made) {
@@ -660,10 +662,10 @@
       return Promise.all([worker(), worker(), worker(), worker()]).then(function () {
         st('Finishing…')
         var parts = Object.keys(etags).map(function (k) { return { n: +k, etag: etags[k] } })
-        return api('upload-complete', { project: opt.project, key: made.key, uploadId: made.uploadId, parts: parts, name: file.name, size: file.size, type: file.type, track: opt.track || null, title: opt.title || null, folder: opt.folder || null, label: opt.label || '', meta: meta || {} })
+        return api('upload-complete', { project: opt.project, key: made.key, uploadId: made.uploadId, parts: parts, name: file.name, size: file.size, type: file.type, track: opt.track || null, title: opt.title || null, stem_of: opt.stemOf || null, folder: opt.folder || null, label: opt.label || '', meta: meta || {} })
       }).catch(function (e) { api('upload-abort', { project: opt.project, key: made.key, uploadId: made.uploadId }); throw e })
     }).then(function (d) {
-      if (!d.version) throw new Error(d.error || 'Could not finish the upload')
+      if (!d.version && !d.stem) throw new Error(d.error || 'Could not finish the upload')
       bar(1); st(meta && meta.lufs != null ? 'Done · ' + lufsText(meta.lufs) : 'Done'); uploading--
       setTimeout(function () { box.remove() }, 2500)
       if (opt.onDone) opt.onDone(d.version); else if (!uploading) render()
@@ -722,6 +724,7 @@
     var firstV = versions[0], byName = share ? share.data.names[firstV.uploaded_by] : ctx.people[firstV.uploaded_by] && ctx.people[firstV.uploaded_by].name
     view.innerHTML = '<div class="head"><button class="ico" id="back" aria-label="Back to the project">' + ic('back') + '</button><span class="pcover sm" style="' + coverAttr(ctx.project) + '"></span><div style="min-width:0"><h1>' + esc(track.title) + '</h1><div class="sub">' + esc(ctx.project.title) + (byName ? ' · by ' + esc(byName) : '') + ' · ' + new Date(firstV.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + '</div></div><div class="tools">' +
       (kindOf(versions[versions.length - 1]) === 'audio' && versions.some(function (q) { return q.lufs != null }) ? '<button class="btn" id="lvl">' + ic('disk').replace('disk', '') + 'Levels</button>' : '') +
+      '<button class="btn" id="abtn" hidden title="A/B: Space switches between two versions at the same point">A/B</button><button class="btn" id="strm" hidden title="How Spotify, Apple Music and YouTube will play it">' + ic('wave') + ' Streaming</button><button class="btn" id="stems" hidden title="The parts of this version, with mute and solo">' + ic('stems') + ' Stems</button>' +
       (edit && !share ? '<button class="btn main" id="nv">' + ic('up') + ' New version</button><button class="btn" id="tsh">' + ic('share') + ' Share</button><button class="ico" id="tm" aria-label="More">' + ic('dots') + '</button>' : '') + '</div></div>' +
       '<div class="player"><section class="stage glass">' +
       '<div class="vers" id="vers"></div>' +
@@ -730,21 +733,22 @@
       '<div class="ctl" id="ctl"><button class="ico sm" id="rew" aria-label="Back to the start" title="Back to the start">' + ic('prev') + '</button><button class="ico sm fstep" id="fprev" hidden aria-label="One frame back" title="One frame back (←)">' + ic('fprev') + '</button><button class="play" id="pb" aria-label="Play">' + ic('play') + '</button><button class="ico sm fstep" id="fnext" hidden aria-label="One frame on" title="One frame on (→)">' + ic('fnext') + '</button><span class="time" id="tm-t">0:00 <span>/ 0:00</span></span>' +
       '<span class="pt"><label class="zoom zs" title="Zoom the waveform (double-click for all of it)">' + ic('zin') + '<input type="range" id="zr" min="0" max="100" step="1" value="0" aria-label="Zoom"><b class="mono" id="zl">1×</b></label><i class="pt-sep"></i><button class="ico sm" id="vmask" hidden aria-label="Frame masks" title="Frame masks: 2.39, 1.85, 9:16, 4:5, safe areas">' + ic('mask') + '</button><button class="ico sm" id="vdraw" hidden aria-label="Draw on the frame" title="Draw on the frame, then write the note">' + ic('pen') + '</button><button class="ico sm" id="vcmp" hidden aria-label="Compare two versions" title="Two versions side by side">' + ic('split') + '</button><button class="ico sm" id="spd" aria-label="Speed" title="Speed"><b class="mono" style="font-size:11px">1×</b></button><button class="ico sm" id="lp" aria-label="Loop" title="Loop">' + ic('loop') + '</button><button class="ico sm" id="pip" aria-label="Picture in picture" title="Picture in picture" hidden>' + ic('pip') + '</button><button class="ico sm" id="fs" aria-label="Full screen" title="Full screen" hidden>' + ic('full') + '</button></span><button class="btn sm grab" id="grab" hidden title="Save this frame as a picture, with its time on it">' + ic('cam') + '<span>Grab still</span></button>' +
       '<span class="lm">Level match <button class="sw" id="lm" aria-pressed="' + matched + '" aria-label="Level match"></button><span class="lufs" id="lufs"></span></span></div>' +
-      '<div class="facts" id="facts"></div>' +
+      '<div class="facts" id="facts"></div><section class="stemp" id="stemp" hidden></section>' +
       '<div class="appr" id="appr"></div>' +
       (edit && !share ? '<input type="file" id="nvf" accept="audio/*,video/*,image/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.mov,.mp4,.heic,.tif,.tiff,.psd" hidden><div class="ups" id="ups"></div>' : '') +
       '</section><aside class="notes glass"><header>' + '<div class="lens-group" id="ntab"><span class="lens"></span><button class="on" data-tab="n">Notes</button>' + (share ? '' : '<button data-tab="p">Notepad</button>') + '<button data-tab="s" hidden>Stills</button></div>' + '<span class="muted" id="ncount"></span>' + (share ? '' : '<button class="ico sm" id="nexp" hidden aria-label="Notes as markers for the edit" title="Notes as markers for the edit (Resolve, Premiere)">' + ic('mark') + '</button>') + '</header>' +
       '<div class="nfilter" id="nfilter"><label class="nsearch">' + ic('search') + '<input id="nq" placeholder="Search notes" aria-label="Search notes"></label><div class="chips" id="nchips"><button class="on" data-f="all">All</button><button data-f="open">Open</button><button data-f="done">Done</button>' + (share ? '' : '<button data-f="mine">Mine</button>') + '</div></div>' +
       '<div class="nlist" id="nlist"></div><div class="stills" id="stills" hidden></div>' + (share ? '' : '<div class="npad" id="npad" hidden><textarea class="in" id="npad-t"></textarea><span class="muted" id="npad-s" style="font-size:12px"></span></div>') +
       (canDo('commenter') ? '<form class="compose" id="cmp">' + (share && !store.get('rs-guest') ? '<input class="in" id="g-name" maxlength="60" placeholder="Your name" required>' : '') +
-        '<div class="cmp-sk" id="cmp-sk" hidden>' + ic('pen') + '<span>Drawing goes with this note</span><button type="button" class="ico sm" id="cmp-sk-x" aria-label="Remove the drawing">' + ic('x') + '</button></div><textarea class="in" id="cmp-t" rows="2" maxlength="4000"></textarea><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
+        '<div class="cmp-sk" id="cmp-sk" hidden>' + ic('pen') + '<span>Drawing goes with this note</span><button type="button" class="ico sm" id="cmp-sk-x" aria-label="Remove the drawing">' + ic('x') + '</button></div><textarea class="in" id="cmp-t" rows="2" maxlength="4000"></textarea><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button type="button" class="ico sm rbtn" id="cmp-rng" title="A note over a stretch: press at the start, press again at the end (or Shift and drag on the waveform)" aria-label="A note over a stretch">' + ic('range') + '</button><span class="grow"></span><button type="button" class="ico sm mic" id="cmp-mic" title="Hold to speak a note, or click to start and click to stop" aria-label="Speak a note">' + ic('mic') + '<b class="mono" id="cmp-mic-t"></b></button><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
       '</aside></div>'
 
     $('#back').onclick = function () { go(share && share.data.tracks.length === 1 && share.data.project ? '#t/' + id : '#p/' + ctx.project.id) }
 
     function paintVersions() {
       $('#vers').innerHTML = versions.map(function (x) { return '<button class="v' + (x.id === tview.version ? ' on' : '') + '" data-v="' + x.id + '">' + esc(vname(x)) + (x.final_at ? ' <span class="tick">★</span>' : x.approved_at ? ' <span class="tick">✓</span>' : '') + '</button>' }).join('')
-      $$('#vers [data-v]').forEach(function (b) { b.onclick = function () { setVersion(b.dataset.v, true) } })
+      $$('#vers [data-v]').forEach(function (b) { b.onclick = function () { if (ab && b.dataset.v !== ab.a && b.dataset.v !== ab.b) { ab.b = b.dataset.v; warm(b.dataset.v) } setVersion(b.dataset.v, true) } })
+      paintAB()
     }
     function curV() { return versions.filter(function (x) { return x.id === tview.version })[0] || versions[versions.length - 1] }
     // the picture: the video element for a video, the still for a picture, nothing for sound
@@ -756,6 +760,12 @@
       if ($('#cmp-at')) $('.attime').hidden = k === 'image'
       if ($('#fs')) { $('#fs').hidden = k !== 'video'; $('#pip').hidden = k !== 'video' || !document.pictureInPictureEnabled }
       if ($('#grab')) $('#grab').hidden = k !== 'video' || (share && !share.data.can.comment)
+      if ($('#strm')) $('#strm').hidden = k !== 'audio' || x.lufs == null
+      if ($('#stems')) $('#stems').hidden = k !== 'audio'
+      if ($('#abtn')) $('#abtn').hidden = k !== 'audio' || audVersions().length < 2
+      if ($('#cmp-rng')) $('#cmp-rng').hidden = k === 'image'
+      if (k !== 'audio' && ab) { ab = null; paintAB() }
+      if ($('#stemp') && !$('#stemp').hidden && stemSt.v !== x.id) loadStems()
       ;['#fprev', '#fnext', '#vmask'].forEach(function (q) { if ($(q)) $(q).hidden = k !== 'video' })
       if ($('#vdraw')) $('#vdraw').hidden = k !== 'video' || !canDo('commenter')
       if ($('#vcmp')) $('#vcmp').hidden = k !== 'video' || vidVersions().length < 2
@@ -853,6 +863,9 @@
         g.fillStyle = bx < pos ? '#a78bfa' : hoverX >= 0 && bx < hoverX ? 'rgba(255,255,255,.55)' : 'rgba(214,220,228,.36)'
         g.fillRect(bx, (h - bh) / 2, 2 * d, bh)
       }
+      var band = function (a, b, col, edge) { var x1 = (a - zw.start) / sp * w, x2 = (b - zw.start) / sp * w; if (x2 < 0 || x1 > w) return; g.fillStyle = col; g.fillRect(Math.max(0, x1), 0, Math.min(w, x2) - Math.max(0, x1), h); if (edge) { g.fillStyle = edge; g.fillRect(x1, 0, d, h); g.fillRect(x2 - d, 0, d, h) } }
+      if (typeof topNotes === 'function') topNotes().forEach(function (c) { if (c.at_sec != null && c.end_sec != null) band(c.at_sec, c.end_sec, 'rgba(250,204,21,.09)') })
+      if (tview.range) { var ra = tview.range.a, rb = tview.range.b != null ? tview.range.b : t; band(Math.min(ra, rb), Math.max(ra, rb), 'rgba(250,204,21,.2)', 'rgba(250,204,21,.85)') }
       g.fillStyle = '#fff'; g.fillRect(pos - d, 0, 2 * d, h)
       // pins follow the zoom
       $$('#pins .pin').forEach(function (p) { var at = +p.dataset.at, l = (at - zw.start) / sp * 100; p.style.left = l + '%'; p.hidden = l < -1 || l > 101 })
@@ -863,8 +876,10 @@
       try { if (audio.fastSeek && scrub) audio.fastSeek(tt); else audio.currentTime = tt } catch (e) { audio.currentTime = tt }
     }
     var scrubFrame = 0
+    var rsel = false
     wave.addEventListener('pointerdown', function (e) {
       if (e.target.closest('.pin')) return
+      if (e.shiftKey && canDo('commenter') && kindOf(curV()) !== 'image') { wave.setPointerCapture(e.pointerId); rsel = true; var t0 = tAt(e.clientX); tview.range = { a: t0, b: t0 }; drawWave(); return }
       wave.setPointerCapture(e.pointerId)
       scrub = { t: tAt(e.clientX), was: !audio.paused }
       seekNow(scrub.t); drawWave()
@@ -873,10 +888,13 @@
       var r = wave.getBoundingClientRect(), d = devicePixelRatio || 1
       hoverX = (e.clientX - r.left) * d
       var ht = $('#hover-t'); ht.hidden = false; ht.style.left = (e.clientX - r.left) + 'px'; ht.textContent = mmss(tAt(e.clientX))
+      if (rsel) { tview.range.b = tAt(e.clientX) }
       if (scrub) { scrub.t = tAt(e.clientX); if (!scrubFrame) scrubFrame = requestAnimationFrame(function () { scrubFrame = 0; if (scrub) seekNow(scrub.t) }) }
       drawWave()
     })
-    var endScrub = function () { if (!scrub) return; var tt = scrub.t; scrub = null; try { audio.currentTime = tt } catch (e) {} drawWave() }
+    var endScrub = function () {
+      if (rsel) { rsel = false; var rr = tview.range; if (!rr || Math.abs(rr.b - rr.a) < 0.3) tview.range = null; else { if (rr.b < rr.a) { var tmp = rr.a; rr.a = rr.b; rr.b = tmp } seekNow(rr.a) } paintRange(); drawWave(); return }
+      if (!scrub) return; var tt = scrub.t; scrub = null; try { audio.currentTime = tt } catch (e) {} drawWave() }
     wave.addEventListener('pointerup', endScrub); wave.addEventListener('pointercancel', endScrub)
     wave.addEventListener('pointerleave', function () { hoverX = -1; $('#hover-t').hidden = true; drawWave() })
     wave.addEventListener('wheel', function (e) { if (!(e.ctrlKey || e.metaKey)) return; e.preventDefault(); setZoom(zw.z * (e.deltaY < 0 ? 1.25 : 0.8), tAt(e.clientX)) }, { passive: false })
@@ -911,11 +929,12 @@
       var one = function (c, reply) {
         var n = nameOf(c), mine = !share && session && c.author === session.user.id
         var reps = tview.notes.filter(function (z) { return z.parent_id === c.id })
-        return '<div class="note' + (c.done ? ' done' : '') + '" data-n="' + c.id + '">' + avatar(n.short || n.name, n.avatar, n.id) + '<div style="min-width:0"><div class="who"><b>' + esc(n.name) + '</b>' + (c.at_sec != null && !reply ? '<button class="at" data-at="' + c.id + '">' + (kindOf(curV()) === 'video' ? tcf(c.at_sec, +store.get('rs-fps-' + curV().id)) : mmss(c.at_sec)) + '</button>' : '') + '<span>' + ago(c.created_at) + '</span></div>' + (c.at_sec != null && !reply && kindOf(curV()) === 'video' ? '<button class="nframe" data-fr="' + c.id + '" data-t="' + c.at_sec + '" aria-label="Play from ' + mmss(c.at_sec) + '"><canvas width="320" height="180"></canvas><i>' + tcf(c.at_sec, +store.get('rs-fps-' + curV().id)) + '</i></button>' : '') + '<div class="body">' + esc(c.body) + '</div>' +
+        return '<div class="note' + (c.done ? ' done' : '') + '" data-n="' + c.id + '">' + avatar(n.short || n.name, n.avatar, n.id) + '<div style="min-width:0"><div class="who"><b>' + esc(n.name) + '</b>' + (c.at_sec != null && !reply ? '<button class="at" data-at="' + c.id + '">' + (kindOf(curV()) === 'video' ? tcf(c.at_sec, +store.get('rs-fps-' + curV().id)) : mmss(c.at_sec)) + (c.end_sec != null ? '–' + (kindOf(curV()) === 'video' ? tcf(c.end_sec, +store.get('rs-fps-' + curV().id)) : mmss(c.end_sec)) : '') + '</button>' : '') + '<span>' + ago(c.created_at) + '</span></div>' + (c.at_sec != null && !reply && kindOf(curV()) === 'video' ? '<button class="nframe" data-fr="' + c.id + '" data-t="' + c.at_sec + '" aria-label="Play from ' + mmss(c.at_sec) + '"><canvas width="320" height="180"></canvas><i>' + tcf(c.at_sec, +store.get('rs-fps-' + curV().id)) + '</i></button>' : '') + (c.body ? '<div class="body">' + esc(c.body) + '</div>' : '') + (c.voice || c.voice_sec != null ? '<button class="vnote" data-vo="' + c.id + '">' + ic('play') + '<span>Spoken note</span><b class="mono">' + mmss(c.voice_sec || 0) + '</b></button>' : '') +
           (reply ? '' : '<div class="acts">' + (canDo('commenter') ? '<button class="ico sm" data-rep="' + c.id + '" aria-label="Reply">' + ic('reply') + '</button>' : '') + (!share && (canDo('editor') || mine) ? '<button class="ico sm" data-done="' + c.id + '" aria-label="' + (c.done ? 'Open again' : 'Mark as done') + '" title="' + (c.done ? 'Open again' : 'Done') + '">' + ic('check') + '</button>' : '') + (mine || (!share && ctx.role === 'owner') ? '<button class="ico sm danger" data-del="' + c.id + '" aria-label="Delete note">' + ic('trash') + '</button>' : '') + '</div>') +
           (reps.length ? '<div class="replies">' + reps.map(function (r) { return one(r, true) }).join('') + '</div>' : '') + '</div></div>'
       }
       $('#nlist').innerHTML = top.length ? top.map(function (c) { return one(c) }).join('') : '<p class="muted" style="padding:10px 8px;margin:0;font-size:14px">' + (all.length ? 'No notes match.' : canDo('commenter') ? 'No notes on this version yet. Play it, pause where something needs work and write below.' : 'No notes on this version yet.') + '</p>'
+      $$('#nlist [data-vo]').forEach(function (b) { b.onclick = function () { playVoice(b) } })
       $$('#nlist [data-fr]').forEach(function (b) { b.onclick = function () { jump(tview.notes.filter(function (z) { return z.id === b.dataset.fr })[0], true) } })
       fillFrames()
       $$('#nlist [data-at]').forEach(function (b) { b.onclick = function () { jump(tview.notes.filter(function (z) { return z.id === b.dataset.at })[0]) } })
@@ -1254,6 +1273,168 @@
         })
       })
     }
+    // ===== sound tools (Alex, 8 Nov): A/B, a note over a stretch, the streaming check, spoken notes, stems =====
+    var ab = null, abWarm = {}
+    function audVersions() { return versions.filter(function (q) { return kindOf(q) === 'audio' }) }
+    function warm(id) { var v = versions.filter(function (q) { return q.id === id })[0]; if (!v || abWarm[id]) return; urlFor(v).then(function (u) { var w = new Audio(); w.preload = 'auto'; w.crossOrigin = 'anonymous'; w.muted = true; w.src = u; abWarm[id] = w }) }
+    function paintAB() {
+      if ($('#abtn')) $('#abtn').classList.toggle('on', !!ab)
+      $$('#vers [data-v]').forEach(function (b) { b.dataset.ab = ab ? (b.dataset.v === ab.a ? 'A' : b.dataset.v === ab.b ? 'B' : '') : '' })
+    }
+    function abToggle() {
+      if (ab) { ab = null; paintAB(); return }
+      var x = curV(), list = audVersions().filter(function (q) { return q.id !== x.id }); if (!list.length) return
+      var other = list.filter(function (q) { return q.n < x.n }).pop() || list[0]
+      ab = { a: x.id, b: other.id }; warm(x.id); warm(other.id); paintAB()
+      toast('A/B on · Space switches ' + vname(x) + ' and ' + vname(other))
+    }
+    vspace = function () {
+      if (!ab || !document.body.contains(wv)) return false
+      setVersion(tview.version === ab.a ? ab.b : ab.a, true); paintAB(); return true
+    }
+    function paintRange() {
+      var b = $('#cmp-rng'); if (!b) return
+      b.classList.toggle('on', !!tview.range); b.classList.toggle('live', !!(tview.range && tview.range.b == null))
+    }
+    // the streaming check: what each service does to this mix, and whether the true peak is safe for encoding
+    var PLAT = [['Spotify', -14, 'up'], ['Apple Music', -16, 'up'], ['YouTube', -14, 'down'], ['Tidal', -14, 'down'], ['Amazon Music', -14, 'down']]
+    function getTP(x) {
+      if (x.true_peak != null) return Promise.resolve(x.true_peak)
+      var k = 'rs-tp-' + x.id, had = store.get(k); if (had) return Promise.resolve(+had)
+      if (x.size > 600 * 1024 * 1024 || !window.RSAudio || !RSAudio.truePeak) return Promise.resolve(null)
+      var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return Promise.resolve(null)
+      return urlFor(x).then(function (u) { return fetch(u) }).then(function (r) { return r.arrayBuffer() }).then(function (buf) {
+        var c2 = new AC()
+        return new Promise(function (ok, no) { c2.decodeAudioData(buf, ok, no) }).then(function (abuf) {
+          var ch = []; for (var i = 0; i < abuf.numberOfChannels; i++) ch.push(abuf.getChannelData(i))
+          var tp = RSAudio.truePeak(ch); try { c2.close() } catch (e) {} if (tp != null) store.set(k, String(tp)); return tp
+        })
+      }).catch(function () { return null })
+    }
+    function streamCheck() {
+      var x = curV()
+      var m = modal('<div class="spread"><h2>Streaming check</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div id="sc-b"><div class="spin"></div><p class="muted" style="text-align:center;margin:0">Measuring the true peak…</p></div>')
+      getTP(x).then(function (tp) {
+        var box = $('#sc-b', m); if (!box) return
+        var L = x.lufs
+        if (L == null) { box.innerHTML = '<p class="muted">This version has no loudness reading yet.</p>'; return }
+        var f1 = function (v) { return (v > 0 ? '+' : '') + v.toFixed(1) }
+        var rows = PLAT.map(function (pl) {
+          var diff = pl[1] - L, say, cls
+          if (diff < -0.05) { say = 'Turned down ' + Math.abs(diff).toFixed(1) + ' dB'; cls = 'dn' }
+          else if (diff > 0.05) {
+            if (pl[2] === 'up' && tp != null) { var room = Math.max(0, -1 - tp), up = Math.min(diff, room); say = up > 0.05 ? 'Turned up ' + up.toFixed(1) + ' dB' + (up < diff - 0.05 ? ' (held back by the peak)' : '') : 'Plays as it is (no room to turn it up)'; cls = up > 0.05 ? 'up' : 'eq' }
+            else { say = 'Plays as it is, ' + diff.toFixed(1) + ' dB quieter than the rest'; cls = 'eq' }
+          } else { say = 'Plays as it is'; cls = 'eq' }
+          return '<div class="sc-row"><b>' + pl[0] + '</b><span class="muted mono">' + pl[1] + ' LUFS</span><span class="sc-' + cls + '">' + say + '</span></div>'
+        }).join('')
+        var tpLine = tp == null ? '<div class="sc-tp"><span class="muted">True peak could not be measured here; sample peak ' + (x.peak_db != null ? x.peak_db.toFixed(1) + ' dBFS' : '–') + '.</span></div>'
+          : tp > -1 ? '<div class="sc-tp bad">' + ic('x') + '<span><b>True peak ' + f1(tp) + ' dBTP</b> · over −1 dBTP: it can distort when it is encoded for streaming. Lower the limiter ceiling to −1.</span></div>'
+          : '<div class="sc-tp ok">' + ic('check') + '<span><b>True peak ' + f1(tp) + ' dBTP</b> · safe for encoding (−1 dBTP or lower).</span></div>'
+        box.innerHTML = '<div class="sc-head"><div><small>Loudness</small><b class="mono">' + L.toFixed(1) + ' LUFS</b></div><div><small>True peak</small><b class="mono">' + (tp == null ? '–' : f1(tp) + ' dBTP') + '</b></div><div><small>Version</small><b>' + esc(vname(x)) + '</b></div></div>' + tpLine + '<div class="sc-rows">' + rows + '</div><p class="muted" style="margin:0;font-size:12px">Each service turns songs to its own loudness. Apple Music and Spotify may turn a quiet song up only as far as its peak allows; YouTube, Tidal and Amazon only turn loud songs down.</p>'
+      })
+    }
+    // spoken notes: hold the microphone (or click to start and to stop)
+    var rec = null, vAudio = null, vBtn = null
+    function micPaint() {
+      var b = $('#cmp-mic'); if (!b) return
+      b.classList.toggle('rec', !!rec); $('#cmp-mic-t').textContent = rec ? mmss((Date.now() - rec.t0) / 1000) : ''
+    }
+    function micStart(atv) {
+      if (rec) return
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) { toast('This browser cannot record sound'); return }
+      rec = { pending: true, t0: Date.now(), at: atv }
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+        if (!rec) { stream.getTracks().forEach(function (t) { t.stop() }); return }
+        var mt = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm', 'audio/ogg'].filter(function (q) { return MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(q) })[0] || ''
+        var mr = new MediaRecorder(stream, mt ? { mimeType: mt } : undefined), chunks = []
+        rec.mr = mr; rec.stream = stream; rec.pending = false; rec.t0 = Date.now()
+        mr.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data) }
+        mr.onstop = function () {
+          stream.getTracks().forEach(function (t) { t.stop() })
+          var sec = (Date.now() - rec.t0) / 1000, at0 = rec.at, type = mr.mimeType || mt || 'audio/webm'; clearInterval(rec.timer); rec = null; micPaint()
+          if (sec < 0.7) { toast('Too short: hold the microphone while you speak'); return }
+          sendVoice(new Blob(chunks, { type: type }), sec, at0)
+        }
+        if (!audio.paused) audio.pause()
+        mr.start(250); rec.timer = setInterval(micPaint, 250); rec.max = setTimeout(micStop, 180000); micPaint()
+        if (rec.stopAsked) micStop()
+      }).catch(function () { rec = null; micPaint(); toast('The microphone is not allowed in this browser') })
+    }
+    function micStop() { if (!rec) return; if (rec.pending) { rec.stopAsked = true; return } if (rec.stopping) return; rec.stopping = true; clearTimeout(rec.max); try { rec.mr.stop() } catch (e) {} }
+    function sendVoice(blob, sec, atv) {
+      if (share && !store.get('rs-guest')) { askName(function () { sendVoice(blob, sec, atv) }); return }
+      var x = curV(), body = ($('#cmp-t') ? $('#cmp-t').value.trim() : '')
+      toast('Sending the spoken note…')
+      api(share ? 'share-voice-add' : 'voice-add', { version: x.id, type: blob.type }).then(function (d) {
+        if (!d.put) throw new Error(d.error || 'no address')
+        return fetch(d.put, { method: 'PUT', body: blob }).then(function (r) { if (!r.ok) throw new Error('Upload failed (' + r.status + ')'); return d.key })
+      }).then(function (key) {
+        var row = { version: x.id, body: body, at_sec: atv, voice: key, voice_sec: Math.round(sec * 10) / 10 }
+        return share ? api('share-comment', Object.assign({ name: store.get('rs-guest') }, row)).then(function (d) { if (d.error) throw new Error(d.error); share.data.comments.push(d.comment); return d.comment })
+          : sb.from('roarstudio_comments').insert({ version_id: x.id, project_id: ctx.project.id, body: body, at_sec: atv, author: session.user.id, voice: key, voice_sec: row.voice_sec }).select().single().then(function (r) { if (r.error) throw new Error(r.error.message); return r.data })
+      }).then(function (c) { tview.notes.push(c); if ($('#cmp-t')) $('#cmp-t').value = ''; paintNotes(); toast('Spoken note posted') }).catch(function (e) { toast(e.message) })
+    }
+    function playVoice(b) {
+      if (vBtn === b && vAudio && !vAudio.paused) { vAudio.pause(); return }
+      if (!vAudio) { vAudio = new Audio(); vAudio.onplay = vAudio.onpause = vAudio.onended = function () { $$('#nlist .vnote').forEach(function (q) { q.classList.toggle('on', q === vBtn && !vAudio.paused); q.querySelector('svg').outerHTML = ic(q === vBtn && !vAudio.paused ? 'pause' : 'play') }) } }
+      vBtn = b
+      api(share ? 'share-voice-url' : 'voice-url', { comment: b.dataset.vo }).then(function (d) { if (!d.url) throw new Error(d.error || 'not found'); if (!audio.paused) audio.pause(); vAudio.src = d.url; return vAudio.play() }).catch(function (e) { toast(e.message || 'Could not play it') })
+    }
+    // stems: the parts of the version played together, each with mute, solo and its own level
+    var stemSt = { list: null, v: null, els: [], timer: null, mute: {}, solo: {}, vol: {} }
+    function stemsStop() { stemSt.els.forEach(function (el) { try { el.pause() } catch (e) {} }); clearInterval(stemSt.timer); stemSt.timer = null; var pp = $('#stem-pp'); if (pp) pp.innerHTML = ic('play') }
+    function stemsDrop() { stemsStop(); stemSt.els.forEach(function (el) { el.removeAttribute('src'); try { el.load() } catch (e) {} }); stemSt.els = []; stemSt.list = null }
+    function stemsToggle() {
+      var pn = $('#stemp'); pn.hidden = !pn.hidden; $('#stems').classList.toggle('on', !pn.hidden)
+      if (!pn.hidden) loadStems(); else stemsStop()
+    }
+    function loadStems() {
+      var x = curV(), pn = $('#stemp'); if (!pn) return
+      if (stemSt.v !== x.id) { stemsDrop(); stemSt.v = x.id }
+      pn.innerHTML = '<div class="spin"></div>'
+      api(share ? 'share-stems' : 'stems', { version: x.id }).then(function (d) { if (curV() !== x) return; stemSt.list = d.stems || []; paintStems() }).catch(function (e) { pn.innerHTML = '<p class="muted">' + esc(e.message) + '</p>' })
+    }
+    function stemMix() {
+      var anySolo = Object.keys(stemSt.solo).some(function (k) { return stemSt.solo[k] })
+      ;(stemSt.list || []).forEach(function (st, i) { var el = stemSt.els[i]; if (!el) return; el.muted = anySolo ? !stemSt.solo[st.id] : !!stemSt.mute[st.id]; el.volume = stemSt.vol[st.id] == null ? 1 : stemSt.vol[st.id] })
+    }
+    function paintStems() {
+      var pn = $('#stemp'), x = curV(), list = stemSt.list || [], ed = edit && !share
+      pn.innerHTML = '<div class="stem-h"><b>' + ic('stems') + ' Stems</b><span class="muted">' + esc(vname(x)) + ' · ' + list.length + '</span><span class="grow"></span>' + (ed ? '<button class="btn sm" id="stem-add">' + ic('plus') + ' Add stems</button><input type="file" id="stem-f" multiple accept="audio/*,.wav,.aif,.aiff,.flac,.mp3,.m4a" hidden>' : '') + '</div>' +
+        (list.length ? '<div class="stem-t"><button class="play" id="stem-pp" aria-label="Play the stems">' + ic('play') + '</button><div class="stem-bar" id="stem-bar"><i></i></div><span class="mono" id="stem-tm">0:00</span></div>' +
+          '<div class="stem-list">' + list.map(function (st) { return '<div class="stem"><span class="nm" title="' + esc(st.name) + '">' + esc(st.name) + '</span><button class="ms' + (stemSt.mute[st.id] ? ' on' : '') + '" data-mu="' + st.id + '" title="Mute">M</button><button class="ms so' + (stemSt.solo[st.id] ? ' on' : '') + '" data-so="' + st.id + '" title="Solo">S</button><input type="range" min="0" max="1" step="0.01" value="' + (stemSt.vol[st.id] == null ? 1 : stemSt.vol[st.id]) + '" data-vol="' + st.id + '" aria-label="Level of ' + esc(st.name) + '">' + (ed ? '<button class="ico sm danger" data-sd="' + st.id + '" aria-label="Delete ' + esc(st.name) + '">' + ic('trash') + '</button>' : '') + '</div>' }).join('') + '</div>'
+          : '<p class="muted" style="margin:0;font-size:13.5px">No stems yet.' + (ed ? ' Add vocals, drums, bass and the rest: they play together, each with mute and solo.' : '') + '</p>')
+      if (ed) { $('#stem-add').onclick = function () { $('#stem-f').click() }; $('#stem-f').onchange = function () { var fs = [].slice.call(this.files); this.value = ''; fs.forEach(function (f) { uploadFile(f, { project: ctx.project.id, stemOf: x.id, title: f.name, onDone: function () { loadStems() } }) }) } }
+      $$('[data-mu]', pn).forEach(function (b) { b.onclick = function () { stemSt.mute[b.dataset.mu] = !stemSt.mute[b.dataset.mu]; b.classList.toggle('on'); stemMix() } })
+      $$('[data-so]', pn).forEach(function (b) { b.onclick = function () { stemSt.solo[b.dataset.so] = !stemSt.solo[b.dataset.so]; b.classList.toggle('on'); stemMix() } })
+      $$('[data-vol]', pn).forEach(function (r) { r.oninput = function () { stemSt.vol[r.dataset.vol] = +r.value; stemMix() } })
+      $$('[data-sd]', pn).forEach(function (b) { b.onclick = function () { confirmBox('Delete this stem?', 'It leaves the version for everyone.', 'Delete', function () { stemsDrop(); return api('stem-delete', { stem: b.dataset.sd }).then(function () { loadStems() }) }) } })
+      if (!list.length) return
+      var ensure = function () {
+        if (stemSt.els.length === list.length) return
+        stemSt.els = list.map(function (st) { var el = new Audio(); el.crossOrigin = 'anonymous'; el.preload = 'auto'; el.src = st.url; return el })
+        stemMix()
+      }
+      var tickS = function () {
+        var m = stemSt.els[0]; if (!m || !$('#stem-bar')) { stemsStop(); return }
+        stemSt.els.forEach(function (el, i) { if (i && el.readyState >= 1 && Math.abs(el.currentTime - m.currentTime) > 0.06) { try { el.currentTime = m.currentTime } catch (e) {} } })
+        var dur = m.duration || 0; $('#stem-bar i').style.width = (dur ? m.currentTime / dur * 100 : 0) + '%'; $('#stem-tm').textContent = mmss(m.currentTime)
+        if (m.ended) stemsStop()
+      }
+      $('#stem-pp').onclick = function () {
+        ensure()
+        if (stemSt.timer) { stemsStop(); return }
+        if (!audio.paused) audio.pause()
+        var t0 = stemSt.els[0].currentTime || 0
+        Promise.all(stemSt.els.map(function (el) { try { el.currentTime = t0 } catch (e) {} var pr = el.play(); return pr && pr.catch ? pr.catch(function () {}) : null })).then(function () { })
+        stemSt.timer = setInterval(tickS, 200); this.innerHTML = ic('pause')
+      }
+      $('#stem-bar').onclick = function (e) {
+        ensure(); var r = this.getBoundingClientRect(), m = stemSt.els[0], go = function () { var tt = (e.clientX - r.left) / r.width * (m.duration || 0); stemSt.els.forEach(function (el) { try { el.currentTime = tt } catch (x2) {} }); tickS() }
+        if (m.readyState >= 1) go(); else m.addEventListener('loadedmetadata', go, { once: true })
+      }
+    }
     var lastActive = null
     function activeNote() {
       var t = audio.currentTime, best = null
@@ -1286,11 +1467,13 @@
         if (share && $('#g-name')) { var gn = $('#g-name').value.trim(); if (!gn) { $('#g-name').focus(); return } store.set('rs-guest', gn) }
         var x = curV(), at = replyTo || kindOf(x) === 'image' ? null : ($('#cmp-at').checked ? Math.round(audio.currentTime * (kindOf(x) === 'video' ? 1000 : 10)) / (kindOf(x) === 'video' ? 1000 : 10) : null)
         var sketch = at != null && !replyTo && vs.drawing.length ? vs.drawing.slice() : null
+        var endAt = null
+        if (!replyTo && tview.range && tview.range.b != null && kindOf(x) !== 'image') { at = Math.round(tview.range.a * 1000) / 1000; endAt = Math.round(tview.range.b * 1000) / 1000 }
         $('#cmp-go').disabled = true
-        var p = share ? api('share-comment', { version: x.id, body: body, at_sec: at, name: store.get('rs-guest'), parent: replyTo, sketch: sketch }).then(function (d) { if (d.error) throw new Error(d.error); share.data.comments.push(d.comment); return d.comment })
-          : sb.from('roarstudio_comments').insert({ version_id: x.id, project_id: ctx.project.id, body: body, at_sec: at, author: session.user.id, parent_id: replyTo, sketch: sketch }).select().single().then(function (r) { if (r.error) throw new Error(r.error.message); return r.data })
+        var p = share ? api('share-comment', { version: x.id, body: body, at_sec: at, name: store.get('rs-guest'), parent: replyTo, sketch: sketch, end_sec: endAt }).then(function (d) { if (d.error) throw new Error(d.error); share.data.comments.push(d.comment); return d.comment })
+          : sb.from('roarstudio_comments').insert({ version_id: x.id, project_id: ctx.project.id, body: body, at_sec: at, author: session.user.id, parent_id: replyTo, sketch: sketch, end_sec: endAt }).select().single().then(function (r) { if (r.error) throw new Error(r.error.message); return r.data })
         if (at != null && kindOf(x) === 'video' && vidEl.readyState >= 2 && Math.abs(vidEl.currentTime - at) < 0.3) { try { var fc = document.createElement('canvas'); fc.width = 320; fc.height = 180; drawFrame(fc, vidEl); if (!isBlack(fc)) frameCache[x.id + '@' + at] = fc } catch (e) {} }
-        p.then(function (c) { if (sketch) { vs.drawing = []; drawMode(false) } tview.notes.push(c); $('#cmp-t').value = ''; replyTo = null; $('#cmp-t').placeholder = ''; if ($('#g-name')) $('#g-name').remove(); paintNotes() }).catch(function (x2) { toast(x2.message) }).then(function () { $('#cmp-go').disabled = false })
+        p.then(function (c) { if (endAt != null) { tview.range = null; paintRange() } if (sketch) { vs.drawing = []; drawMode(false) } tview.notes.push(c); $('#cmp-t').value = ''; replyTo = null; $('#cmp-t').placeholder = ''; if ($('#g-name')) $('#g-name').remove(); paintNotes() }).catch(function (x2) { toast(x2.message) }).then(function () { $('#cmp-go').disabled = false })
       }
     }
     function askName(then) {
@@ -1313,6 +1496,7 @@
       var isV = kindOf(x) === 'video', fq = isV ? +store.get('rs-fps-' + x.id) : 0
       $('#tm-t').innerHTML = isV && fq ? tcf(t, fq) + ' <span>' + fpsLabel(fq) + '</span>' : mmss(t) + ' <span>/ ' + mmss(dur) + '</span>'
       if ($('#cmp-time')) $('#cmp-time').textContent = isV && fq ? tcf(t, fq) : mmss(t)
+      if ($('#cmp-time') && tview.range) { var fm = function (v) { return isV && fq ? tcf(v, fq) : mmss(v) }; $('#cmp-time').textContent = fm(tview.range.a) + ' – ' + fm(tview.range.b != null ? tview.range.b : t) }
       syncCompare()
       drawWave(); activeNote(); requestAnimationFrame(tick)
     }
@@ -1382,6 +1566,22 @@
     $('#spd').querySelector('b').textContent = (audio.playbackRate || 1) + '×'
     $('#lp').onclick = function () { var on = !audEl.loop; audEl.loop = vidEl.loop = on; this.classList.toggle('on', on) }
     $('#lp').classList.toggle('on', audEl.loop)
+    if ($('#abtn')) $('#abtn').onclick = abToggle
+    if ($('#strm')) $('#strm').onclick = streamCheck
+    if ($('#stems')) $('#stems').onclick = stemsToggle
+    if ($('#cmp-rng')) $('#cmp-rng').onclick = function () {
+      var t = audio.currentTime
+      if (!tview.range) tview.range = { a: t, b: null }
+      else if (tview.range.b == null) { if (t > tview.range.a + 0.3) tview.range.b = t; else if (t < tview.range.a - 0.3) tview.range = { a: t, b: tview.range.a }; else tview.range = null }
+      else tview.range = null
+      paintRange(); drawWave()
+    }
+    if ($('#cmp-mic')) {
+      var mic = $('#cmp-mic'), downAt = 0
+      mic.addEventListener('pointerdown', function (e) { e.preventDefault(); if (rec) { micStop(); downAt = 0; return } downAt = Date.now(); var x = curV(); micStart(kindOf(x) !== 'image' && $('#cmp-at') && $('#cmp-at').checked ? Math.round(audio.currentTime * 10) / 10 : null) })
+      var lift = function () { if (downAt && Date.now() - downAt > 450) micStop(); downAt = 0 }
+      mic.addEventListener('pointerup', lift); mic.addEventListener('pointerleave', function () { if (downAt && Date.now() - downAt > 450) lift() })
+    }
     if ($('#fprev')) { $('#fprev').onclick = function () { stepFrame(-1) }; $('#fnext').onclick = function () { stepFrame(1) } }
     if ($('#vmask')) $('#vmask').onclick = function (e) { e.stopPropagation(); maskMenu(this) }
     if ($('#vdraw')) $('#vdraw').onclick = function () { drawMode(!vs.draw) }
@@ -1403,10 +1603,11 @@
     el.addEventListener('dragover', over); el.addEventListener('drop', function (e) { if (!e.dataTransfer || !e.dataTransfer.files.length) return; e.preventDefault(); fn(Array.prototype.slice.call(e.dataTransfer.files)) })
   }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && $('#layer').firstChild) close() })
-  var vstep = null
+  var vstep = null, vspace = null
   document.addEventListener('keydown', function (e) {
     if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && vstep && $('#vov') && !/input|textarea|select/i.test((e.target && e.target.tagName) || '') && !$('#layer').firstChild) { e.preventDefault(); vstep(e.key === 'ArrowLeft' ? -1 : 1); return }
     if (e.code !== 'Space' || /input|textarea|select|button/i.test((e.target && e.target.tagName) || '')) return
+    if (vspace && vspace()) { e.preventDefault(); return }
     var pb = $('#pb'); if (pb) { e.preventDefault(); pb.click() }
   })
   window.addEventListener('resize', function () { $$('canvas[data-wave]').forEach(function (cv) { var v = ctx && ctx.versions.filter(function (x) { return x.id === cv.dataset.wave })[0]; drawMini(cv, v && v.peaks) }) })
@@ -1699,7 +1900,7 @@
       sb.from('roarstudio_studios').select('*').eq('owner', session.user.id).maybeSingle(),
       sb.from('roarstudio_prefs').select('*').eq('user_id', session.user.id).maybeSingle()
     ]).then(function (r) {
-      var st = r[0].data || { owner: session.user.id, name: '', logo: null, banner: null, invite_role: 'commenter', link_comment: true, link_approve: false, link_download: false, hide_versions: false }
+      var st = r[0].data || { owner: session.user.id, name: '', logo: null, banner: null, invite_role: 'commenter', link_comment: true, link_approve: true, link_download: false, hide_versions: false }
       var pf = r[1].data || { user_id: session.user.id, notify_notes: true, notify_approvals: true, notify_versions: true, notify_shared: true, digest: false, upload_naming: false }
       var sw = function (id, on) { return '<button type="button" class="sw" id="' + id + '" aria-pressed="' + !!on + '"></button>' }
       var row = function (t, d, ctl) { return '<div class="srow"><div><b>' + t + '</b><small>' + d + '</small></div>' + ctl + '</div>' }
@@ -1802,37 +2003,49 @@
 
   // ---- the bell: what happened in my projects and in the ones shared with me ----
   var ACT = { note: ['Comments', 'reply'], approve: ['Approvals', 'check'], final: ['Approvals', 'star'], download: ['Downloads', 'down'], stream: ['Streams', 'play'], view: ['Views', 'eye'], version: ['Uploads', 'up'], shared: ['Shared', 'people'] }
+  var BELL_KINDS = ['note', 'approve', 'final', 'version', 'shared', 'download'], bellTimer = null
   function bellCount() {
     if (!session) return
-    var seen = store.get('rs-seen') || new Date(Date.now() - 864e5).toISOString()
-    sb.from('roarstudio_events').select('id, actor', { count: 'exact' }).gt('created_at', seen).neq('actor', session.user.id).limit(1).then(function (r) {
+    var seen = store.get('rs-seen') || new Date(Date.now() - 3 * 864e5).toISOString()
+    // actor is empty for people on a link: "not me" has to keep those (Alex, 8 Nov: guests' notes never showed on the bell)
+    sb.from('roarstudio_events').select('id', { count: 'exact', head: true }).gt('created_at', seen).in('kind', BELL_KINDS).or('actor.is.null,actor.neq.' + session.user.id).then(function (r) {
       var b = $('#bell-n'); if (!b) return
       var n = r.count || 0; b.hidden = !n; b.textContent = n > 9 ? '9+' : n
+      $('#bell') && $('#bell').classList.toggle('has', !!n)
     })
+    if (!bellTimer) { bellTimer = setInterval(function () { if (document.visibilityState === 'visible') bellCount() }, 45000); document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') bellCount() }) }
   }
   function activityPanel() {
-    var tab = 'mine', filt = 'All'
-    var m = modal('<div class="spread"><h2>Notifications</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="lens-group" id="ac-tab" style="width:100%"><span class="lens"></span><button class="on" data-t="mine" style="flex:1">My projects</button><button data-t="shared" style="flex:1">Shared with me</button></div><div class="chips" id="ac-f">' + ['All', 'Comments', 'Approvals', 'Downloads', 'Streams', 'Views', 'Uploads'].map(function (f, i) { return '<button' + (i ? '' : ' class="on"') + ' data-f="' + f + '">' + f + '</button>' }).join('') + '</div><div class="aclist" id="ac-l"><div class="spin"></div></div>')
+    var filt = 'All', seenBefore = store.get('rs-seen') || new Date(Date.now() - 3 * 864e5).toISOString()
+    var CH = [['All', null], ['Notes', ['note']], ['Approvals', ['approve', 'final']], ['Uploads', ['version']], ['Downloads', ['download']]]
+    var m = modal('<div class="spread"><h2>Notifications</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="chips" id="ac-f">' + CH.map(function (f, i) { return '<button' + (i ? '' : ' class="on"') + ' data-f="' + f[0] + '">' + f[0] + '</button>' }).join('') + '</div><div id="ac-sum"></div><div class="aclist" id="ac-l"><div class="spin"></div></div>')
     $('.sheet-card', m).classList.add('drawer')
     m.classList.add('side')
-    store.set('rs-seen', new Date().toISOString()); var bn = $('#bell-n'); if (bn) bn.hidden = true
-    setTimeout(function () { lens($('#ac-tab')) }, 30)
+    store.set('rs-seen', new Date().toISOString()); var bn = $('#bell-n'); if (bn) bn.hidden = true; if ($('#bell')) $('#bell').classList.remove('has')
+    var week = new Date(Date.now() - 7 * 864e5).toISOString()
     Promise.all([sb.from('roarstudio_events').select('*').order('created_at', { ascending: false }).limit(300), sb.from('roarstudio_projects').select('id, title, owner')]).then(function (r) {
-      var evs = (r[0].data || []).filter(function (e) { return e.actor !== session.user.id }), ps = r[1].data || []
+      var all = (r[0].data || []).filter(function (e) { return e.actor !== session.user.id }), ps = r[1].data || []
+      var evs = all.filter(function (e) { return BELL_KINDS.indexOf(e.kind) >= 0 })
+      var opens = all.filter(function (e) { return e.kind === 'view' && e.created_at > week }).length, plays = all.filter(function (e) { return e.kind === 'stream' && e.created_at > week }).length
+      $('#ac-sum', m).innerHTML = opens || plays ? '<div class="acsum">' + ic('eye') + '<span>This week your links were opened <b>' + opens + '</b> time' + (opens === 1 ? '' : 's') + ' and played <b>' + plays + '</b> time' + (plays === 1 ? '' : 's') + '.</span></div>' : ''
       var tids = evs.map(function (e) { return e.track_id }).filter(Boolean)
       ;(tids.length ? sb.from('roarstudio_tracks').select('id, title').in('id', tids.filter(function (x, i) { return tids.indexOf(x) === i }).slice(0, 200)) : Promise.resolve({ data: [] })).then(function (tr) {
         var tt = {}; (tr.data || []).forEach(function (t) { tt[t.id] = t.title })
+        var dayOf = function (iso) { var dd = new Date(iso), t0 = new Date(); t0.setHours(0, 0, 0, 0); var diff = Math.floor((t0 - new Date(dd.getFullYear(), dd.getMonth(), dd.getDate())) / 864e5); return diff <= 0 ? 'Today' : diff === 1 ? 'Yesterday' : dd.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }) }
         var draw = function () {
-          var rows = evs.filter(function (e) { var p = ps.filter(function (x) { return x.id === e.project_id })[0]; if (!p) return false; return (tab === 'mine') === (p.owner === session.user.id) }).filter(function (e) { return filt === 'All' || (ACT[e.kind] && ACT[e.kind][0] === filt) })
+          var want = (CH.filter(function (c) { return c[0] === filt })[0] || [0, null])[1]
+          var rows = evs.filter(function (e) { return ps.some(function (x) { return x.id === e.project_id }) && (!want || want.indexOf(e.kind) >= 0) })
+          var last = ''
           $('#ac-l', m).innerHTML = rows.length ? rows.map(function (e) {
-            var p = ps.filter(function (x) { return x.id === e.project_id })[0], t = tt[e.track_id] || ''
+            var p = ps.filter(function (x) { return x.id === e.project_id })[0], t = tt[e.track_id] || 'a file'
             var who = e.actor_name || (ctx && ctx.people && ctx.people[e.actor] && ctx.people[e.actor].name) || 'Someone'
-            var what = e.kind === 'note' ? who + ' left a note on ' + t : e.kind === 'approve' ? who + ' approved ' + t : e.kind === 'final' ? t + ' is final' : e.kind === 'download' ? who + ' downloaded ' + t : e.kind === 'stream' ? who + ' played ' + t : e.kind === 'view' ? who + ' opened your link' : e.kind === 'version' ? 'New upload: ' + t : who + ' added someone to the project'
-            return '<button class="acrow" data-go="' + (e.track_id ? '#t/' + e.track_id : '#p/' + e.project_id) + '"><span class="ico sm">' + ic((ACT[e.kind] || [0, 'bell'])[1]) + '</span><span class="nm"><b>' + esc(what) + '</b><small>' + esc(p.title) + ' · ' + ago(e.created_at) + '</small>' + (e.body && e.kind === 'note' ? '<em>' + esc(e.body) + '</em>' : '') + '</span></button>'
-          }).join('') : '<div class="empty" style="padding:30px 10px"><h2 style="font-size:20px">Don’t miss important updates</h2><p>Nothing here yet. Notes, approvals, plays and downloads show up here.</p></div>'
+            var what = e.kind === 'note' ? '<b>' + esc(who) + '</b> left a note on ' + esc(t) : e.kind === 'approve' ? '<b>' + esc(who) + '</b> approved ' + esc(t) : e.kind === 'final' ? esc(t) + ' is <b>final</b>' : e.kind === 'download' ? '<b>' + esc(who) + '</b> downloaded ' + esc(t) : e.kind === 'version' ? '<b>' + esc(who) + '</b> uploaded a new version of ' + esc(t) : '<b>' + esc(who) + '</b> added you to ' + esc(p.title)
+            var day = dayOf(e.created_at), head = day !== last ? '<div class="acday">' + day + '</div>' : ''; last = day
+            var isNew = e.created_at > seenBefore
+            return head + '<button class="acrow' + (isNew ? ' new' : '') + '" data-go="' + (e.track_id ? '#t/' + e.track_id : '#p/' + e.project_id) + '"><span class="ico sm k-' + e.kind + '">' + ic((ACT[e.kind] || [0, 'bell'])[1]) + '</span><span class="nm"><span class="tx">' + what + '</span><small>' + esc(p.title) + ' · ' + ago(e.created_at) + '</small>' + (e.body && e.kind === 'note' ? '<q>' + esc(String(e.body).slice(0, 140)) + '</q>' : '') + '</span>' + (isNew ? '<i class="dot" aria-label="New"></i>' : '') + '</button>'
+          }).join('') : '<div class="empty" style="padding:30px 10px"><h2 style="font-size:20px">Nothing new</h2><p>Notes, approvals, new versions and downloads by the people you work with show up here.</p></div>'
           $$('[data-go]', m).forEach(function (b) { b.onclick = function () { close(); go(b.dataset.go) } })
         }
-        $('#ac-tab', m).onclick = function (e) { var b = e.target.closest('button'); if (!b) return; $$('#ac-tab button', m).forEach(function (x) { x.classList.toggle('on', x === b) }); lens($('#ac-tab', m)); tab = b.dataset.t; draw() }
         $('#ac-f', m).onclick = function (e) { var b = e.target.closest('button'); if (!b) return; $$('#ac-f button', m).forEach(function (x) { x.classList.toggle('on', x === b) }); filt = b.dataset.f; draw() }
         draw()
       })
@@ -1950,7 +2163,7 @@
       '<div id="s-out" hidden style="display:grid;gap:8px"><div class="linkbox"><input id="s-link" readonly><button class="btn sm main" id="s-copy">' + ic('copy') + ' Copy</button></div></div>' +
       '<div class="row end"><button class="btn main" id="s-go">Make the link</button></div><div id="s-old"></div>', function (m) {
       var st = c.studio || {}
-      if (!finals && !pl) { $('#s-c', m).setAttribute('aria-pressed', st.link_comment !== false); $('#s-a', m).setAttribute('aria-pressed', !!st.link_approve); $('#s-d', m).setAttribute('aria-pressed', !!st.link_download) }
+      if (!finals && !pl) { $('#s-c', m).setAttribute('aria-pressed', st.link_comment !== false); $('#s-a', m).setAttribute('aria-pressed', st.link_approve !== false); $('#s-d', m).setAttribute('aria-pressed', !!st.link_download) }
       if (pl) { $('#s-c', m).closest('.opt').hidden = true; $('#s-a', m).closest('.opt').hidden = true; $('#s-d', m).setAttribute('aria-pressed', !!st.link_download); $('h2', m).textContent = 'Share “' + pl.title + '”'; $('p.muted', m).textContent = 'Anyone with the link can play the playlist in order, without an account.' }
       $$('.sw', m).forEach(function (s) { s.onclick = function () { s.setAttribute('aria-pressed', s.getAttribute('aria-pressed') !== 'true') } })
       var eg = $('#s-e', m); setTimeout(function () { lens(eg) }, 30)

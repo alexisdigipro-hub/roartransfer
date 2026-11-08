@@ -1049,3 +1049,68 @@ html[data-theme="light"] .stage .ctl #rew, html[data-theme="light"] .stage .ctl 
 .stage .ctl .fstep { width: 32px !important; height: 32px !important }
 
 .media.cmp-on .vinfo { display: none }
+
+/* sound tools (Alex, 8 Nov) */
+.head .btn.on { background: rgba(250,204,21,.14) !important; border-color: rgba(250,204,21,.5) !important; color: #fde68a }
+.vers button.v[data-ab="A"]::after, .vers button.v[data-ab="B"]::after { content: attr(data-ab); margin-left: 6px; padding: 0 6px; border-radius: 6px; font: 700 10px var(--mono); background: #facc15; color: #1a1033 }
+.compose .spread { gap: 6px }
+.compose .grow { flex: 1 }
+.compose .rbtn.on { background: rgba(250,204,21,.18); border-color: rgba(250,204,21,.55); color: #fde68a }
+.compose .rbtn.live { animation: rsPulse 1.2s ease-in-out infinite }
+.compose .mic { width: auto; min-width: 32px; padding: 0 8px; gap: 5px }
+.compose .mic b { font-size: 11px }
+.compose .mic b:empty { display: none }
+.compose .mic.rec { background: rgba(239,68,68,.22) !important; border-color: rgba(248,113,113,.6) !important; color: #fecaca; animation: rsPulse 1.2s ease-in-out infinite }
+@keyframes rsPulse { 50% { box-shadow: 0 0 0 5px rgba(250,204,21,.12) } }
+.vnote { display: inline-flex; align-items: center; gap: 8px; height: 32px; margin-top: 6px; padding: 0 12px 0 8px; border-radius: 999px; border: 1px solid rgba(250,204,21,.3); background: rgba(250,204,21,.08); color: #fde68a; font: 600 12.5px var(--sans); cursor: pointer }
+.vnote svg { width: 14px; height: 14px }
+.vnote b { font-weight: 600; opacity: .8 }
+.vnote.on { background: rgba(250,204,21,.18) }
+.stemp { margin-top: 12px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); display: grid; gap: 10px }
+.stemp[hidden] { display: none }
+.stem-h { display: flex; align-items: center; gap: 10px }
+.stem-h b { display: inline-flex; align-items: center; gap: 7px; font-size: 14px }
+.stem-h b svg { width: 16px; height: 16px }
+.stem-h .grow { flex: 1 }
+.stem-t { display: flex; align-items: center; gap: 12px }
+.stem-t .play { width: 40px; height: 40px }
+.stem-bar { flex: 1; height: 8px; border-radius: 999px; background: rgba(255,255,255,.1); cursor: pointer; overflow: hidden }
+.stem-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #a78bfa, #7c3aed) }
+.stem-list { display: grid; gap: 6px }
+.stem { display: grid; grid-template-columns: minmax(0, 1fr) 32px 32px 140px auto; align-items: center; gap: 8px; padding: 6px 8px 6px 12px; border-radius: 12px; background: rgba(255,255,255,.035) }
+.stem .nm { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.stem .ms { height: 28px; border-radius: 8px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05); color: var(--muted); font: 700 11.5px var(--mono); cursor: pointer }
+.stem .ms.on { background: rgba(239,68,68,.25); border-color: rgba(248,113,113,.55); color: #fecaca }
+.stem .ms.so.on { background: rgba(250,204,21,.22); border-color: rgba(250,204,21,.6); color: #fde68a }
+.stem input[type=range] { width: 100%; accent-color: #a78bfa }
+.stem .ico.sm { width: 30px; height: 30px }
+@media (max-width: 600px) { .stem { grid-template-columns: minmax(0, 1fr) 30px 30px 80px auto } }
+.sc-head { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px }
+.sc-head > div { padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.05); display: grid; gap: 2px }
+.sc-head small { font-size: 11px; color: var(--muted) }
+.sc-head b { font-size: 15px }
+.sc-tp { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 14px; margin-top: 10px; font-size: 13px; line-height: 1.45 }
+.sc-tp svg { width: 16px; height: 16px; flex: none; margin-top: 1px }
+.sc-tp.ok { background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.3); color: #a7f3d0 }
+.sc-tp.bad { background: rgba(239,68,68,.1); border: 1px solid rgba(248,113,113,.35); color: #fecaca }
+.sc-rows { display: grid; gap: 6px; margin: 10px 0 }
+.sc-row { display: grid; grid-template-columns: 120px 80px minmax(0, 1fr); gap: 10px; align-items: center; padding: 9px 12px; border-radius: 12px; background: rgba(255,255,255,.035); font-size: 13.5px }
+.sc-dn { color: #fcd34d } .sc-up { color: #a7f3d0 } .sc-eq { color: var(--muted) }
+@media (max-width: 600px) { .sc-row { grid-template-columns: 1fr auto; } .sc-row span:last-child { grid-column: 1 / -1 } .sc-head { grid-template-columns: 1fr 1fr } }
+
+/* notifications, simpler (Alex, 8 Nov): the count on the bell, days, what is new marked */
+.bell { position: relative }
+.bell #bell-n { position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #facc15; color: #1a1033; font: 800 10.5px/18px var(--sans); text-align: center; box-shadow: 0 0 0 2px var(--bg, #0d0a14) }
+.bell #bell-n[hidden] { display: none }
+.bell.has svg { color: #fde68a }
+.acsum { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.04); color: var(--muted); font-size: 13px; margin: 2px 0 6px }
+.acsum svg { width: 16px; height: 16px; flex: none }
+.acsum b { color: var(--text) }
+.acday { font: 600 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim, rgba(255,255,255,.4)); padding: 12px 4px 4px }
+.acrow { position: relative }
+.acrow .tx { font-size: 13.5px; line-height: 1.4; color: var(--muted) }
+.acrow .tx b { color: var(--text); font-weight: 600 }
+.acrow q { display: block; margin-top: 5px; padding: 7px 10px; border-radius: 10px; background: rgba(255,255,255,.05); font-size: 13px; color: var(--text); quotes: none }
+.acrow.new { background: rgba(250,204,21,.06) }
+.acrow .dot { position: absolute; top: 14px; right: 12px; width: 8px; height: 8px; border-radius: 50%; background: #facc15 }
+.acrow .ico.k-note { color: #c4b5fd } .acrow .ico.k-approve, .acrow .ico.k-final { color: #a7f3d0 } .acrow .ico.k-version { color: #93c5fd } .acrow .ico.k-download { color: #fde68a }
