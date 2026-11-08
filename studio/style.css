@@ -1225,3 +1225,35 @@ body.has-mini .sfoot { padding-bottom: 96px }
 .pchip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 11px; border-radius: 999px; font: 600 12px var(--sans); color: var(--muted); background: rgba(255,255,255,.06); border: 1px solid var(--edge); white-space: nowrap }
 .pchip::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.3) }
 .pchip.on { color: #fde68a; background: rgba(250,204,21,.1); border-color: rgba(250,204,21,.3) } .pchip.on::before { background: #facc15 }
+
+/* Alex, 8 Nov: the description a little bigger, on one line where it fits; on a computer the project list (List view),
+   the files in a project and the folder and playlist tiles 50% taller (the Finals bar stays as it is) */
+.pdesc { max-width: none; font-size: 15px; line-height: 1.5 }
+@media (min-width: 821px) {
+  .grid.g-list .proj { grid-template-columns: 82px minmax(0, 1fr); gap: 16px; padding: 13px 18px 13px 13px; border-radius: 22px }
+  .grid.g-list .cover { width: 82px; height: 82px; border-radius: 15px }
+  .grid.g-list .pinfo b { font-size: 18px }
+  .grid.g-list .pinfo span { font-size: 13.5px }
+  .grid.g-list .proj .pdel { right: 18px }
+  .grid.g-list .new-proj { min-height: 96px }
+  .trk.k-audio, .trk.k-video, .trk.k-image { padding: 16px 18px 16px 14px; gap: 18px; border-radius: 22px }
+  .trk.k-audio, .trk.k-video, .trk.k-image { grid-template-columns: 94px minmax(0, 1fr) minmax(0, 240px) auto auto }
+  .trk.k-audio .th, .trk.k-video .th, .trk.k-image .th { width: 94px; height: 64px; border-radius: 14px }
+  .trk.k-audio .pl, .trk.k-video .pl, .trk.k-image .pl { width: 56px; height: 56px }
+  .trk.k-audio .nm b, .trk.k-video .nm b, .trk.k-image .nm b { font-size: 17.5px }
+  .trk.k-audio .nm span, .trk.k-video .nm span, .trk.k-image .nm span { font-size: 13.5px }
+  .trk.k-audio canvas, .trk.k-video canvas, .trk.k-image canvas { height: 46px }
+  .trk.k-image { grid-template-columns: 94px minmax(0, 1fr) minmax(0, 240px) auto auto auto }
+  .grid.g-list .pinfo { padding-right: 60px }
+  .tile { padding: 22px 18px 22px 18px; border-radius: 22px }
+  .tile .nm b { font-size: 17.5px }
+}
+@media (min-width: 821px) {
+  /* the description on its own full-width line under the title, the buttons staying at the top right */
+  .head:has(> div > .pdesc) { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; align-items: center }
+  .head:has(> div > .pdesc) > div:first-child { display: contents }
+  .head:has(> div > .pdesc) h1 { grid-column: 1; grid-row: 1; align-self: end }
+  .head:has(> div > .pdesc) .sub { grid-column: 1; grid-row: 2; align-self: start }
+  .head:has(> div > .pdesc) .pdesc { grid-column: 1 / -1; grid-row: 3 }
+  .head:has(> div > .pdesc) > .tools { grid-column: 2; grid-row: 1 / span 2 }
+}

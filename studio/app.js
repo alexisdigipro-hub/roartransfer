@@ -246,9 +246,9 @@
       r.innerHTML = langBtn() + (st && (st.logo || st.name) ? '<span class="brand" data-notr>' + (st.logo ? '<img src="' + st.logo + '" alt="">' : '') + (st.name ? '<b>' + esc(st.name) + '</b>' : '') + '</span>' : (session ? '' : '<a class="btn sm" href="./">Sign in</a>'))
       return
     }
-    if (!session) { r.innerHTML = langBtn(); return }
+    if (!session) { r.innerHTML = langBtn() + '<a class="btn sm rtlink" href="https://themadlions.com/lab/roarstudio/" target="_blank" rel="noopener" title="About RoarTransfer Studio">' + ic('people') + '<span>About</span></a>'; return }
     var name = (me && me.name) || (session.user.email || '').split('@')[0]
-    r.innerHTML = langBtn() + '<a class="btn sm rtlink" href="../" title="Send files with RoarTransfer">' + ic('out') + '<span>RoarTransfer</span></a><button class="ico bell" id="bell" aria-label="Notifications">' + ic('bell') + '<b id="bell-n" hidden></b></button><button class="me" id="me-btn" aria-label="Account" style="' + (me && me.avatar ? "background-image:url('" + esc(me.avatar) + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)') + '">' + (me && me.avatar ? '' : esc(initials(name))) + '</button>'
+    r.innerHTML = langBtn() + '<a class="btn sm rtlink" href="https://themadlions.com/lab/roarstudio/" target="_blank" rel="noopener" title="About RoarTransfer Studio">' + ic('people') + '<span>About</span></a>' + '<a class="btn sm rtlink" href="../" title="Send files with RoarTransfer">' + ic('out') + '<span>RoarTransfer</span></a><button class="ico bell" id="bell" aria-label="Notifications">' + ic('bell') + '<b id="bell-n" hidden></b></button><button class="me" id="me-btn" aria-label="Account" style="' + (me && me.avatar ? "background-image:url('" + esc(me.avatar) + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)') + '">' + (me && me.avatar ? '' : esc(initials(name))) + '</button>'
     $('#me-btn').onclick = function (e) {
       e.stopPropagation()
       var old = $('.menu'); if (old) { old.remove(); return }
@@ -295,7 +295,7 @@
     view.innerHTML = '<section class="hello">' +
       '<div><h1>Review and <em>deliver</em> audio, video and pictures.</h1>' +
       '<p>Upload every version, get notes on the exact second or frame, have it approved, and send the client one beautiful Finals folder with the files, the credits and your brand.</p>' +
-      '<ul><li>Versions, notes and approvals for audio, video and pictures</li><li>Level matching for mixes, frame-accurate notes for picture</li><li>Finals: one branded link, Download all as .zip, credits and lyrics</li><li>Playlists, folders, people with roles</li><li>Stored on Cloudflare, with your Roar account</li></ul></div>' +
+      '<ul><li>Versions, notes and approvals for audio, video and pictures</li><li>Level matching for mixes, frame-accurate notes for picture</li><li>Finals: one branded link, Download all as .zip, credits and lyrics</li><li>Playlists, folders, people with roles</li><li>Stored safely, with your Roar account</li></ul></div>' +
       '<form class="card glass" id="in" novalidate>' +
       '<div id="in-main" style="display:grid;gap:14px"><h2 id="in-h">Sign in</h2>' +
       '<button type="button" class="btn main" id="rc-go" style="height:46px">Sign in with Roar Account</button>' +
@@ -2264,7 +2264,7 @@
     api('usage').then(function (d) {
       var tot = d.bytes || 0, ps = d.projects || [], k = d.kinds || { audio: 0, video: 0, image: 0 }, top = Math.max(1, ps.reduce(function (a, p) { return Math.max(a, p.bytes) }, 0))
       var seg = function (n, col) { return tot ? '<i style="width:' + (n / tot * 100) + '%;background:' + col + '"></i>' : '' }
-      view.innerHTML = '<div class="head"><div><h1>Storage</h1><div class="sub">Your projects on Cloudflare, in Europe</div></div><div class="tools"><button class="btn" id="go-set">' + ic('gear') + ' Settings</button></div></div>' +
+      view.innerHTML = '<div class="head"><div><h1>Storage</h1><div class="sub">Your projects, stored safely in Europe</div></div><div class="tools"><button class="btn" id="go-set">' + ic('gear') + ' Settings</button></div></div>' +
         '<section class="scard glass storage"><div class="big"><b>' + size(tot) + '</b><span>in ' + ps.length + ' project' + (ps.length === 1 ? '' : 's') + '</span></div>' +
         '<div class="kbar">' + seg(k.audio, '#a78bfa') + seg(k.video, '#22d3ee') + seg(k.image, '#ffd166') + '</div>' +
         '<div class="klegend"><span><i style="background:#a78bfa"></i>Audio ' + size(k.audio) + '</span><span><i style="background:#22d3ee"></i>Video ' + size(k.video) + '</span><span><i style="background:#ffd166"></i>Pictures ' + size(k.image) + '</span></div>' +
