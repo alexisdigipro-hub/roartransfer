@@ -73,12 +73,35 @@
     return m
   }
 
+  // true peak (BS.1770 Annex 2 in spirit): 4x oversampling with a 48-tap windowed-sinc filter, looked at only around the
+  // loud samples (within 0.5 dB of the sample peak's neighbourhood), so a long file takes a moment, not minutes
+  var TP_H = (function () { var h = [], N = 48; for (var k = 0; k < N; k++) { var t = (k - (N - 1) / 2) / 4, w = 0.5 - 0.5 * Math.cos(2 * Math.PI * (k + 0.5) / N); h.push((t === 0 ? 1 : Math.sin(Math.PI * t) / (Math.PI * t)) * w) } return h })()
+  function truePeak(channels, sp) {
+    if (sp == null) sp = samplePeak(channels)
+    if (!(sp > 0)) return null
+    var gate = sp * 0.5, best = sp
+    for (var c = 0; c < channels.length; c++) {
+      var x = channels[c], n = x.length
+      for (var i = 12; i < n - 12; i++) {
+        var a = x[i] < 0 ? -x[i] : x[i]; if (a < gate) continue
+        for (var ph = 1; ph < 4; ph++) {
+          var y = 0
+          for (var j = 0; j < 12; j++) y += x[i + 6 - j] * TP_H[j * 4 + (4 - ph)]
+          if (y < 0) y = -y
+          if (y > best) best = y
+        }
+      }
+    }
+    return Math.round(20 * Math.log10(best) * 10) / 10
+  }
+
   function fromChannels(channels, fs) {
     var p = peaksOf(channels), sp = samplePeak(channels)
     // the waveform is drawn against full scale with a gentle curve, so quiet passages still show
     var peaks = p.peaks.map(function (v) { return Math.round(Math.min(1, Math.pow(v, 0.8)) * 1000) / 1000 })
     var l = lufs(channels, fs)
-    return { peaks: peaks, lufs: l == null ? null : Math.round(l * 10) / 10, peak_db: sp > 0 ? Math.round(20 * Math.log10(sp) * 10) / 10 : null, duration: channels[0].length / fs, sample_rate: fs, channels: channels.length }
+    var tp = truePeak(channels, sp)
+    return { true_peak: tp, peaks: peaks, lufs: l == null ? null : Math.round(l * 10) / 10, peak_db: sp > 0 ? Math.round(20 * Math.log10(sp) * 10) / 10 : null, duration: channels[0].length / fs, sample_rate: fs, channels: channels.length }
   }
 
   // the file's own sample rate (the browser resamples what it decodes to its own rate): WAV, AIFF, FLAC headers
@@ -117,7 +140,7 @@
     }).catch(function () { return null })
   }
 
-  var api = { analyse: analyse, fromChannels: fromChannels, lufs: lufs, headerRate: headerRate, BINS: BINS }
+  var api = { analyse: analyse, fromChannels: fromChannels, lufs: lufs, truePeak: truePeak, headerRate: headerRate, BINS: BINS }
   if (typeof module !== 'undefined' && module.exports) module.exports = api
   else root.RSAudio = api
 })(typeof window !== 'undefined' ? window : globalThis)
