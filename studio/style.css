@@ -296,7 +296,6 @@ b.fin { color: #ffd166 }
 @keyframes riseSm { from { opacity: 0; transform: translateY(8px) scale(.98) } }
 @keyframes slideUp { from { transform: translateY(120%) } }
 @keyframes shine { from { transform: translateX(-120%) skewX(-20deg) } to { transform: translateX(220%) skewX(-20deg) } }
-@keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,209,102,0) } 50% { box-shadow: 0 0 34px -6px rgba(255,209,102,.45) } }
 #view.enter > * { animation: rise .5s var(--ease) both }
 #view.enter > *:nth-child(2) { animation-delay: .04s } #view.enter > *:nth-child(3) { animation-delay: .08s } #view.enter > *:nth-child(4) { animation-delay: .12s } #view.enter > *:nth-child(5) { animation-delay: .16s }
 .trk, .proj, .tile, .fcard, .scard, .acrow, .srow2, .newcard, .lvrow, .pick { animation: riseSm .45s var(--ease) both }
@@ -339,10 +338,6 @@ body.custom-bd::before { background-image: var(--bd); opacity: .3 }
 .tile .nm b { display: block; font: 600 16px var(--disp); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .tile .nm span { font-size: 12.5px; color: var(--muted) }
 /* Finals: the gold room */
-.tile.gold { background: linear-gradient(135deg, rgba(255,209,102,.22), rgba(120,70,0,.18) 60%, rgba(255,209,102,.1)); border-color: rgba(255,209,102,.45); position: relative; overflow: hidden; animation: riseSm .45s var(--ease) both, glow 4s ease-in-out 1s infinite }
-.tile.gold::after { content: ''; position: absolute; inset: 0 auto 0 0; width: 35%; background: linear-gradient(90deg, transparent, rgba(255,240,200,.25), transparent); animation: shine 3.5s ease-in-out 1.5s infinite }
-.tile.gold .nm b { color: #ffe2a0 }
-.tile.gold .fi { background: linear-gradient(160deg, #fff0c2, #f5b942 45%, #b9790b); box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 10px 26px -10px rgba(245,158,11,.9) }
 #view.lux .lux-hero { height: 0; position: relative }
 #view.lux .lux-hero::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(70% 55% at 50% 0%, rgba(255,209,102,.16), transparent 70%), radial-gradient(60% 40% at 50% 100%, rgba(185,121,11,.12), transparent 70%) }
 #view.lux .lux-k { position: absolute; top: -14px; left: 0; display: inline-flex; gap: 6px; align-items: center; font: 700 10.5px var(--sans); letter-spacing: .22em; text-transform: uppercase; color: #ffd166 }
@@ -819,7 +814,6 @@ html[data-theme="light"] .appr .btn.fin-btn, html[data-theme="light"] .appr .btn
 .lens-group .lens { box-shadow: inset 0 1px 0 rgba(255,255,255,.08) }
 .pcover, .fmedia, .trk .th, .plist .th, .brand img { box-shadow: inset 0 0 0 1px rgba(255,255,255,.1) }
 .btn.main::after { display: none }
-.tile.gold { animation: riseSm .45s var(--ease) both }
 html[data-theme="light"] .glass, html[data-theme="light"] .btn, html[data-theme="light"] .ico, html[data-theme="light"] .chips button { box-shadow: inset 0 1px 0 rgba(255,255,255,.8) }
 html[data-theme="light"] .in, html[data-theme="light"] .nsearch, html[data-theme="light"] .linkbox, html[data-theme="light"] .wave, html[data-theme="light"] .sw, html[data-theme="light"] .lens-group, html[data-theme="light"] .lyrics { box-shadow: inset 0 1px 2px rgba(60,40,120,.12) }
 

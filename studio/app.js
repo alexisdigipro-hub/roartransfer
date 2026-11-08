@@ -157,6 +157,8 @@
   var audEl = new Audio(); audEl.preload = 'auto'; audEl.crossOrigin = 'anonymous'
   var vidEl = document.createElement('video'); vidEl.preload = 'metadata'; vidEl.crossOrigin = 'anonymous'; vidEl.playsInline = true; vidEl.setAttribute('playsinline', ''); vidEl.className = 'vid'
   var audio = audEl // whichever is playing now
+  // the screen redraws 60 times a second only while something plays; paused, 4 times a second is plenty (Alex, 8 Nov: faster)
+  function frameLater(fn) { if (audio.paused) setTimeout(fn, 250); else requestAnimationFrame(fn) }
   // a file whose copy in the cloud is gone (Alex, 8 Nov: a cleanup job deleted the Studio's files): say so plainly
   ;[audEl, vidEl].forEach(function (el) { el.addEventListener('error', function () { if (el.src && /r2\.cloudflarestorage/.test(el.src) && el.error && el.error.code !== 1) toast('This file is no longer in storage. Upload it again as a new version.') }) })
   var anNode = null
@@ -1856,7 +1858,7 @@
         var src = k === 'video' ? vidEl : $('#still'), t = k === 'video' ? vidEl.currentTime : 0
         if (src && (k === 'video' ? vidEl.readyState >= 2 : src.complete && src.naturalWidth) && (t !== ex.lastT || (k === 'video' && !vidEl.paused))) { ex.last = now; ex.lastT = t; drawScopes(src) }
       }
-      ex.raf = requestAnimationFrame(exLoop)
+      if (audio.paused) { ex.raf = -1; setTimeout(function () { ex.raf = 0; exLoop(performance.now()) }, 250) } else ex.raf = requestAnimationFrame(exLoop)
     }
     var FR = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000]
     function drawSpectrum() {
@@ -2075,7 +2077,7 @@
       if ($('#cmp-time')) $('#cmp-time').textContent = isV && fq ? tcf(t, fq) : mmss(t)
       if ($('#cmp-time') && tview.range) { var fm = function (v) { return isV && fq ? tcf(v, fq) : mmss(v) }; $('#cmp-time').textContent = fm(tview.range.a) + ' – ' + fm(tview.range.b != null ? tview.range.b : t) }
       syncCompare()
-      drawWave(); activeNote(); requestAnimationFrame(tick)
+      drawWave(); activeNote(); frameLater(tick)
     }
     ;[audEl, vidEl].forEach(function (el) {
       el.onplay = el.onpause = el.onended = function () { if (document.body.contains(pb) && el === audio) paintPlay() }
@@ -2383,7 +2385,7 @@
         }
         g.fillStyle = '#fff'; g.fillRect(pos - dpr, 0, 2 * dpr, h)
         $('#pva-t', m).textContent = mmss(a.currentTime) + ' / ' + mmss(dur)
-        requestAnimationFrame(draw)
+        if (a.paused) setTimeout(draw, 250); else requestAnimationFrame(draw)
       }
       var seek = function (e) { var r = wrap.getBoundingClientRect(), dur = a.duration || v.duration || 0; if (dur) a.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * dur }
       wrap.onpointerdown = function (e) { drag = true; wrap.setPointerCapture(e.pointerId); seek(e) }
@@ -2452,7 +2454,7 @@
     $('#nb-prev').onclick = function () { playAt(Math.max(0, at - 1)) }
     $('#nb-next').onclick = function () { playAt(at + 1) }
     $('#nb-bar').onclick = function (e) { var r = this.getBoundingClientRect(); if (audio.duration) audio.currentTime = (e.clientX - r.left) / r.width * audio.duration }
-    ;(function tick() { if (!document.body.contains($('#plist'))) return; var d = audio.duration || 0; $('#nb-bar i').style.width = (d ? audio.currentTime / d * 100 : 0) + '%'; $('#nb-time').textContent = mmss(audio.currentTime) + ' / ' + mmss(d); requestAnimationFrame(tick) })()
+    ;(function tick() { if (!document.body.contains($('#plist'))) return; var d = audio.duration || 0; $('#nb-bar i').style.width = (d ? audio.currentTime / d * 100 : 0) + '%'; $('#nb-time').textContent = mmss(audio.currentTime) + ' / ' + mmss(d); frameLater(tick) })()
     $$('[data-dl]').forEach(function (b) { b.onclick = function () { download(latest(b.dataset.dl)) } })
     if (edit) {
       $$('[data-up]').forEach(function (b) { b.onclick = function () { var i = +b.dataset.up; if (i < 1) return; var a = pl.items; a.splice(i - 1, 0, a.splice(i, 1)[0]); save() } })
@@ -2892,7 +2894,7 @@
       $('#mini-bar i').style.width = (d ? audio.currentTime / d * 100 : 0) + '%'
       var icn = audio.paused ? 'play' : 'pause'; if ($('#mini-pp').dataset.i !== icn) { $('#mini-pp').dataset.i = icn; $('#mini-pp').innerHTML = ic(icn) }
     }
-    requestAnimationFrame(miniTick)
+    frameLater(miniTick)
   })()
   $('#mini-pp').onclick = function () { if (audio.paused) play(); else audio.pause() }
   $('#mini-back').onclick = function () { audio.currentTime = Math.max(0, audio.currentTime - 10) }
