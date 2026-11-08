@@ -154,6 +154,8 @@
   var audEl = new Audio(); audEl.preload = 'auto'; audEl.crossOrigin = 'anonymous'
   var vidEl = document.createElement('video'); vidEl.preload = 'metadata'; vidEl.crossOrigin = 'anonymous'; vidEl.playsInline = true; vidEl.setAttribute('playsinline', ''); vidEl.className = 'vid'
   var audio = audEl // whichever is playing now
+  // a file whose copy in the cloud is gone (Alex, 8 Nov: a cleanup job deleted the Studio's files): say so plainly
+  ;[audEl, vidEl].forEach(function (el) { el.addEventListener('error', function () { if (el.src && /r2\.cloudflarestorage/.test(el.src) && el.error && el.error.code !== 1) toast('This file is no longer in storage. Upload it again as a new version.') }) })
   var anNode = null
   var actx = null, gainNode = null, matched = store.get('rs-match') !== '0'
   var cur = { version: null, url: '', gain: 1 }
@@ -946,7 +948,7 @@
       } else if (k === 'image') {
         box.hidden = false
         box.innerHTML = '<div class="still"' + (x.thumb ? ' style="background-image:url(' + x.thumb + ')"' : '') + '><span class="pwrap" id="pwrap"><img id="still" alt="' + esc(x.file_name) + '">' + wmLayer() + '<span class="ppins" id="ppins"></span><span class="loupe" id="loupe" hidden></span></span></div>' +
-          '<div class="ptools">' + (!(share && share.data.kind === 'finals') ? heartBtn(x.track_id) : '') + '<span class="grow"></span>' + (imgVersions().length > 1 ? '<button class="btn sm" id="pcmp">' + ic('split') + ' Before / after</button>' : '') + '<button class="btn sm" id="ploupe" title="See the picture at 100% under the pointer">' + ic('loupe') + ' 100%</button>' + (canDo('commenter') ? '<span class="phint">' + ic('pin') + ' Click the picture to put a note on that spot</span>' : '') + '</div>'
+          '<div class="ptools">' + (!(share && share.data.kind === 'finals') ? heartBtn(x.track_id) : '') + '<span class="grow"></span>' + (imgVersions().length > 1 ? '<button class="btn sm" id="pcmp">' + ic('split') + ' Before / after</button>' : '') + '<button class="btn sm" id="ploupe" title="See the picture at 100% under the pointer">' + ic('loupe') + ' 100%</button>' + '<button class="btn sm" id="pview" title="Open the picture big (or click it)">' + ic('full') + ' View</button>' + (canDo('commenter') ? '<button class="btn sm" id="ppinb" title="Then click the spot the note is about">' + ic('pin') + ' Pin a note</button>' : '') + '</div>'
         urlFor(x).then(function (u) { var im = $('#still'); if (im && curV() === x) { im.crossOrigin = 'anonymous'; im.onload = function () { im.classList.add('on'); paintPPins(); ex.lastT = -3 }; im.src = u } }).catch(function () {})
         setupPicture(x)
       } else { box.innerHTML = ''; box.hidden = true }
@@ -1642,11 +1644,49 @@
       // the note's number beside its name
       var k = 0; list.forEach(function (c) { k++; var el = $('#nlist > [data-n="' + c.id + '"] .who'); if (el && !el.querySelector('.pnum')) el.insertAdjacentHTML('afterbegin', '<span class="pnum">' + k + '</span>') })
     }
-    var loupeOn = false, pcmp = null
+    var loupeOn = false, pcmp = null, pinMode = false
+    function setPin(on) { pinMode = on; var b = $('#ppinb'); if (b) b.classList.toggle('on', on); var w = $('#pwrap'); if (w) w.classList.toggle('pinning', on); if (on) toast('Click the spot the note is about') }
+    // the picture big: fit to the screen, a click for 100% (drag to look around), its notes as pins, Pin a note from here too
+    function picView(x) {
+      var im0 = $('#still'); if (!im0 || !im0.src) return
+      var o = document.createElement('div'); o.className = 'plb'
+      o.innerHTML = '<div class="plb-bar"><b>' + esc(vname(x)) + '</b><span class="grow"></span>' + (canDo('commenter') ? '<button class="btn sm" id="plb-pin">' + ic('pin') + ' Pin a note</button>' : '') + '<button class="btn sm" id="plb-z">' + ic('loupe') + ' 100%</button><button class="ico sm" id="plb-x" aria-label="Close">' + ic('x') + '</button></div><div class="plb-st" id="plb-st"><span class="plb-w" id="plb-w"><img id="plb-i" alt=""><span class="plb-pins" id="plb-pins"></span></span></div>'
+      document.body.appendChild(o); document.body.classList.add('noscroll')
+      var st = $('#plb-st', o), w = $('#plb-w', o), img = $('#plb-i', o), zoom = false, pin = false
+      img.src = im0.src
+      var pins = function () { $('#plb-pins', o).innerHTML = tview.notes.filter(function (c) { return c.version_id === x.id && c.pos && !c.parent_id }).map(function (c, i) { return '<i class="ppin" style="left:' + (c.pos.x * 100) + '%;top:' + (c.pos.y * 100) + '%" title="' + esc(nameOf(c).name + ': ' + (c.body || '')) + '">' + (i + 1) + '</i>' }).join('') }
+      img.onload = pins; pins()
+      var close = function () { o.remove(); document.body.classList.remove('noscroll'); document.removeEventListener('keydown', key) }
+      var key = function (e) { if (e.key === 'Escape') close() }
+      document.addEventListener('keydown', key)
+      var setZoom = function (z, fx, fy) {
+        zoom = z; o.classList.toggle('zoomed', z); $('#plb-z', o).classList.toggle('on', z)
+        if (z && fx != null) requestAnimationFrame(function () { st.scrollLeft = fx * w.scrollWidth - st.clientWidth / 2; st.scrollTop = fy * w.scrollHeight - st.clientHeight / 2 })
+      }
+      var setP = function (on) { pin = on; o.classList.toggle('pinning', on); var b = $('#plb-pin', o); if (b) b.classList.toggle('on', on) }
+      $('#plb-x', o).onclick = close
+      $('#plb-z', o).onclick = function () { setZoom(!zoom, 0.5, 0.5) }
+      if ($('#plb-pin', o)) $('#plb-pin', o).onclick = function () { setP(!pin) }
+      var drag = null
+      st.addEventListener('pointerdown', function (e) { if (!zoom || pin) return; drag = { x: e.clientX, y: e.clientY, l: st.scrollLeft, t: st.scrollTop, moved: false } })
+      st.addEventListener('pointermove', function (e) { if (!drag) return; var dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true; st.scrollLeft = drag.l - dx; st.scrollTop = drag.t - dy })
+      st.addEventListener('pointerup', function () { setTimeout(function () { drag = null }) })
+      img.onclick = function (e) {
+        var r = img.getBoundingClientRect(), fx = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), fy = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height))
+        if (pin) { tview.ppos = { x: fx, y: fy }; close(); paintPPins(); if ($('#cmp-pos')) $('#cmp-pos').hidden = false; if ($('#cmp-t')) $('#cmp-t').focus(); return }
+        if (drag && drag.moved) return
+        setZoom(!zoom, fx, fy)
+      }
+      st.onclick = function (e) { if (e.target === st && !zoom) close() }
+    }
     function setupPicture(x) {
       var wrap = $('#pwrap'), im = $('#still'); if (!wrap) return
+      if ($('#pview')) $('#pview').onclick = function () { picView(x) }
+      if ($('#ppinb')) $('#ppinb').onclick = function () { setPin(!pinMode) }
       wrap.onclick = function (e) {
-        if (loupeOn || pcmp || e.target.closest('.ppin') || !canDo('commenter')) return
+        if (loupeOn || pcmp || e.target.closest('.ppin') || e.target.closest('.cmpm')) return
+        if (!pinMode || !canDo('commenter')) { picView(x); return }
+        setPin(false)
         var r = im.getBoundingClientRect(); if (!r.width) return
         tview.ppos = { x: Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), y: Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)) }
         paintPPins(); if ($('#cmp-pos')) $('#cmp-pos').hidden = false; if ($('#cmp-t')) $('#cmp-t').focus()
