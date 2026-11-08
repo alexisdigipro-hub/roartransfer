@@ -1213,3 +1213,7 @@ html[data-theme="light"] .langb { background: rgba(255,255,255,.6); border-color
 .sfoot .by b { font-weight: 600 }
 .sfoot nav { display: flex; gap: 16px }
 body.has-mini .sfoot { padding-bottom: 96px }
+
+/* the account menu opens under the picture (Alex, 8 Nov) */
+.menu { z-index: 60 }
+.me { background-size: cover !important; background-position: center !important }
