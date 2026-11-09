@@ -143,7 +143,7 @@
   // ---- what a file is: sound, picture in motion, or a still ----
   function kindOf(v) {
     var m = String((v && v.mime) || ''), n = String((v && (v.file_name || v.name)) || '').toLowerCase()
-    if (/^application\/x-suno/.test(m)) return 'suno'
+    if (/^application\/x-(suno|spotify)/.test(m)) return 'suno'
     if (/^video\//.test(m) || /\.(mp4|mov|m4v|webm|mkv|avi|mxf)$/.test(n)) return 'video'
     if (/^image\//.test(m) || /\.(jpe?g|png|gif|webp|heic|heif|tiff?|bmp|avif|psd|svg)$/.test(n)) return 'image'
     // sound the browser can play; MIDI, PDFs, sessions and everything else are kept and downloaded as files
@@ -151,14 +151,20 @@
     if (/^audio\//.test(m) || /\.(wav|wave|aif|aiff|aifc|flac|mp3|m4a|aac|ogg|oga|opus|wma|caf|alac|w64|bwf)$/.test(n)) return 'audio'
     return 'file'
   }
-  var KIND_WORD = { audio: 'Audio', video: 'Video', image: 'Picture', file: 'File', suno: 'Suno' }
+  var KIND_WORD = { audio: 'Audio', video: 'Video', image: 'Picture', file: 'File', suno: 'Link' }
+  // a link that plays in its own service's player (Alex, 9 Nov): Suno or Spotify
+  function linkOf(v) {
+    var m = String((v && v.mime) || '')
+    if (/^application\/x-spotify/.test(m)) { var ty = (m.match(/type=([a-z]+)/) || [])[1] || 'track', id = (m.match(/id=([A-Za-z0-9]+)/) || [])[1] || ''; return { name: 'Spotify', embed: 'https://open.spotify.com/embed/' + ty + '/' + id + '?utm_source=generator&theme=0', open: 'https://open.spotify.com/' + ty + '/' + id, tall: ty !== 'track' && ty !== 'episode' } }
+    var sid = sunoOf(v); return { name: 'Suno', embed: 'https://suno.com/embed/' + sid, open: 'https://suno.com/song/' + sid, tall: false }
+  }
   // a song from Suno (Alex, 9 Nov): a link, played in Suno's own player (roarstudio-import)
   function sunoOf(v) { return (String((v && v.mime) || '').match(/id=([0-9a-f-]{36})/) || [])[1] || '' }
   function addSuno(project, track, folder, then) {
-    prompt1(track ? 'A new version from Suno' : 'Add a song from Suno', 'Paste the song’s link from Suno (Share, Copy link). The song must be public on Suno; it plays here in Suno’s player.', '', 'Add', function (url) {
+    prompt1(track ? 'A new version from Suno or Spotify' : 'Add from Suno or Spotify', 'Paste the link (Share, Copy link): a Suno song (public), or a Spotify song, album or playlist. It plays here in their own player.', '', 'Add', function (url) {
       var h = { apikey: KEY, 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token }
-      return fetch(URL_ + '/functions/v1/roarstudio-import', { method: 'POST', headers: h, body: JSON.stringify({ action: 'suno', project: project, track: track || null, folder: folder || null, url: url }) })
-        .then(function (r) { return r.json() }).then(function (d) { if (d.error) throw new Error(d.error); toast('“' + (d.title || 'Suno song') + '” added'); if (then) then(d) })
+      return fetch(URL_ + '/functions/v1/roarstudio-import', { method: 'POST', headers: h, body: JSON.stringify({ action: 'link', project: project, track: track || null, folder: folder || null, url: url }) })
+        .then(function (r) { return r.json() }).then(function (d) { if (d.error) throw new Error(d.error); toast('“' + (d.title || 'Song') + '” added'); if (then) then(d) })
         .catch(function (e) { toast(e.message); return new Promise(function () {}) })
     })
   }
@@ -224,7 +230,7 @@
   }
   function play() { if (audio === audEl) { ensureGraph(); if (actx && actx.state === 'suspended') actx.resume() } applyGain(); var p = audio.play(); if (p && p.catch) p.catch(function () {}) }
   function download(v) {
-    if (kindOf(v) === 'suno') { window.open('https://suno.com/song/' + sunoOf(v), '_blank', 'noopener'); return }
+    if (kindOf(v) === 'suno') { window.open(linkOf(v).open, '_blank', 'noopener'); return }
     (share ? api('share-url', { version: v.id, download: true }) : api('url', { version: v.id, download: true })).then(function (d) {
       if (!d.url) { toast(d.error || 'Could not download'); return }
       var a = document.createElement('a'); a.href = d.url; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove()
@@ -538,7 +544,7 @@
     var shown = $$('.trk[data-t]').map(function (r) { return r.dataset.t })
     same.sort(function (a, b) { return shown.indexOf(a.id) - shown.indexOf(b.id) })
     var i = same.indexOf(t), fs = c.folders || []
-    var items = [['open', 'next', 'Open'], ['ren', 'pen', 'Rename'], v && kindOf(v) !== 'suno' ? ['dl', 'down', 'Download'] : null, v && kindOf(v) === 'suno' ? ['suno', 'out', 'Open on Suno'] : null, '-',
+    var items = [['open', 'next', 'Open'], ['ren', 'pen', 'Rename'], v && kindOf(v) !== 'suno' ? ['dl', 'down', 'Download'] : null, v && kindOf(v) === 'suno' ? ['suno', 'out', 'Open on ' + linkOf(v).name] : null, '-',
       ['up', 'up', 'Move up', i <= 0], ['down', 'down', 'Move down', i >= same.length - 1], ['top', 'up', 'Move to the top', i <= 0], '-']
       .concat(fs.length || t.folder_id ? [['out', 'back', 'Move out of the folder', !t.folder_id]].concat(fs.filter(function (f) { return f.id !== t.folder_id }).map(function (f) { return ['f:' + f.id, 'folder', 'Move to ' + f.name] })) : [])
       .concat([['nf', 'fplus', 'Move to a new folder…'], '-', ['del', 'trash', 'Delete', false, 'danger']]).filter(Boolean)
@@ -679,7 +685,7 @@
   function latest(trackId) { var vs = ctx.versions.filter(function (v) { return v.track_id === trackId }); return vs[vs.length - 1] }
   var curFolder = null // the folder open in a project, null for its top
   var kindTab = store.get('rs-kind') || 'all' // All / Audio / Video / Pictures in a project
-  var KIND_PLURAL = { audio: 'Audio', video: 'Video', image: 'Pictures', file: 'Files', suno: 'Suno' }
+  var KIND_PLURAL = { audio: 'Audio', video: 'Video', image: 'Pictures', file: 'Files', suno: 'Links' }
   function coverAttr(pr) { return pr.cover ? "background:#000 url('" + cssu(pr.cover) + "') center/cover" : coverStyle(pr.id) }
   // ===== picture tools (Alex, 8 Nov): picks, the watermark on links =====
   var pickOnly = false
@@ -755,12 +761,12 @@
         var k = kindOf(v), hasFinal = c.versions.some(function (x) { return x.track_id === t.id && x.final_at })
         void k
         var lead = v.thumb ? '<button class="th" data-play="' + t.id + '" style="background-image:url(' + cssu(v.thumb) + ')" aria-label="Open ' + esc(t.title) + '">' + (k === 'video' ? '<i>' + ic('play') + '</i>' : '') + '</button>'
-          : k === 'suno' ? '<button class="th sth" data-play="' + t.id + '" aria-label="Open ' + esc(t.title) + '"><i>' + ic('music') + '</i></button>'
+          : k === 'suno' ? '<button class="th sth' + (linkOf(v).name === 'Spotify' ? ' spot' : '') + '" data-play="' + t.id + '" aria-label="Open ' + esc(t.title) + '"><i>' + ic('music') + '</i></button>'
           : k === 'file' ? '<button class="th fth" data-play="' + t.id + '" aria-label="Open ' + esc(t.title) + '"><i>' + ic(fileType(v) === 'MIDI file' ? 'music' : 'file') + '</i></button>'
           : k === 'image' ? '<button class="th" data-play="' + t.id + '" aria-label="Open ' + esc(t.title) + '"><i>' + ic('image') + '</i></button>'
           : '<button class="th au" data-play="' + t.id + '" style="' + coverAttr(c.project) + '" aria-label="Play ' + esc(t.title) + '"><i>' + ic('play') + '</i></button>'
         var heart = k === 'image' && !(share && share.data.kind === 'finals') ? heartBtn(t.id) : ''
-        var mid = k === 'audio' ? '<canvas data-wave="' + v.id + '"></canvas>' : k === 'file' ? '<span class="kind">' + ic('file') + ' ' + esc(fileType(v)) + '</span>' : k === 'suno' ? '<span class="kind">' + ic('out') + ' Suno link</span>' : '<span class="kind">' + ic(k === 'video' ? 'film' : 'image') + ' ' + KIND_WORD[k] + (v.width ? ' · ' + v.width + '×' + v.height : '') + '</span>'
+        var mid = k === 'audio' ? '<canvas data-wave="' + v.id + '"></canvas>' : k === 'file' ? '<span class="kind">' + ic('file') + ' ' + esc(fileType(v)) + '</span>' : k === 'suno' ? '<span class="kind">' + ic('out') + ' ' + linkOf(v).name + ' link</span>' : '<span class="kind">' + ic(k === 'video' ? 'film' : 'image') + ' ' + KIND_WORD[k] + (v.width ? ' · ' + v.width + '×' + v.height : '') + '</span>'
         return '<div class="trk glass k-' + k + '" data-t="' + t.id + '">' + lead + '<div class="nm"><b>' + esc(t.title) + '</b><span>' + esc(vname(v)) + ' · ' + n + ' version' + (n === 1 ? '' : 's') + (notes ? ' · ' + notes + ' open note' + (notes === 1 ? '' : 's') : '') + '</span></div>' + mid + heart + '<span class="cnt">' + (hasFinal ? '<span class="chip fin">Final</span>' : v.approved_at ? '<span class="chip ok">Approved</span>' : notes ? '<span class="chip warn">In review</span>' : '<span class="chip">New</span>') + '</span><span class="t">' + (k === 'image' || k === 'file' ? size(v.size) : mmss(v.duration)) + '</span></div>'
     }
     fixCover(pr, function (u) { var el = $('#pcover'); if (el) el.style.background = "#000 url('" + u + "') center/cover" })
@@ -863,7 +869,7 @@
   function newBox(c, folder) {
     modal('<div class="spread"><h2>Create a new item</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="newgrid">' +
       '<button class="newcard glass" id="nb-f"><span>' + ic('file') + '</span><b>New file</b><small>Audio, video, a picture, MIDI or any file</small></button>' +
-      '<button class="newcard glass" id="nb-s"><span>' + ic('music') + '</span><b>From Suno</b><small>Paste a song’s link: it plays here</small></button>' +
+      '<button class="newcard glass" id="nb-s"><span>' + ic('music') + '</span><b>From Suno or Spotify</b><small>Paste a link: it plays here</small></button>' +
       (folder ? '' : '<button class="newcard glass" id="nb-p"><span>' + ic('list') + '</span><b>New playlist</b><small>Audio or video, in order</small></button>' +
       '<button class="newcard glass" id="nb-d"><span>' + ic('fplus') + '</span><b>New folder</b><small>Keep files together</small></button>') + '</div>', function (m) {
       $('#nb-f', m).onclick = function () { close(); $('#files').click() }
@@ -1153,8 +1159,8 @@
         setupPicture(x)
       } else if (k === 'suno') {
         box.hidden = false
-        var sid = sunoOf(x)
-        box.innerHTML = '<div class="sunobox"><iframe src="https://suno.com/embed/' + sid + '" title="' + esc(x.file_name) + ' on Suno" allow="autoplay; encrypted-media; fullscreen" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe><div class="sunobar"><span>' + ic('music') + ' Played by Suno · notes here are about the whole song</span><a class="btn sm" href="https://suno.com/song/' + sid + '" target="_blank" rel="noopener">' + ic('out') + ' Open on Suno</a></div></div>'
+        var L = linkOf(x)
+        box.innerHTML = '<div class="sunobox' + (L.name === 'Spotify' ? ' spot' + (L.tall ? ' tall' : '') : '') + '"><iframe src="' + esc(L.embed) + '" title="' + esc(x.file_name) + ' on ' + L.name + '" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe><div class="sunobar"><span>' + ic('music') + ' Played by ' + L.name + ' · notes here are about the whole song</span><a class="btn sm" href="' + esc(L.open) + '" target="_blank" rel="noopener">' + ic('out') + ' Open on ' + L.name + '</a></div></div>'
       } else if (k === 'file') {
         box.hidden = false
         var canDl = !share || (share.data.can && share.data.can.download) || share.data.kind === 'finals'
@@ -2346,7 +2352,7 @@
       wireDropOn(view, function (files) { if (files[0]) startUploads([files[0]], { project: ctx.project.id, track: id, onDone: function (nv) { ctx.versions.push(nv); tview.version = nv.id; render() } }) })
       $('#tsh').onclick = function () { shareBox(ctx, track) }
       $('#tm').onclick = function () {
-        modal('<div class="spread"><h2>' + esc(track.title) + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="opts"><button class="btn" id="tm-r">' + ic('pen') + ' Rename</button><button class="btn" id="tm-f">' + ic('folder') + ' Move to a folder</button><button class="btn" id="tm-s">' + ic('music') + ' New version from Suno</button><button class="btn danger" id="tm-d">' + ic('trash') + ' Delete track</button></div>', function (m) {
+        modal('<div class="spread"><h2>' + esc(track.title) + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="opts"><button class="btn" id="tm-r">' + ic('pen') + ' Rename</button><button class="btn" id="tm-f">' + ic('folder') + ' Move to a folder</button><button class="btn" id="tm-s">' + ic('music') + ' New version from Suno or Spotify</button><button class="btn danger" id="tm-d">' + ic('trash') + ' Delete track</button></div>', function (m) {
           $('#tm-f', m).onclick = function () {
             var fs = ctx.folders || []
             modal('<div class="spread"><h2>Move “' + esc(track.title) + '”</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="opts">' +
@@ -2564,7 +2570,7 @@
   // one file after the other
   function zipAll(files, titleOf, name, btn) {
     files = files.filter(function (v) { return v.url || kindOf(v) !== 'suno' })
-    if (!files.length) { toast('Songs from Suno stay on Suno'); return }
+    if (!files.length) { toast('Links stay on Suno or Spotify'); return }
     var one = function (v) { if (v.url) saveUrl(v.url, v.file_name); else download(v) }
     if (files.length === 1 || !window.RTZip) { var i = 0; (function next() { if (i >= files.length) return; one(files[i++]); setTimeout(next, 1200) })(); return }
     var label = btn.innerHTML, say = function (t) { btn.innerHTML = ic('down') + ' ' + t }, done = function () { btn.innerHTML = label; btn.disabled = false }
