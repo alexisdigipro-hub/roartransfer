@@ -141,11 +141,26 @@
   // ---- what a file is: sound, picture in motion, or a still ----
   function kindOf(v) {
     var m = String((v && v.mime) || ''), n = String((v && (v.file_name || v.name)) || '').toLowerCase()
+    if (/^application\/x-suno/.test(m)) return 'suno'
     if (/^video\//.test(m) || /\.(mp4|mov|m4v|webm|mkv|avi|mxf)$/.test(n)) return 'video'
     if (/^image\//.test(m) || /\.(jpe?g|png|gif|webp|heic|heif|tiff?|bmp|avif|psd|svg)$/.test(n)) return 'image'
-    return 'audio'
+    // sound the browser can play; MIDI, PDFs, sessions and everything else are kept and downloaded as files
+    if (/\.(midi?|kar)$/.test(n) || /midi/.test(m)) return 'file'
+    if (/^audio\//.test(m) || /\.(wav|wave|aif|aiff|aifc|flac|mp3|m4a|aac|ogg|oga|opus|wma|caf|alac|w64|bwf)$/.test(n)) return 'audio'
+    return 'file'
   }
-  var KIND_WORD = { audio: 'Audio', video: 'Video', image: 'Picture' }
+  var KIND_WORD = { audio: 'Audio', video: 'Video', image: 'Picture', file: 'File', suno: 'Suno' }
+  // a song from Suno (Alex, 9 Nov): a link, played in Suno's own player (roarstudio-import)
+  function sunoOf(v) { return (String((v && v.mime) || '').match(/id=([0-9a-f-]{36})/) || [])[1] || '' }
+  function addSuno(project, track, folder, then) {
+    prompt1(track ? 'A new version from Suno' : 'Add a song from Suno', 'Paste the song’s link from Suno (Share, Copy link). The song must be public on Suno; it plays here in Suno’s player.', '', 'Add', function (url) {
+      var h = { apikey: KEY, 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token }
+      return fetch(URL_ + '/functions/v1/roarstudio-import', { method: 'POST', headers: h, body: JSON.stringify({ action: 'suno', project: project, track: track || null, folder: folder || null, url: url }) })
+        .then(function (r) { return r.json() }).then(function (d) { if (d.error) throw new Error(d.error); toast('“' + (d.title || 'Suno song') + '” added'); if (then) then(d) })
+        .catch(function (e) { toast(e.message); return new Promise(function () {}) })
+    })
+  }
+  function fileType(v) { var e = (String((v && (v.file_name || v.name)) || '').split('.').pop() || '').toLowerCase(); return /^(mid|midi|kar)$/.test(e) ? 'MIDI file' : e && e.length <= 6 ? e.toUpperCase() + ' file' : 'File' }
   function hideV() { var st = share ? share.data && share.data.studio : null; return !!(st && st.hide_versions) }
   function vname(v) {
     if (!v) return ''
@@ -197,7 +212,7 @@
     cur.version = v; applyGain()
     var tk = ctx && ctx.tracks ? ctx.tracks.filter(function (t) { return t.id === v.track_id })[0] : null
     cur.meta = { title: tk ? tk.title : v.file_name, project: ctx && ctx.project ? ctx.project.title : '', cover: v.thumb || (ctx && ctx.project && ctx.project.cover) || null, track: v.track_id, coverStyle: ctx && ctx.project ? coverAttr(ctx.project) : '', shareToken: share ? share.token : null }
-    if (kindOf(v) === 'image') { audio.pause(); return Promise.resolve() }
+    if (kindOf(v) === 'image' || kindOf(v) === 'file' || kindOf(v) === 'suno') { audio.pause(); return Promise.resolve() }
     return urlFor(v).then(function (u) {
       if (cur.version !== v) return
       if (cur.url !== u) { cur.url = u; audio.src = u; audio.load() }
@@ -207,6 +222,7 @@
   }
   function play() { if (audio === audEl) { ensureGraph(); if (actx && actx.state === 'suspended') actx.resume() } applyGain(); var p = audio.play(); if (p && p.catch) p.catch(function () {}) }
   function download(v) {
+    if (kindOf(v) === 'suno') { window.open('https://suno.com/song/' + sunoOf(v), '_blank', 'noopener'); return }
     (share ? api('share-url', { version: v.id, download: true }) : api('url', { version: v.id, download: true })).then(function (d) {
       if (!d.url) { toast(d.error || 'Could not download'); return }
       var a = document.createElement('a'); a.href = d.url; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove()
@@ -573,7 +589,7 @@
   function latest(trackId) { var vs = ctx.versions.filter(function (v) { return v.track_id === trackId }); return vs[vs.length - 1] }
   var curFolder = null // the folder open in a project, null for its top
   var kindTab = store.get('rs-kind') || 'all' // All / Audio / Video / Pictures in a project
-  var KIND_PLURAL = { audio: 'Audio', video: 'Video', image: 'Pictures' }
+  var KIND_PLURAL = { audio: 'Audio', video: 'Video', image: 'Pictures', file: 'Files', suno: 'Suno' }
   function coverAttr(pr) { return pr.cover ? "background:#000 url('" + cssu(pr.cover) + "') center/cover" : coverStyle(pr.id) }
   // ===== picture tools (Alex, 8 Nov): picks, the watermark on links =====
   var pickOnly = false
@@ -615,8 +631,8 @@
     var openNotes = function (tid) { var ids = c.versions.filter(function (v) { return v.track_id === tid }).map(function (v) { return v.id }); return c.comments.filter(function (n) { return ids.indexOf(n.version_id) >= 0 && !n.done && !n.parent_id }).length }
     var here = c.tracks.filter(function (t) { return share ? true : folder ? t.folder_id === folder.id : !t.folder_id })
     var kOf = function (t) { var v = latest(t.id); return v ? kindOf(v) : 'audio' }
-    var counts = { audio: 0, video: 0, image: 0 }; here.forEach(function (t) { counts[kOf(t)]++ })
-    var kinds = ['audio', 'video', 'image'].filter(function (k) { return counts[k] })
+    var counts = { audio: 0, video: 0, image: 0, file: 0, suno: 0 }; here.forEach(function (t) { counts[kOf(t)]++ })
+    var kinds = ['audio', 'suno', 'video', 'image', 'file'].filter(function (k) { return counts[k] })
     if (kinds.indexOf(kindTab) < 0) kindTab = 'all'
     var shown = kindTab === 'all' ? here : here.filter(function (t) { return kOf(t) === kindTab })
     var pickedHere = here.filter(function (t) { return kOf(t) === 'image' && pickCount(t.id) })
@@ -635,8 +651,8 @@
       var f = c.versions.filter(function (v) { return v.final_at })
       var tiles = ''
       if (f.length) {
-        var fk = { audio: 0, video: 0, image: 0 }; f.forEach(function (v) { fk[kindOf(v)]++ })
-        extraTop = '<button class="finbar" id="fin-btn"><span class="fb-ic">' + ic('star') + '</span><span class="nm"><small>Delivery</small><b>Finals</b></span><span class="fb-k">' + ['audio', 'video', 'image'].filter(function (k) { return fk[k] }).map(function (k) { return '<span><i class="kdot k-' + k + '"></i>' + fk[k] + ' ' + KIND_PLURAL[k] + '</span>' }).join('') + '</span><span class="fb-size">' + f.length + ' file' + (f.length === 1 ? '' : 's') + ' · ' + size(f.reduce(function (a, v) { return a + Number(v.size || 0) }, 0)) + '</span><span class="fb-go">' + ic('next') + '</span></button>'
+        var fk = { audio: 0, video: 0, image: 0, file: 0, suno: 0 }; f.forEach(function (v) { fk[kindOf(v)]++ })
+        extraTop = '<button class="finbar" id="fin-btn"><span class="fb-ic">' + ic('star') + '</span><span class="nm"><small>Delivery</small><b>Finals</b></span><span class="fb-k">' + ['audio', 'video', 'image', 'file'].filter(function (k) { return fk[k] }).map(function (k) { return '<span><i class="kdot k-' + k + '"></i>' + fk[k] + ' ' + KIND_PLURAL[k] + '</span>' }).join('') + '</span><span class="fb-size">' + f.length + ' file' + (f.length === 1 ? '' : 's') + ' · ' + size(f.reduce(function (a, v) { return a + Number(v.size || 0) }, 0)) + '</span><span class="fb-go">' + ic('next') + '</span></button>'
       }
       ;(c.playlists || []).forEach(function (pl) { tiles += '<button class="tile glass" data-pl="' + pl.id + '"><span class="fi" style="background:linear-gradient(160deg,#c4b5fd,#6d28d9);color:#fff">' + ic('list') + '</span><span class="nm"><b>' + esc(pl.title) + '</b><span>Playlist · ' + (pl.items || []).length + ' file' + ((pl.items || []).length === 1 ? '' : 's') + '</span></span></button>' })
       ;(c.folders || []).forEach(function (fd) { var n = c.tracks.filter(function (t) { return t.folder_id === fd.id }).length; tiles += '<button class="tile glass" data-fd="' + fd.id + '"><span class="fi" style="background:linear-gradient(160deg,#8fb8ff,#5b6cff);color:#0b1640">' + ic('folder') + '</span><span class="nm"><b>' + esc(fd.name) + '</b><span>' + n + ' file' + (n === 1 ? '' : 's') + '</span></span></button>' })
@@ -648,11 +664,13 @@
         var k = kindOf(v), hasFinal = c.versions.some(function (x) { return x.track_id === t.id && x.final_at })
         void k
         var lead = v.thumb ? '<button class="th" data-play="' + t.id + '" style="background-image:url(' + cssu(v.thumb) + ')" aria-label="Open ' + esc(t.title) + '">' + (k === 'video' ? '<i>' + ic('play') + '</i>' : '') + '</button>'
+          : k === 'suno' ? '<button class="th sth" data-play="' + t.id + '" aria-label="Open ' + esc(t.title) + '"><i>' + ic('music') + '</i></button>'
+          : k === 'file' ? '<button class="th fth" data-play="' + t.id + '" aria-label="Open ' + esc(t.title) + '"><i>' + ic(fileType(v) === 'MIDI file' ? 'music' : 'file') + '</i></button>'
           : k === 'image' ? '<button class="th" data-play="' + t.id + '" aria-label="Open ' + esc(t.title) + '"><i>' + ic('image') + '</i></button>'
           : '<button class="th au" data-play="' + t.id + '" style="' + coverAttr(c.project) + '" aria-label="Play ' + esc(t.title) + '"><i>' + ic('play') + '</i></button>'
         var heart = k === 'image' && !(share && share.data.kind === 'finals') ? heartBtn(t.id) : ''
-        var mid = k === 'audio' ? '<canvas data-wave="' + v.id + '"></canvas>' : '<span class="kind">' + ic(k === 'video' ? 'film' : 'image') + ' ' + KIND_WORD[k] + (v.width ? ' · ' + v.width + '×' + v.height : '') + '</span>'
-        return '<div class="trk glass k-' + k + '" data-t="' + t.id + '">' + lead + '<div class="nm"><b>' + esc(t.title) + '</b><span>' + esc(vname(v)) + ' · ' + n + ' version' + (n === 1 ? '' : 's') + (notes ? ' · ' + notes + ' open note' + (notes === 1 ? '' : 's') : '') + '</span></div>' + mid + heart + '<span class="cnt">' + (hasFinal ? '<span class="chip fin">Final</span>' : v.approved_at ? '<span class="chip ok">Approved</span>' : notes ? '<span class="chip warn">In review</span>' : '<span class="chip">New</span>') + '</span><span class="t">' + (k === 'image' ? size(v.size) : mmss(v.duration)) + '</span></div>'
+        var mid = k === 'audio' ? '<canvas data-wave="' + v.id + '"></canvas>' : k === 'file' ? '<span class="kind">' + ic('file') + ' ' + esc(fileType(v)) + '</span>' : k === 'suno' ? '<span class="kind">' + ic('out') + ' Suno link</span>' : '<span class="kind">' + ic(k === 'video' ? 'film' : 'image') + ' ' + KIND_WORD[k] + (v.width ? ' · ' + v.width + '×' + v.height : '') + '</span>'
+        return '<div class="trk glass k-' + k + '" data-t="' + t.id + '">' + lead + '<div class="nm"><b>' + esc(t.title) + '</b><span>' + esc(vname(v)) + ' · ' + n + ' version' + (n === 1 ? '' : 's') + (notes ? ' · ' + notes + ' open note' + (notes === 1 ? '' : 's') : '') + '</span></div>' + mid + heart + '<span class="cnt">' + (hasFinal ? '<span class="chip fin">Final</span>' : v.approved_at ? '<span class="chip ok">Approved</span>' : notes ? '<span class="chip warn">In review</span>' : '<span class="chip">New</span>') + '</span><span class="t">' + (k === 'image' || k === 'file' ? size(v.size) : mmss(v.duration)) + '</span></div>'
     }
     fixCover(pr, function (u) { var el = $('#pcover'); if (el) el.style.background = "#000 url('" + u + "') center/cover" })
     view.innerHTML = brandBanner() + '<div class="head">' + head + '<div class="tools">' + tools + '</div></div>' + extra +
@@ -665,7 +683,7 @@
           return (k ? '<div class="kgroup"><i class="kdot k-' + k + '"></i>' + KIND_PLURAL[k] + '<span>' + list.length + '</span></div>' : '') + list.map(row).join('')
         }).join('')
       })() + '</div>' +
-      (edit && !share ? '<label class="drop" id="drop"><input type="file" id="files" multiple accept="audio/*,video/*,image/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.mov,.mp4,.heic,.tif,.tiff,.psd" hidden><span class="ico" style="width:50px;height:50px">' + ic('up') + '</span><b>' + (here.length ? 'Drop more files here' : folder ? 'Drop files into this folder' : 'Drop your first files here') + '</b><span>Audio, video or pictures, up to 20 GB each. Each file gets its own page, with versions and notes.</span></label><div class="ups" id="ups"></div>'
+      (edit && !share ? '<label class="drop" id="drop"><input type="file" id="files" multiple hidden><span class="ico" style="width:50px;height:50px">' + ic('up') + '</span><b>' + (here.length ? 'Drop more files here' : folder ? 'Drop files into this folder' : 'Drop your first files here') + '</b><span>Audio, video, pictures, MIDI or any other file, up to 20 GB each. Each file gets its own page, with versions and notes.</span></label><div class="ups" id="ups"></div>'
         : (!here.length ? '<div class="empty glass"><h2>Nothing here yet</h2><p>When someone uploads a file it shows up here.</p></div>' : ''))
     $$('canvas[data-wave]').forEach(function (cv) { var v = c.versions.filter(function (x) { return x.id === cv.dataset.wave })[0]; drawMini(cv, v && v.peaks) })
     $$('.trk').forEach(function (r) { r.onclick = function (e) { if (e.target.closest('[data-play]')) return; go('#t/' + r.dataset.t) } })
@@ -694,10 +712,12 @@
   // + New (Alex, 7 Nov, as mixup): a file, a playlist (audio or video) or a folder
   function newBox(c, folder) {
     modal('<div class="spread"><h2>Create a new item</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="newgrid">' +
-      '<button class="newcard glass" id="nb-f"><span>' + ic('file') + '</span><b>New file</b><small>Audio, video or a picture</small></button>' +
+      '<button class="newcard glass" id="nb-f"><span>' + ic('file') + '</span><b>New file</b><small>Audio, video, a picture, MIDI or any file</small></button>' +
+      '<button class="newcard glass" id="nb-s"><span>' + ic('music') + '</span><b>From Suno</b><small>Paste a song’s link: it plays here</small></button>' +
       (folder ? '' : '<button class="newcard glass" id="nb-p"><span>' + ic('list') + '</span><b>New playlist</b><small>Audio or video, in order</small></button>' +
       '<button class="newcard glass" id="nb-d"><span>' + ic('fplus') + '</span><b>New folder</b><small>Keep files together</small></button>') + '</div>', function (m) {
       $('#nb-f', m).onclick = function () { close(); $('#files').click() }
+      $('#nb-s', m).onclick = function () { close(); addSuno(c.project.id, null, folder ? folder.id : null, function (d) { go('#t/' + d.track) }) }
       if ($('#nb-p', m)) $('#nb-p', m).onclick = function () { prompt1('New playlist', 'Name', '', 'Create', function (v) { return sb.from('roarstudio_playlists').insert({ project_id: c.project.id, title: v, created_by: session.user.id }).select('id').single().then(function (r) { if (r.error) { toast(r.error.message); return } go('#l/' + r.data.id) }) }) }
       if ($('#nb-d', m)) $('#nb-d', m).onclick = function () { prompt1('New folder', 'Name', '', 'Create', function (v) { return sb.from('roarstudio_folders').insert({ project_id: c.project.id, name: v, position: (c.folders || []).length, created_by: session.user.id }).select('id').single().then(function (r) { if (r.error) { toast(r.error.message); return } go('#d/' + r.data.id) }) }) }
     })
@@ -772,6 +792,7 @@
   // what the page reads from a file before it goes up: sound (waveform, loudness), a picture's or a video's size and a small JPEG
   function analyseAny(file) {
     var k = kindOf({ mime: file.type, file_name: file.name })
+    if (k === 'file') return Promise.resolve(null)
     if (k === 'image') return imageMeta(file)
     if (k === 'video') return videoMeta(file).then(function (vm) {
       if (file.size > 400 * 1024 * 1024) return vm
@@ -915,7 +936,7 @@
       '<span class="lm">Level match <button class="sw" id="lm" aria-pressed="' + matched + '" aria-label="Level match"></button><span class="lufs" id="lufs"></span></span></div>' +
       '<div class="facts" id="facts"></div><section class="stemp" id="stemp" hidden></section>' +
       '<div class="appr" id="appr"></div>' +
-      (edit && !share ? '<input type="file" id="nvf" accept="audio/*,video/*,image/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.mov,.mp4,.heic,.tif,.tiff,.psd" hidden><div class="ups" id="ups"></div>' : '') +
+      (edit && !share ? '<input type="file" id="nvf" hidden><div class="ups" id="ups"></div>' : '') +
       '</section><section class="extras glass" id="extras"><div class="ex-h"><b>' + ic('scope') + ' <span id="ex-title">Analyzer</span></b><span class="muted" id="ex-sub"></span><span class="grow"></span><div class="lens-group" id="ex-tabs" hidden><span class="lens"></span><button data-sc="wave" class="on">Waveform</button><button data-sc="parade">RGB parade</button></div><button class="ico sm" id="ex-tg" aria-label="Show or hide the analyzer">' + ic('chev') + '</button></div><div class="ex-b" id="ex-b"></div></section>' + (function () {
         var k = kindOf(versions[versions.length - 1]), out = ''
         if (k === 'audio' && store.get('rs-hint-ab') !== '0') out += '<div class="hint" data-hint="ab">' + ic('wave') + '<span><b>A/B</b> · press A/B at the top, then <kbd>Space</kbd>: you hear the next version (A → B → C) from the same second, without stopping.</span><button class="ico sm" aria-label="Hide this tip">' + ic('x') + '</button></div>'
@@ -939,17 +960,18 @@
     // the picture: the video element for a video, the still for a picture, nothing for sound
     function paintMedia() {
       var x = curV(), k = kindOf(x), box = $('#media')
-      $('#wave').hidden = k === 'image' || (k === 'video' && !(x.peaks && x.peaks.length))
-      $('#ctl').hidden = k === 'image'
+      var still = k === 'image' || k === 'file' || k === 'suno'
+      $('#wave').hidden = still || (k === 'video' && !(x.peaks && x.peaks.length))
+      $('#ctl').hidden = still
       $('.lm').hidden = k !== 'audio'
-      if ($('#cmp-at')) $('.attime').hidden = k === 'image'
+      if ($('#cmp-at')) $('.attime').hidden = still
       if ($('#fs')) { $('#fs').hidden = k !== 'video'; $('#pip').hidden = k !== 'video' || !document.pictureInPictureEnabled }
       if ($('#grab')) $('#grab').hidden = k !== 'video' || (share && !share.data.can.comment)
       setTimeout(paintExtras)
       if ($('#strm')) $('#strm').hidden = k !== 'audio' || x.lufs == null
       if ($('#stems')) $('#stems').hidden = k !== 'audio'
       if ($('#abtn')) $('#abtn').hidden = k !== 'audio' || audVersions().length < 2
-      if ($('#cmp-rng')) $('#cmp-rng').hidden = k === 'image'
+      if ($('#cmp-rng')) $('#cmp-rng').hidden = still
       if (k !== 'audio' && ab) { ab = null; paintAB() }
       if ($('#stemp') && !$('#stemp').hidden && stemSt.v !== x.id) loadStems()
       ;['#fprev', '#fnext', '#vmask'].forEach(function (q) { if ($(q)) $(q).hidden = k !== 'video' })
@@ -959,7 +981,7 @@
       if ($('#vmask')) $('#vmask').classList.toggle('on', !!(vs.mask || vs.safe))
       if (k !== 'video') { compareOff(); drawMode(false) } else if (vs.cmp && vs.cmp.v.id === x.id) compareOff()
       if (k === 'video') measureFps(x).then(function (f) { if (f && tview.stills && $('#stills') && !$('#stills').hidden) paintStills() })
-      var wtb = $('#ntab [data-tab="w"]'); if (wtb) { wtb.hidden = k === 'image'; if (wtb.classList.contains('on')) { if (k === 'image') $('#ntab [data-tab="n"]').click(); else loadViews() } }
+      var wtb = $('#ntab [data-tab="w"]'); if (wtb) { wtb.hidden = still; if (wtb.classList.contains('on')) { if (still) $('#ntab [data-tab="n"]').click(); else loadViews() } }
       var stb = $('#ntab [data-tab="s"]')
       if (stb) { stb.hidden = k !== 'video'; if (k !== 'video' && stb.classList.contains('on')) $('#ntab [data-tab="n"]').click(); else if (stb.classList.contains('on')) loadStills(); setTimeout(function () { if ($('#ntab')) lens($('#ntab')) }, 30) }
       // a video gets a lower waveform, a strip to scrub (Alex, 7 Nov)
@@ -978,6 +1000,15 @@
           '<div class="ptools">' + (!(share && share.data.kind === 'finals') ? heartBtn(x.track_id) : '') + '<span class="grow"></span>' + (imgVersions().length > 1 ? '<button class="btn sm" id="pcmp">' + ic('split') + ' Before / after</button>' : '') + '<button class="btn sm" id="ploupe" title="See the picture at 100% under the pointer">' + ic('loupe') + ' 100%</button>' + '<button class="btn sm" id="pview" title="Open the picture big (or click it)">' + ic('full') + ' View</button>' + (canDo('commenter') ? '<button class="btn sm" id="ppinb" title="Then click the spot the note is about">' + ic('pin') + ' Pin a note</button>' : '') + '</div>'
         urlFor(x).then(function (u) { var im = $('#still'); if (im && curV() === x) { im.crossOrigin = 'anonymous'; im.onload = function () { im.classList.add('on'); paintPPins(); ex.lastT = -3 }; im.onerror = fileLost; im.src = u } }).catch(function () {})
         setupPicture(x)
+      } else if (k === 'suno') {
+        box.hidden = false
+        var sid = sunoOf(x)
+        box.innerHTML = '<div class="sunobox"><iframe src="https://suno.com/embed/' + sid + '" title="' + esc(x.file_name) + ' on Suno" allow="autoplay; encrypted-media; fullscreen" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe><div class="sunobar"><span>' + ic('music') + ' Played by Suno · notes here are about the whole song</span><a class="btn sm" href="https://suno.com/song/' + sid + '" target="_blank" rel="noopener">' + ic('out') + ' Open on Suno</a></div></div>'
+      } else if (k === 'file') {
+        box.hidden = false
+        var canDl = !share || (share.data.can && share.data.can.download) || share.data.kind === 'finals'
+        box.innerHTML = '<div class="fcardx"><span class="fbig">' + ic(fileType(x) === 'MIDI file' ? 'music' : 'file') + '</span><b>' + esc(x.file_name) + '</b><small>' + esc(fileType(x)) + ' · ' + size(x.size) + '</small>' + (canDl ? '<button class="btn main" id="fdl" type="button">' + ic('down') + ' Download</button>' : '<small>Downloads are off on this link.</small>') + '</div>'
+        if ($('#fdl')) $('#fdl').onclick = function () { download(x) }
       } else { box.innerHTML = ''; box.hidden = true }
     }
     function setVersion(vid, keep) {
@@ -994,7 +1025,7 @@
       if (x.sample_rate) f.push((x.sample_rate / 1000).toString().replace(/\.0$/, '') + ' kHz')
       if (x.channels) f.push(x.channels === 1 ? 'mono' : x.channels === 2 ? 'stereo' : x.channels === 6 ? '5.1' : x.channels + ' ch')
       if (x.peak_db != null) f.push('peak ' + (x.peak_db < 0 ? '−' : '') + Math.abs(x.peak_db).toFixed(1) + ' dBFS')
-      f.push(size(x.size))
+      if (x.size) f.push(size(x.size))
       var who = share ? share.data.names[x.uploaded_by] : ctx.people[x.uploaded_by] && ctx.people[x.uploaded_by].name
       f.push((who ? who + ', ' : '') + ago(x.created_at))
       $('#facts').innerHTML = f.map(function (t) { return '<span>' + esc(t) + '</span>' }).join('')
@@ -1691,7 +1722,7 @@
     }
     // stems: the parts of the version played together, each with mute, solo and its own level
     var stemSt = { list: null, v: null, els: [], timer: null, mute: {}, solo: {}, vol: {} }
-    function stemsStop() { stemSt.els.forEach(function (el) { try { el.pause() } catch (e) {} }); clearInterval(stemSt.timer); stemSt.timer = null; var pp = $('#stem-pp'); if (pp) pp.innerHTML = ic('play') }
+    function stemsStop() { stemSt.wait = false; stemSt.els.forEach(function (el) { try { el.pause(); el.playbackRate = 1 } catch (e) {} }); if ($('#stem-tm')) $('#stem-tm').classList.remove('buf'); clearInterval(stemSt.timer); stemSt.timer = null; var pp = $('#stem-pp'); if (pp) pp.innerHTML = ic('play') }
     function stemsDrop() { stemsStop(); stemSt.els.forEach(function (el) { el.removeAttribute('src'); try { el.load() } catch (e) {} }); stemSt.els = []; stemSt.list = null }
     function stemsToggle() {
       var pn = $('#stemp'); pn.hidden = !pn.hidden; $('#stems').classList.toggle('on', !pn.hidden)
@@ -1705,15 +1736,44 @@
     }
     function stemMix() {
       var anySolo = Object.keys(stemSt.solo).some(function (k) { return stemSt.solo[k] })
-      ;(stemSt.list || []).forEach(function (st, i) { var el = stemSt.els[i]; if (!el) return; el.muted = anySolo ? !stemSt.solo[st.id] : !!stemSt.mute[st.id]; el.volume = stemSt.vol[st.id] == null ? 1 : stemSt.vol[st.id] })
+      ;(stemSt.play || []).forEach(function (st, i) { var el = stemSt.els[i]; if (!el) return; el.muted = anySolo ? !stemSt.solo[st.id] : !!stemSt.mute[st.id]; el.volume = stemSt.vol[st.id] == null ? 1 : stemSt.vol[st.id] })
+    }
+    // stems and the song's other files (Alex, 9 Nov): the playable ones play together; MIDI and anything else is kept for
+    // download; any of them can be downloaded alone, a chosen few, or all as one .zip
+    function stemExt(st) { try { return (decodeURIComponent(new URL(st.url).pathname).match(/\.[a-z0-9]{2,5}$/i) || [''])[0].toLowerCase() } catch (e) { return '' } }
+    function stemPlays(st) { var e = stemExt(st), m = String(st.mime || ''); return !/mid/.test(m) && !/^\.(mid|midi|kar)$/.test(e) && (/^audio\//.test(m) || /^\.(wav|wave|aif|aiff|flac|mp3|m4a|aac|ogg|opus)$/.test(e)) }
+    function saveUrl(url, name) {
+      return fetch(url, { mode: 'cors', credentials: 'omit' }).then(function (r) { if (!r.ok) throw new Error('Could not download (' + r.status + ')'); return r.blob() }).then(function (b) {
+        var u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u) }, 4000)
+      }).catch(function (e) { toast(e.message) })
     }
     function paintStems() {
-      var pn = $('#stemp'), x = curV(), list = stemSt.list || [], ed = edit && !share
-      pn.innerHTML = '<div class="stem-h"><b>' + ic('stems') + ' Stems</b><span class="muted">' + esc(vname(x)) + ' · ' + list.length + '</span><span class="grow"></span>' + (ed ? '<button class="btn sm" id="stem-add">' + ic('plus') + ' Add stems</button><input type="file" id="stem-f" multiple accept="audio/*,.wav,.aif,.aiff,.flac,.mp3,.m4a" hidden>' : '') + '</div>' +
+      var pn = $('#stemp'), x = curV(), all = stemSt.list || [], ed = edit && !share
+      var list = stemSt.play = all.filter(stemPlays), other = all.filter(function (st) { return !stemPlays(st) })
+      stemSt.pick = stemSt.pick || {}
+      var row = function (st, playable) {
+        return '<div class="stem' + (playable ? '' : ' sfile') + '"><label class="spick" title="Pick for download"><input type="checkbox" data-pk="' + st.id + '"' + (stemSt.pick[st.id] ? ' checked' : '') + '><i></i></label>' +
+          (playable ? '' : '<span class="sft">' + ic(/mid/.test(stemExt(st)) ? 'music' : 'file') + '</span>') + '<span class="nm" title="' + esc(st.name) + '">' + esc(st.name) + (playable ? '' : ' <small>' + esc((stemExt(st).slice(1) || 'file').toUpperCase()) + ' · ' + size(st.size) + '</small>') + '</span>' +
+          (playable ? '<button class="ms' + (stemSt.mute[st.id] ? ' on' : '') + '" data-mu="' + st.id + '" title="Mute">M</button><button class="ms so' + (stemSt.solo[st.id] ? ' on' : '') + '" data-so="' + st.id + '" title="Solo">S</button><input type="range" min="0" max="1" step="0.01" value="' + (stemSt.vol[st.id] == null ? 1 : stemSt.vol[st.id]) + '" data-vol="' + st.id + '" aria-label="Level of ' + esc(st.name) + '">' : '<span class="grow"></span>') +
+          '<button class="ico sm" data-sdl="' + st.id + '" aria-label="Download ' + esc(st.name) + '" title="Download">' + ic('down') + '</button>' +
+          (ed ? '<button class="ico sm danger" data-sd="' + st.id + '" aria-label="Delete ' + esc(st.name) + '">' + ic('trash') + '</button>' : '') + '</div>'
+      }
+      var picked = all.filter(function (st) { return stemSt.pick[st.id] })
+      pn.innerHTML = '<div class="stem-h"><b>' + ic('stems') + ' Stems &amp; files</b><span class="muted">' + esc(vname(x)) + ' · ' + all.length + '</span><span class="grow"></span>' +
+        (all.length ? '<button class="btn sm" id="stem-dlp"' + (picked.length ? '' : ' hidden') + '>' + ic('down') + ' Download ' + picked.length + '</button><button class="btn sm" id="stem-dla">' + ic('down') + ' Download all</button>' : '') +
+        (ed ? '<button class="btn sm" id="stem-add">' + ic('plus') + ' Add stems or files</button><input type="file" id="stem-f" multiple hidden>' : '') + '</div>' +
         (list.length ? '<div class="stem-t"><button class="play" id="stem-pp" aria-label="Play the stems">' + ic('play') + '</button><div class="stem-bar" id="stem-bar"><i></i></div><span class="mono" id="stem-tm">0:00</span></div>' +
-          '<div class="stem-list">' + list.map(function (st) { return '<div class="stem"><span class="nm" title="' + esc(st.name) + '">' + esc(st.name) + '</span><button class="ms' + (stemSt.mute[st.id] ? ' on' : '') + '" data-mu="' + st.id + '" title="Mute">M</button><button class="ms so' + (stemSt.solo[st.id] ? ' on' : '') + '" data-so="' + st.id + '" title="Solo">S</button><input type="range" min="0" max="1" step="0.01" value="' + (stemSt.vol[st.id] == null ? 1 : stemSt.vol[st.id]) + '" data-vol="' + st.id + '" aria-label="Level of ' + esc(st.name) + '">' + (ed ? '<button class="ico sm danger" data-sd="' + st.id + '" aria-label="Delete ' + esc(st.name) + '">' + ic('trash') + '</button>' : '') + '</div>' }).join('') + '</div>'
-          : '<p class="muted" style="margin:0;font-size:13.5px">No stems yet.' + (ed ? ' Add vocals, drums, bass and the rest: they play together, each with mute and solo.' : '') + '</p>')
+          '<div class="stem-list">' + list.map(function (st) { return row(st, true) }).join('') + '</div>' : '') +
+        (other.length ? '<div class="stem-sub">MIDI and other files</div><div class="stem-list">' + other.map(function (st) { return row(st, false) }).join('') + '</div>' : '') +
+        (!all.length ? '<p class="muted" style="margin:0;font-size:13.5px">No stems yet.' + (ed ? ' Add vocals, drums, bass and the rest (they play together, each with mute and solo), and the MIDI or any other file of the song.' : '') + '</p>' : '')
       if (ed) { $('#stem-add').onclick = function () { $('#stem-f').click() }; $('#stem-f').onchange = function () { var fs = [].slice.call(this.files); this.value = ''; fs.forEach(function (f) { uploadFile(f, { project: ctx.project.id, stemOf: x.id, title: f.name, onDone: function () { loadStems() } }) }) } }
+      var nameOf2 = function (st) { return (st.name || 'stem').replace(/[\\/:*?"<>|]/g, ' ').trim() + stemExt(st) }
+      var asFiles = function (arr) { return arr.map(function (st, k) { return { url: st.url, file_name: nameOf2(st), size: st.size, n: k + 1, label: '', name: st.name } }) }
+      var zipName = (ctx.project.title + ' - ' + (track.title || '') + ' - ' + vname(x) + ' stems').trim()
+      $$('[data-pk]', pn).forEach(function (c) { c.onchange = function () { stemSt.pick[c.dataset.pk] = c.checked; var n = all.filter(function (st) { return stemSt.pick[st.id] }).length, b = $('#stem-dlp', pn); b.hidden = !n; b.innerHTML = ic('down') + ' Download ' + n } })
+      $$('[data-sdl]', pn).forEach(function (b) { b.onclick = function () { var st = all.filter(function (q) { return q.id === b.dataset.sdl })[0]; if (st) saveUrl(st.url, nameOf2(st)) } })
+      if ($('#stem-dla', pn)) $('#stem-dla', pn).onclick = function () { zipAll(asFiles(all), function (v) { return v.name }, zipName, this) }
+      if ($('#stem-dlp', pn)) $('#stem-dlp', pn).onclick = function () { zipAll(asFiles(all.filter(function (st) { return stemSt.pick[st.id] })), function (v) { return v.name }, zipName, this) }
       $$('[data-mu]', pn).forEach(function (b) { b.onclick = function () { stemSt.mute[b.dataset.mu] = !stemSt.mute[b.dataset.mu]; b.classList.toggle('on'); stemMix() } })
       $$('[data-so]', pn).forEach(function (b) { b.onclick = function () { stemSt.solo[b.dataset.so] = !stemSt.solo[b.dataset.so]; b.classList.toggle('on'); stemMix() } })
       $$('[data-vol]', pn).forEach(function (r) { r.oninput = function () { stemSt.vol[r.dataset.vol] = +r.value; stemMix() } })
@@ -1724,9 +1784,23 @@
         stemSt.els = list.map(function (st) { var el = new Audio(); el.crossOrigin = 'anonymous'; el.preload = 'auto'; el.src = st.url; return el })
         stemMix()
       }
+      // in step without jumps: a stem a little ahead or behind plays a touch slower or faster until it is back (a jump made
+      // it load again, which was the sticking); only a stem far out is moved. If one runs out of sound, all wait for it.
+      var allReady = function () { return stemSt.els.every(function (el) { return el.readyState >= 3 }) }
       var tickS = function () {
         var m = stemSt.els[0]; if (!m || !$('#stem-bar')) { stemsStop(); return }
-        stemSt.els.forEach(function (el, i) { if (i && el.readyState >= 1 && Math.abs(el.currentTime - m.currentTime) > 0.06) { try { el.currentTime = m.currentTime } catch (e) {} } })
+        if (stemSt.wait) {
+          if (allReady()) { stemSt.wait = false; var t1 = m.currentTime; stemSt.els.forEach(function (el) { if (Math.abs(el.currentTime - t1) > 0.05) { try { el.currentTime = t1 } catch (e) {} } var pr = el.play(); if (pr && pr.catch) pr.catch(function () {}) }); $('#stem-tm').classList.remove('buf') }
+          return
+        }
+        if (stemSt.els.some(function (el) { return el.readyState < 3 && !el.ended })) { stemSt.wait = true; stemSt.els.forEach(function (el) { el.pause() }); $('#stem-tm').classList.add('buf'); return }
+        stemSt.els.forEach(function (el, i) {
+          if (!i) return
+          var dr = el.currentTime - m.currentTime
+          if (Math.abs(dr) > 0.4) { try { el.currentTime = m.currentTime + 0.02 } catch (e) {} el.playbackRate = 1 }
+          else if (Math.abs(dr) > 0.012) el.playbackRate = Math.max(0.95, Math.min(1.05, 1 - dr * 1.5))
+          else if (el.playbackRate !== 1) el.playbackRate = 1
+        })
         var dur = m.duration || 0; $('#stem-bar i').style.width = (dur ? m.currentTime / dur * 100 : 0) + '%'; $('#stem-tm').textContent = mmss(m.currentTime)
         if (m.ended) stemsStop()
       }
@@ -1735,8 +1809,10 @@
         if (stemSt.timer) { stemsStop(); return }
         if (!audio.paused) audio.pause()
         var t0 = stemSt.els[0].currentTime || 0
-        Promise.all(stemSt.els.map(function (el) { try { el.currentTime = t0 } catch (e) {} var pr = el.play(); return pr && pr.catch ? pr.catch(function () {}) : null })).then(function () { })
-        stemSt.timer = setInterval(tickS, 200); this.innerHTML = ic('pause')
+        stemSt.els.forEach(function (el) { el.playbackRate = 1; try { el.currentTime = t0 } catch (e) {} })
+        // start only when every stem has sound ready, all at once
+        stemSt.wait = true; $('#stem-tm').classList.add('buf')
+        stemSt.timer = setInterval(tickS, 100); this.innerHTML = ic('pause'); tickS()
       }
       $('#stem-bar').onclick = function (e) {
         ensure(); var r = this.getBoundingClientRect(), m = stemSt.els[0], go = function () { var tt = (e.clientX - r.left) / r.width * (m.duration || 0); stemSt.els.forEach(function (el) { try { el.currentTime = tt } catch (x2) {} }); tickS() }
@@ -1843,6 +1919,8 @@
     function exSize(cv) { var r = cv.getBoundingClientRect(), dp = devicePixelRatio || 1, w = Math.max(10, Math.round(r.width * dp)), h = Math.max(10, Math.round(r.height * dp)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h } return { w: w, h: h, dp: dp } }
     function paintExtras() {
       var box = $('#ex-b'), x = curV(), k = kindOf(x); if (!box) return
+      $('#extras').hidden = k === 'file' || k === 'suno'
+      if (k === 'file' || k === 'suno') return
       $('#extras').classList.toggle('closed', !ex.on); $('#ex-tg').classList.toggle('on', ex.on)
       if (ex.kind !== k) {
         ex.kind = k; ex.hold = null
@@ -2049,7 +2127,7 @@
         var body = $('#cmp-t').value.trim(); if (!body && pendingAtt) body = 'See the picture'; if (!body) return
         var ments = mentionPeople().filter(function (p) { return body.indexOf('@' + p.name) >= 0 }).map(function (p) { return p.id })
         if (share && $('#g-name')) { var gn = $('#g-name').value.trim(); if (!gn) { $('#g-name').focus(); return } store.set('rs-guest', gn) }
-        var x = curV(), at = replyTo || kindOf(x) === 'image' ? null : ($('#cmp-at').checked ? Math.round(audio.currentTime * (kindOf(x) === 'video' ? 1000 : 10)) / (kindOf(x) === 'video' ? 1000 : 10) : null)
+        var x = curV(), at = replyTo || kindOf(x) === 'image' || kindOf(x) === 'file' || kindOf(x) === 'suno' ? null : ($('#cmp-at').checked ? Math.round(audio.currentTime * (kindOf(x) === 'video' ? 1000 : 10)) / (kindOf(x) === 'video' ? 1000 : 10) : null)
         var sketch = at != null && !replyTo && vs.drawing.length ? vs.drawing.slice() : null
         var endAt = null, posAt = !replyTo && kindOf(x) === 'image' && tview.ppos ? tview.ppos : null
         if (!replyTo && tview.range && tview.range.b != null && kindOf(x) !== 'image') { at = Math.round(tview.range.a * 1000) / 1000; endAt = Math.round(tview.range.b * 1000) / 1000 }
@@ -2098,7 +2176,7 @@
       wireDropOn(view, function (files) { if (files[0]) startUploads([files[0]], { project: ctx.project.id, track: id, onDone: function (nv) { ctx.versions.push(nv); tview.version = nv.id; render() } }) })
       $('#tsh').onclick = function () { shareBox(ctx, track) }
       $('#tm').onclick = function () {
-        modal('<div class="spread"><h2>' + esc(track.title) + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="opts"><button class="btn" id="tm-r">' + ic('pen') + ' Rename</button><button class="btn" id="tm-f">' + ic('folder') + ' Move to a folder</button><button class="btn danger" id="tm-d">' + ic('trash') + ' Delete track</button></div>', function (m) {
+        modal('<div class="spread"><h2>' + esc(track.title) + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="opts"><button class="btn" id="tm-r">' + ic('pen') + ' Rename</button><button class="btn" id="tm-f">' + ic('folder') + ' Move to a folder</button><button class="btn" id="tm-s">' + ic('music') + ' New version from Suno</button><button class="btn danger" id="tm-d">' + ic('trash') + ' Delete track</button></div>', function (m) {
           $('#tm-f', m).onclick = function () {
             var fs = ctx.folders || []
             modal('<div class="spread"><h2>Move “' + esc(track.title) + '”</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="opts">' +
@@ -2108,6 +2186,7 @@
               $('#mv-new', k).onclick = function () { prompt1('New folder', 'Name', '', 'Create and move', function (v) { return sb.from('roarstudio_folders').insert({ project_id: ctx.project.id, name: v, position: fs.length, created_by: session.user.id }).select('id').single().then(function (r) { if (r.error) return; return sb.from('roarstudio_tracks').update({ folder_id: r.data.id }).eq('id', id).then(function () { toast('Moved') }) }) }) }
             })
           }
+          $('#tm-s', m).onclick = function () { close(); addSuno(ctx.project.id, id, null, function () { tview = null; render() }) }
           $('#tm-r', m).onclick = function () { prompt1('Rename', 'Title', track.title, 'Save', function (val) { return sb.from('roarstudio_tracks').update({ title: val }).eq('id', id).then(function () { track.title = val; render() }) }) }
           $('#tm-d', m).onclick = function () { confirmBox('Delete “' + track.title + '”?', 'Every version, file and note of this track is deleted. This cannot be undone.', 'Delete', function () { return api('delete-track', { track: id }).then(function () { audio.pause(); tview = null; go('#p/' + ctx.project.id) }) }) }
         })
@@ -2314,12 +2393,15 @@
   // can, the service worker streams it straight to the disk, any size; otherwise made in memory up to 2 GB; past that,
   // one file after the other
   function zipAll(files, titleOf, name, btn) {
-    if (files.length === 1 || !window.RTZip) { var i = 0; (function next() { if (i >= files.length) return; download(files[i++]); setTimeout(next, 1200) })(); return }
+    files = files.filter(function (v) { return v.url || kindOf(v) !== 'suno' })
+    if (!files.length) { toast('Songs from Suno stay on Suno'); return }
+    var one = function (v) { if (v.url) saveUrl(v.url, v.file_name); else download(v) }
+    if (files.length === 1 || !window.RTZip) { var i = 0; (function next() { if (i >= files.length) return; one(files[i++]); setTimeout(next, 1200) })(); return }
     var label = btn.innerHTML, say = function (t) { btn.innerHTML = ic('down') + ' ' + t }, done = function () { btn.innerHTML = label; btn.disabled = false }
     btn.disabled = true; say('Preparing…')
     var zipName = String(name).replace(/[\\/:*?"<>|\u0000-\u001f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 90) + '.zip'
     var used = {}
-    Promise.all(files.map(function (v) { return urlFor(v).then(function (u) {
+    Promise.all(files.map(function (v) { return (v.url ? Promise.resolve(v.url) : urlFor(v)).then(function (u) {
       var ext = (v.file_name.match(/\.[a-z0-9]{2,5}$/i) || [''])[0], base = (titleOf(v) + (v.label ? ' - ' + v.label : '')).replace(/[\\/:*?"<>|]/g, ' ').trim() || 'file'
       var nm = base + ext; if (used[nm]) nm = base + ' (v' + v.n + ')' + ext; used[nm] = 1
       return { name: nm, url: u, size: Number(v.size) }
@@ -2328,7 +2410,7 @@
       var safari = /Safari\//.test(navigator.userAgent) && !/Chrome\/|Chromium\/|CriOS\/|FxiOS\/|Edg\/|Android/.test(navigator.userAgent)
       var viaWorker = !safari && 'serviceWorker' in navigator && window.ReadableStream && window.TransformStream
       var memory = function () {
-        if (total > 2 * 1024 * 1024 * 1024) { done(); toast('Too big for one zip here: downloading one by one'); var i = 0; (function next() { if (i >= files.length) return; download(files[i++]); setTimeout(next, 1200) })(); return }
+        if (total > 2 * 1024 * 1024 * 1024) { done(); toast('Too big for one zip here: downloading one by one'); var i = 0; (function next() { if (i >= files.length) return; one(files[i++]); setTimeout(next, 1200) })(); return }
         var open = function (f) { return fetch(f.url, { mode: 'cors', cache: 'no-store', credentials: 'omit' }) }
         var rd = RTZip.stream(list, open, function (n) { say('Zipping ' + Math.min(99, Math.floor(n / total * 100)) + '%') }).getReader(), parts = []
         ;(function pump() { rd.read().then(function (c) {
