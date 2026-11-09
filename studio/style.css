@@ -1355,3 +1355,12 @@ body.noscroll { overflow: hidden }
 .stem .ms { width: 32px; flex: none }
 .stem input[type=range] { width: 130px; flex: none }
 @media (max-width: 600px) { .stem input[type=range] { width: 70px } .stem { gap: 6px } }
+
+/* plays and views, Stats (Alex, 9 Nov) */
+.trk .nm em.pv { font-style: normal; display: inline; height: auto; line-height: 1.6; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: rgba(34,211,238,.1); color: #a5f3fc; font-size: 11.5px; white-space: nowrap }
+.trk .nm em.pv svg { width: 10px; height: 10px }
+.probadge { margin-left: 4px; padding: 1px 6px; border-radius: 999px; font: 800 9.5px var(--sans); letter-spacing: .08em; color: #1a1033; background: #facc15 }
+.kpis.sk { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 6px }
+@media (max-width: 600px) { .kpis.sk { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+.sth3 { margin: 16px 2px 8px; font: 700 11px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--dim) }
+.chart.sch { height: 120px }
