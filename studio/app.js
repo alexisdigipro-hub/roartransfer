@@ -511,6 +511,81 @@
     }
     im.src = pr.cover
   }
+  function ctxMenu(title, items, x, y, onPick) {
+    var old = $('.ctxm'); if (old) old.remove()
+    var m = document.createElement('div'); m.className = 'ctxm glass'
+    m.innerHTML = '<b class="ctxt">' + esc(title) + '</b>' + items.map(function (t) { return t === '-' ? '<i></i>' : '<button data-k="' + t[0] + '"' + (t[3] ? ' disabled' : '') + (t[4] ? ' class="' + t[4] + '"' : '') + '>' + ic(t[1]) + esc(t[2]) + '</button>' }).join('')
+    document.body.appendChild(m)
+    var r = m.getBoundingClientRect(); m.style.left = Math.max(8, Math.min(x, innerWidth - r.width - 8)) + 'px'; m.style.top = Math.max(8, Math.min(y, innerHeight - r.height - 8)) + 'px'
+    var close = function () { m.remove(); document.removeEventListener('pointerdown', away, true); document.removeEventListener('keydown', esc1); window.removeEventListener('scroll', close, true) }
+    var away = function (e) { if (!m.contains(e.target)) close() }, esc1 = function (e) { if (e.key === 'Escape') close() }
+    setTimeout(function () { document.addEventListener('pointerdown', away, true); document.addEventListener('keydown', esc1); window.addEventListener('scroll', close, true) })
+    m.onclick = function (e) { var b = e.target.closest('button'); if (!b || b.disabled) return; close(); onPick(b.dataset.k) }
+  }
+  // a long press on a phone opens the same menu as a right click
+  function longPress(el, fn) {
+    var t = null, sx = 0, sy = 0
+    el.addEventListener('touchstart', function (e) { var p = e.touches[0]; sx = p.clientX; sy = p.clientY; t = setTimeout(function () { t = null; el.dataset.lp = '1'; fn(sx, sy) }, 550) }, { passive: true })
+    el.addEventListener('touchmove', function (e) { var p = e.touches[0]; if (t && Math.hypot(p.clientX - sx, p.clientY - sy) > 10) { clearTimeout(t); t = null } }, { passive: true })
+    el.addEventListener('touchend', function (e) { if (t) { clearTimeout(t); t = null } if (el.dataset.lp) { e.preventDefault(); setTimeout(function () { delete el.dataset.lp }, 50) } })
+  }
+  function fileCtx(c, tid, x, y) {
+    var t = c.tracks.filter(function (q) { return q.id === tid })[0]; if (!t) return
+    var vs = c.versions.filter(function (v) { return v.track_id === tid }), v = vs[vs.length - 1]
+    var kOfT = function (q) { var qv = c.versions.filter(function (z) { return z.track_id === q.id }); return qv.length ? kindOf(qv[qv.length - 1]) : '' }
+    // the files shown together (same folder, same kind), in the order the page shows them
+    var same = c.tracks.filter(function (q) { return (q.folder_id || null) === (t.folder_id || null) && kOfT(q) === kOfT(t) }).slice()
+    var shown = $$('.trk[data-t]').map(function (r) { return r.dataset.t })
+    same.sort(function (a, b) { return shown.indexOf(a.id) - shown.indexOf(b.id) })
+    var i = same.indexOf(t), fs = c.folders || []
+    var items = [['open', 'next', 'Open'], ['ren', 'pen', 'Rename'], v && kindOf(v) !== 'suno' ? ['dl', 'down', 'Download'] : null, v && kindOf(v) === 'suno' ? ['suno', 'out', 'Open on Suno'] : null, '-',
+      ['up', 'up', 'Move up', i <= 0], ['down', 'down', 'Move down', i >= same.length - 1], ['top', 'up', 'Move to the top', i <= 0], '-']
+      .concat(fs.length || t.folder_id ? [['out', 'back', 'Move out of the folder', !t.folder_id]].concat(fs.filter(function (f) { return f.id !== t.folder_id }).map(function (f) { return ['f:' + f.id, 'folder', 'Move to ' + f.name] })) : [])
+      .concat([['nf', 'fplus', 'Move to a new folder…'], '-', ['del', 'trash', 'Delete', false, 'danger']]).filter(Boolean)
+    var save = function (list) { return Promise.all(list.map(function (q, k) { q.position = k; return sb.from('roarstudio_tracks').update({ position: k }).eq('id', q.id) })) }
+    var move = function (to) { same.splice(i, 1); same.splice(to, 0, t); save(same).then(function () { render() }) }
+    var toFolder = function (fid) { return sb.from('roarstudio_tracks').update({ folder_id: fid }).eq('id', tid).then(function (r) { if (r.error) toast(r.error.message); else { toast(fid ? 'Moved' : 'Moved out of the folder'); render() } }) }
+    ctxMenu(t.title, items, x, y, function (k) {
+      if (k === 'open') go('#t/' + tid)
+      else if (k === 'ren') prompt1('Rename', 'Title', t.title, 'Save', function (val) { return sb.from('roarstudio_tracks').update({ title: val }).eq('id', tid).then(function () { render() }) })
+      else if (k === 'dl') download(v)
+      else if (k === 'suno') download(v)
+      else if (k === 'up') move(i - 1)
+      else if (k === 'down') move(i + 1)
+      else if (k === 'top') move(0)
+      else if (k === 'out') toFolder(null)
+      else if (k.indexOf('f:') === 0) toFolder(k.slice(2))
+      else if (k === 'nf') prompt1('New folder', 'Name', '', 'Create and move', function (nm) { return sb.from('roarstudio_folders').insert({ project_id: c.project.id, name: nm, position: fs.length, created_by: session.user.id }).select('id').single().then(function (r) { if (r.error) { toast(r.error.message); return } return toFolder(r.data.id) }) })
+      else if (k === 'del') confirmBox('Delete “' + t.title + '”?', 'Every version and note of it is deleted, and its files leave the cloud. This cannot be undone.', 'Delete', function () { return api('delete-track', { track: tid }).then(function (d) { if (d.ok) { toast('Deleted'); render() } else toast(d.error) }) })
+    })
+  }
+  function projOrder(list) {
+    var o = store.get('rs-porder') || [], at = {}; if (!Array.isArray(o)) o = []
+    o.forEach(function (id, i) { at[id] = i })
+    var fresh = list.filter(function (p) { return at[p.id] == null }), known = list.filter(function (p) { return at[p.id] != null }).sort(function (a, b) { return at[a.id] - at[b.id] })
+    return fresh.concat(known)
+  }
+  function moveProj(ps, id, to) {
+    var ids = ps.map(function (p) { return p.id }), from = ids.indexOf(id); if (from < 0) return
+    ids.splice(from, 1); ids.splice(Math.max(0, Math.min(ids.length, to)), 0, id)
+    store.set('rs-porder', ids); renderProjects()
+  }
+  function projCtx(ps, id, x, y) {
+    var p = ps.filter(function (q) { return q.id === id })[0]; if (!p) return
+    var i = ps.indexOf(p), own = p.owner === session.user.id, c = { project: p, role: own ? 'owner' : 'editor' }
+    ctxMenu(p.title, [['open', 'next', 'Open'], ['edit', 'pen', 'Edit title and artist'], ['cover', 'image', 'Change cover'], '-',
+      ['first', 'up', 'Move to the start', i === 0], ['left', 'back', 'Move back', i === 0], ['right', 'next', 'Move forward', i === ps.length - 1], ['last', 'down', 'Move to the end', i === ps.length - 1]]
+      .concat(own ? ['-', ['del', 'trash', 'Delete project', false, 'danger']] : []), x, y, function (k) {
+      if (k === 'open') go('#p/' + id)
+      else if (k === 'edit') projectMenu(c)
+      else if (k === 'cover') coverBox(c)
+      else if (k === 'first') moveProj(ps, id, 0)
+      else if (k === 'left') moveProj(ps, id, i - 1)
+      else if (k === 'right') moveProj(ps, id, i + 1)
+      else if (k === 'last') moveProj(ps, id, ps.length)
+      else if (k === 'del') confirmBox('Delete “' + p.title + '”?', 'Every file, version and note in it is deleted, and the files leave the cloud. This cannot be undone.', 'Delete', function () { return api('delete-project', { project: id }).then(function (d) { if (d.ok) { toast('Project deleted'); renderProjects() } else toast(d.error) }) })
+    })
+  }
   function renderProjects() {
     setTop([])
     var view = $('#view'); view.innerHTML = '<div class="spin"></div>'
@@ -520,15 +595,28 @@
       api('usage')
     ]).then(function (r) {
       if (r[0].error) { view.innerHTML = errorBox(r[0].error.message); return }
-      var ps = r[0].data || [], counts = {}
+      var ps = projOrder(r[0].data || []), counts = {}
       ;(r[1].data || []).forEach(function (t) { counts[t.project_id] = (counts[t.project_id] || 0) + 1 })
       view.innerHTML = '<div class="head"><div><h1>Projects</h1><div class="sub">' + ps.length + ' project' + (ps.length === 1 ? '' : 's') + (r[2] && r[2].bytes ? ' · ' + size(r[2].bytes) + ' stored' : '') + '</div><p class="pdesc">Your workspace for sound, video and pictures: upload every version, collect notes on the exact second or spot, approve, and deliver the finals in one link.</p></div><div class="tools">' + (ps.length ? '<div class="lens-group vmode" id="vmode"><span class="lens"></span><button data-m="big" aria-label="Big tiles" title="Big tiles">' + ic('big') + '</button><button data-m="small" aria-label="Small tiles" title="Small tiles">' + ic('small') + '</button><button data-m="list" aria-label="List" title="List">' + ic('rows') + '</button></div>' : '') + '<button class="btn main" id="np">' + ic('plus') + ' New project</button></div></div>' +
         (ps.length ? '<div class="grid g-' + (store.get('rs-view') || 'big') + '" id="pgrid">' + ps.map(function (p) {
-          return '<div class="proj glass" role="button" tabindex="0" data-p="' + p.id + '"><div class="cover" style="' + (p.cover ? "background:#000 url('" + cssu(p.cover) + "') center/cover" : coverStyle(p.id)) + '">' + (p.owner === session.user.id ? '<button class="ico sm danger pdel" data-pdel="' + p.id + '" aria-label="Delete ' + esc(p.title) + '">' + ic('trash') + '</button>' : '') + '</div><div class="pinfo"><b>' + esc(p.title) + '</b><span>' + esc(p.artist || (p.owner === session.user.id ? 'Yours' : 'Shared with you')) + ' · ' + (counts[p.id] || 0) + ' file' + (counts[p.id] === 1 ? '' : 's') + '</span><span class="when">' + ago(p.updated_at) + '</span></div></div>'
+          return '<div class="proj glass" role="button" tabindex="0" data-p="' + p.id + '"><div class="cover" style="' + (p.cover ? "background:#000 url('" + cssu(p.cover) + "') center/cover" : coverStyle(p.id)) + '">' + '</div><div class="pinfo"><span class="pact"><button class="ico sm" data-pedit="' + p.id + '" aria-label="Edit ' + esc(p.title) + '" title="Edit">' + ic('pen') + '</button>' + (p.owner === session.user.id ? '<button class="ico sm danger" data-pdel="' + p.id + '" aria-label="Delete ' + esc(p.title) + '" title="Delete">' + ic('trash') + '</button>' : '') + '</span><b>' + esc(p.title) + '</b><span>' + esc(p.artist || (p.owner === session.user.id ? 'Yours' : 'Shared with you')) + ' · ' + (counts[p.id] || 0) + ' file' + (counts[p.id] === 1 ? '' : 's') + '</span><span class="when">' + ago(p.updated_at) + '</span></div></div>'
         }).join('') + '<button class="proj new-proj" id="np2"><span class="ico">' + ic('plus') + '</span>New project</button></div>'
         : '<div class="empty glass"><span class="ico" style="width:64px;height:64px">' + ic('music') + '</span><h2>Start your first project</h2><p>A project is an album, a single or a film score. Put tracks in it, upload versions, and invite the people you work with.</p><button class="btn main" id="np2">' + ic('plus') + ' New project</button></div>')
       ps.forEach(function (p) { fixCover(p, function (u) { var el = $('[data-p="' + p.id + '"] .cover'); if (el) el.style.background = "#000 url('" + u + "') center/cover" }) })
-      $$('[data-p]').forEach(function (b) { b.onclick = function (e) { if (e.target.closest('[data-pdel]')) return; go('#p/' + b.dataset.p) }; b.onkeydown = function (e) { if (e.key === 'Enter') go('#p/' + b.dataset.p) } })
+      $$('[data-p]').forEach(function (b) {
+        b.onclick = function (e) { if (e.target.closest('.pact') || b.dataset.lp) return; go('#p/' + b.dataset.p) }; b.onkeydown = function (e) { if (e.key === 'Enter') go('#p/' + b.dataset.p) }
+        // right click (or a long press on a phone): what can be done to a project (Alex, 9 Nov)
+        b.oncontextmenu = function (e) { e.preventDefault(); projCtx(ps, b.dataset.p, e.clientX, e.clientY) }
+        longPress(b, function (x, y) { projCtx(ps, b.dataset.p, x, y) })
+        // drag a project onto another to put it there
+        b.draggable = true
+        b.ondragstart = function (e) { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', b.dataset.p); b.classList.add('dragging') }
+        b.ondragend = function () { b.classList.remove('dragging'); $$('.proj.dropto').forEach(function (x) { x.classList.remove('dropto') }) }
+        b.ondragover = function (e) { e.preventDefault(); b.classList.add('dropto') }
+        b.ondragleave = function () { b.classList.remove('dropto') }
+        b.ondrop = function (e) { e.preventDefault(); var from = e.dataTransfer.getData('text/plain'); if (from && from !== b.dataset.p) moveProj(ps, from, ps.map(function (x) { return x.id }).indexOf(b.dataset.p)) }
+      })
+      $$('[data-pedit]').forEach(function (b) { b.onclick = function (e) { e.stopPropagation(); var pj = ps.filter(function (x) { return x.id === b.dataset.pedit })[0]; if (pj) projectMenu({ project: pj, role: pj.owner === session.user.id ? 'owner' : 'editor' }) } })
       $$('[data-pdel]').forEach(function (b) { b.onclick = function (e) {
         e.stopPropagation(); var pj = ps.filter(function (x) { return x.id === b.dataset.pdel })[0]
         confirmBox('Delete “' + pj.title + '”?', 'Every file, version and note in it is deleted, and the files leave the cloud. This cannot be undone.', 'Delete', function () { return api('delete-project', { project: pj.id }).then(function (d) { if (d.ok) { toast('Project deleted'); renderProjects() } else toast(d.error) }) })
@@ -689,7 +777,12 @@
       (edit && !share ? '<label class="drop" id="drop"><input type="file" id="files" multiple hidden><span class="ico" style="width:50px;height:50px">' + ic('up') + '</span><b>' + (here.length ? 'Drop more files here' : folder ? 'Drop files into this folder' : 'Drop your first files here') + '</b><span>Audio, video, pictures, MIDI or any other file, up to 20 GB each. Each file gets its own page, with versions and notes.</span></label><div class="ups" id="ups"></div>'
         : (!here.length ? '<div class="empty glass"><h2>Nothing here yet</h2><p>When someone uploads a file it shows up here.</p></div>' : ''))
     $$('canvas[data-wave]').forEach(function (cv) { var v = c.versions.filter(function (x) { return x.id === cv.dataset.wave })[0]; drawMini(cv, v && v.peaks) })
-    $$('.trk').forEach(function (r) { r.onclick = function (e) { if (e.target.closest('[data-play]')) return; go('#t/' + r.dataset.t) } })
+    $$('.trk').forEach(function (r) { r.onclick = function (e) { if (e.target.closest('[data-play]') || r.dataset.lp) return; go('#t/' + r.dataset.t) } })
+    if (!share && edit) $$('.trk[data-t]').forEach(function (r) {
+      var open = function (x, y) { fileCtx(c, r.dataset.t, x, y) }
+      r.oncontextmenu = function (e) { e.preventDefault(); open(e.clientX, e.clientY) }
+      longPress(r, open)
+    })
     // plays and views on each file (Alex, 9 Nov), for the people who can edit
     if (!share && canDo('editor')) projStats(c.project.id).then(function (st) {
       $$('.trk[data-t]').forEach(function (r) {
@@ -800,7 +893,8 @@
   }
   function projectMenu(c) {
     var owner = c.role === 'owner'
-    modal('<div class="spread"><h2>' + esc(c.project.title) + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="opts"><button class="btn" id="pm-r">' + ic('pen') + ' Rename</button>' + (owner ? '<button class="btn danger" id="pm-d">' + ic('trash') + ' Delete project</button>' : '') + '</div>', function (m) {
+    modal('<div class="spread"><h2>' + esc(c.project.title) + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="opts"><button class="btn" id="pm-r">' + ic('pen') + ' Rename</button><button class="btn" id="pm-c">' + ic('image') + ' Change cover</button>' + (owner ? '<button class="btn danger" id="pm-d">' + ic('trash') + ' Delete project</button>' : '') + '</div>', function (m) {
+      $('#pm-c', m).onclick = function () { close(); coverBox(c) }
       $('#pm-r', m).onclick = function () {
         modal('<div class="spread"><h2>Rename</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><form id="rf" style="display:grid;gap:14px"><div class="field"><label for="rf-t">Title</label><input class="in" id="rf-t" value="' + esc(c.project.title) + '"></div><div class="field"><label for="rf-a">Artist</label><input class="in" id="rf-a" value="' + esc(c.project.artist) + '"></div><div class="row end"><button type="button" class="btn" data-x>Cancel</button><button class="btn main">Save</button></div></form>', function (k) {
           $('#rf', k).onsubmit = function (e) { e.preventDefault(); sb.from('roarstudio_projects').update({ title: $('#rf-t', k).value.trim() || 'Untitled', artist: $('#rf-a', k).value.trim() }).eq('id', c.project.id).then(function () { close(); render() }) }
