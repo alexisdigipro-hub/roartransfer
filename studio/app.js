@@ -58,6 +58,7 @@
     film: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M10 9.5v5l4-2.5z" fill="currentColor"/>',
     folder: '<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
     smile: '<circle cx="12" cy="12" r="8.5"/><path d="M8.5 14c.9 1.3 2.1 2 3.5 2s2.6-.7 3.5-2M9.2 9.8h.01M14.8 9.8h.01"/>',
+    chart: '<path d="M5 19.5V11M10 19.5V5M15 19.5v-6M20 19.5V8.5M3.5 19.5h17"/>',
     star: '<path d="M12 4l2.4 5 5.4.6-4 3.7 1.1 5.3L12 16l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z"/>',
     next: '<path d="M9 5l7 7-7 7"/>',
     zin: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5M8 10.5h5M10.5 8v5"/>', zout: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5M8 10.5h5"/>',
@@ -645,6 +646,7 @@
     var tools = share ? '' : (edit ? '<button class="btn main" id="new-btn">' + ic('plus') + ' New</button>' : '') +
       (edit && !folder ? '<button class="btn" id="sh-btn">' + ic('share') + ' Share</button>' : '') +
       (!folder ? '<button class="btn" id="pp-btn">' + ic('people') + ' People</button>' : '') +
+      (edit && !folder ? '<button class="btn" id="st-btn" title="Who opened, played and downloaded (Studio Pro)">' + ic('chart') + ' Stats' + (me && me.pro ? '' : ' <span class="probadge">PRO</span>') + '</button>' : '') +
       (edit ? '<button class="ico" id="pm-btn" aria-label="More">' + ic('dots') + '</button>' : '')
     var extra = '', extraTop = ''
     if (!share && !folder) {
@@ -687,6 +689,13 @@
         : (!here.length ? '<div class="empty glass"><h2>Nothing here yet</h2><p>When someone uploads a file it shows up here.</p></div>' : ''))
     $$('canvas[data-wave]').forEach(function (cv) { var v = c.versions.filter(function (x) { return x.id === cv.dataset.wave })[0]; drawMini(cv, v && v.peaks) })
     $$('.trk').forEach(function (r) { r.onclick = function (e) { if (e.target.closest('[data-play]')) return; go('#t/' + r.dataset.t) } })
+    // plays and views on each file (Alex, 9 Nov), for the people who can edit
+    if (!share && canDo('editor')) projStats(c.project.id).then(function (st) {
+      $$('.trk[data-t]').forEach(function (r) {
+        var tid = r.dataset.t, vids = c.versions.filter(function (v) { return v.track_id === tid }).map(function (v) { return v.id }), k = trackCounts(st, tid, vids), sp = $('.nm span', r)
+        if (sp && (k.plays || k.views) && !$('.pv', sp)) sp.insertAdjacentHTML('beforeend', '<em class="pv">▸ ' + esc(countsText(k)) + '</em>')
+      })
+    }).catch(function () {})
     $$('[data-play]').forEach(function (b) { b.onclick = function () { pendingPlay = true; go('#t/' + b.dataset.play) } })
     $$('#tracks [data-pick]').forEach(function (b) { b.onclick = function (e) { e.stopPropagation(); togglePick(b.dataset.pick, function () { drawProject(c) }) } })
     if ($('#pk-only')) $('#pk-only').onclick = function () { pickOnly = !pickOnly; drawProject(c) }
@@ -701,6 +710,7 @@
     if ($('#fback')) $('#fback').onclick = function () { go('#p/' + pr.id) }
     if (!share) {
       if ($('#pp-btn')) $('#pp-btn').onclick = function () { peopleBox(c) }
+      if ($('#st-btn')) $('#st-btn').onclick = function () { statsBox(c) }
       if ($('#sh-btn')) $('#sh-btn').onclick = function () { shareBox(c, null) }
       if ($('#new-btn')) $('#new-btn').onclick = function () { newBox(c, folder) }
       if ($('#pm-btn')) $('#pm-btn').onclick = function () { folder ? folderMenu(c, folder) : projectMenu(c) }
@@ -708,6 +718,47 @@
       if (edit) wireDrop($('#drop'), $('#files'), function (files) { startUploads(files, { project: pr.id, folder: folder ? folder.id : null }) })
       listen(pr.id)
     }
+  }
+  // plays and views (Alex, 9 Nov): views are the times a file was opened through a link (one an hour per person), plays
+  // the times anyone played it (roarstudio_watch, the people of the project included, not you); last 30 days for views
+  function projStats(pid) {
+    var since = new Date(Date.now() - 30 * 864e5).toISOString()
+    return Promise.all([
+      sb.from('roarstudio_events').select('kind, track_id, version_id, actor, actor_name, created_at').eq('project_id', pid).in('kind', ['view', 'stream', 'download']).gte('created_at', since).order('created_at', { ascending: false }).limit(2000),
+      sb.from('roarstudio_watch').select('version_id, viewer, name, user_id, plays, seen, furthest, duration, updated_at').eq('project_id', pid)
+    ]).then(function (r) { return { ev: r[0].data || [], w: (r[1].data || []).filter(function (x) { return x.user_id !== session.user.id }) } })
+  }
+  function trackCounts(st, tid, vids) {
+    var views = st.ev.filter(function (e) { return e.kind === 'stream' && e.track_id === tid }).length
+    var ws = st.w.filter(function (x) { return vids.indexOf(x.version_id) >= 0 })
+    return { views: views, plays: ws.reduce(function (a, x) { return a + (x.plays || 0) }, 0), people: ws.map(function (x) { return x.viewer }).filter(function (x, i, a) { return a.indexOf(x) === i }).length, dl: st.ev.filter(function (e) { return e.kind === 'download' && e.track_id === tid }).length }
+  }
+  function countsText(c) { return (c.plays ? c.plays + ' play' + (c.plays === 1 ? '' : 's') : '') + (c.plays && c.views ? ' · ' : '') + (c.views ? c.views + ' view' + (c.views === 1 ? '' : 's') : '') }
+  function statsBox(c) {
+    if (!(me && me.pro)) {
+      modal('<div class="spread"><h2>Stats</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><p class="muted" style="margin:0">Who opened your links, what they played and for how long, what they downloaded, day by day. Stats are part of <b>Studio Pro</b>.</p><div class="row end"><a class="btn main" href="pricing/" target="_blank" rel="noopener">' + ic('star') + ' See Studio Pro</a></div>')
+      return
+    }
+    var m = modal('<div class="spread"><h2>Stats · ' + esc(c.project.title) + '</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div id="stx"><div class="spin"></div></div>')
+    $('.sheet-card', m).classList.add('wide')
+    projStats(c.project.id).then(function (st) {
+      var box = $('#stx', m); if (!box) return
+      var opens = st.ev.filter(function (e) { return e.kind === 'view' }), streams = st.ev.filter(function (e) { return e.kind === 'stream' }), dls = st.ev.filter(function (e) { return e.kind === 'download' })
+      var plays = st.w.reduce(function (a, x) { return a + (x.plays || 0) }, 0)
+      var people = st.w.map(function (x) { return x.viewer }).concat(opens.map(function (e) { return e.actor || 'g:' + String(e.actor_name || '').toLowerCase() })).filter(function (x, i, a) { return x && a.indexOf(x) === i }).length
+      var days = []; for (var i = 13; i >= 0; i--) { var dd = new Date(Date.now() - i * 864e5); days.push({ key: dd.toISOString().slice(0, 10), label: dd.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), o: 0, p: 0 }) }
+      st.ev.forEach(function (e) { var k = String(e.created_at).slice(0, 10), dd = days.filter(function (x) { return x.key === k })[0]; if (dd) { if (e.kind === 'view') dd.o++; else if (e.kind === 'stream') dd.p++ } })
+      var top = Math.max(1, days.reduce(function (a, x) { return Math.max(a, x.o + x.p) }, 0))
+      var files = c.tracks.map(function (t) { var vids = c.versions.filter(function (v) { return v.track_id === t.id }).map(function (v) { return v.id }); var k = trackCounts(st, t.id, vids); var ws = st.w.filter(function (x) { return vids.indexOf(x.version_id) >= 0 && x.duration }); k.avg = ws.length ? Math.round(ws.reduce(function (a, x) { return a + Math.min(1, x.seen / Math.max(1, Math.floor(x.duration))) }, 0) / ws.length * 100) : null; k.t = t; return k })
+        .filter(function (k) { return k.views || k.plays || k.dl }).sort(function (a, b) { return (b.plays + b.views) - (a.plays + a.views) }).slice(0, 8)
+      var tt = {}; c.tracks.forEach(function (t) { tt[t.id] = t.title })
+      var recent = st.ev.slice(0, 12)
+      var kpi = function (n, l) { return '<div class="kpi glass"><b>' + n + '</b><span>' + l + '</span></div>' }
+      box.innerHTML = '<div class="kpis sk">' + kpi(opens.length, 'Link opens') + kpi(plays, 'Plays') + kpi(people, 'People') + kpi(dls.length, 'Downloads') + '</div>' +
+        '<h3 class="sth3">Last 14 days</h3><div class="chart sch" role="img" aria-label="Opens and plays per day">' + days.map(function (x) { return '<div class="col" title="' + x.label + ': ' + x.o + ' opens, ' + x.p + ' plays"><i class="u" style="height:' + (x.o / top * 100) + '%"></i><i class="n" style="height:' + (x.p / top * 100) + '%"></i></div>' }).join('') + '</div><div class="klegend"><span><i style="background:#a78bfa"></i>Opens</span><span><i style="background:#22d3ee"></i>Plays</span></div>' +
+        '<h3 class="sth3">Files</h3>' + (files.length ? files.map(function (k) { return '<div class="srow"><div><b>' + esc(k.t.title) + '</b><small>' + [k.plays + ' play' + (k.plays === 1 ? '' : 's'), k.views + ' view' + (k.views === 1 ? '' : 's'), k.people ? k.people + ' ' + (k.people === 1 ? 'person' : 'people') : '', k.avg != null ? k.avg + '% watched on average' : '', k.dl ? k.dl + ' download' + (k.dl === 1 ? '' : 's') : ''].filter(Boolean).join(' · ') + '</small></div></div>' }).join('') : '<p class="muted">Nothing yet. Share a link and it shows here.</p>') +
+        '<h3 class="sth3">Latest visits</h3>' + (recent.length ? recent.map(function (e) { var who = e.actor_name || (c.people[e.actor] && c.people[e.actor].name) || 'Someone'; var what = e.kind === 'view' ? 'opened the project' : e.kind === 'stream' ? 'opened ' + (tt[e.track_id] || 'a file') : 'downloaded ' + (tt[e.track_id] || 'a file'); return '<div class="srow"><div><b>' + esc(who) + '</b><small>' + esc(what) + '</small></div><small class="muted">' + ago(e.created_at) + '</small></div>' }).join('') : '<p class="muted">No visits in the last 30 days.</p>')
+    })
   }
   // + New (Alex, 7 Nov, as mixup): a file, a playlist (audio or video) or a folder
   function newBox(c, folder) {
@@ -1016,6 +1067,7 @@
       paintVersions(); paintMedia(); paintFacts(); paintNotes(); paintAppr(); drawWave()
       load(x, keep, false).catch(function (e) { toast(e.message) })
     }
+    if (!share && canDo('editor')) projStats(ctx.project.id).then(function (st) { if (!tview || tview.track !== id) return; tview.counts = trackCounts(st, id, versions.map(function (v) { return v.id })); paintFacts() }).catch(function () {})
     function paintFacts() {
       var x = curV()
       $('#lufs').textContent = x.lufs == null ? 'not measured' : (matched ? lufsText(TARGET) + ' (' + lufsText(x.lufs) + ')' : lufsText(x.lufs))
@@ -1028,6 +1080,7 @@
       if (x.size) f.push(size(x.size))
       var who = share ? share.data.names[x.uploaded_by] : ctx.people[x.uploaded_by] && ctx.people[x.uploaded_by].name
       f.push((who ? who + ', ' : '') + ago(x.created_at))
+      if (tview && tview.counts && (tview.counts.plays || tview.counts.views)) f.push(countsText(tview.counts))
       $('#facts').innerHTML = f.map(function (t) { return '<span>' + esc(t) + '</span>' }).join('')
       $('#facts').title = x.file_name
     }
@@ -2750,7 +2803,7 @@
   }
   function activityPanel() {
     var filt = 'All', seenBefore = store.get('rs-seen') || new Date(Date.now() - 3 * 864e5).toISOString()
-    var CH = [['All', null], ['Notes', ['note']], ['Approvals', ['approve', 'final']], ['Uploads', ['version']], ['Downloads', ['download']]]
+    var CH = [['All', null], ['Notes', ['note']], ['Approvals', ['approve', 'final']], ['Uploads', ['version']], ['Downloads', ['download']]].concat(me && me.pro ? [['Visits', ['view']]] : [])
     var m = modal('<div class="spread"><h2>Notifications</h2><button class="ico sm x" data-x aria-label="Close">' + ic('x') + '</button></div><div class="chips" id="ac-f">' + CH.map(function (f, i) { return '<button' + (i ? '' : ' class="on"') + ' data-f="' + f[0] + '">' + f[0] + '</button>' }).join('') + '</div><div id="ac-sum"></div><div class="aclist" id="ac-l"><div class="spin"></div></div>')
     $('.sheet-card', m).classList.add('drawer')
     m.classList.add('side')
@@ -2772,7 +2825,7 @@
           $('#ac-l', m).innerHTML = rows.length ? rows.map(function (e) {
             var p = ps.filter(function (x) { return x.id === e.project_id })[0], t = tt[e.track_id] || 'a file'
             var who = e.actor_name || (ctx && ctx.people && ctx.people[e.actor] && ctx.people[e.actor].name) || 'Someone'
-            var what = e.kind === 'note' ? '<b>' + esc(who) + '</b> left a note on ' + esc(t) : e.kind === 'approve' ? '<b>' + esc(who) + '</b> approved ' + esc(t) : e.kind === 'final' ? esc(t) + ' is <b>final</b>' : e.kind === 'download' ? '<b>' + esc(who) + '</b> downloaded ' + esc(t) : e.kind === 'version' ? '<b>' + esc(who) + '</b> uploaded a new version of ' + esc(t) : '<b>' + esc(who) + '</b> added you to ' + esc(p.title)
+            var what = e.kind === 'view' ? '<b>' + esc(who) + '</b> opened ' + esc(p.title) + ' from a link' : e.kind === 'note' ? '<b>' + esc(who) + '</b> left a note on ' + esc(t) : e.kind === 'approve' ? '<b>' + esc(who) + '</b> approved ' + esc(t) : e.kind === 'final' ? esc(t) + ' is <b>final</b>' : e.kind === 'download' ? '<b>' + esc(who) + '</b> downloaded ' + esc(t) : e.kind === 'version' ? '<b>' + esc(who) + '</b> uploaded a new version of ' + esc(t) : '<b>' + esc(who) + '</b> added you to ' + esc(p.title)
             var day = dayOf(e.created_at), head = day !== last ? '<div class="acday">' + day + '</div>' : ''; last = day
             var isNew = e.created_at > seenBefore
             return head + '<button class="acrow' + (isNew ? ' new' : '') + '" data-go="' + (e.track_id ? '#t/' + e.track_id : '#p/' + e.project_id) + '"><span class="ico sm k-' + e.kind + '">' + ic((ACT[e.kind] || [0, 'bell'])[1]) + '</span><span class="nm"><span class="tx">' + what + '</span><small>' + esc(p.title) + ' · ' + ago(e.created_at) + '</small>' + (e.body && e.kind === 'note' ? '<q>' + esc(String(e.body).slice(0, 140)) + '</q>' : '') + '</span>' + (isNew ? '<i class="dot" aria-label="New"></i>' : '') + '</button>'
@@ -3009,6 +3062,7 @@
     sb.from('roarstudio_prefs').select('*').eq('user_id', s.user.id).maybeSingle().then(function (r) { if (me && r.data) me.prefs = r.data })
     sb.from('roarstudio_studios').select('*').eq('owner', s.user.id).maybeSingle().then(function (r) { if (me) me.studio = r.data || null })
     setTimeout(function () { api('admin-check').then(function (d) { if (me) me.admin = !!d.admin }) }, 300)
+    setTimeout(function () { api('pro-me').then(function (d) { if (!me) return; me.pro = !!d.pro; if (me.pro && BELL_KINDS.indexOf('view') < 0) { BELL_KINDS.push('view'); bellCount() } }) }, 400)
   }
   // a new session goes on only at the level its account asks for: one with a verified authenticator types its code first
   function onSession(s) {

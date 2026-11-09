@@ -190,3 +190,7 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
 - From Suno (Alex, 9 Nov 2026): + New > From Suno, or a track's ⋯ > New version from Suno: the song's link becomes a
   version with mime `application/x-suno;id=<song id>` and plays in Suno's own embedded player (suno.com/embed/<id>);
   Suno does not allow taking the audio file, so it is not copied. Edge Function `roarstudio-import` in roarme.
+- Plays and views (Alex, 9 Nov 2026): each file shows how many times it was played (roarstudio_watch, not your own plays)
+  and opened through a link (stream events, last 30 days), on its row and under the player, for editors. **Stats**
+  (Studio Pro; others see what it is and a link to the pricing): link opens, plays, people, downloads, 14 days, the files,
+  the latest visits (statsBox, projStats). A Pro also gets each link visit on the bell (Visits).
