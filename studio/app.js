@@ -133,7 +133,8 @@
     body = Object.assign({ action: action }, body || {})
     var h = { apikey: KEY, 'Content-Type': 'application/json' }
     if (share && /^share-/.test(action) && action !== 'share-create') { body.token = share.token; body.password = share.password; if (!body.name) body.name = store.get('rs-guest') || '' }
-    else if (session) h.Authorization = 'Bearer ' + session.access_token
+    // signed in, even on a link: the function then knows a member of the project and does not count their own visits (Alex, 9 Nov)
+    if (session) h.Authorization = 'Bearer ' + session.access_token
     return fetch(FN, { method: 'POST', headers: h, body: JSON.stringify(body) }).then(function (r) {
       return r.json().catch(function () { return { error: 'Error ' + r.status } }).then(function (d) { if (!r.ok && !d.error) d.error = 'Error ' + r.status; d._status = r.status; return d })
     })
@@ -726,7 +727,12 @@
     return Promise.all([
       sb.from('roarstudio_events').select('kind, track_id, version_id, actor, actor_name, created_at').eq('project_id', pid).in('kind', ['view', 'stream', 'download']).gte('created_at', since).order('created_at', { ascending: false }).limit(2000),
       sb.from('roarstudio_watch').select('version_id, viewer, name, user_id, plays, seen, furthest, duration, updated_at').eq('project_id', pid)
-    ]).then(function (r) { return { ev: r[0].data || [], w: (r[1].data || []).filter(function (x) { return x.user_id !== session.user.id }) } })
+    ]).then(function (r) {
+      // never your own: your account, or your name on one of your own links (Alex, 9 Nov)
+      var mine = String((me && me.name) || '').trim().toLowerCase(), uid = session.user.id
+      var notMe = function (n) { return !mine || String(n || '').trim().toLowerCase() !== mine }
+      return { ev: (r[0].data || []).filter(function (e) { return e.actor !== uid && notMe(e.actor_name) }), w: (r[1].data || []).filter(function (x) { return x.user_id !== uid && (x.user_id || notMe(x.name)) }) }
+    })
   }
   function trackCounts(st, tid, vids) {
     var views = st.ev.filter(function (e) { return e.kind === 'stream' && e.track_id === tid }).length
@@ -993,12 +999,12 @@
         if (k === 'audio' && store.get('rs-hint-ab') !== '0') out += '<div class="hint" data-hint="ab">' + ic('wave') + '<span><b>A/B</b> · press A/B at the top, then <kbd>Space</kbd>: you hear the next version (A → B → C) from the same second, without stopping.</span><button class="ico sm" aria-label="Hide this tip">' + ic('x') + '</button></div>'
         if (k !== 'image' && canDo('commenter') && store.get('rs-hint-rng') !== '0') out += '<div class="hint" data-hint="rng">' + ic('range') + '<span><b>A stretch</b> · hold <kbd>Shift</kbd> and drag on the waveform to pick a part (0:42 to 0:58): the note you write covers all of it.</span><button class="ico sm" aria-label="Hide this tip">' + ic('x') + '</button></div>'
         return out ? '<div class="hints">' + out + '</div>' : ''
-      })() + '<aside class="notes glass"><header>' + '<div class="lens-group" id="ntab"><span class="lens"></span><button class="on" data-tab="n">Notes</button>' + (share ? '' : '<button data-tab="p">Notepad</button>') + '<button data-tab="s" hidden>Stills</button>' + (!share && canDo('editor') ? '<button data-tab="w">Views</button>' : '') + '</div>' + '<span class="muted" id="ncount"></span>' + (share ? '' : '<button class="ico sm" id="nexp" hidden aria-label="Notes as markers for the edit" title="Notes as markers for the edit (Resolve, Premiere)">' + ic('mark') + '</button>') + '</header>' +
+      })() + '<div class="rcol"><aside class="notes glass"><header>' + '<div class="lens-group" id="ntab"><span class="lens"></span><button class="on" data-tab="n">Notes</button>' + (share ? '' : '<button data-tab="p">Notepad</button>') + '<button data-tab="s" hidden>Stills</button>' + (!share && canDo('editor') ? '<button data-tab="w">Views</button>' : '') + '</div>' + '<span class="muted" id="ncount"></span>' + (share ? '' : '<button class="ico sm" id="nexp" hidden aria-label="Notes as markers for the edit" title="Notes as markers for the edit (Resolve, Premiere)">' + ic('mark') + '</button>') + '</header>' +
       '<div class="nfilter" id="nfilter"><label class="nsearch">' + ic('search') + '<input id="nq" placeholder="Search notes" aria-label="Search notes"></label><div class="chips" id="nchips"><button class="on" data-f="all">All</button><button data-f="open">Open</button><button data-f="done">Done</button>' + (share ? '' : '<button data-f="mine">Mine</button>') + '</div></div>' +
       '<div class="nlist" id="nlist"></div><div class="stills" id="stills" hidden></div><div class="views" id="views" hidden></div>' + (share ? '' : '<div class="npad" id="npad" hidden><textarea class="in" id="npad-t"></textarea><span class="muted" id="npad-s" style="font-size:12px"></span></div>') +
       (canDo('commenter') ? '<form class="compose" id="cmp">' + (share && !store.get('rs-guest') ? '<input class="in" id="g-name" maxlength="60" placeholder="Your name" required>' : '') +
         '<div class="cmp-sk" id="cmp-pos" hidden>' + ic('pin') + '<span>On the spot you clicked</span><button type="button" class="ico sm" id="cmp-pos-x" aria-label="No spot">' + ic('x') + '</button></div><div class="cmp-sk" id="cmp-sk" hidden>' + ic('pen') + '<span>Drawing goes with this note</span><button type="button" class="ico sm" id="cmp-sk-x" aria-label="Remove the drawing">' + ic('x') + '</button></div><div class="cmp-sk" id="cmp-attc" hidden>' + ic('image') + '<span>A picture goes with this note</span><button type="button" class="ico sm" id="cmp-attc-x" aria-label="Remove the picture">' + ic('x') + '</button></div><div class="mwrap"><textarea class="in" id="cmp-t" rows="2" maxlength="4000" placeholder="Write a note · @ to mention someone"></textarea><div class="mpop" id="mpop" hidden></div></div><div class="spread"><label class="attime"><input type="checkbox" id="cmp-at" checked> at <b class="mono" id="cmp-time">0:00</b></label><button type="button" class="ico sm rbtn" id="cmp-rng" title="A note over a stretch: press at the start, press again at the end (or Shift and drag on the waveform)" aria-label="A note over a stretch">' + ic('range') + '</button><span class="grow"></span><button type="button" class="ico sm" id="cmp-att" title="Attach a picture (a reference, a screenshot)" aria-label="Attach a picture">' + ic('image') + '</button><input type="file" id="cmp-attf" accept="image/*" hidden><button type="button" class="ico sm mic" id="cmp-mic" title="Hold to speak a note, or click to start and click to stop" aria-label="Speak a note">' + ic('mic') + '<b class="mono" id="cmp-mic-t"></b></button><button class="btn main sm" id="cmp-go">Post</button></div></form>' : '') +
-      '</aside></div>'
+      '</aside><aside class="mstats glass" id="mstats" hidden></aside></div></div>'
 
     $('#back').onclick = function () { go(share && share.data.tracks.length === 1 && share.data.project ? '#t/' + id : '#p/' + ctx.project.id) }
 
@@ -1067,7 +1073,24 @@
       paintVersions(); paintMedia(); paintFacts(); paintNotes(); paintAppr(); drawWave()
       load(x, keep, false).catch(function (e) { toast(e.message) })
     }
-    if (!share && canDo('editor')) projStats(ctx.project.id).then(function (st) { if (!tview || tview.track !== id) return; tview.counts = trackCounts(st, id, versions.map(function (v) { return v.id })); paintFacts() }).catch(function () {})
+    if (!share && canDo('editor')) projStats(ctx.project.id).then(function (st) { if (!tview || tview.track !== id) return; tview.st = st; tview.counts = trackCounts(st, id, versions.map(function (v) { return v.id })); paintFacts(); paintMini() }).catch(function () {})
+    // mini stats under the notes (Alex, 9 Nov): plays, views, people, downloads of this file, how much of it, the last visit
+    function paintMini() {
+      var box = $('#mstats'), st = tview.st; if (!box || !st) return
+      var vids = versions.map(function (v) { return v.id }), k = tview.counts
+      var ws = st.w.filter(function (x) { return vids.indexOf(x.version_id) >= 0 && x.duration })
+      var avg = ws.length ? Math.round(ws.reduce(function (a, x) { return a + Math.min(1, x.seen / Math.max(1, Math.floor(x.duration))) }, 0) / ws.length * 100) : null
+      var last = st.ev.filter(function (e) { return e.track_id === id })[0]
+      var who = last ? (last.actor_name || (ctx.people[last.actor] && ctx.people[last.actor].name) || 'Someone') : ''
+      var cell = function (n, l) { return '<div><b>' + n + '</b><span>' + l + '</span></div>' }
+      box.hidden = false
+      box.innerHTML = '<div class="spread"><b class="mh">' + ic('chart') + ' Stats</b><small class="muted">last 30 days</small></div>' +
+        '<div class="mgrid">' + cell(k.plays, 'Plays') + cell(k.views, 'Views') + cell(k.people, 'People') + cell(k.dl, 'Downloads') + '</div>' +
+        (avg != null ? '<div class="mbar"><span>Watched on average</span><b>' + avg + '%</b><i><em style="width:' + avg + '%"></em></i></div>' : '') +
+        (last ? '<p class="mlast">' + (me && me.pro ? '<b>' + esc(who) + '</b> ' + (last.kind === 'download' ? 'downloaded it' : 'opened it') + ' · ' + ago(last.created_at) : 'Last visit ' + ago(last.created_at)) + '</p>' : '<p class="mlast muted">No visits yet. Share a link and they show here.</p>') +
+        '<button class="btn sm" id="ms-all" type="button">' + ic('chart') + ' All stats' + (me && me.pro ? '' : ' <span class="probadge">PRO</span>') + '</button>'
+      $('#ms-all', box).onclick = function () { statsBox(ctx) }
+    }
     function paintFacts() {
       var x = curV()
       $('#lufs').textContent = x.lufs == null ? 'not measured' : (matched ? lufsText(TARGET) + ' (' + lufsText(x.lufs) + ')' : lufsText(x.lufs))
@@ -1198,7 +1221,7 @@
       var body = { action: share ? 'share-watch' : 'watch', version: W.v, sec: W.max, seen: W.n, dur: W.dur, start: W.start, name: store.get('rs-guest') || '' }
       W.start = false; W.sent = Date.now()
       var h = { apikey: KEY, 'Content-Type': 'application/json' }
-      if (share) { body.token = share.token; body.password = share.password } else if (session) h.Authorization = 'Bearer ' + session.access_token
+      if (share) { body.token = share.token; body.password = share.password } if (session) h.Authorization = 'Bearer ' + session.access_token
       try { fetch(FN, { method: 'POST', headers: h, body: JSON.stringify(body), keepalive: true }).catch(function () {}) } catch (e) {}
     }
     tview.wflush = wflush
