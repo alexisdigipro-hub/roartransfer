@@ -201,3 +201,6 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
   end; one's own order, rs-porder, also by dragging a project onto another), Delete; a file in a project: Open, Rename,
   Download, Move up / down / to the top, Move out of or into a folder, to a new folder, Delete (ctxMenu, projCtx,
   fileCtx). A project's Edit and Delete sit at the right end of its bar, not on the picture.
+- Spotify (Alex, 9 Nov 2026): + New > From Suno or Spotify takes a Spotify song, album, playlist or episode link too
+  (open.spotify.com, spotify.link, spotify:…); it plays in Spotify's embedded player (mime application/x-spotify;type=…;id=…,
+  linkOf). Links of both kinds sit under Links in a project.

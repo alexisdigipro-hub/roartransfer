@@ -1406,3 +1406,9 @@ body.noscroll { overflow: hidden }
 .ctxm button[disabled] { opacity: .35; cursor: default }
 .ctxm button.danger { color: #fca5a5 } .ctxm button.danger svg { color: #f87171 }
 .ctxm i { height: 1px; margin: 4px 6px; background: var(--edge) }
+
+/* Spotify's player (Alex, 9 Nov): its own height, green on the row */
+.sunobox.spot { background: #121212 }
+.sunobox.spot iframe { height: 352px; border-radius: 12px 12px 0 0; background: #121212 }
+.sunobox.spot.tall iframe { height: 452px }
+.trk .th.sth.spot { background: linear-gradient(160deg, #4ade80, #15803d) }
