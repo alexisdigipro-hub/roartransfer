@@ -183,3 +183,10 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
   wetransfer-alternative/, EN and EL). A file's ?v= is a hash of its content; edit home.css/home.js and change it.
   studio/style.css lost 205 declarations that a later rule with the same selector always overrode (same look, checked
   by comparing screenshots).
+- Any file (Alex, 9 Nov 2026): MIDI, PDF, sessions and anything else upload as files (kind 'file': a card with Download,
+  notes without a time); the Files tab in a project. Inside a song, **Stems & files**: playable stems (in step by
+  nudging the speed of a stem that drifts, never jumping, and all waiting together when one runs out of sound) and,
+  below, MIDI and other files; each can be downloaded, a picked few, or all as one .zip (`zipAll`, `saveUrl`).
+- From Suno (Alex, 9 Nov 2026): + New > From Suno, or a track's ⋯ > New version from Suno: the song's link becomes a
+  version with mime `application/x-suno;id=<song id>` and plays in Suno's own embedded player (suno.com/embed/<id>);
+  Suno does not allow taking the audio file, so it is not copied. Edge Function `roarstudio-import` in roarme.
