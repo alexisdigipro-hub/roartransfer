@@ -197,3 +197,7 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
 - Not your own (Alex, 9 Nov): your plays and visits never count, on your account or on your own links (signed in, the
   function knows you are a member: roarstudio v14); a mini Stats card under the notes (plays, views, people, downloads,
   watched on average, the last visit, All stats); the facts line as wide as the player; the background at 16%.
+- Right click (Alex, 9 Nov; a long press on a phone): a project: Open, Edit, Change cover, Move (start, back, forward,
+  end; one's own order, rs-porder, also by dragging a project onto another), Delete; a file in a project: Open, Rename,
+  Download, Move up / down / to the top, Move out of or into a folder, to a new folder, Delete (ctxMenu, projCtx,
+  fileCtx). A project's Edit and Delete sit at the right end of its bar, not on the picture.
