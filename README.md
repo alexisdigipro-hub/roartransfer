@@ -194,3 +194,6 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
   and opened through a link (stream events, last 30 days), on its row and under the player, for editors. **Stats**
   (Studio Pro; others see what it is and a link to the pricing): link opens, plays, people, downloads, 14 days, the files,
   the latest visits (statsBox, projStats). A Pro also gets each link visit on the bell (Visits).
+- Not your own (Alex, 9 Nov): your plays and visits never count, on your account or on your own links (signed in, the
+  function knows you are a member: roarstudio v14); a mini Stats card under the notes (plays, views, people, downloads,
+  watched on average, the last visit, All stats); the facts line as wide as the player; the background at 16%.

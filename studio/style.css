@@ -854,8 +854,8 @@ html[data-theme="light"] .facts span:first-child { color: #6d28d9 }
 .pcover.art { width: 60px; height: 60px; border-radius: 13px }
 }
 /* the background, chosen in Settings, shown at 25% (Alex, 7 Nov) */
-body::before { background-image: var(--bgimg, url('bg-waves.webp')); background-size: cover; background-position: center; opacity: .25; filter: none }
-html[data-theme="light"] body::before { opacity: .12; filter: grayscale(.2) }
+body::before { background-image: var(--bgimg, url('bg-waves.webp')); background-size: cover; background-position: center; opacity: .16; filter: none }
+html[data-theme="light"] body::before { opacity: .08; filter: grayscale(.2) }
 body.custom-bd::before { background-image: var(--bd); opacity: .3 }
 .bgpick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px }
 .bgpick button { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: #0b0910 center / cover no-repeat; cursor: pointer; overflow: hidden; padding: 0 }
@@ -1364,3 +1364,26 @@ body.noscroll { overflow: hidden }
 @media (max-width: 600px) { .kpis.sk { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
 .sth3 { margin: 16px 2px 8px; font: 700 11px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--dim) }
 .chart.sch { height: 120px }
+
+/* the right column: the notes, and mini stats under them (Alex, 9 Nov) */
+.player > .rcol { display: grid; gap: 14px; align-content: start; min-width: 0 }
+.rcol > .notes { position: relative; top: 0 }
+@media (min-width: 981px) {
+  .player > .rcol { grid-column: 2; grid-row: 1 / span 3; position: sticky; top: 84px }
+  .rcol:has(> .mstats:not([hidden])) > .notes { max-height: calc(100vh - 360px); min-height: 300px }
+}
+.mstats { border-radius: 22px; padding: 14px 16px; display: grid; gap: 12px }
+.mstats .mh { display: inline-flex; align-items: center; gap: 8px; font-size: 14px } .mstats .mh svg { width: 16px; height: 16px; color: #22d3ee }
+.mstats .mgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px }
+.mstats .mgrid div { display: grid; gap: 2px; padding: 10px 8px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--edge); text-align: center }
+.mstats .mgrid b { font: 700 20px var(--disp) } .mstats .mgrid span { font-size: 11px; color: var(--muted) }
+.mstats .mbar { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; font-size: 12.5px; color: var(--muted) }
+.mstats .mbar b { color: #a5f3fc } .mstats .mbar i { grid-column: 1 / -1; height: 6px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden }
+.mstats .mbar em { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #a78bfa, #22d3ee) }
+.mstats .mlast { margin: 0; font-size: 12.5px; color: var(--muted) } .mstats .mlast b { color: var(--text) }
+.mstats #ms-all { justify-self: start }
+
+/* the facts line as wide as the player above it (Alex, 9 Nov) */
+.facts { display: flex; width: 100%; box-sizing: border-box; justify-content: space-between; border-radius: 16px }
+.facts span + span::before { margin: 0 6px 0 0 }
+@media (max-width: 600px) { .facts { justify-content: flex-start; gap: 4px 0 } .facts span + span::before { margin: 0 8px } }
