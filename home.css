@@ -682,3 +682,6 @@ html.lm-on { overflow: hidden; }
   #mpane-sent > .bar2 .find { flex: 1 1 0; min-width: 0; }
 }
 @media (max-width: 560px) { #pro-list .pill.sm { width: 38px; min-height: 38px; padding: 0; justify-content: center; border-radius: 50%; } #pro-list .pill.sm span { display: none; } }
+
+/* Sign out lives in Settings only (nothing in two places) */
+.top .who #out { display: none; }
