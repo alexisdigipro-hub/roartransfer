@@ -710,3 +710,10 @@ html.lm-on { overflow: hidden; }
 h1.wm { font-family: Jost, var(--disp); font-weight: 200; text-transform: uppercase; letter-spacing: .02em; font-size: clamp(30px, 7vw, 46px); line-height: 1; }
 h1.wm b { font-weight: 900; letter-spacing: .01em; }
 html[lang="el"] h1.wm { font-size: clamp(22px, 6.2vw, 40px); letter-spacing: 0; }
+
+/* the link window on a phone (Alex, 11 Nov): fields stay inside the box, and 16px text so the iPhone does not zoom in when one is tapped */
+.lm-row .in { box-sizing: border-box; min-width: 0; max-width: 100%; }
+.lm-row input[type="datetime-local"] { -webkit-appearance: none; appearance: none; display: block; text-align: left; }
+.lm-row input[type="datetime-local"]::-webkit-date-and-time-value { text-align: left; }
+@media (max-width: 520px) { .lm-row .in { width: 100%; font-size: 16px; height: 44px; } .lm-row { padding: 12px; } }
+@supports (-webkit-touch-callout: none) { .lm-card input, .lm-card textarea, #sm input { font-size: 16px; } }
