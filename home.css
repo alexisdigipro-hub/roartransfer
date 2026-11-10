@@ -524,3 +524,33 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 .more-b { display: grid; gap: 10px; }
 .more-b[hidden] { display: none; }
 #v-pick:has(#opts:not([hidden])) > .tag, #v-pick:has(#opts:not([hidden])) > .clean { display: none; }
+
+/* My transfers: one line a link, a tap opens its window (Alex, 10 Nov) */
+.files li.tx.one { align-items: center; flex-wrap: nowrap; cursor: pointer; transition: background .2s, border-color .2s; }
+.files li.tx.one:hover, .files li.tx.one:focus-visible { background: rgba(255,255,255,.08); outline: none; }
+.files li.tx.one .fi { margin-top: 0; }
+.files li.tx.one small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.files li.tx.one .soon-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--warn, #ffd666); vertical-align: middle; margin-left: 2px; }
+.files li.tx.one .lm-chev { width: 18px; height: 18px; flex: none; opacity: .5; }
+.lm { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; }
+.lm[hidden] { display: none; }
+.lm-back { position: absolute; inset: 0; background: rgba(0,0,0,.55); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.lm-card { position: relative; width: min(480px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto; display: grid; gap: 14px; padding: 18px; border-radius: 26px;
+  background: linear-gradient(170deg, rgba(43,48,56,.92), rgba(20,22,26,.96)); border: 1px solid rgba(255,255,255,.18); box-shadow: 0 40px 100px rgba(0,0,0,.55); animation: lm-in .26s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes lm-in { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .lm-card { animation: none; } }
+html.lm-on { overflow: hidden; }
+.lm-h { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.lm-h .fi { flex: none; width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center; background: rgba(212,0,0,.18); color: #ff8f86; }
+.lm-h .fi svg { width: 19px; height: 19px; }
+.lm-h .ft { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.lm-h .ft b { font-size: 15.5px; overflow-wrap: anywhere; }
+.lm-h .ft small { font-size: 12px; color: var(--muted); }
+.lm-x { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--glass-edge, rgba(255,255,255,.2)); background: rgba(255,255,255,.06); color: inherit; cursor: pointer; }
+.lm-x svg { width: 15px; height: 15px; }
+.lm-st { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.lm-st i { width: 8px; height: 8px; border-radius: 50%; background: #2fd36b; flex: none; } .lm-st i.soon { background: #ffd666; } .lm-st i.off { background: rgba(255,255,255,.3); }
+.lm-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.lm-acts .pill { width: 100%; justify-content: center; text-decoration: none; }
+.lm-det .det { margin: 0; padding: 0; }
+.lm-del { justify-self: center; color: #ffb4ad; }

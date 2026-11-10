@@ -35,7 +35,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/home.css?v=6f43a0d1">
+<link rel="stylesheet" href="/home.css?v=c6873b39">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -64,13 +64,14 @@
 
 <div class="bg" id="bg" aria-hidden="true"><img id="bg-img" alt="" fetchpriority="high" decoding="async"></div>
 
+<!-- one link, everything about it (Alex, 10 Nov: "one line; a tap opens a window with all it can do") -->
+<div class="lm" id="lm" hidden><div class="lm-back" data-lmx></div><div class="lm-card" role="dialog" aria-modal="true" aria-labelledby="lm-name" id="lm-card"></div></div>
 <header class="top">
   <a class="mark" href="./" aria-label="RoarTransfer by The Mad Lions"><b>Roar<span>Transfer</span></b><small class="by">By The<strong>Mad</strong>Lions</small></a>
   <a class="credit" id="credit" target="_blank" rel="noopener" hidden><span><small data-t="cr">A still from</small><b id="credit-t"></b></span></a>
   <div class="end">
     <!-- RoarTransfer Studio (Alex, 7 Nov 2026): review and delivery for audio, video and pictures, at studio.roartransfer.com -->
     <a class="more studio" href="https://studio.roartransfer.com/" title="RoarTransfer Studio: review and delivery for audio, video and pictures"><i aria-hidden="true"><svg viewBox="0 0 14 14" width="12" height="12"><rect x="0.9" y="2" width="12.2" height="10" rx="2.4" stroke="#fff" stroke-width="1.3" fill="none"/><path d="M3.4 4.9v4.2l3.5-2.1z" fill="#fff"/><path d="M8.6 5.8v2.4M10.1 4.6v4.8M11.5 6v2" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg></i><span>Studio</span><em>Delivery</em></a>
-    <a class="more" href="about/" data-t="more">About Us</a>
     <button type="button" class="more in" id="signin" hidden data-t="sgn">Sign in</button>
     <div class="who" id="who" hidden><b class="badge who-pro" id="who-pro" hidden>PRO</b><span id="who-mail"></span><button type="button" id="out" data-t="out">Sign out</button></div>
     <div class="lang" role="group" aria-label="Language">
@@ -443,11 +444,11 @@
 </main>
 
 <footer><small class="pw">Powered by</small><a href="https://www.themadlions.com" target="_blank" rel="noopener">www.themadlions.com</a>
-  <nav class="legal"><a href="pricing/" data-t="lg.price">Pricing</a><a href="privacy/" data-t="lg.priv">Privacy Policy</a><a href="terms/" data-t="lg.terms">Terms of Service</a></nav></footer>
+  <nav class="legal"><a class="more" href="about/" data-t="more">About Us</a><a href="pricing/" data-t="lg.price">Pricing</a><a href="privacy/" data-t="lg.priv">Privacy Policy</a><a href="terms/" data-t="lg.terms">Terms of Service</a></nav></footer>
 
 <script src="/supabase-2.45.4.js"></script>
 <script>window.supabase || document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"><\/script>')</script>
 <script src="/zip.js?v=3"></script>
-<script src="/home.js?v=665c852d"></script>
+<script src="/home.js?v=1050663d"></script>
 </body>
 </html>
