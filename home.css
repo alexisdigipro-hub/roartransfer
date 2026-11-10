@@ -690,3 +690,10 @@ html.lm-on { overflow: hidden; }
 #get-pay p { font-size: 14px; line-height: 1.55; max-width: 380px; margin-left: auto; margin-right: auto; }
 #get-pay .pay-o { font-size: 12.5px; opacity: .6; margin-top: -4px; }
 #get-pay .gr-h { font-size: clamp(26px, 5vw, 34px); }
+
+/* My transfers: name and its facts on one line (Alex, 10 Nov) */
+.files li.tx.one .ft { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.files li.tx.one .ft b { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.files li.tx.one .ft small { flex: none; white-space: nowrap; }
+.files li.tx.one .soon-dot { margin: 0 6px 0 0; }
+@media (max-width: 560px) { .files li.tx.one .ft { display: grid; gap: 2px; } .files li.tx.one .ft small { overflow: hidden; text-overflow: ellipsis; } }
