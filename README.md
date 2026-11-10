@@ -46,7 +46,7 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   tab or option is a sliding sheet of glass (`lens()`, as RoarMe's Lens), buttons give under a press. A PRO mark on the
   account at the top for Pro accounts.
 - Tabs (26 Oct 2026, Alex: "tidy Admin and My transfers into tabs, nice buttons, smooth"): Admin is Overview ·
-  Transfers · Accounts · Pro · Backgrounds · Website, My Pro transfers is Sent · Received · Pro (others see only what
+  Transfers · Accounts · Pro · Backgrounds · Website, My transfers is Sent · Received for a Pro since 10 Nov (others see only what
   they sent). One pane at a time (`panes()`): the shown one fades away, the title fades over, the chosen one rises in;
   counts sit on the tabs; the wide pages stay at the top so nothing jumps.
 - One last download (26 Oct 2026, Alex: "when a link I sent has expired, if they sign up they can open it one last
@@ -103,6 +103,14 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   same on its share links (Share window: the switch when making a link, the lock icon on each link made; roarstudio
   `share-create` `payLock`, `link-paylock`; every `share-*` action but `share-open` answers 423). Database:
   `supabase/transfer-paylock.sql` in roarme (`pay_lock` on roar_transfer_bundles, roar_transfer_links, roarstudio_shares).
+
+- Settings (10 Nov 2026, Alex: "make a Settings section somewhere and put things in there"): the round gear in the account
+  pill at the top opens a Settings window (`#sm`, the same glass window as a link's `#lm`): Account (email, plan: Free, Pro
+  until …, Pro lifetime for admins; Sign out), Emails (the two switches, once under My transfers), and for a Pro Receive
+  files (their page's link, Copy link, Edit name), Your brand and What Pro gives, the last two folded. The tab and title are
+  My transfers for everyone (the PRO mark says Pro); a Pro's My transfers is Sent · Received (the Pro tab is gone), the
+  totals one quiet line instead of four tiles. Sign in: Sign up, Forgot password? and Roar Account in one row. Counts carry
+  thousands marks (`nf`), sizes past 1000 GB show TB, and download pages and Admin lists show every row (no inner scroll).
 
 ## RoarTransfer Studio (studio.roartransfer.com; called RoarStudio until 7 Nov 2026)
 

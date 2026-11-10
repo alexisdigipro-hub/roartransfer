@@ -34,17 +34,17 @@
     'pay.h': 'Σχεδόν έτοιμα', 'pay.p': 'Τα αρχεία σου είναι έτοιμα και σε περιμένουν. Θα ανοίξουν μόλις τακτοποιηθεί η τελική πληρωμή. Σε ευχαριστούμε πολύ που μας εμπιστεύτηκες, σημαίνει πραγματικά πολλά. Αν η πληρωμή είναι ήδη καθ’ οδόν, ενημέρωσε απλώς τον αποστολέα και τα αρχεία θα ανοίξουν αμέσως.',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
-    'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.price': 'Τιμές', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rc.go': 'Σύνδεση με Roar Account', 'rc.or': 'ή με email', 'rc.wait': 'Επίτρεψε το RoarTransfer στην άλλη καρτέλα', 'rc.waitP': 'Συνδέσου εκεί με τον Roar Account σου και πάτα Allow. Αυτή η σελίδα συνδέεται μόνη της.', 'rc.again': 'Άνοιξε ξανά τη σελίδα', 'rc.x': 'Άκυρο', 'mf.t': 'Επαλήθευση δύο βημάτων', 'mf.p': 'Γράψε τον 6ψήφιο κωδικό από την εφαρμογή επαλήθευσης.', 'mf.go': 'Επαλήθευση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · ως 1 GB', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
+    'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασα κωδικό', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.price': 'Τιμές', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rc.go': 'Roar Account', 'set.h': 'Ρυθμίσεις', 'set.acc': 'Λογαριασμός', 'set.plan': 'Πακέτο', 'rc.or': 'ή με email', 'rc.wait': 'Επίτρεψε το RoarTransfer στην άλλη καρτέλα', 'rc.waitP': 'Συνδέσου εκεί με τον Roar Account σου και πάτα Allow. Αυτή η σελίδα συνδέεται μόνη της.', 'rc.again': 'Άνοιξε ξανά τη σελίδα', 'rc.x': 'Άκυρο', 'mf.t': 'Επαλήθευση δύο βημάτων', 'mf.p': 'Γράψε τον 6ψήφιο κωδικό από την εφαρμογή επαλήθευσης.', 'mf.go': 'Επαλήθευση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · ως 1 GB', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
     'gr.exp': 'Αυτή η αποστολή έληξε', 'gr.t': 'Μία τελευταία<br><em>λήψη</em>', 'gr.p': 'Κάνε δωρεάν εγγραφή και μπορείς να το κατεβάσεις ακόμα, μία τελευταία φορά.', 'gr.up': 'Δωρεάν εγγραφή', 'gr.in': 'Σύνδεση', 'gr.last': 'Το link έληξε: αυτή είναι η τελευταία σου λήψη για κάθε αρχείο.',
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
-    'ad.days': 'Ανά μέρα', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.tx': 'Αποστολές', 'ad.ov': 'Επισκόπηση', 'va.free': 'Δες το σαν Free χρήστης', 'va.pro': 'Δες το σαν Pro χρήστης', 'va.back': 'Πίσω στο Admin', 'em.h': 'Email από το RoarTransfer', 'em.dl': 'Όταν κάποιος κατεβάζει ό,τι έστειλα', 'em.got': 'Όταν κάποιος μου στέλνει αρχεία στη σελίδα μου', 'em.note': 'Τα email εγγραφής και κωδικού έρχονται πάντα.', 'mt.sent': 'Στάλθηκαν', 'mt.got': 'Ήρθαν', 'mt.pro': 'Pro', 'ad.web': 'Ιστότοπος', 'wb.d7': '7 μέρες', 'wb.d30': '30 μέρες', 'wb.d90': '90 μέρες', 'wb.all': 'Από την αρχή', 'wb.days': 'Επισκέπτες ανά μέρα', 'wb.co': 'Χώρες', 'wb.ref': 'Από πού ήρθαν', 'wb.pg': 'Σελίδες', 'wb.dev': 'Συσκευές', 'wb.lang': 'Γλώσσες', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
+    'ad.days': 'Ανά μέρα', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.tx': 'Αποστολές', 'ad.ov': 'Επισκόπηση', 'va.free': 'Δες το σαν Free χρήστης', 'va.pro': 'Δες το σαν Pro χρήστης', 'va.back': 'Πίσω στο Admin', 'em.h': 'Email', 'em.dl': 'Όταν κάποιος κατεβάζει ό,τι έστειλα', 'em.got': 'Όταν κάποιος μου στέλνει αρχεία στη σελίδα μου', 'em.note': 'Τα email εγγραφής και κωδικού έρχονται πάντα.', 'mt.sent': 'Στάλθηκαν', 'mt.got': 'Ήρθαν', 'mt.pro': 'Pro', 'ad.web': 'Ιστότοπος', 'wb.d7': '7 μέρες', 'wb.d30': '30 μέρες', 'wb.d90': '90 μέρες', 'wb.all': 'Από την αρχή', 'wb.days': 'Επισκέπτες ανά μέρα', 'wb.co': 'Χώρες', 'wb.ref': 'Από πού ήρθαν', 'wb.pg': 'Σελίδες', 'wb.dev': 'Συσκευές', 'wb.lang': 'Γλώσσες', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
   }
   var W = {
     en: {
-      payFail: 'The link was made but could not be locked. Lock it in My transfers > Details.', goMail: 'Send', goLink: 'Get the link', moreS: 'Title, message, password', mTitle: 'title', mMsg: 'message', mPw: 'password', mPay: 'locked until paid', mPc: 'pCloud',
+      payFail: 'The link was made but could not be locked. Open it in My transfers and turn on Locked until paid.', goMail: 'Send', goLink: 'Get the link', moreS: 'Title, message, password', mTitle: 'title', mMsg: 'message', mPw: 'password', mPay: 'locked until paid', mPc: 'pCloud',
       more: 'Add more', more2: 'or drop them here', of: function (g) { return 'of ' + g + ' GB' }, file: 'file', files: 'files', over: function (g) { return 'Over ' + g + ' GB' }, tooBig: function (g) { return 'over ' + g + ' GB' },
       to: 'Send to: emails, separated by commas', title: 'Title (optional)', msg: 'Your message (optional)', pw: 'Password (optional)',
       noTo: 'Add at least one email to send to.', badTo: function (e) { return 'This does not look like an email: ' + e },
@@ -64,15 +64,15 @@
       gBad: 'This link does not work', gBadN: 'Check that the whole link was copied.', gOff: 'Could not reach RoarTransfer', gOffN: 'Check the connection and try again.',
       find: 'Search by file or chat', findAdm: 'File, person, email or chat',
       tTransfers: 'transfers', tSent: 'sent in all', tActive: 'active now', tDownloads: 'downloads', tSenders: 'people sending',
-      tStored: function (n) { return 'on the server now · ' + n + (n === 1 ? ' file' : ' files') }, tWeek: 'last 7 days', tBiggest: 'biggest file',
+      tStored: function (n) { return 'on the server now · ' + nf(n) + (n === 1 ? ' file' : ' files') }, tWeek: 'last 7 days', tBiggest: 'biggest file',
       chatLink: function (c, l) { return c + ' in chats · ' + l + ' by link' },
-      opensN: function (n) { return n + (n === 1 ? ' open' : ' opens') }, dls: function (n) { return n + (n === 1 ? ' download' : ' downloads') },
-      nTransfers: function (n) { return n + (n === 1 ? ' transfer' : ' transfers') },
-      active: 'Active', expired: 'Expired', stoppedT: 'Stopped', deleted: 'Deleted in the chat',
+      opensN: function (n) { return nf(n) + (n === 1 ? ' open' : ' opens') }, dls: function (n) { return nf(n) + (n === 1 ? ' download' : ' downloads') },
+      nTransfers: function (n) { return nf(n) + (n === 1 ? ' transfer' : ' transfers') },
+      active: 'Active', expired: 'Expired', stoppedT: 'Deleted', deleted: 'Deleted in the chat',
       daysLeft: function (n) { return n + ' days left' }, hLeft: function (n) { return n + ' h left' }, minLeft: function (n) { return n + ' min left' },
       byLink: 'by link', group: 'a group', dm: 'a one-to-one chat',
       sel: 'Select', selN: function (n) { return n === 1 ? '1 selected' : n + ' selected' }, selAll: 'Select all', selNone: 'Clear', selX: 'Cancel', selDel: 'Delete',
-      selAsk: function (n) { return 'Delete ' + (n === 1 ? 'this link' : 'these ' + n + ' links') + ' now? The files and their links are gone for good.' },
+      selAsk: function (n) { return 'Delete ' + (n === 1 ? 'this transfer' : 'these ' + n + ' transfers') + ' now? The files and their links are gone for good.' },
       stop: 'Delete', stopT: 'Delete the file and its link now',
       stopAsk: function (n) { return 'Delete "' + n + '" now? The file and its link are gone for good.' },
       noneYet: 'Nothing sent yet. What you send shows up here.', noneFound: 'Nothing matches.', noneAll: 'No transfers yet.',
@@ -82,14 +82,14 @@
       daily: 'A free account can send up to 15 GB a day. Go Pro for more, or send the rest tomorrow.',
       repAsk: 'Report this transfer: what is wrong with it? (optional)', repDone: 'Thanks, we will look at it.',
       only: 'Only', everyone: 'Everyone', guestN: 'Guest',
-      stOf: 'of 10 GB free', stLeft: function (g) { return g + ' left' }, stOver: function (g) { return g + ' over the free 10 GB' }, stFiles: function (n) { return n + (n === 1 ? ' file' : ' files') }, stAcc: 'Accounts', stOther: 'Other', stOpen: function (n) { return n + ' unfinished ' + (n === 1 ? 'upload' : 'uploads') + ' (cleared in 7 days)' },
+      stOf: 'of 10 GB free', stLeft: function (g) { return g + ' left' }, stOver: function (g) { return g + ' over the free 10 GB' }, stFiles: function (n) { return nf(n) + (n === 1 ? ' file' : ' files') }, stAcc: 'Accounts', stOther: 'Other', stOpen: function (n) { return nf(n) + ' unfinished ' + (n === 1 ? 'upload' : 'uploads') + ' (cleared in 7 days)' },
       stHint: function (c) { return 'Files delete themselves when their link ends (1 to 7 days), so this is about the last few days of uploads. Above 10 GB Cloudflare charges about $0.015 per GB a month: about $' + c + ' a month at today’s size.' },
-      accSum: function (w7, sent, unc) { return w7 + ' new this week · ' + sent + ' have sent · ' + unc + ' not confirmed yet' }, joined: 'Joined', unconfC: 'Not confirmed', lastSent: 'last sent', lastIn: 'last in', noAcc: 'No accounts yet.',
-      rcOld: 'The request expired. Press Sign in with Roar Account again.', rcBlocked: 'The browser blocked the new tab. Press Open the page again.', mfBad: 'That code is not right. Type the newest one from the app.', mfShort: 'Type the 6 digits.',
+      accSum: function (w7, sent, unc) { return nf(w7) + ' new this week · ' + nf(sent) + ' have sent · ' + nf(unc) + ' not confirmed yet' }, joined: 'Joined', unconfC: 'Not confirmed', lastSent: 'last sent', lastIn: 'last in', noAcc: 'No accounts yet.',
+      rcOld: 'The request expired. Press Roar Account again.', rcBlocked: 'The browser blocked the new tab. Press Open the page again.', mfBad: 'That code is not right. Type the newest one from the app.', mfShort: 'Type the 6 digits.',
       wait: 'Too many tries. Wait a few minutes and try again.', badMail: 'This does not look like an email.', unconf: 'Confirm your email first: open the email we sent you.', forgotMail: 'Write your email above, then press Forgot password.', resetSent: 'If there is an account with this email, a link to choose a new password is on its way.', linkOld: 'This link has expired or was already used. Try again.', k_video: 'Video', k_image: 'Pictures', k_audio: 'Audio', k_other: 'Other'
     },
     el: {
-      payFail: 'Το link έγινε αλλά δεν κλειδώθηκε. Κλείδωσέ το στο My transfers > Details.', goMail: 'Αποστολή', goLink: 'Πάρε το link', moreS: 'Τίτλος, μήνυμα, κωδικός', mTitle: 'τίτλος', mMsg: 'μήνυμα', mPw: 'κωδικός', mPay: 'κλειδωμένο ως την πληρωμή', mPc: 'pCloud',
+      payFail: 'Το link έγινε αλλά δεν κλειδώθηκε. Άνοιξέ το στις Αποστολές μου και άναψε το Κλειδωμένο ως την πληρωμή.', goMail: 'Αποστολή', goLink: 'Πάρε το link', moreS: 'Τίτλος, μήνυμα, κωδικός', mTitle: 'τίτλος', mMsg: 'μήνυμα', mPw: 'κωδικός', mPay: 'κλειδωμένο ως την πληρωμή', mPc: 'pCloud',
       more: 'Πρόσθεσε κι άλλα', more2: 'ή άφησέ τα εδώ', of: function (g) { return 'από ' + g + ' GB' }, file: 'αρχείο', files: 'αρχεία', over: function (g) { return 'Πάνω από ' + g + ' GB' }, tooBig: function (g) { return 'πάνω από ' + g + ' GB' },
       to: 'Προς: email, χωρισμένα με κόμμα', title: 'Τίτλος (προαιρετικό)', msg: 'Το μήνυμά σου (προαιρετικό)', pw: 'Κωδικός (προαιρετικό)',
       noTo: 'Γράψε τουλάχιστον ένα email παραλήπτη.', badTo: function (e) { return 'Αυτό δεν μοιάζει με email: ' + e },
@@ -109,15 +109,15 @@
       gBad: 'Αυτός ο σύνδεσμος δεν δουλεύει', gBadN: 'Έλεγξε ότι αντιγράφηκε ολόκληρος ο σύνδεσμος.', gOff: 'Δεν βρέθηκε το RoarTransfer', gOffN: 'Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
       find: 'Αναζήτηση σε αρχεία ή συνομιλίες', findAdm: 'Αρχείο, άτομο, email ή συνομιλία',
       tTransfers: 'αποστολές', tSent: 'στάλθηκαν συνολικά', tActive: 'ενεργές τώρα', tDownloads: 'λήψεις', tSenders: 'άτομα που στέλνουν',
-      tStored: function (n) { return 'στον server τώρα · ' + n + (n === 1 ? ' αρχείο' : ' αρχεία') }, tWeek: 'τελευταίες 7 μέρες', tBiggest: 'το μεγαλύτερο αρχείο',
+      tStored: function (n) { return 'στον server τώρα · ' + nf(n) + (n === 1 ? ' αρχείο' : ' αρχεία') }, tWeek: 'τελευταίες 7 μέρες', tBiggest: 'το μεγαλύτερο αρχείο',
       chatLink: function (c, l) { return c + ' σε συνομιλίες · ' + l + ' με σύνδεσμο' },
-      opensN: function (n) { return n + (n === 1 ? ' άνοιγμα' : ' ανοίγματα') }, dls: function (n) { return n + (n === 1 ? ' λήψη' : ' λήψεις') },
-      nTransfers: function (n) { return n + (n === 1 ? ' αποστολή' : ' αποστολές') },
-      active: 'Ενεργό', expired: 'Έληξε', stoppedT: 'Σταμάτησε', deleted: 'Σβήστηκε στη συνομιλία',
+      opensN: function (n) { return nf(n) + (n === 1 ? ' άνοιγμα' : ' ανοίγματα') }, dls: function (n) { return nf(n) + (n === 1 ? ' λήψη' : ' λήψεις') },
+      nTransfers: function (n) { return nf(n) + (n === 1 ? ' αποστολή' : ' αποστολές') },
+      active: 'Ενεργό', expired: 'Έληξε', stoppedT: 'Διαγράφηκε', deleted: 'Σβήστηκε στη συνομιλία',
       daysLeft: function (n) { return 'μένουν ' + n + ' μέρες' }, hLeft: function (n) { return 'μένουν ' + n + ' ώρες' }, minLeft: function (n) { return 'μένουν ' + n + ' λεπτά' },
       byLink: 'με σύνδεσμο', group: 'μια ομάδα', dm: 'μια προσωπική συνομιλία',
       sel: 'Επιλογή', selN: function (n) { return n === 1 ? '1 επιλεγμένο' : n + ' επιλεγμένα' }, selAll: 'Όλα', selNone: 'Κανένα', selX: 'Άκυρο', selDel: 'Διαγραφή',
-      selAsk: function (n) { return 'Να σβηστ' + (n === 1 ? 'εί αυτό το link' : 'ούν αυτά τα ' + n + ' links') + ' τώρα; Τα αρχεία και τα links τους χάνονται οριστικά.' },
+      selAsk: function (n) { return 'Να σβηστ' + (n === 1 ? 'εί αυτή η αποστολή' : 'ούν αυτές οι ' + n + ' αποστολές') + ' τώρα; Τα αρχεία και τα links τους χάνονται οριστικά.' },
       stop: 'Διαγραφή', stopT: 'Σβήσε τώρα το αρχείο και τον σύνδεσμό του',
       stopAsk: function (n) { return 'Να σβηστεί το "' + n + '" τώρα; Το αρχείο και ο σύνδεσμός του χάνονται οριστικά.' },
       noneYet: 'Δεν έχεις στείλει τίποτα ακόμα. Ό,τι στέλνεις εμφανίζεται εδώ.', noneFound: 'Δεν βρέθηκε τίποτα.', noneAll: 'Καμία αποστολή ακόμα.',
@@ -127,14 +127,16 @@
       daily: 'Με δωρεάν λογαριασμό στέλνεις ως 15 GB τη μέρα. Γίνε Pro για περισσότερα ή στείλε τα υπόλοιπα αύριο.',
       repAsk: 'Αναφορά αυτής της αποστολής: τι πρόβλημα έχει; (προαιρετικό)', repDone: 'Ευχαριστούμε, θα το δούμε.',
       only: 'Μόνο', everyone: 'Όλοι', guestN: 'Επισκέπτης',
-      stOf: 'από τα 10 GB δωρεάν', stLeft: function (g) { return 'μένουν ' + g }, stOver: function (g) { return g + ' πάνω από τα δωρεάν 10 GB' }, stFiles: function (n) { return n + (n === 1 ? ' αρχείο' : ' αρχεία') }, stAcc: 'Λογαριασμοί', stOther: 'Άλλα', stOpen: function (n) { return n + ' ημιτελή ανεβάσματα (σβήνονται σε 7 μέρες)' },
+      stOf: 'από τα 10 GB δωρεάν', stLeft: function (g) { return 'μένουν ' + g }, stOver: function (g) { return g + ' πάνω από τα δωρεάν 10 GB' }, stFiles: function (n) { return nf(n) + (n === 1 ? ' αρχείο' : ' αρχεία') }, stAcc: 'Λογαριασμοί', stOther: 'Άλλα', stOpen: function (n) { return nf(n) + ' ημιτελή ανεβάσματα (σβήνονται σε 7 μέρες)' },
       stHint: function (c) { return 'Τα αρχεία σβήνονται μόνα τους όταν λήξει το link τους (1 με 7 μέρες), οπότε αυτό είναι περίπου τα ανεβάσματα των τελευταίων ημερών. Πάνω από 10 GB το Cloudflare χρεώνει περίπου $0.015 το GB τον μήνα: περίπου $' + c + ' τον μήνα με το σημερινό μέγεθος.' },
-      accSum: function (w7, sent, unc) { return w7 + ' νέοι αυτή την εβδομάδα · ' + sent + ' έχουν στείλει · ' + unc + ' δεν επιβεβαίωσαν ακόμα' }, joined: 'Εγγραφή', unconfC: 'Χωρίς επιβεβαίωση', lastSent: 'τελευταία αποστολή', lastIn: 'τελευταία σύνδεση', noAcc: 'Κανένας λογαριασμός ακόμα.',
-      rcOld: 'Το αίτημα έληξε. Πάτα ξανά Σύνδεση με Roar Account.', rcBlocked: 'Ο browser μπλόκαρε τη νέα καρτέλα. Πάτα Άνοιξε ξανά τη σελίδα.', mfBad: 'Ο κωδικός δεν είναι σωστός. Γράψε τον πιο πρόσφατο από την εφαρμογή.', mfShort: 'Γράψε τα 6 ψηφία.',
-      wait: 'Πολλές προσπάθειες. Περίμενε λίγα λεπτά και δοκίμασε ξανά.', badMail: 'Αυτό δεν μοιάζει με email.', unconf: 'Επιβεβαίωσε πρώτα το email σου: άνοιξε το email που σου στείλαμε.', forgotMail: 'Γράψε το email σου πάνω και πάτα Ξέχασα τον κωδικό.', resetSent: 'Αν υπάρχει λογαριασμός με αυτό το email, έρχεται σύνδεσμος για νέο κωδικό.', linkOld: 'Ο σύνδεσμος έληξε ή χρησιμοποιήθηκε ήδη. Δοκίμασε ξανά.', k_video: 'Βίντεο', k_image: 'Εικόνες', k_audio: 'Ήχος', k_other: 'Άλλα'
+      accSum: function (w7, sent, unc) { return nf(w7) + ' νέοι αυτή την εβδομάδα · ' + nf(sent) + ' έχουν στείλει · ' + nf(unc) + ' δεν επιβεβαίωσαν ακόμα' }, joined: 'Εγγραφή', unconfC: 'Χωρίς επιβεβαίωση', lastSent: 'τελευταία αποστολή', lastIn: 'τελευταία σύνδεση', noAcc: 'Κανένας λογαριασμός ακόμα.',
+      rcOld: 'Το αίτημα έληξε. Πάτα ξανά Roar Account.', rcBlocked: 'Ο browser μπλόκαρε τη νέα καρτέλα. Πάτα Άνοιξε ξανά τη σελίδα.', mfBad: 'Ο κωδικός δεν είναι σωστός. Γράψε τον πιο πρόσφατο από την εφαρμογή.', mfShort: 'Γράψε τα 6 ψηφία.',
+      wait: 'Πολλές προσπάθειες. Περίμενε λίγα λεπτά και δοκίμασε ξανά.', badMail: 'Αυτό δεν μοιάζει με email.', unconf: 'Επιβεβαίωσε πρώτα το email σου: άνοιξε το email που σου στείλαμε.', forgotMail: 'Γράψε το email σου πάνω και πάτα Ξέχασα κωδικό.', resetSent: 'Αν υπάρχει λογαριασμός με αυτό το email, έρχεται σύνδεσμος για νέο κωδικό.', linkOld: 'Ο σύνδεσμος έληξε ή χρησιμοποιήθηκε ήδη. Δοκίμασε ξανά.', k_video: 'Βίντεο', k_image: 'Εικόνες', k_audio: 'Ήχος', k_other: 'Άλλα'
     }
   }
   var lang = 'en'
+  // every count with its thousands mark (9,876), in the page's language
+  function nf(n) { return Number(n || 0).toLocaleString(lang === 'el' ? 'el-GR' : 'en-GB') }
   var w = function (k) { return W[lang][k] }
   var $ = function (id) { return document.getElementById(id) }
 
@@ -158,7 +160,7 @@
 
   var day = function (ms) { return new Date(ms).toLocaleDateString(lang === 'el' ? 'el-GR' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) }
   var hour = function (ms) { return new Date(ms).toLocaleTimeString(lang === 'el' ? 'el-GR' : 'en-GB', { hour: '2-digit', minute: '2-digit' }) }
-  var size = function (n) { return n > 1e9 ? (n / 1e9).toFixed(1) + ' GB' : n > 1e6 ? (n / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round((n || 0) / 1e3)) + ' KB' }
+  var size = function (n) { return n >= 1e12 ? (n / 1e12).toFixed(n >= 1e13 ? 1 : 2) + ' TB' : n > 1e9 ? (n / 1e9).toFixed(1) + ' GB' : n > 1e6 ? (n / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round((n || 0) / 1e3)) + ' KB' }
   var icon = function (t) { return /^video\//.test(t) ? 'i-play' : /^image\//.test(t) ? 'i-img' : 'i-file' }
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] }) }
 
@@ -193,7 +195,7 @@
     view = v
     views.forEach(function (id) { $(id).hidden = id !== v })
     $('who').hidden = !user || v === 'v-in' || v === 'v-pw' || dropping
-    $('signin').hidden = !!user || v === 'v-in' || v === 'v-wait' || dropping
+    $('signin').hidden = !!user || v === 'v-in' || v === 'v-wait' || v === 'v-get' || dropping // a download page: only the logo, Studio and the language (Alex, 10 Nov)
     $('v-fast').hidden = v !== 'v-in'
     $('tabs').hidden = !user || v === 'v-in' || v === 'v-wait' || v === 'v-pw' || dropping
     document.querySelectorAll('#tabs [data-go]').forEach(function (b) { b.classList.toggle('on', b.dataset.go === tab) })
@@ -863,9 +865,10 @@
     // while picking (My transfers, Select): a round check instead of the icon, only on links that can be deleted
     if (!withWho && picks) {
       var can = on && m.source === 'link', got = !!picks[n]
-      return '<li class="tx pickrow' + (can ? '' : ' nopick') + (got ? ' picked' : '') + (on ? '' : ' off') + '"' + (can ? ' data-pick="' + n + '"' : '') + '><span class="fi pk"><svg><use href="#i-check"/></svg></span>'
-        + '<span class="ft"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b><small>' + sz(m.size) + ' · ' + when(m.created_at) + ' · ' + esc(where(m)) + '</small>'
-        + '<span class="chips">' + st + counts + '</span></span></li>'
+      // the same one quiet line as the list (Alex, 10 Nov), a round check in front
+      var pbits = [sz(m.size), m.deleted ? w('deleted') : m.stopped ? w('stoppedT') : on ? leftText(left) : w('expired'), w('dls')(Number(m.downloads || 0))]
+      return '<li class="tx one pickrow' + (can ? '' : ' nopick') + (got ? ' picked' : '') + (on ? '' : ' off') + '"' + (can ? ' data-pick="' + n + '"' : '') + '><span class="fi pk"><svg><use href="#i-check"/></svg></span>'
+        + '<span class="ft"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b><small>' + pbits.map(esc).join(' · ') + '</small></span></li>'
     }
     // My transfers (Alex, 10 Nov): one quiet line; a tap opens the link's window with everything (lmOpen)
     if (!withWho) {
@@ -954,11 +957,10 @@
   }
   function paintMine() {
     $('mine-q').placeholder = w('find')
-    if (!mine) { $('mine-facts').innerHTML = ''; $('mine-list').innerHTML = loading; return }
+    if (!mine) { $('mine-facts').textContent = ''; $('mine-list').innerHTML = loading; return }
+    // the totals in one quiet line (Alex, 10 Nov: "too many lines"; four big tiles until then)
     var act = mine.filter(live)
-    $('mine-facts').innerHTML = tile('i-up', fmtN(mine.length), w('tTransfers')) + tile('i-file', sz(sum(mine, 'size')), w('tSent'))
-      + tile('i-timer', fmtN(act.length), w('tActive') + (act.length ? ' · ' + sz(sum(act, 'size')) : ''))
-      + tile('i-down', fmtN(sum(mine, 'downloads')), w('tDownloads') + ' · ' + w('opensN')(sum(mine, 'opens')))
+    $('mine-facts').textContent = mine.length ? [w('nTransfers')(mine.length), sz(sum(mine, 'size')), fmtN(act.length) + ' ' + w('tActive'), w('dls')(sum(mine, 'downloads'))].join(' · ') : ''
     var shown = filt(mine.filter(function (m) { return !m.stopped }), mineF, $('mine-q').value)
     $('mine-list').innerHTML = shown.length ? shown.map(function (m) { return row(m, mine.indexOf(m), false) }).join('') : note(mine.length ? w('noneFound') : w('noneYet'))
     paintPick(shown)
@@ -1125,8 +1127,8 @@
   rowActs('adm-list', function () { return adm.list }, loadAdmin)
 
 
-  // My Pro transfers in three (Alex, 26 Oct): Sent, Received, Pro
-  var MINE = { sent: 'mpane-sent', got: 'mpane-got', pro: 'mpane-pro' }, mineT = { tab: 'sent' }
+  // My transfers in two for a Pro (Alex, 26 Oct; the Pro tab moved to Settings on 10 Nov): Sent, Received
+  var MINE = { sent: 'mpane-sent', got: 'mpane-got' }, mineT = { tab: 'sent' }
   panes('mine-tab', MINE, mineT, function () {})
 
   // ---- a Pro's own link: details (Alex, 25 Oct: change expiry or password after sending; who opened, when, from where) ----
@@ -1223,7 +1225,7 @@
         + (d.payLock != null ? '<label class="lm-row sw-row"><span class="k">' + pw('payT') + '<small>' + (d.payLock ? pw('payOn') : pw('payOff')) + '</small></span><span class="sw' + (d.payLock ? ' on' : '') + '"><input type="checkbox" data-dpay' + (d.payLock ? ' checked' : '') + (det.busy ? ' disabled' : '') + '><i></i></span></label>' : '')
         + '</div>'
         + '<div class="lm-save" id="lm-save" hidden><button type="button" class="pill main" data-dsave' + (det.busy ? ' disabled' : '') + '><span>' + pw('saveC') + '</span></button></div>'
-        + (d.bundle && d.locked ? '<button type="button" class="lm-link" data-dpwoff>' + pw('pwOff') + '</button>' : '')
+        + (d.bundle && d.locked ? '<div class="sm-acts"><button type="button" class="pill sm" data-dpwoff><span>' + pw('pwOff') + '</span></button></div>' : '')
         + (det.msg ? '<p class="lm-ok">' + esc(det.msg) + '</p>' : '')
     }
     var n = d.events.length
@@ -1273,6 +1275,8 @@
     $('pb-bgs').innerHTML = brandEd.bgs.map(function (u, n) { return '<div class="tile"><img src="' + esc(u) + '" alt="" loading="lazy"><button type="button" class="x" data-brm="' + n + '" aria-label="Remove"><svg><use href="#i-x"/></svg></button></div>' }).join('')
       + add('bg', brandEd.bgs.length >= 8)
     $('pb-save').querySelector('span').textContent = pw('save'); $('pb-save').disabled = brandEd.busy
+    var bs = [brandEd.name, brandEd.logo ? pw('bLogo') : '', brandEd.bgs.length ? brandEd.bgs.length + ' ' + pw('bBgN') : ''].filter(Boolean)
+    $('set-brand-n').textContent = bs.length ? bs.join(' · ') : pw('bNone')
   }
   // a picture made light enough to fill a page (Alex, 25 Oct: "up to 10 MB, then compressed a little without losing
   // much quality"): at most 2560 px on its long side as WebP at 0.86 (JPEG where the browser cannot write WebP);
@@ -1532,7 +1536,7 @@
     var days = s.days || [], max = Math.max.apply(null, days.map(function (d) { return Number(d.visitors) }).concat([1]))
     $('web-chart').innerHTML = '<div class="cols" style="grid-template-columns:repeat(' + Math.max(1, days.length) + ',minmax(0,1fr))">' + days.map(function (d) {
       var v = Number(d.visitors)
-      return '<i' + (v ? '' : ' class="z"') + ' style="height:' + (v ? Math.max(4, v / max * 100) : 2) + '%" title="' + esc(dayD(String(d.day).slice(0, 10)) + ': ' + v + ' ' + pw('wVis') + ' · ' + d.views + ' ' + pw('wViews')) + '"></i>'
+      return '<i' + (v ? '' : ' class="z"') + ' style="height:' + (v ? Math.max(4, v / max * 100) : 2) + '%" title="' + esc(dayD(String(d.day).slice(0, 10)) + ': ' + fmtN(v) + ' ' + pw('wVis') + ' · ' + fmtN(d.views) + ' ' + pw('wViews')) + '"></i>'
     }).join('') + '</div>' + (days.length ? '<div class="ax"><span>' + dayD(String(days[0].day).slice(0, 10)) + '</span><span>' + dayD(String(days[days.length - 1].day).slice(0, 10)) + '</span></div>' : '')
     $('web-co').innerHTML = webRows(s.countries, function (x) { return country(x.country) })
     $('web-ref').innerHTML = webRows(s.refs, function (x) { return x.ref })
@@ -1850,7 +1854,7 @@
   // after a download, a card that invites them to send their own (Alex, 22 Oct), a moment later so it does not jump
   function sendBack() {
     if (!$('get-back').hidden) return
-    setTimeout(function () { $('get-back').hidden = false; $('get-send').hidden = true; $('get-send').nextElementSibling.hidden = true }, 1500)
+    setTimeout(function () { $('get-back').hidden = false; $('get-send').hidden = true }, 1500)
   }
   if (getting) {
     show('v-get')
@@ -1867,7 +1871,7 @@
     $('get-rep').addEventListener('click', function () {
       var why = window.prompt(w('repAsk'), ''); if (why == null) return
       var b = $('get-rep'); b.disabled = true
-      bridge({ action: 'report', token: getToken, reason: why }).then(function () { b.textContent = w('repDone') }).catch(function () { b.disabled = false })
+      bridge({ action: 'report', token: getToken, reason: why }).then(function () { b.querySelector('span').textContent = w('repDone') }).catch(function () { b.disabled = false })
     })
     $('get-eye').addEventListener('click', function () { $('get-pw').type = $('get-pw').type === 'password' ? 'text' : 'password' })
     load()
@@ -1879,14 +1883,14 @@
     en: {
       rxH: 'Receive files', rxN: 'Anyone can send you files on this page, without an account: up to 20 GB a file, kept 30 days.',
       copy: 'Copy link', copied: 'Copied', edit: 'Edit', save: 'Save', name: 'The name people see (e.g. The Mad Lions)', got: 'Received',
-      noneGot: 'Nothing received yet. Send your link to someone and their files show up here.', open: 'Open', setUp: 'Pick a name for your page',
-      files: function (n) { return n === 1 ? '1 file' : n + ' files' },
+      noneGot: 'Nothing received yet. Your page’s link is in Settings: send it to someone and their files show up here.', open: 'Open', setUp: 'Pick a name for your page',
+      files: function (n) { return n === 1 ? '1 file' : nf(n) + ' files' },
       drH: function (n) { return 'Send files to <b>' + esc(n) + '</b>.' }, drSub: 'No account needed. Up to 20 GB a file.',
       drB: 'Drop your files here', drS: 'or click to choose them', drMore: 'Add more files', from: 'Your name', mail: 'Your email (optional, so they can answer)',
       msg: 'Message (optional)', go: 'Send', noName: 'Write your name, so they know who sent it.', tooBig: 'Up to 20 GB a file.',
       ok: function (n) { return '<b>Sent.</b> ' + esc(n) + ' got an email with your files.' }, again: 'Send more files',
       gone: 'This page does not take files.', limit: 'Too many files from here today. Try again tomorrow.',
-      mineT: 'My <b>Pro transfers</b>.', tab: 'My Pro transfers',
+      pkH: 'What Pro gives', plFree: 'Free',
       stAdmin: 'Pro, lifetime (you are an admin)', mineSub: 'Everything you sent, from here, RoarMail and your chats. Your links last 1 to 30 days.', stEver: 'Pro, lifetime', stUntil: function (d) { return 'Pro until ' + d },
       pkRx: 'Receive files: your own page, up to 20 GB a file, kept 30 days', pkDl: 'Unlimited downloads',
       make: 'Make Pro', trial: 'Pro Trial', remove: 'Remove', again: 'Give again', admin: 'Admin · always', ever: 'Lifetime', until: function (d) { return 'Until ' + d },
@@ -1895,7 +1899,7 @@
       pkGb: 'Up to 50 GB (1 day), 40 GB (3 days), 30 GB (7 days), 20 GB (30 days)', pkDays: 'Links up to 30 days', pkBrand: 'Your name, logo and backgrounds',
       pkEdit: 'Change expiry or password after sending', pkStats: 'Who opened and downloaded, when, from where', pkResume: 'Uploads resume after a lost connection',
       bH: 'Your brand', bN: 'Your name, logo and backgrounds on the pages people open from your links, and on your Receive-files page.',
-      bName: 'Your name or company (e.g. The Mad Lions)', bLogo: 'Logo', bBgs: 'Backgrounds (up to 8, one shows at random)', bAdd: 'Add', bSaved: 'Saved.',
+      bName: 'Your name or company (e.g. The Mad Lions)', bLogo: 'Logo', bBgs: 'Backgrounds (up to 8, one shows at random)', bAdd: 'Add', bSaved: 'Saved.', bBgN: 'backgrounds', bNone: 'Not set',
       bBig: 'Pictures can be up to 10 MB.', details: 'Details', expT: 'Expires', pwNew: 'New password (empty keeps it as it is)', pwOff: 'Remove password',
       pwT: 'Password', pwHas: 'On', pwNo: 'None', pwSet: 'Add a password', pwChange: 'Type a new one', payOff: 'Off', actT: 'Activity',
       saveC: 'Save changes', locked: 'Has a password', payT: 'Locked until paid', payOn: 'Awaiting payment', noEv: 'Not opened yet.', evOpen: 'Opened', evDl: 'Downloaded', maxT: function (d) { return 'At most until ' + d },
@@ -1913,14 +1917,14 @@
     el: {
       rxH: 'Λήψη αρχείων', rxN: 'Οποιοσδήποτε σου στέλνει αρχεία σε αυτή τη σελίδα, χωρίς λογαριασμό: ως 20 GB το αρχείο, μένουν 30 μέρες.',
       copy: 'Αντιγραφή link', copied: 'Αντιγράφηκε', edit: 'Αλλαγή', save: 'Αποθήκευση', name: 'Το όνομα που βλέπουν (π.χ. The Mad Lions)', got: 'Ήρθαν',
-      noneGot: 'Δεν ήρθε τίποτα ακόμα. Στείλε το link σου σε κάποιον και τα αρχεία του θα εμφανιστούν εδώ.', open: 'Άνοιγμα', setUp: 'Διάλεξε όνομα για τη σελίδα σου',
-      files: function (n) { return n === 1 ? '1 αρχείο' : n + ' αρχεία' },
+      noneGot: 'Δεν ήρθε τίποτα ακόμα. Το link της σελίδας σου είναι στις Ρυθμίσεις: στείλ’ το σε κάποιον και τα αρχεία του θα εμφανιστούν εδώ.', open: 'Άνοιγμα', setUp: 'Διάλεξε όνομα για τη σελίδα σου',
+      files: function (n) { return n === 1 ? '1 αρχείο' : nf(n) + ' αρχεία' },
       drH: function (n) { return 'Στείλε αρχεία στο <b>' + esc(n) + '</b>.' }, drSub: 'Χωρίς λογαριασμό. Ως 20 GB το αρχείο.',
       drB: 'Άφησε τα αρχεία σου εδώ', drS: 'ή πάτα για να τα διαλέξεις', drMore: 'Πρόσθεσε κι άλλα', from: 'Το όνομά σου', mail: 'Το email σου (προαιρετικά, για να σου απαντήσουν)',
       msg: 'Μήνυμα (προαιρετικά)', go: 'Αποστολή', noName: 'Γράψε το όνομά σου, για να ξέρουν ποιος το έστειλε.', tooBig: 'Ως 20 GB το αρχείο.',
       ok: function (n) { return '<b>Στάλθηκε.</b> Το ' + esc(n) + ' πήρε email με τα αρχεία σου.' }, again: 'Στείλε κι άλλα',
       gone: 'Αυτή η σελίδα δεν δέχεται αρχεία.', limit: 'Πάρα πολλά αρχεία από εδώ σήμερα. Δοκίμασε ξανά αύριο.',
-      mineT: 'Οι <b>Pro αποστολές</b> μου.', tab: 'Οι Pro αποστολές μου',
+      pkH: 'Τι δίνει το Pro', plFree: 'Free',
       stAdmin: 'Pro, lifetime (είσαι διαχειριστής)', mineSub: 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links σου ισχύουν 1 με 30 μέρες.', stEver: 'Pro, lifetime', stUntil: function (d) { return 'Pro ως ' + d },
       pkRx: 'Λήψη αρχείων: δική σου σελίδα, ως 20 GB το αρχείο, μένουν 30 μέρες', pkDl: 'Απεριόριστα κατεβάσματα',
       make: 'Κάνε Pro', trial: 'Pro Trial', remove: 'Αφαίρεση', again: 'Δώσε ξανά', admin: 'Διαχειριστής · για πάντα', ever: 'Lifetime', until: function (d) { return 'Ως ' + d },
@@ -1929,7 +1933,7 @@
       pkGb: 'Ως 50 GB (1 μέρα), 40 GB (3 μέρες), 30 GB (7 μέρες), 20 GB (30 μέρες)', pkDays: 'Links ως 30 μέρες', pkBrand: 'Το όνομα, το λογότυπο και τα φόντα σου',
       pkEdit: 'Αλλαγή λήξης ή κωδικού μετά την αποστολή', pkStats: 'Ποιος άνοιξε και κατέβασε, πότε, από πού', pkResume: 'Το ανέβασμα συνεχίζει αν κοπεί η σύνδεση',
       bH: 'Το brand σου', bN: 'Το όνομα, το λογότυπο και τα φόντα σου στις σελίδες που ανοίγουν από τα links σου και στη σελίδα Λήψης αρχείων.',
-      bName: 'Το όνομά σου ή της εταιρείας (π.χ. The Mad Lions)', bLogo: 'Λογότυπο', bBgs: 'Φόντα (ως 8, ένα εμφανίζεται τυχαία)', bAdd: 'Προσθήκη', bSaved: 'Αποθηκεύτηκε.',
+      bName: 'Το όνομά σου ή της εταιρείας (π.χ. The Mad Lions)', bLogo: 'Λογότυπο', bBgs: 'Φόντα (ως 8, ένα εμφανίζεται τυχαία)', bAdd: 'Προσθήκη', bSaved: 'Αποθηκεύτηκε.', bBgN: 'φόντα', bNone: 'Δεν έχει οριστεί',
       bBig: 'Οι εικόνες μπορούν να είναι ως 10 MB.', details: 'Λεπτομέρειες', expT: 'Λήγει', pwNew: 'Νέος κωδικός (κενό τον αφήνει ως έχει)', pwOff: 'Αφαίρεση κωδικού',
       pwT: 'Κωδικός', pwHas: 'Ναι', pwNo: 'Κανένας', pwSet: 'Βάλε κωδικό', pwChange: 'Γράψε νέο', payOff: 'Όχι', actT: 'Ιστορικό',
       saveC: 'Αποθήκευση', locked: 'Έχει κωδικό', payT: 'Κλειδωμένο ως την πληρωμή', payOn: 'Αναμονή πληρωμής', noEv: 'Δεν έχει ανοιχτεί ακόμα.', evOpen: 'Άνοιξε', evDl: 'Κατέβηκε', maxT: function (d) { return 'Το πολύ ως ' + d },
@@ -1968,16 +1972,16 @@
     $('em-got-row').hidden = !isPro // only a Pro has a page people send files to
     // the PRO mark on the account at the top (Alex, 25 Oct)
     $('who-pro').hidden = !isPro
-    $('tab-mine').textContent = isPro ? pw('tab') : ((lang === 'el' ? EL : EN)['tb.mine'] || EN['tb.mine'])
-    $('mn-title').innerHTML = isPro ? pw('mineT') : (lang === 'el' ? EL['mn.title'] : EN['mn.title'])
+    // My transfers for everyone (Alex, 10 Nov: the PRO mark already says Pro)
     if (!isPro) $('mn-sub').textContent = (lang === 'el' ? EL : EN)['mn.sub'] || EN['mn.sub']
-    // a Pro sees three tabs; everyone else only what they sent
+    // a Pro sees Sent and Received; everyone else only what they sent. A Pro's own things live in Settings.
     $('mine-tab').hidden = !isPro
+    ;['set-rx', 'set-brand', 'set-perks'].forEach(function (id) { $(id).hidden = !isPro })
+    paintSet()
     if (!isPro && mineT.tab !== 'sent') { mineT.tab = 'sent'; $('mine-tab').querySelectorAll('[data-f]').forEach(function (x) { x.classList.toggle('on', x.dataset.f === 'sent') }) }
     showPane(MINE, mineT.tab)
     if (!isPro) return
     var me = proMe || {}
-    $('pro-st').textContent = me.admin ? pw('stAdmin') : me.until ? pw('stUntil')(dayY(me.until)) : pw('stEver')
     // what Pro gives (Alex, 25 Oct); the admin's pCloud option is never listed (Alex, 2 Nov)
     // what Pro gives as tiles with a check, two columns on a computer (Alex, 2 Nov: tidier than chips)
     $('pro-perks').innerHTML = ['pkGb', 'pkDays', 'pkDl', 'pkBrand', 'pkEdit', 'pkStats', 'pkResume', 'pkRx'].map(pw)
@@ -1993,13 +1997,13 @@
     $('pro-ed').hidden = !proEd
     $('pro-name').placeholder = pw('name'); $('pro-save').querySelector('span').textContent = pw('save')
     if (proEd && !$('pro-slug').value && document.activeElement !== $('pro-slug')) { $('pro-slug').value = pro.slug || ''; $('pro-name').value = pro.name || '' }
-    $('pro-got').textContent = pw('got') + (pro.received.length ? ' · ' + pro.received.length : '')
+    $('set-perks-h').textContent = pw('pkH'); $('set-perks-n').textContent = '8'
     $('tc-got').textContent = pro.received.length ? fmtN(pro.received.length) : ''
     $('pro-list').innerHTML = pro.received.length ? pro.received.map(function (g) {
       return '<li><span class="fi"><svg><use href="#i-down"/></svg></span><span class="ft"><b>' + esc(g.sender_name) + '</b>'
         + '<small>' + (g.sender_email ? esc(g.sender_email) + ' · ' : '') + pw('files')(Number(g.files) || 0) + ' · ' + size(Number(g.bytes || 0)) + ' · ' + when(g.created_at) + '</small>'
         + (g.message ? '<span class="got-msg">' + esc(g.message) + '</span>' : '') + '</span>'
-        + '<a class="pill" href="' + PAGE + esc(g.bundle) + '" target="_blank" rel="noopener"><span>' + pw('open') + '</span></a></li>'
+        + '<a class="pill sm" href="' + PAGE + esc(g.bundle) + '" target="_blank" rel="noopener"><svg><use href="#i-eye"/></svg><span>' + pw('open') + '</span></a></li>'
     }).join('') : note(pw('noneGot'))
   }
   $('pro-copy').addEventListener('click', function () {
@@ -2014,6 +2018,30 @@
       $('pro-save').disabled = false; pro.slug = d.slug; pro.name = d.name; proEd = false; paintPro()
     }).catch(function (e) { $('pro-save').disabled = false; $('pro-err').textContent = e.message; $('pro-err').hidden = false })
   })
+
+  // ---- Settings (Alex, 10 Nov: "make a Settings section somewhere and put things in there") ----
+  // the gear at the top: the account, the emails, and for a Pro their page, their brand and what Pro gives
+  function paintSet() {
+    $('set-mail').textContent = user ? user.email || '' : ''
+    var isPro = !!pro && !!user, me = proMe || {}
+    $('set-plan').textContent = !isPro ? pw('plFree') : me.admin ? pw('stAdmin') : me.until ? pw('stUntil')(dayY(me.until)) : pw('stEver')
+    $('set-probadge').hidden = !isPro
+    $('set-btn').setAttribute('aria-label', (lang === 'el' ? EL : EN)['set.h'] || 'Settings'); $('set-btn').title = $('set-btn').getAttribute('aria-label')
+  }
+  function setOpen() { paintSet(); $('sm').hidden = false; document.documentElement.classList.add('lm-on') }
+  function setClose() { $('sm').hidden = true; if ($('lm').hidden) document.documentElement.classList.remove('lm-on') }
+  $('set-btn').addEventListener('click', setOpen)
+  $('sm').addEventListener('click', function (e) { if (e.target.closest('[data-smx]')) setClose() })
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('sm').hidden) setClose() })
+  $('set-out').addEventListener('click', function () { if (busy) return; setClose(); sb.auth.signOut() })
+  // Your brand and What Pro gives stay folded until asked for, so the window stays short
+  function fold(btn, body) {
+    $(btn).addEventListener('click', function () {
+      var open = $(body).hidden
+      $(body).hidden = !open; $(btn).classList.toggle('open', open); $(btn).setAttribute('aria-expanded', open ? 'true' : 'false')
+    })
+  }
+  fold('set-perks-t', 'pro-perks'); fold('set-brand-t', 'set-brand-b')
 
   // ---- Admin > Pro (Alex, 25 Oct: "give me somewhere to make someone Pro") ----
   var admPro = { list: null, months: '1' }
