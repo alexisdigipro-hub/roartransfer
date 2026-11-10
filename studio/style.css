@@ -1420,3 +1420,15 @@ body.noscroll { overflow: hidden }
 .head .tools .btn:not(.main) svg { width: 18px; height: 18px }
 .head .tools #abtn { font-size: 12px; width: auto; padding: 0 12px }
 }
+
+/* Stats fold into one line, like the Spectrum (Alex, 10 Nov) */
+.mstats .ms-h { display: flex; align-items: center; gap: 10px; min-width: 0 }
+.mstats .ms-h .grow { flex: 1 }
+.mstats .ms-line { display: flex; gap: 12px; font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; min-width: 0 }
+.mstats .ms-line i { font-style: normal; display: inline-flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums } .mstats .ms-line svg { width: 13px; height: 13px; opacity: .8 }
+.mstats:not(.closed) .ms-line { display: none }
+.mstats .ms-b { display: grid; gap: 12px }
+.mstats.closed .ms-b { display: none }
+.mstats.closed { padding-block: 10px }
+.mstats #ms-tg svg { transition: transform .25s }
+.mstats.closed #ms-tg svg { transform: rotate(-90deg) }
