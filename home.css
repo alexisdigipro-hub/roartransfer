@@ -604,3 +604,7 @@ html.lm-on { overflow: hidden; }
 .lm-del:hover { background: rgba(212,0,0,.18); }
 .lm-del svg { width: 16px; height: 16px; }
 @media (max-width: 520px) { .lm-row { flex-wrap: wrap; } .lm-row .in { width: 100%; } .lm-row.sw-row { flex-wrap: nowrap; } }
+
+#v-in #in-sub { text-align: center; }
+#v-in .alt .rc-go { flex-basis: 100%; max-width: 320px; order: 3; }
+#v-in .alt .rc-go svg { width: 15px; height: 15px; }
