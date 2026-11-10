@@ -1194,7 +1194,7 @@
     }
     $('lm').hidden = false; document.documentElement.classList.add('lm-on'); lmPaint()
   }
-  function lmClose() { lmN = -1; det = { token: '', data: null, busy: false, msg: '' }; $('lm').hidden = true; document.documentElement.classList.remove('lm-on') }
+  function lmClose() { lmAct = false; lmN = -1; det = { token: '', data: null, busy: false, msg: '' }; $('lm').hidden = true; document.documentElement.classList.remove('lm-on') }
   function lmPaint() {
     var m = lmM(); if (!m) { if (!$('lm').hidden) lmClose(); return }
     var on = live(m), left = new Date(m.expires).getTime() - Date.now()
@@ -1206,11 +1206,37 @@
       + '<p class="lm-st"><i class="' + (on ? (left < 864e5 ? 'soon' : 'on') : 'off') + '"></i>' + esc(st) + ' · ' + esc(counts) + '</p>'
     if (on && m.token) html += '<div class="lm-acts"><button type="button" class="pill main" data-lmcp><svg><use href="#i-link"/></svg><span>' + w('copy') + '</span></button>'
       + '<a class="pill" href="' + esc(PAGE + m.token) + '" target="_blank" rel="noopener"><svg><use href="#i-eye"/></svg><span>' + w('lmOpen') + '</span></a></div>'
-    if (det.token === m.token) html += '<div class="lm-det">' + detHtml(on) + '</div>'
-    if (on && m.source === 'link') html += '<button type="button" class="pill lm-del" data-lmdel><svg><use href="#i-trash"/></svg><span>' + w('stop') + '</span></button>'
+    if (det.token === m.token) html += lmDet(on)
+    if (on && m.source === 'link') html += '<button type="button" class="lm-del" data-lmdel><svg><use href="#i-trash"/></svg><span>' + w('stop') + '</span></button>'
     $('lm-card').innerHTML = html
   }
+  // a Pro's settings for the link, in plain rows (Alex, 10 Nov: "too many lines, all mixed up; the opens folded, buttons centred")
+  var lmAct = false
+  function lmDet(on) {
+    var d = det.data
+    if (!d) return '<div class="lm-load"><span class="wait" aria-label="Loading"></span></div>'
+    var h = ''
+    if (on) {
+      h += '<div class="lm-set">'
+        + '<label class="lm-row"><span class="k">' + pw('expT') + '<small>' + esc(pw('maxT')(dayY(d.max))) + '</small></span><input class="in" type="datetime-local" id="det-until" value="' + localIso(d.expires) + '" max="' + localIso(d.max) + '"></label>'
+        + (d.bundle ? '<label class="lm-row"><span class="k">' + pw('pwT') + '<small>' + (d.locked ? pw('pwHas') : pw('pwNo')) + '</small></span><input class="in" type="password" id="det-pw" autocomplete="new-password" maxlength="100" placeholder="' + esc(d.locked ? pw('pwChange') : pw('pwSet')) + '"></label>' : '')
+        + (d.payLock != null ? '<label class="lm-row sw-row"><span class="k">' + pw('payT') + '<small>' + (d.payLock ? pw('payOn') : pw('payOff')) + '</small></span><span class="sw' + (d.payLock ? ' on' : '') + '"><input type="checkbox" data-dpay' + (d.payLock ? ' checked' : '') + (det.busy ? ' disabled' : '') + '><i></i></span></label>' : '')
+        + '</div>'
+        + '<div class="lm-save" id="lm-save" hidden><button type="button" class="pill main" data-dsave' + (det.busy ? ' disabled' : '') + '><span>' + pw('saveC') + '</span></button></div>'
+        + (d.bundle && d.locked ? '<button type="button" class="lm-link" data-dpwoff>' + pw('pwOff') + '</button>' : '')
+        + (det.msg ? '<p class="lm-ok">' + esc(det.msg) + '</p>' : '')
+    }
+    var n = d.events.length
+    h += '<button type="button" class="lm-fold' + (lmAct ? ' open' : '') + '" data-lmact' + (n ? '' : ' disabled') + '><span>' + pw('actT') + ' <em>' + (n ? n : pw('noEv')) + '</em></span><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
+    if (n && lmAct) h += '<ul class="lm-ev">' + d.events.map(function (x) {
+      return '<li><b>' + (x.kind === 'download' ? pw('evDl') : pw('evOpen')) + '</b><span>' + when(x.at) + (x.country ? ' · ' + esc(country(x.country)) : '') + (x.device ? ' · ' + esc(x.device) : '') + '</span></li>'
+    }).join('') + '</ul>'
+    return h
+  }
+  // Save shows only once something was changed
+  $('lm').addEventListener('input', function (e) { if (e.target.id === 'det-until' || e.target.id === 'det-pw') { var b = $('lm-save'); if (b) b.hidden = false } })
   $('lm').addEventListener('click', async function (e) {
+    if (e.target.closest('[data-lmact]')) { lmAct = !lmAct; lmPaint(); return }
     if (e.target.closest('[data-lmx]')) { lmClose(); return }
     var m = lmM(); if (!m) return
     var c = e.target.closest('[data-lmcp]'); if (c) { copy(PAGE + m.token, c, w('copied')); return }
@@ -1871,6 +1897,7 @@
       bH: 'Your brand', bN: 'Your name, logo and backgrounds on the pages people open from your links, and on your Receive-files page.',
       bName: 'Your name or company (e.g. The Mad Lions)', bLogo: 'Logo', bBgs: 'Backgrounds (up to 8, one shows at random)', bAdd: 'Add', bSaved: 'Saved.',
       bBig: 'Pictures can be up to 10 MB.', details: 'Details', expT: 'Expires', pwNew: 'New password (empty keeps it as it is)', pwOff: 'Remove password',
+      pwT: 'Password', pwHas: 'On', pwNo: 'None', pwSet: 'Add a password', pwChange: 'Type a new one', payOff: 'Off', actT: 'Activity',
       saveC: 'Save changes', locked: 'Has a password', payT: 'Locked until paid', payOn: 'Awaiting payment', noEv: 'Not opened yet.', evOpen: 'Opened', evDl: 'Downloaded', maxT: function (d) { return 'At most until ' + d },
       bgSub: 'The pictures behind every page; one shows at random on each visit. Pro accounts can use their own on their links.', bgAsk: 'Remove this background?',
       'h.all': 'Every <b>transfer</b>.', 's.all': 'Every file sent, newest first; tap an account under Accounts to see only theirs.',
@@ -1904,6 +1931,7 @@
       bH: 'Το brand σου', bN: 'Το όνομα, το λογότυπο και τα φόντα σου στις σελίδες που ανοίγουν από τα links σου και στη σελίδα Λήψης αρχείων.',
       bName: 'Το όνομά σου ή της εταιρείας (π.χ. The Mad Lions)', bLogo: 'Λογότυπο', bBgs: 'Φόντα (ως 8, ένα εμφανίζεται τυχαία)', bAdd: 'Προσθήκη', bSaved: 'Αποθηκεύτηκε.',
       bBig: 'Οι εικόνες μπορούν να είναι ως 10 MB.', details: 'Λεπτομέρειες', expT: 'Λήγει', pwNew: 'Νέος κωδικός (κενό τον αφήνει ως έχει)', pwOff: 'Αφαίρεση κωδικού',
+      pwT: 'Κωδικός', pwHas: 'Ναι', pwNo: 'Κανένας', pwSet: 'Βάλε κωδικό', pwChange: 'Γράψε νέο', payOff: 'Όχι', actT: 'Ιστορικό',
       saveC: 'Αποθήκευση', locked: 'Έχει κωδικό', payT: 'Κλειδωμένο ως την πληρωμή', payOn: 'Αναμονή πληρωμής', noEv: 'Δεν έχει ανοιχτεί ακόμα.', evOpen: 'Άνοιξε', evDl: 'Κατέβηκε', maxT: function (d) { return 'Το πολύ ως ' + d },
       bgSub: 'Οι εικόνες πίσω από κάθε σελίδα· μία εμφανίζεται τυχαία σε κάθε επίσκεψη. Οι Pro βάζουν τις δικές τους στα links τους.', bgAsk: 'Να αφαιρεθεί αυτό το φόντο;',
       'h.all': 'Όλες οι <b>αποστολές</b>.', 's.all': 'Κάθε αρχείο που στάλθηκε, τα νεότερα πρώτα· πάτα έναν λογαριασμό στο Accounts για να δεις μόνο τα δικά του.',
