@@ -1412,3 +1412,25 @@ body.noscroll { overflow: hidden }
 .sunobox.spot iframe { height: 352px; border-radius: 12px 12px 0 0; background: #121212 }
 .sunobox.spot.tall iframe { height: 452px }
 .trk .th.sth.spot { background: linear-gradient(160deg, #4ade80, #15803d) }
+
+/* Awaiting payment (Alex, 10 Nov 2026): a kind "Almost there" card on a locked link, the files greyed with a lock, nothing to press */
+.paywait { max-width: 560px; margin: 36px auto; border-radius: 28px; padding: 40px 28px 30px; display: grid; gap: 14px; justify-items: center; text-align: center; animation: pw-in .45s var(--ease) both }
+.paywait .pw-ic { width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.04)); border: 1px solid var(--edge); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 16px 40px -14px var(--red, rgba(0,0,0,.6)) }
+.paywait .pw-ic svg { width: 30px; height: 30px }
+.paywait .pw-from { display: grid; gap: 2px; font-size: 14px; color: var(--muted) }
+.paywait .pw-from b { color: var(--text); font-size: 15px }
+.paywait h2 { font: 300 clamp(32px, 7vw, 44px) var(--disp); letter-spacing: -.02em; margin: 2px 0 0 }
+.paywait p { margin: 0; max-width: 44ch; color: var(--muted); font-size: 15px; line-height: 1.6 }
+.paywait .pw-files { width: 100%; display: grid; gap: 8px; margin-top: 8px; text-align: left }
+.paywait .pw-file { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 16px; background: var(--glass); border: 1px solid var(--edge); opacity: .55; filter: grayscale(1); min-width: 0 }
+.paywait .pw-file .fi { flex: none; width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: var(--glass-2) }
+.paywait .pw-file .fi svg, .paywait .pw-file .lk svg { width: 16px; height: 16px }
+.paywait .pw-file .nm { flex: 1; min-width: 0; display: grid }
+.paywait .pw-file .nm b, .paywait .pw-file .nm small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.paywait .pw-file .nm b { font-size: 14px }
+.paywait .pw-file .nm small { font-size: 12px; color: var(--muted) }
+.paywait .pw-file .lk { flex: none; color: var(--muted) }
+.paywait .pw-sum { font-size: 12.5px }
+.ico.paylock.on { color: var(--warn); border-color: rgba(255,198,92,.4); background: rgba(255,198,92,.1) }
+@keyframes pw-in { from { opacity: 0; transform: translateY(10px) scale(.98) } to { opacity: 1; transform: none } }
+@media (max-width: 600px) { .paywait { margin: 16px auto; padding: 30px 18px 22px; border-radius: 24px } }

@@ -499,3 +499,12 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 .files li.nopick { opacity: .4; cursor: default; }
 .files li.nopick .fi.pk { visibility: hidden; }
 @media (max-width: 560px) { .selbar { border-radius: 20px; } .selbar .sp { flex-basis: 100%; height: 0; } .selbar .pill { flex: 1; } }
+
+/* Awaiting payment (Alex, 10 Nov 2026): the "Almost there" page, a calm glass lock instead of the red pulse, the files greyed */
+.grace.pay .gr-ic { background: var(--glass); border: 1px solid var(--glass-edge); box-shadow: 0 14px 38px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.22); animation: gbIn .6s .06s cubic-bezier(.16,1,.3,1) both; }
+.grace.pay .gr-ic svg { width: 30px; height: 30px; color: rgba(255,255,255,.92); }
+.grace.pay .gr-h { font-size: clamp(34px, 8vw, 46px); font-weight: 300; }
+.grace.pay p { max-width: 40ch; font-size: 14.5px; line-height: 1.6; }
+.files.paylock li { opacity: .5; filter: grayscale(1); }
+.files.paylock li .lk { flex: none; width: 30px; height: 30px; display: grid; place-items: center; color: var(--muted); }
+.files.paylock li .lk svg { width: 15px; height: 15px; }
