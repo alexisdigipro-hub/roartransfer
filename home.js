@@ -51,6 +51,7 @@
       mailed: function (n) { return n === 1 ? 'Sent by email to 1 person.' : 'Sent by email to ' + n + ' people.' }, unmailed: 'Some emails could not be sent:',
       gFrom: function (n) { return n + ' sent you' }, gLocked: 'This transfer has a password', gPw: 'Password', gOpen: 'Open', gWrong: 'Wrong password, try again.', gSlow: 'Too many wrong tries. Wait 15 minutes and try again.', gLeft: function (n) { return n === 1 ? '1 download left' : n + ' downloads left' }, gUsed: 'Download limit reached', gUsedN: 'This file has been downloaded as many times as it can be. Ask for it to be sent again.',
       until: 'until', sent: 'uploaded', sentOne: 'Uploaded!', sentMany: function (n) { return n + ' files uploaded!' }, none: 'Nothing was uploaded',
+      lmOpen: 'Open link',
       left: 'Anyone with the link can download until', copy: 'Copy link', copied: 'Copied', allCopied: 'All links copied', cant: 'Could not copy',
       bad: 'Wrong email or password.', offline: 'Could not reach RoarTransfer. Check the connection and try again.',
       inSub: 'Sign in to send by email too, up to 5 GB, for up to 7 days.', upSub: 'Make a free account to send files up to 5 GB.',
@@ -95,6 +96,7 @@
       mailed: function (n) { return n === 1 ? 'Στάλθηκε με email σε 1 άτομο.' : 'Στάλθηκε με email σε ' + n + ' άτομα.' }, unmailed: 'Κάποια email δεν στάλθηκαν:',
       gFrom: function (n) { return 'Ο/Η ' + n + ' σου έστειλε' }, gLocked: 'Αυτή η αποστολή έχει κωδικό', gPw: 'Κωδικός', gOpen: 'Άνοιγμα', gWrong: 'Λάθος κωδικός, δοκίμασε ξανά.', gSlow: 'Πάρα πολλές λάθος προσπάθειες. Περίμενε 15 λεπτά και δοκίμασε ξανά.', gLeft: function (n) { return n === 1 ? 'απομένει 1 λήψη' : 'απομένουν ' + n + ' λήψεις' }, gUsed: 'Έφτασε το όριο λήψεων', gUsedN: 'Αυτό το αρχείο κατέβηκε όσες φορές επιτρέπεται. Ζήτα να σου το ξαναστείλουν.',
       until: 'ως', sent: 'ανέβηκαν', sentOne: 'Ανέβηκε!', sentMany: function (n) { return 'Ανέβηκαν ' + n + ' αρχεία!' }, none: 'Δεν ανέβηκε τίποτα',
+      lmOpen: 'Άνοιγμα',
       left: 'Όποιος έχει τον σύνδεσμο μπορεί να κατεβάσει ως', copy: 'Αντιγραφή', copied: 'Αντιγράφηκε', allCopied: 'Αντιγράφηκαν όλοι', cant: 'Δεν αντιγράφηκε',
       bad: 'Λάθος email ή κωδικός.', offline: 'Δεν βρέθηκε το RoarTransfer. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
       inSub: 'Συνδέσου για να στέλνεις και με email, ως 5 GB, για ως 7 μέρες.', upSub: 'Φτιάξε δωρεάν λογαριασμό για να στέλνεις αρχεία ως 5 GB.',
@@ -863,6 +865,13 @@
         + '<span class="ft"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b><small>' + sz(m.size) + ' · ' + when(m.created_at) + ' · ' + esc(where(m)) + '</small>'
         + '<span class="chips">' + st + counts + '</span></span></li>'
     }
+    // My transfers (Alex, 10 Nov): one quiet line; a tap opens the link's window with everything (lmOpen)
+    if (!withWho) {
+      var bits = [sz(m.size), m.deleted ? w('deleted') : m.stopped ? w('stoppedT') : on ? leftText(left) : w('expired'), w('dls')(Number(m.downloads || 0))]
+      return '<li class="tx one' + (on ? '' : ' off') + '" data-lm="' + esc(m.token || '') + '" data-n="' + n + '" tabindex="0" role="button"><span class="fi"><svg><use href="#' + icon(m.type) + '"/></svg></span>'
+        + '<span class="ft"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b><small>' + bits.map(esc).join(' · ') + (on && left < 864e5 ? ' <em class="soon-dot"></em>' : '') + '</small></span>'
+        + '<svg class="lm-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></li>'
+    }
     return '<li class="tx' + (on ? '' : ' off') + '"><span class="fi"><svg><use href="#' + icon(m.type) + '"/></svg></span>'
       + '<span class="ft"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b><small>' + sz(m.size) + ' · ' + when(m.created_at) + ' · ' + esc(where(m)) + '</small>'
       + '<span class="chips">' + by + st + counts + '</span></span>' + (acts ? '<span class="acts">' + acts + '</span>' : '')
@@ -937,7 +946,7 @@
     loadMails()
     sb.rpc('roar_my_transfers').then(function (r) {
       if (r.error) { $('mine-err').textContent = r.error.message; $('mine-err').hidden = false; return }
-      $('mine-err').hidden = true; mine = r.data || []; paintMine()
+      $('mine-err').hidden = true; mine = r.data || []; paintMine(); if (lmN >= 0) lmPaint()
     })
     loadPro()
   }
@@ -1151,25 +1160,76 @@
     if (u && localIso(det.data.expires) !== u) body.until = new Date(u).toISOString()
     if (pwOff) body.password = ''; else if (p) body.password = p
     if (!body.until && body.password == null) return
-    det.busy = true; paintMine()
+    det.busy = true; paintMine(); lmPaint()
     proCall(body).then(function (r) {
       det.busy = false; det.msg = pw('bSaved')
       if (r.until) det.data.expires = r.until
       if (r.locked != null) det.data.locked = r.locked
       loadMine()
-    }).catch(function (e) { det.busy = false; paintMine(); window.alert(e.message) })
+    }).catch(function (e) { det.busy = false; paintMine(); lmPaint(); window.alert(e.message) })
   }
 
   // Locked until paid (Alex, 10 Nov 2026): roartransfer-pro 'edit' sets it on the upload's link and every file of it
   function savePay(on) {
     if (!det.data || det.busy) return
-    det.busy = true; det.msg = ''; paintMine()
+    det.busy = true; det.msg = ''; paintMine(); lmPaint()
     proCall({ action: 'edit', token: det.token, payLock: on }).then(function (r) {
       det.busy = false; det.msg = pw('bSaved')
       if (r.payLock != null) det.data.payLock = r.payLock
-      paintMine()
-    }).catch(function (e) { det.busy = false; paintMine(); window.alert(e.message) })
+      paintMine(); lmPaint()
+    }).catch(function (e) { det.busy = false; paintMine(); lmPaint(); window.alert(e.message) })
   }
+
+  // ---- the link's window (Alex, 10 Nov): what it is, Copy / Open, its details for a Pro, Delete apart in red ----
+  var lmN = -1
+  function lmM() { return mine && lmN >= 0 ? mine[lmN] : null }
+  function lmOpen(n) {
+    lmN = n; var m = lmM(); if (!m) return
+    det = { token: '', data: null, busy: false, msg: '' }
+    if (isProNow() && m.token && m.source === 'link') {
+      det.token = m.token
+      proCall({ action: 'link', token: m.token }).then(function (d) { if (det.token === m.token) { det.data = d; lmPaint() } }).catch(function (e) { det.token = ''; lmPaint(); window.alert(e.message) })
+    }
+    $('lm').hidden = false; document.documentElement.classList.add('lm-on'); lmPaint()
+  }
+  function lmClose() { lmN = -1; det = { token: '', data: null, busy: false, msg: '' }; $('lm').hidden = true; document.documentElement.classList.remove('lm-on') }
+  function lmPaint() {
+    var m = lmM(); if (!m) { if (!$('lm').hidden) lmClose(); return }
+    var on = live(m), left = new Date(m.expires).getTime() - Date.now()
+    var st = m.deleted ? w('deleted') : m.stopped ? w('stoppedT') : on ? w('active') + ' · ' + leftText(left) : w('expired')
+    var facts = [sz(m.size), when(m.created_at), where(m)].map(esc).join(' · ')
+    var counts = w('dls')(Number(m.downloads || 0)) + (Number(m.opens) ? ' · ' + w('opensN')(Number(m.opens)) : '')
+    var html = '<div class="lm-h"><span class="fi"><svg><use href="#' + icon(m.type) + '"/></svg></span><span class="ft"><b id="lm-name">' + esc(m.name) + '</b><small>' + facts + '</small></span>'
+      + '<button type="button" class="lm-x" data-lmx aria-label="Close"><svg><use href="#i-x"/></svg></button></div>'
+      + '<p class="lm-st"><i class="' + (on ? (left < 864e5 ? 'soon' : 'on') : 'off') + '"></i>' + esc(st) + ' · ' + esc(counts) + '</p>'
+    if (on && m.token) html += '<div class="lm-acts"><button type="button" class="pill main" data-lmcp><svg><use href="#i-link"/></svg><span>' + w('copy') + '</span></button>'
+      + '<a class="pill" href="' + esc(PAGE + m.token) + '" target="_blank" rel="noopener"><svg><use href="#i-eye"/></svg><span>' + w('lmOpen') + '</span></a></div>'
+    if (det.token === m.token) html += '<div class="lm-det">' + detHtml(on) + '</div>'
+    if (on && m.source === 'link') html += '<button type="button" class="pill lm-del" data-lmdel><svg><use href="#i-trash"/></svg><span>' + w('stop') + '</span></button>'
+    $('lm-card').innerHTML = html
+  }
+  $('lm').addEventListener('click', async function (e) {
+    if (e.target.closest('[data-lmx]')) { lmClose(); return }
+    var m = lmM(); if (!m) return
+    var c = e.target.closest('[data-lmcp]'); if (c) { copy(PAGE + m.token, c, w('copied')); return }
+    if (e.target.closest('[data-dsave]')) { saveDet(false); return }
+    if (e.target.closest('[data-dpwoff]')) { saveDet(true); return }
+    var pl = e.target.closest('[data-dpay]'); if (pl) { savePay(pl.checked); return }
+    var d = e.target.closest('[data-lmdel]'); if (!d) return
+    if (!window.confirm(w('stopAsk')(m.name))) return
+    d.disabled = true
+    try { await stopOne(m) } catch (x) { d.disabled = false; window.alert(x.message); return }
+    lmClose(); loadMine()
+  })
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('lm').hidden) lmClose() })
+  $('mine-list').addEventListener('click', function (e) {
+    if (picks) return
+    var li = e.target.closest('li[data-lm]'); if (li) lmOpen(+li.dataset.n)
+  })
+  $('mine-list').addEventListener('keydown', function (e) {
+    if (picks || (e.key !== 'Enter' && e.key !== ' ')) return
+    var li = e.target.closest('li[data-lm]'); if (li) { e.preventDefault(); lmOpen(+li.dataset.n) }
+  })
 
   // ---- a Pro's brand (Alex, 25 Oct): name, logo and backgrounds, pictures in roartransfer-brand/<their id>/ ----
   var BRAND_BUCKET = 'roartransfer-brand'
