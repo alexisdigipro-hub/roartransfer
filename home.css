@@ -700,3 +700,8 @@ html.lm-on { overflow: hidden; }
 
 .ios-tip { margin: -4px 4px 0; font-size: 12px; line-height: 1.45; color: var(--muted); text-align: center; }
 .ios-tip[hidden] { display: none; }
+
+/* the guest's note: one short line, sign up as a small pill (Alex, 10 Nov) */
+#guest-n { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; font-size: 13px; }
+#guest-n .gn-up { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,.1); border: 1px solid var(--glass-edge, rgba(255,255,255,.2)); color: var(--text); text-decoration: none; font-weight: 600; font-size: 12.5px; }
+#guest-n .gn-up:hover { background: rgba(255,255,255,.16); }
