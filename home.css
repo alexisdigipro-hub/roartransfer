@@ -137,7 +137,6 @@ h1 b { font-weight: 800; }
 .rc-wait .pill, .rc-wait .field { width: 100%; }
 .rc-wait .field input { text-align: center; font-family: var(--mono); font-size: 22px; letter-spacing: .3em; }
 .rc-code { padding: 8px 18px; border-radius: 999px; background: rgba(0,0,0,.25); border: 1px solid var(--line-2); font-family: var(--mono); font-size: 20px; font-weight: 600; letter-spacing: .14em; color: #fff; }
-.rc-x { border: 0; background: none; padding: 4px 10px; cursor: pointer; font: inherit; font-size: 13.5px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
 #v-in.rc-on > :not(h1):not(.tag):not(.rc-wait) { display: none !important; }
 .alt { display: grid; gap: 8px; padding-top: 4px; border-top: 1px solid var(--line); }
 .alt p { margin: 10px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
@@ -222,6 +221,8 @@ h2 .cnt { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 
 
 /* files */
 .files { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 300px; overflow: auto; }
+/* a download page shows every file, the page scrolls instead of the list (Alex, 10 Nov: the fifth was cut) */
+#get-list, #done-list { max-height: none; overflow: visible; }
 .files li { display: flex; align-items: center; gap: 11px; padding: 9px 10px 9px 12px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid var(--line); min-width: 0; }
 .files .fi { flex: none; width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: rgba(212,0,0,.18); color: #ff8f86; }
 .files .fi svg { width: 17px; height: 17px; }
@@ -437,7 +438,7 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 .kinds .lg { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 9px; font-size: 12.5px; color: var(--muted); }
 .kinds .lg span { display: inline-flex; align-items: center; gap: 6px; } .kinds .lg b { color: var(--text); font-weight: 600; }
 .kinds .lg span::before { content: ''; width: 9px; height: 9px; border-radius: 3px; background: var(--c); }
-.top-list { max-height: 420px; }
+.top-list { max-height: none; overflow: visible; }
 .top-list li[data-who] { cursor: pointer; transition: background .2s; } .top-list li[data-who]:hover { background: rgba(255,255,255,.09); }
 .av { flex: none; width: 34px; height: 34px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: rgba(255,255,255,.1); font-size: 13px; font-weight: 700; }
 .av img { width: 100%; height: 100%; object-fit: cover; }
@@ -606,5 +607,81 @@ html.lm-on { overflow: hidden; }
 @media (max-width: 520px) { .lm-row { flex-wrap: wrap; } .lm-row .in { width: 100%; } .lm-row.sw-row { flex-wrap: nowrap; } }
 
 #v-in #in-sub { text-align: center; }
-#v-in .alt .rc-go { flex-basis: 100%; max-width: 320px; order: 3; }
 #v-in .alt .rc-go svg { width: 15px; height: 15px; }
+
+/* sign in: Sign up, Forgot password? and Roar Account in one row, alike (Alex, 10 Nov) */
+#v-in .alt { flex-wrap: nowrap; }
+#v-in .alt .rc-go { width: auto; order: 3; }
+#v-in .alt .pill { flex: none; white-space: nowrap; }
+#v-in .rc-wait .rc-x { width: auto; }
+@media (max-width: 480px) {
+  #v-in .alt { gap: 6px; }
+  #v-in .alt .pill { height: 36px; padding: 0 10px; font-size: 11.5px; gap: 5px; }
+  #v-in .alt .rc-go svg { width: 13px; height: 13px; }
+}
+@media (max-width: 360px) { #v-in .alt { flex-wrap: wrap; } }
+
+/* the gear for Settings, a round glass icon in the account pill (Alex, 10 Nov) */
+.who .who-set { width: 30px; height: 30px; padding: 0; border-radius: 50%; display: grid; place-items: center; color: var(--text); }
+.who .who-set svg { width: 16px; height: 16px; }
+
+/* Settings: the same glass window as a link's, sections of plain rows (Alex, 10 Nov) */
+.sm-card { width: min(520px, 100%); gap: 18px; }
+.sm-sec { display: grid; gap: 10px; min-width: 0; }
+.sm-sec[hidden] { display: none; }
+.sm-sec h3 { margin: 0 4px; font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.sm-note { margin: -2px 6px 0; font-size: 12px; line-height: 1.45; color: var(--muted); }
+.sm-acts { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.sm-acts[hidden] { display: none; }
+.sm-card .lm-row .k > span { overflow-wrap: anywhere; }
+.sm-card #pro-link { font-family: var(--mono); font-size: 13px; }
+.sm-card .badge { flex: none; }
+.sm-card .pro-ed { display: grid; gap: 8px; }
+.sm-card .pro-ed[hidden] { display: none; }
+.sm-card .perks { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.sm-card .perks[hidden] { display: none; }
+.sm-card .perks li { padding: 9px 12px 9px 10px; font-size: 13px; }
+.sm-card .perks i { width: 20px; height: 20px; } .sm-card .perks svg { width: 12px; height: 12px; }
+.sw input:focus-visible + i { outline: 2px solid rgba(255,90,80,.7); outline-offset: 2px; }
+.sw input:checked + i { background: #d40000; border-color: transparent; box-shadow: 0 0 12px rgba(212,0,0,.45); }
+.sw input:checked + i::after { transform: translateX(18px); }
+.lm-ev { max-height: none; overflow: visible; }
+
+/* My transfers: the totals in one quiet centred line instead of four tiles (Alex, 10 Nov) */
+.mine-tot { margin: -4px 0 0; text-align: center; font-size: 12.5px; color: var(--muted); }
+.mine-tot:empty { display: none; }
+
+/* Admin tabs on a phone: all six in two even rows of three, nothing cut off (Alex, 10 Nov) */
+@media (max-width: 640px) {
+  #adm-tab { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); justify-self: stretch; overflow: visible; border-radius: 22px; }
+  #adm-tab button { padding: 9px 6px; font-size: 13px; display: flex; align-items: center; justify-content: center; min-width: 0; }
+  #adm-tab .tc { margin-left: 4px; padding: 1px 5px; }
+}
+.sm-card .lm-fold > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+.sm-card .lm-fold svg { flex: none; }
+
+/* My transfers and Admin: the title centred over the centred tabs, no extra line under it on My transfers (Alex, 10 Nov) */
+#v-mine > h1, #v-admin > h1, #v-admin > #adm-sub { text-align: center; }
+#v-mine > #mn-sub { display: none; }
+#pro-list li { align-items: center; }
+#pro-list .pill.sm { text-decoration: none; }
+/* under the download: two quiet glass pills, no underlined words (Alex, 5 Nov rule) */
+.get-foot { gap: 8px; }
+.get-foot .pill.sm { min-height: 34px; padding: 0 14px; font-size: 12.5px; color: rgba(255,255,255,.82); text-decoration: none; }
+.get-foot .pill.sm[hidden] { display: none; }
+.get-foot .rep { padding: 0 14px; color: var(--muted); text-decoration: none; }
+.get-foot .rep:disabled { opacity: .7; }
+#v-in #in-sub, .mine-tot, .sm-note { text-wrap: balance; }
+/* a phone's header: PRO, the gear and the language; Sign out lives in Settings there (Alex, 10 Nov) */
+@media (max-width: 480px) { .who #out { display: none; } .who { gap: 2px; } }
+#adm-acc-sum { text-align: center; }
+/* My transfers on a phone: the filters across the card, the search and Select under them (Alex, 10 Nov) */
+@media (max-width: 560px) {
+  #mpane-sent > .bar2 #mine-seg { flex: 1 1 100%; }
+  #mpane-sent > .bar2 #mine-seg button { flex: 1; }
+  #mpane-sent > .bar2 .find { flex: 1 1 0; min-width: 0; }
+}
+@media (max-width: 560px) { #pro-list .pill.sm { width: 38px; min-height: 38px; padding: 0; justify-content: center; border-radius: 50%; } #pro-list .pill.sm span { display: none; } }
+
+/* Sign out lives in Settings only (nothing in two places) */
+.top .who #out { display: none; }

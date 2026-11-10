@@ -35,7 +35,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/home.css?v=e17db326">
+<link rel="stylesheet" href="/home.css?v=0e8fd688">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -59,6 +59,7 @@
   <symbol id="i-box" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></g></symbol>
   <symbol id="i-cal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g></symbol>
   <symbol id="i-roar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></g></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></symbol>
   <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></g></symbol>
 </defs></svg>
 
@@ -66,6 +67,59 @@
 
 <!-- one link, everything about it (Alex, 10 Nov: "one line; a tap opens a window with all it can do") -->
 <div class="lm" id="lm" hidden><div class="lm-back" data-lmx></div><div class="lm-card" role="dialog" aria-modal="true" aria-labelledby="lm-name" id="lm-card"></div></div>
+<!-- Settings (Alex, 10 Nov: "make a Settings section somewhere and put things in there"): the account, the emails,
+     and for a Pro their page, their brand and what Pro gives; the same glass window as a link's (#lm) -->
+<div class="lm" id="sm" hidden><div class="lm-back" data-smx></div><div class="lm-card sm-card" role="dialog" aria-modal="true" aria-labelledby="sm-h">
+  <div class="lm-h"><span class="fi"><svg><use href="#i-gear"/></svg></span><span class="ft"><b id="sm-h" data-t="set.h">Settings</b></span><button type="button" class="lm-x" data-smx aria-label="Close"><svg><use href="#i-x"/></svg></button></div>
+  <section class="sm-sec">
+    <h3 data-t="set.acc">Account</h3>
+    <div class="lm-set">
+      <div class="lm-row"><span class="k"><span data-t="in.email">Email</span><small id="set-mail"></small></span></div>
+      <div class="lm-row"><span class="k"><span data-t="set.plan">Plan</span><small id="set-plan"></small></span><b class="badge" id="set-probadge" hidden>PRO</b></div>
+    </div>
+  </section>
+  <section class="sm-sec" id="mine-mails" hidden>
+    <h3 data-t="em.h">Emails</h3>
+    <div class="lm-set">
+      <label class="lm-row sw-row"><span class="k" data-t="em.dl">When someone downloads what I sent</span><span class="sw"><input type="checkbox" id="em-dl" checked><i></i></span></label>
+      <label class="lm-row sw-row" id="em-got-row" hidden><span class="k" data-t="em.got">When someone sends me files on my page</span><span class="sw"><input type="checkbox" id="em-got" checked><i></i></span></label>
+    </div>
+    <small class="sm-note" data-t="em.note">Sign-up and password emails always come.</small>
+  </section>
+  <!-- a Pro's own: Receive files, Your brand and what Pro gives (until 10 Nov the Pro tab of My transfers) -->
+  <section class="sm-sec" id="set-rx" hidden>
+    <h3 id="pro-h"></h3>
+    <div class="lm-set">
+      <div class="lm-row"><span class="k"><span id="pro-link"></span><small id="pro-n"></small></span></div>
+    </div>
+    <div class="sm-acts"><button type="button" class="pill main sm" id="pro-copy"><svg><use href="#i-link"/></svg><span></span></button><button type="button" class="pill sm" id="pro-edit"><span></span></button></div>
+    <div class="pro-ed" id="pro-ed" hidden>
+      <input class="in" id="pro-name" type="text" maxlength="80" autocomplete="off">
+      <label class="slug"><span>roartransfer.com/u/</span><input id="pro-slug" type="text" maxlength="30" autocomplete="off" spellcheck="false"></label>
+      <div class="sm-acts"><button type="button" class="pill main sm" id="pro-save"><span></span></button></div>
+      <p class="err" id="pro-err" hidden></p>
+    </div>
+  </section>
+  <section class="sm-sec" id="set-brand" hidden>
+    <button type="button" class="lm-fold" id="set-brand-t" aria-expanded="false"><span><span id="pb-h"></span> <em id="set-brand-n"></em></span><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="pro-ed" id="set-brand-b" hidden>
+      <small class="sm-note" id="pb-n"></small>
+      <input class="in" id="pb-name" type="text" maxlength="80" autocomplete="off">
+      <p class="pro-lbl" id="pb-lt"></p>
+      <div class="bgs" id="pb-logo"></div>
+      <p class="pro-lbl" id="pb-bt"></p>
+      <div class="bgs" id="pb-bgs"></div>
+      <input type="file" id="pb-file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+      <div class="sm-acts"><button type="button" class="pill main sm" id="pb-save"><span></span></button></div>
+      <p class="err" id="pb-err" hidden></p><p class="note ok" id="pb-ok" hidden></p>
+    </div>
+  </section>
+  <section class="sm-sec" id="set-perks" hidden>
+    <button type="button" class="lm-fold" id="set-perks-t" aria-expanded="false"><span><span id="set-perks-h"></span> <em id="set-perks-n"></em></span><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <ul class="perks" id="pro-perks" hidden></ul>
+  </section>
+  <div class="sm-acts"><button type="button" class="pill sm" id="set-out"><span data-t="out">Sign out</span></button></div>
+</div></div>
 <header class="top">
   <a class="mark" href="./" aria-label="RoarTransfer by The Mad Lions"><b>Roar<span>Transfer</span></b><small class="by">By The<strong>Mad</strong>Lions</small></a>
   <a class="credit" id="credit" target="_blank" rel="noopener" hidden><span><small data-t="cr">A still from</small><b id="credit-t"></b></span></a>
@@ -73,7 +127,7 @@
     <!-- RoarTransfer Studio (Alex, 7 Nov 2026): review and delivery for audio, video and pictures, at studio.roartransfer.com -->
     <a class="more studio" href="https://studio.roartransfer.com/" title="RoarTransfer Studio: review and delivery for audio, video and pictures"><i aria-hidden="true"><svg viewBox="0 0 14 14" width="12" height="12"><rect x="0.9" y="2" width="12.2" height="10" rx="2.4" stroke="#fff" stroke-width="1.3" fill="none"/><path d="M3.4 4.9v4.2l3.5-2.1z" fill="#fff"/><path d="M8.6 5.8v2.4M10.1 4.6v4.8M11.5 6v2" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg></i><span>Studio</span><em>Delivery</em></a>
     <button type="button" class="more in" id="signin" hidden data-t="sgn">Sign in</button>
-    <div class="who" id="who" hidden><b class="badge who-pro" id="who-pro" hidden>PRO</b><span id="who-mail"></span><button type="button" id="out" data-t="out">Sign out</button></div>
+    <div class="who" id="who" hidden><b class="badge who-pro" id="who-pro" hidden>PRO</b><span id="who-mail"></span><button type="button" class="who-set" id="set-btn" aria-label="Settings" title="Settings"><svg><use href="#i-gear"/></svg></button><button type="button" id="out" data-t="out">Sign out</button></div>
     <div class="lang" role="group" aria-label="Language">
       <button type="button" data-lang="en">EN</button>
       <button type="button" data-lang="el">GR</button>
@@ -142,9 +196,8 @@
     </div>
     <!-- under the download, quietly (Alex, 22 Oct): not a second big button -->
     <div class="get-foot">
-      <a href="./" id="get-send"><svg><use href="#i-send"/></svg><span data-t="gt.send">Send your own files</span></a>
-      <span class="dot">·</span>
-      <button type="button" class="rep" id="get-rep" data-t="rep">Report abuse</button>
+      <a class="pill sm" href="./" id="get-send"><svg><use href="#i-send"/></svg><span data-t="gt.send">Send your own files</span></a>
+      <button type="button" class="pill sm rep" id="get-rep"><span data-t="rep">Report abuse</span></button>
     </div>
   </div>
 
@@ -163,7 +216,7 @@
       <span class="rc-code" id="rc-code"></span>
       <p class="err" id="rc-err" hidden></p>
       <button type="button" class="pill" id="rc-again"><span data-t="rc.again">Open the page again</span></button>
-      <button type="button" class="rc-x" id="rc-x" data-t="rc.x">Cancel</button>
+      <button type="button" class="pill sm rc-x" id="rc-x"><span data-t="rc.x">Cancel</span></button>
     </div>
     <!-- two-step verification (a verified authenticator): the session is aal1 until the 6-digit code -->
     <div class="rc-wait" id="mfa" hidden>
@@ -172,7 +225,7 @@
       <div class="field"><input id="mfa-c" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" aria-label="Code"></div>
       <p class="err" id="mfa-err" hidden></p>
       <button type="submit" class="pill main" id="mfa-go"><span data-t="mf.go">Verify</span></button>
-      <button type="button" class="rc-x" id="mfa-x" data-t="rc.x">Cancel</button>
+      <button type="button" class="pill sm rc-x" id="mfa-x"><span data-t="rc.x">Cancel</span></button>
     </div>
     <div class="field" id="nm-f" hidden><label for="nm" data-t="in.name">Your name</label><input id="nm" type="text" autocomplete="name" maxlength="80"></div>
     <div class="field"><label for="em" data-t="in.email">Email</label><input id="em" type="email" autocomplete="username" required inputmode="email"></div>
@@ -185,7 +238,7 @@
     <!-- tidied (Alex, 10 Nov: "sign up next to forgot password, tidy it"): two quiet buttons side by side, no underlined words -->
     <div class="alt"><span id="in-q" hidden></span>
       <!-- for those who have a Roar Account (Alex, 10 Nov: "down there with sign up and forgot password; the rest need not see it") -->
-      <button type="button" class="pill sm rc-go" id="rc-go"><svg><use href="#i-roar"/></svg><span data-t="rc.go">Sign in with Roar Account</span></button>
+      <button type="button" class="pill sm rc-go" id="rc-go"><svg><use href="#i-roar"/></svg><span data-t="rc.go">Roar Account</span></button>
 <button type="button" class="pill sm" id="in-switch"></button><span id="in-forgot-p"><button type="button" class="pill sm" id="in-forgot" data-t="in.forgot">Forgot password?</button></span></div>
   </form>
 
@@ -304,9 +357,9 @@
     <h1 id="mn-title" data-t="mn.title" data-html>My <b>transfers</b>.</h1>
     <p class="sub" id="mn-sub" data-t="mn.sub">Everything you sent, from here, RoarMail and your chats. Links last 1 to 7 days.</p>
     <!-- a Pro's page in three (Alex, 26 Oct: "tabs, nice buttons, smoother"): what they sent, what came in, their Pro -->
-    <div class="seg adm-tab" id="mine-tab" hidden><button type="button" class="on" data-f="sent" data-t="mt.sent">Sent</button><button type="button" data-f="got"><span data-t="mt.got">Received</span><i class="tc" id="tc-got"></i></button><button type="button" data-f="pro" data-t="mt.pro">Pro</button></div>
+    <div class="seg adm-tab" id="mine-tab" hidden><button type="button" class="on" data-f="sent" data-t="mt.sent">Sent</button><button type="button" data-f="got"><span data-t="mt.got">Received</span><i class="tc" id="tc-got"></i></button></div>
     <div class="pane" id="mpane-sent">
-    <div class="facts f4" id="mine-facts"></div>
+    <p class="mine-tot" id="mine-facts"></p>
     <div class="bar2">
       <div class="seg" id="mine-seg"><button type="button" class="on" data-f="all" data-t="f.all">All</button><button type="button" data-f="on" data-t="f.on">Active</button><button type="button" data-f="off" data-t="f.off">Expired</button></div>
       <input class="find" id="mine-q" type="search" autocomplete="off">
@@ -317,46 +370,8 @@
     <p class="err" id="mine-err" hidden></p>
     <ul class="files tall" id="mine-list"></ul>
     </div>
-    <!-- Pro (Alex, 23 Oct): Receive files, the page where anyone sends you files without an account, and what came in -->
-    <div class="pro pane" id="mpane-pro" hidden>
-      <!-- the account's Pro (Alex, 25 Oct: "My transfers becomes My Pro transfers"): until when, and what it includes -->
-      <div class="pro-st">
-        <div class="pro-h"><b class="badge">PRO</b><span id="pro-st"></span></div>
-        <ul class="perks" id="pro-perks"></ul>
-      </div>
-      <!-- the Pro's own brand (Alex, 25 Oct): name, logo and backgrounds on their download pages and Receive-files page -->
-      <p class="pro-rx" id="pb-h"></p>
-      <p class="note" id="pb-n"></p>
-      <div class="pro-ed">
-        <input class="in" id="pb-name" type="text" maxlength="80" autocomplete="off">
-        <p class="pro-lbl" id="pb-lt"></p>
-        <div class="bgs" id="pb-logo"></div>
-        <p class="pro-lbl" id="pb-bt"></p>
-        <div class="bgs" id="pb-bgs"></div>
-        <input type="file" id="pb-file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
-        <div class="row"><button type="button" class="pill main sm" id="pb-save"><span></span></button></div>
-        <p class="err" id="pb-err" hidden></p><p class="note ok" id="pb-ok" hidden></p>
-      </div>
-    </div>
-    <div class="pro pane" id="mpane-got" hidden>
-      <p class="pro-rx" id="pro-h"></p>
-      <p class="note" id="pro-n"></p>
-      <div class="row"><span class="linkbox" id="pro-link"></span><button type="button" class="pill main" id="pro-copy"><svg><use href="#i-link"/></svg><span></span></button><button type="button" class="pill" id="pro-edit"><span></span></button></div>
-      <div class="pro-ed" id="pro-ed" hidden>
-        <input class="in" id="pro-name" type="text" maxlength="80" autocomplete="off">
-        <label class="slug"><span>roartransfer.com/u/</span><input id="pro-slug" type="text" maxlength="30" autocomplete="off" spellcheck="false"></label>
-        <button type="button" class="pill main" id="pro-save"><span></span></button>
-        <p class="err" id="pro-err" hidden></p>
-      </div>
-      <p class="pro-sub" id="pro-got"></p>
+    <div class="pane" id="mpane-got" hidden>
       <ul class="files tall" id="pro-list"></ul>
-    </div>
-    <!-- the emails RoarTransfer sends this account, each one can be turned off (Alex, 3 Nov) -->
-    <div class="mails" id="mine-mails" hidden>
-      <b class="mails-h" data-t="em.h">Emails from RoarTransfer</b>
-      <label class="chk"><input type="checkbox" id="em-dl" checked><span data-t="em.dl">When someone downloads what I sent</span></label>
-      <label class="chk" id="em-got-row" hidden><input type="checkbox" id="em-got" checked><span data-t="em.got">When someone sends me files on my page</span></label>
-      <small class="mails-n" data-t="em.note">Sign-up and password emails always come.</small>
     </div>
   </div>
 
@@ -451,6 +466,6 @@
 <script src="/supabase-2.45.4.js"></script>
 <script>window.supabase || document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"><\/script>')</script>
 <script src="/zip.js?v=3"></script>
-<script src="/home.js?v=70f4919a"></script>
+<script src="/home.js?v=71150a13"></script>
 </body>
 </html>
