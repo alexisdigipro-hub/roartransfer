@@ -705,3 +705,8 @@ html.lm-on { overflow: hidden; }
 #guest-n { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; font-size: 13px; }
 #guest-n .gn-up { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,.1); border: 1px solid var(--glass-edge, rgba(255,255,255,.2)); color: var(--text); text-decoration: none; font-weight: 600; font-size: 12.5px; }
 #guest-n .gn-up:hover { background: rgba(255,255,255,.16); }
+
+/* the send card's title as a wordmark, like ROARTRANSFER (Alex, 10 Nov): SEND thin, BIG bold, FILES thin */
+h1.wm { font-family: Jost, var(--disp); font-weight: 200; text-transform: uppercase; letter-spacing: .02em; font-size: clamp(30px, 7vw, 46px); line-height: 1; }
+h1.wm b { font-weight: 900; letter-spacing: .01em; }
+html[lang="el"] h1.wm { font-size: clamp(22px, 6.2vw, 40px); letter-spacing: 0; }
