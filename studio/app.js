@@ -77,6 +77,7 @@
     pip: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><rect x="12" y="12" width="6" height="4.5" rx="1" fill="currentColor"/>',
     search: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
     pad: '<path d="M7 3.5h10a1.5 1.5 0 0 1 1.5 1.5v14.5a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 19.5V5A1.5 1.5 0 0 1 7 3.5zM9 8h6M9 12h6M9 16h4"/>',
+    down: '<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14"/>',
     eye: '<path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>',
     up2: '<path d="M12 19V6M6.5 11.5L12 6l5.5 5.5"/>', dn2: '<path d="M12 5v13M6.5 12.5L12 18l5.5-5.5"/>',
     prev: '<path d="M7 5v14M18 5.5l-9 6.5 9 6.5z" fill="currentColor"/>', nextt: '<path d="M17 5v14M6 5.5l9 6.5-9 6.5z" fill="currentColor"/>'
@@ -1193,12 +1194,20 @@
         return
       }
       box.classList.remove('empty')
-      box.innerHTML = '<div class="spread"><b class="mh">' + ic('chart') + ' Stats</b><small class="muted">last 30 days</small></div>' +
+      // folds into one quiet line like the Spectrum (Alex, 10 Nov: "one button, as the spectrum, one line, very minimal")
+      var open = store.get('rs-mstats') === '1'
+      box.classList.toggle('closed', !open)
+      // only what is not zero, each a small icon and its number, so it stays one short line
+      var part = function (n, icon, tip) { return n ? '<i title="' + tip + '">' + ic(icon) + n + '</i>' : '' }
+      var line = [part(k.plays, 'play', 'Plays'), part(k.views, 'eye', 'Views'), part(k.people, 'people', 'People'), part(k.dl, 'down', 'Downloads'), avg != null ? '<i title="Watched on average">' + avg + '%</i>' : ''].filter(Boolean).join('')
+      box.innerHTML = '<div class="ms-h"><b class="mh">' + ic('chart') + ' Stats</b><span class="ms-line">' + line + '</span><span class="grow"></span><button class="ico sm" id="ms-tg" type="button" aria-label="Show or hide the stats">' + ic('chev') + '</button></div>' +
+        '<div class="ms-b"><small class="muted">last 30 days</small>' +
         '<div class="mgrid">' + cell(k.plays, 'Plays') + cell(k.views, 'Views') + cell(k.people, 'People') + cell(k.dl, 'Downloads') + '</div>' +
         (avg != null ? '<div class="mbar"><span>Watched on average</span><b>' + avg + '%</b><i><em style="width:' + avg + '%"></em></i></div>' : '') +
         (last ? '<p class="mlast">' + (me && me.pro ? '<b>' + esc(who) + '</b> ' + (last.kind === 'download' ? 'downloaded it' : 'opened it') + ' · ' + ago(last.created_at) : 'Last visit ' + ago(last.created_at)) + '</p>' : '<p class="mlast muted">No visits yet. Share a link and they show here.</p>') +
-        '<button class="btn sm" id="ms-all" type="button">' + ic('chart') + ' All stats' + (me && me.pro ? '' : ' <span class="probadge">PRO</span>') + '</button>'
+        '<button class="btn sm" id="ms-all" type="button">' + ic('chart') + ' All stats' + (me && me.pro ? '' : ' <span class="probadge">PRO</span>') + '</button></div>'
       $('#ms-all', box).onclick = function () { statsBox(ctx) }
+      $('#ms-tg', box).onclick = function () { store.set('rs-mstats', box.classList.contains('closed') ? '1' : '0'); paintMini() }
     }
     function paintFacts() {
       var x = curV()
