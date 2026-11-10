@@ -508,3 +508,19 @@ h2 { margin: 4px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacin
 .files.paylock li { opacity: .5; filter: grayscale(1); }
 .files.paylock li .lk { flex: none; width: 30px; height: 30px; display: grid; place-items: center; color: var(--muted); }
 .files.paylock li .lk svg { width: 15px; height: 15px; }
+
+/* the send form in three plain steps (Alex, 10 Nov) */
+.opts .eco { display: none !important; }
+.opts .step { margin: 6px 2px -2px; font-size: 13px; font-weight: 600; color: var(--text); opacity: .85; }
+.opts .step:first-child { margin-top: 0; }
+.more-tg { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 16px; border-radius: 18px; border: 1px solid var(--line); background: rgba(255,255,255,.04); color: var(--text); font: inherit; text-align: left; cursor: pointer; margin-top: 4px; transition: background .2s; }
+.more-tg:hover { background: rgba(255,255,255,.07); }
+.more-tg .mt { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.more-tg .mt b { font-size: 14px; font-weight: 600; }
+.more-tg .mt small { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.more-tg .mt small.on { color: #ffb4ad; }
+.more-tg .chev { width: 18px; height: 18px; flex: none; opacity: .7; transition: transform .25s; }
+.more-tg.open .chev { transform: rotate(90deg); }
+.more-b { display: grid; gap: 10px; }
+.more-b[hidden] { display: none; }
+#v-pick:has(#opts:not([hidden])) > .tag, #v-pick:has(#opts:not([hidden])) > .clean { display: none; }

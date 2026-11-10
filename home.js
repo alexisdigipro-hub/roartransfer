@@ -30,7 +30,7 @@
     'in.email': 'Email', 'in.pass': 'Κωδικός', 'in.go': 'Σύνδεση',
     'gt.sub': 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', 'gt.go': 'Λήψη', 'gt.send': 'Στείλε κι εσύ αρχεία', 'gb.t': 'Το πήρες; Σειρά σου.', 'gb.p': 'Στείλε κι εσύ μεγάλα αρχεία δωρεάν, ως 5 GB, με έναν κοντό σύνδεσμο. Ως 1 GB χωρίς λογαριασμό.', 'gb.go': 'Στείλε αρχεία δωρεάν',
     'pk.title': 'Στείλε <b>μεγάλα αρχεία</b>.', 'pk.drop': 'Άφησε τα αρχεία σου εδώ', 'pk.or': 'ή πάτα για να τα διαλέξεις',
-    'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.dls': 'Κάθε αρχείο κατεβαίνει ως 5 φορές.', 'op.d7': '7 μέρες', 'op.d7s': 'ως 1 GB', 'op.eco': 'Η πιο πράσινη επιλογή είναι και η πιο μεγάλη: τα περισσότερα αρχεία παραλαμβάνονται την ίδια μέρα, οπότε ένα link μιας μέρας μένει λιγότερο στους servers μας και χωράει ως 5 GB.', 'op.notify': 'Στείλε μου email όταν κατέβει', 'op.pc': 'Να μείνει μόνο στο pCloud μου', 'op.pay': 'Κλειδωμένο ως την πληρωμή',
+    'pk.go': 'Αποστολή', 'st.how': 'Πώς θες να το στείλεις;', 'st.long': 'Για πόσο να μείνει;', 'op.more': 'Περισσότερες επιλογές', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.dls': 'Κάθε αρχείο κατεβαίνει ως 5 φορές.', 'op.d7': '7 μέρες', 'op.d7s': 'ως 1 GB', 'op.eco': 'Η πιο πράσινη επιλογή είναι και η πιο μεγάλη: τα περισσότερα αρχεία παραλαμβάνονται την ίδια μέρα, οπότε ένα link μιας μέρας μένει λιγότερο στους servers μας και χωράει ως 5 GB.', 'op.notify': 'Στείλε μου email όταν κατέβει', 'op.pc': 'Να μείνει μόνο στο pCloud μου', 'op.pay': 'Κλειδωμένο ως την πληρωμή',
     'pay.h': 'Σχεδόν έτοιμα', 'pay.p': 'Τα αρχεία σου είναι έτοιμα και σε περιμένουν. Θα ανοίξουν μόλις τακτοποιηθεί η τελική πληρωμή. Σε ευχαριστούμε πολύ που μας εμπιστεύτηκες, σημαίνει πραγματικά πολλά. Αν η πληρωμή είναι ήδη καθ’ οδόν, ενημέρωσε απλώς τον αποστολέα και τα αρχεία θα ανοίξουν αμέσως.',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
@@ -44,6 +44,7 @@
   }
   var W = {
     en: {
+      payFail: 'The link was made but could not be locked. Lock it in My transfers > Details.', goMail: 'Send', goLink: 'Get the link', moreS: 'Title, message, password', mTitle: 'title', mMsg: 'message', mPw: 'password', mPay: 'locked until paid', mPc: 'pCloud',
       more: 'Add more', more2: 'or drop them here', of: function (g) { return 'of ' + g + ' GB' }, file: 'file', files: 'files', over: function (g) { return 'Over ' + g + ' GB' }, tooBig: function (g) { return 'over ' + g + ' GB' },
       to: 'Send to: emails, separated by commas', title: 'Title (optional)', msg: 'Your message (optional)', pw: 'Password (optional)',
       noTo: 'Add at least one email to send to.', badTo: function (e) { return 'This does not look like an email: ' + e },
@@ -87,6 +88,7 @@
       wait: 'Too many tries. Wait a few minutes and try again.', badMail: 'This does not look like an email.', unconf: 'Confirm your email first: open the email we sent you.', forgotMail: 'Write your email above, then press Forgot password.', resetSent: 'If there is an account with this email, a link to choose a new password is on its way.', linkOld: 'This link has expired or was already used. Try again.', k_video: 'Video', k_image: 'Pictures', k_audio: 'Audio', k_other: 'Other'
     },
     el: {
+      payFail: 'Το link έγινε αλλά δεν κλειδώθηκε. Κλείδωσέ το στο My transfers > Details.', goMail: 'Αποστολή', goLink: 'Πάρε το link', moreS: 'Τίτλος, μήνυμα, κωδικός', mTitle: 'τίτλος', mMsg: 'μήνυμα', mPw: 'κωδικός', mPay: 'κλειδωμένο ως την πληρωμή', mPc: 'pCloud',
       more: 'Πρόσθεσε κι άλλα', more2: 'ή άφησέ τα εδώ', of: function (g) { return 'από ' + g + ' GB' }, file: 'αρχείο', files: 'αρχεία', over: function (g) { return 'Πάνω από ' + g + ' GB' }, tooBig: function (g) { return 'πάνω από ' + g + ' GB' },
       to: 'Προς: email, χωρισμένα με κόμμα', title: 'Τίτλος (προαιρετικό)', msg: 'Το μήνυμά σου (προαιρετικό)', pw: 'Κωδικός (προαιρετικό)',
       noTo: 'Γράψε τουλάχιστον ένα email παραλήπτη.', badTo: function (e) { return 'Αυτό δεν μοιάζει με email: ' + e },
@@ -400,6 +402,24 @@
   $('in-guest').addEventListener('click', function (e) { e.preventDefault(); show('v-pick'); paint() })
   $('guest-n').addEventListener('click', function (e) { if (e.target.closest('[data-up]')) { e.preventDefault(); if (!busy) toIn(true) } })
 
+  // ---- More options: folded, with a line of what is set inside (Alex, 10 Nov) ----
+  function paintMore() {
+    var set = []
+    if ($('op-title').value.trim()) set.push(w('mTitle'))
+    if ($('op-msg').value.trim()) set.push(w('mMsg'))
+    if ($('op-pw').value) set.push(w('mPw'))
+    if (!$('op-pay-row').hidden && $('op-pay').checked) set.push(w('mPay'))
+    if (!$('op-pc-row').hidden && $('op-pc').checked) set.push(w('mPc'))
+    $('op-more-s').textContent = set.length ? set.join(' · ') : w('moreS')
+    $('op-more-s').classList.toggle('on', set.length > 0)
+  }
+  $('op-more').addEventListener('click', function () {
+    var open = $('op-more-b').hidden
+    $('op-more-b').hidden = !open; $('op-more').setAttribute('aria-expanded', open ? 'true' : 'false'); $('op-more').classList.toggle('open', open)
+  })
+  ;['op-title', 'op-msg', 'op-pw'].forEach(function (id) { $(id).addEventListener('input', paintMore) })
+  ;['op-pay', 'op-pc'].forEach(function (id) { $(id).addEventListener('change', paintMore) })
+
   // ---- pick ----
   var files = []
   var total = function () { return files.reduce(function (n, f) { return n + f.size }, 0) }
@@ -416,8 +436,8 @@
     $('mode').hidden = g; $('dur').hidden = g; document.querySelectorAll('.eco').forEach(function (x) { x.hidden = g }); $('op-notify').parentNode.hidden = g
     // Pro (Alex, 25 Oct): a fourth length, 30 days, each length with its own size (PRO_GB), downloads without limit
     var P = isProNow(), D = lang === 'el' ? EL : EN
-    // locking when sending waits for roartransfer-r2 to carry it (for now: Details after sending)
-    $('op-pay-row').hidden = true; $('op-pay').checked = false
+    // Locked until paid when sending (Pro): set right after the link is made (roartransfer-pro 'edit')
+    $('op-pay-row').hidden = !P; if (!P) $('op-pay').checked = false
     $('d30').hidden = !P; $('dur').classList.toggle('four', P)
     if (!P && DAYS === 30) { DAYS = 1; $('dur').querySelectorAll('[data-d]').forEach(function (x) { x.classList.toggle('on', x.dataset.d === '1') }) }
     $('dur').querySelectorAll('small[data-t]').forEach(function (x) { x.textContent = P ? (lang === 'el' ? 'ως ' : 'up to ') + PRO_GB[x.closest('[data-d]').dataset.d] + ' GB' : (D[x.dataset.t] || EN[x.dataset.t]) })
@@ -439,7 +459,10 @@
     $('meter-i').style.width = Math.min(100, t / MAX * 100) + '%'
     $('meter-t').innerHTML = '<b>' + size(t) + '</b> ' + w('of')(limG()) + ' · ' + files.length + ' ' + (files.length === 1 ? w('file') : w('files'))
     $('go').disabled = over
-    $('go-t').textContent = over ? w('over')(limG()) : (lang === 'el' ? EL['pk.go'] : EN['pk.go'])
+    $('go-t').textContent = over ? w('over')(limG()) : mode === 'mail' ? w('goMail') : w('goLink')
+    // the steps' words only when there is a choice to make (a guest has neither)
+    $('st-how').hidden = g; $('st-long').hidden = g
+    paintMore()
     if (view === 'v-done') paintDone()
     if (view === 'v-mine') { paintMine(); paintPro() }
     if (view === 'v-drop') paintDrop()
@@ -684,6 +707,10 @@
           cover: await Promise.race([coverP, wait(3000).then(function () { return '' })]) || undefined })
         link = PAGE + bun.token
         mailed = bun.mailed || 0
+        // Locked until paid, ticked when sending: the link and its files locked at once (as Details does)
+        if (isProNow() && $('op-pay').checked && !bun.payLock) {
+          try { await proCall({ action: 'edit', token: sent[0].token, payLock: true }) } catch (e) { errs.push(w('payFail')) }
+        }
         if (bun.mailErrors && bun.mailErrors.length) errs.push(w('unmailed') + ' ' + bun.mailErrors.join(', '))
       }
       catch (e) { if (sent.length === 1) link = sent[0].url; else errs.push(e.message) }

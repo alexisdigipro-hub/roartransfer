@@ -35,7 +35,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/home.css?v=33673abe">
+<link rel="stylesheet" href="/home.css?v=6f43a0d1">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -217,20 +217,27 @@
     <!-- how it goes (Alex, 21 Oct): by email or as a link, a title and a message, how long it stays, a password, and
          an email to you when someone downloads -->
     <div class="opts" id="opts" hidden>
+      <!-- the send form in three plain steps (Alex, 10 Nov: "still chaos, a calmer and smarter set-up anyone understands"):
+           how it goes, how long it stays, and everything else folded under More options -->
+      <p class="step" id="st-how" data-t="st.how">How do you want to send it?</p>
       <div class="seg two" id="mode"><button type="button" data-m="mail"><svg><use href="#i-mail"/></svg><span data-t="op.mail">Email</span></button><button type="button" data-m="link" class="on"><svg><use href="#i-link"/></svg><span data-t="op.link">Link</span></button></div>
       <input class="in" id="op-to" type="text" inputmode="email" autocomplete="off" hidden>
-      <input class="in" id="op-title" type="text" maxlength="120" autocomplete="off">
-      <textarea class="in" id="op-msg" rows="3" maxlength="2000"></textarea>
-      <!-- three durations (Alex, 23 Oct): 1 day up to 5 GB first and chosen, with the green leaf, and one small line why -->
+      <p class="step" id="st-long" data-t="st.long">How long should it stay?</p>
+      <!-- three durations (Alex, 23 Oct): 1 day up to 5 GB first and chosen, with the green leaf -->
       <div class="seg three" id="dur"><button type="button" data-d="1" class="on"><b><span data-t="op.d1">1 day</span><svg class="leaf"><use href="#i-leaf"/></svg></b><small data-t="op.d1s">up to 5 GB</small></button><button type="button" data-d="3"><b data-t="op.d3">3 days</b><small data-t="op.d3s">up to 3 GB</small></button><button type="button" data-d="7"><b data-t="op.d7">7 days</b><small data-t="op.d7s">up to 1 GB</small></button><button type="button" data-d="30" id="d30" hidden><b data-t="op.d30">30 days</b><small data-t="op.d30s">up to 20 GB</small></button></div>
       <p class="eco dl"><svg><use href="#i-down"/></svg><span data-t="op.dls">Each file can be downloaded up to 5 times.</span></p>
       <p class="eco" id="op-eco"><svg><use href="#i-leaf"/></svg><span data-t="op.eco">The greener choice is also the bigger one: most files are picked up the same day, so a 1-day link spends less time on our servers and carries up to 5 GB.</span></p>
-      <label class="chk"><input type="checkbox" id="op-notify" checked><span data-t="op.notify">Email me when it is downloaded</span></label>
-      <!-- the admin alone (Alex, 22 Oct): the file is kept only in the hub's pCloud, the link stays a roartransfer.com one -->
-      <!-- Pro (Alex, 10 Nov 2026): the link shows what it holds but opens nothing until it is unlocked in Details -->
-      <label class="chk" id="op-pay-row" hidden><input type="checkbox" id="op-pay"><span data-t="op.pay">Locked until paid</span></label>
-      <label class="chk" id="op-pc-row" hidden><input type="checkbox" id="op-pc"><span data-t="op.pc">Keep it only in my pCloud</span></label>
-      <div class="pwrow"><input class="in" id="op-pw" type="password" autocomplete="new-password" maxlength="100"><button type="button" class="eye" id="op-eye" aria-label="Show"><svg><use href="#i-eye"/></svg></button></div>
+      <button type="button" class="more-tg" id="op-more" aria-expanded="false"><span class="mt"><b data-t="op.more">More options</b><small id="op-more-s"></small></span><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="more-b" id="op-more-b" hidden>
+        <input class="in" id="op-title" type="text" maxlength="120" autocomplete="off">
+        <textarea class="in" id="op-msg" rows="3" maxlength="2000"></textarea>
+        <div class="pwrow"><input class="in" id="op-pw" type="password" autocomplete="new-password" maxlength="100"><button type="button" class="eye" id="op-eye" aria-label="Show"><svg><use href="#i-eye"/></svg></button></div>
+        <label class="chk"><input type="checkbox" id="op-notify" checked><span data-t="op.notify">Email me when it is downloaded</span></label>
+        <!-- Pro (Alex, 10 Nov 2026): the link shows what it holds but opens nothing until it is unlocked in Details -->
+        <label class="chk" id="op-pay-row" hidden><input type="checkbox" id="op-pay"><span data-t="op.pay">Locked until paid</span></label>
+        <!-- the admin alone (Alex, 22 Oct): the file is kept only in the hub's pCloud, the link stays a roartransfer.com one -->
+        <label class="chk" id="op-pc-row" hidden><input type="checkbox" id="op-pc"><span data-t="op.pc">Keep it only in my pCloud</span></label>
+      </div>
       <p class="err" id="op-err" hidden></p>
     </div>
     <p class="agree" id="go-agree" hidden data-t="agree" data-html>By continuing you accept the <a href="terms/">Terms</a> and the <a href="privacy/">Privacy Policy</a>.</p>
@@ -441,6 +448,6 @@
 <script src="/supabase-2.45.4.js"></script>
 <script>window.supabase || document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"><\/script>')</script>
 <script src="/zip.js?v=3"></script>
-<script src="/home.js?v=481613f5"></script>
+<script src="/home.js?v=665c852d"></script>
 </body>
 </html>
