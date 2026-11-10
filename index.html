@@ -35,7 +35,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/home.css?v=1c9e927b">
+<link rel="stylesheet" href="/home.css?v=e17db326">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -157,8 +157,6 @@
     <p class="sub" id="in-sub"></p>
     <!-- one sign-in for every Roar app (Alex, 3 Nov 2026): the account page on themadlions.com allows it in another tab
          (Edge Function roar-connect in RoarMe's project); the email way stays below -->
-    <button type="button" class="pill main rc-go" id="rc-go"><svg><use href="#i-roar"/></svg><span data-t="rc.go">Sign in with Roar Account</span></button>
-    <p class="rc-or"><span data-t="rc.or">or with email</span></p>
     <div class="rc-wait" id="rc-wait" hidden>
       <b data-t="rc.wait">Allow RoarTransfer in the other tab</b>
       <p data-t="rc.waitP">Sign in there with your Roar Account and press Allow. This page signs in by itself.</p>
@@ -181,11 +179,14 @@
     <div class="field"><label for="pw" data-t="in.pass">Password</label><input id="pw" type="password" autocomplete="current-password" required minlength="6"></div>
     <p class="err" id="in-err" hidden></p>
     <p class="note ok" id="in-ok" hidden></p>
-    <button class="pill" type="submit" id="in-go"><span id="in-go-t"></span></button>
+    <button class="pill main" type="submit" id="in-go"><span id="in-go-t"></span></button>
     <p class="agree" data-t="agree" data-html>By continuing you accept the <a href="terms/">Terms</a> and the <a href="privacy/">Privacy Policy</a>.</p>
     <!-- sign in, or make an account right here (Alex, 21 Oct: "no link to RoarMe, put a sign up") -->
     <!-- tidied (Alex, 10 Nov: "sign up next to forgot password, tidy it"): two quiet buttons side by side, no underlined words -->
-    <div class="alt"><span id="in-q" hidden></span><button type="button" class="pill sm" id="in-switch"></button><span id="in-forgot-p"><button type="button" class="pill sm" id="in-forgot" data-t="in.forgot">Forgot password?</button></span></div>
+    <div class="alt"><span id="in-q" hidden></span>
+      <!-- for those who have a Roar Account (Alex, 10 Nov: "down there with sign up and forgot password; the rest need not see it") -->
+      <button type="button" class="pill sm rc-go" id="rc-go"><svg><use href="#i-roar"/></svg><span data-t="rc.go">Sign in with Roar Account</span></button>
+<button type="button" class="pill sm" id="in-switch"></button><span id="in-forgot-p"><button type="button" class="pill sm" id="in-forgot" data-t="in.forgot">Forgot password?</button></span></div>
   </form>
 
   <!-- FastTransfer (Alex, 21 Oct; one slim line since 22 Oct, "smaller and more minimal"): under the sign-in card, as wide as it -->
