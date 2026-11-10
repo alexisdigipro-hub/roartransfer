@@ -35,7 +35,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/home.css?v=7eef8e40">
+<link rel="stylesheet" href="/home.css?v=84dccc51">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -270,6 +270,8 @@
       <span class="t"><b id="drop-b" data-t="pk.drop">Drop your files here</b><small id="drop-s" data-t="pk.or">or click to choose them</small></span>
     </button>
     <input type="file" id="pick" multiple hidden>
+    <!-- an iPhone makes a smaller copy of a video picked from Photos (Alex, 10 Nov); the Files way sends the original -->
+    <p class="ios-tip" hidden data-t="ios.tip">For the original video, choose “Choose File”, not “Photo Library”: the iPhone shrinks videos picked from the library.</p>
     <ul class="files" id="list" hidden></ul>
     <div class="meter" id="meter" hidden><span class="bar"><i id="meter-i"></i></span><small id="meter-t"></small></div>
     <!-- how it goes (Alex, 21 Oct): by email or as a link, a title and a message, how long it stays, a password, and
@@ -313,6 +315,7 @@
         <span class="t"><b id="dr-b"></b><small id="dr-s"></small></span>
       </button>
       <input type="file" id="dr-pick" multiple hidden>
+      <p class="ios-tip" hidden data-t="ios.tip">For the original video, choose “Choose File”, not “Photo Library”: the iPhone shrinks videos picked from the library.</p>
       <ul class="files" id="dr-list" hidden></ul>
       <div class="opts" id="dr-opts" hidden>
         <input class="in" id="dr-from" type="text" maxlength="80" autocomplete="name">
@@ -468,6 +471,6 @@
 <script src="/supabase-2.45.4.js"></script>
 <script>window.supabase || document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"><\/script>')</script>
 <script src="/zip.js?v=3"></script>
-<script src="/home.js?v=30806159"></script>
+<script src="/home.js?v=a15d6823"></script>
 </body>
 </html>
