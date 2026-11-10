@@ -35,7 +35,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/home.css?v=c6873b39">
+<link rel="stylesheet" href="/home.css?v=8ddbfb6d">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -184,12 +184,13 @@
     <button class="pill" type="submit" id="in-go"><span id="in-go-t"></span></button>
     <p class="agree" data-t="agree" data-html>By continuing you accept the <a href="terms/">Terms</a> and the <a href="privacy/">Privacy Policy</a>.</p>
     <!-- sign in, or make an account right here (Alex, 21 Oct: "no link to RoarMe, put a sign up") -->
-    <div class="alt"><p><span id="in-q"></span> <a href="#" id="in-switch"></a></p><p id="in-forgot-p"><a href="#" id="in-forgot" data-t="in.forgot">Forgot password?</a></p></div>
+    <!-- tidied (Alex, 10 Nov: "sign up next to forgot password, tidy it"): two quiet buttons side by side, no underlined words -->
+    <div class="alt"><span id="in-q" hidden></span><button type="button" class="pill sm" id="in-switch"></button><span id="in-forgot-p"><button type="button" class="pill sm" id="in-forgot" data-t="in.forgot">Forgot password?</button></span></div>
   </form>
 
   <!-- FastTransfer (Alex, 21 Oct; one slim line since 22 Oct, "smaller and more minimal"): under the sign-in card, as wide as it -->
   <div class="card offer" id="v-fast" hidden>
-    <div><b class="nm">Fast<span>Transfer</span></b><p class="of-who"><i></i><span data-t="of.line">No account · 1 GB · 24 h · 1 download · 3 a day</span></p></div>
+    <div><b class="nm">Fast<span>Transfer</span></b><p class="of-who"><i></i><span data-t="of.line">No account needed · up to 1 GB</span></p></div>
     <button type="button" class="pill" id="in-guest"><svg><use href="#i-send"/></svg><span data-t="of.go">Send</span></button>
   </div>
 
@@ -449,6 +450,6 @@
 <script src="/supabase-2.45.4.js"></script>
 <script>window.supabase || document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"><\/script>')</script>
 <script src="/zip.js?v=3"></script>
-<script src="/home.js?v=1050663d"></script>
+<script src="/home.js?v=02212fc5"></script>
 </body>
 </html>

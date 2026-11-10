@@ -34,7 +34,7 @@
     'pay.h': 'Σχεδόν έτοιμα', 'pay.p': 'Τα αρχεία σου είναι έτοιμα και σε περιμένουν. Θα ανοίξουν μόλις τακτοποιηθεί η τελική πληρωμή. Σε ευχαριστούμε πολύ που μας εμπιστεύτηκες, σημαίνει πραγματικά πολλά. Αν η πληρωμή είναι ήδη καθ’ οδόν, ενημέρωσε απλώς τον αποστολέα και τα αρχεία θα ανοίξουν αμέσως.',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
-    'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.price': 'Τιμές', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rc.go': 'Σύνδεση με Roar Account', 'rc.or': 'ή με email', 'rc.wait': 'Επίτρεψε το RoarTransfer στην άλλη καρτέλα', 'rc.waitP': 'Συνδέσου εκεί με τον Roar Account σου και πάτα Allow. Αυτή η σελίδα συνδέεται μόνη της.', 'rc.again': 'Άνοιξε ξανά τη σελίδα', 'rc.x': 'Άκυρο', 'mf.t': 'Επαλήθευση δύο βημάτων', 'mf.p': 'Γράψε τον 6ψήφιο κωδικό από την εφαρμογή επαλήθευσης.', 'mf.go': 'Επαλήθευση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · 1 GB · 24 ώρες · 1 λήψη · 3/μέρα', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
+    'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.price': 'Τιμές', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rc.go': 'Σύνδεση με Roar Account', 'rc.or': 'ή με email', 'rc.wait': 'Επίτρεψε το RoarTransfer στην άλλη καρτέλα', 'rc.waitP': 'Συνδέσου εκεί με τον Roar Account σου και πάτα Allow. Αυτή η σελίδα συνδέεται μόνη της.', 'rc.again': 'Άνοιξε ξανά τη σελίδα', 'rc.x': 'Άκυρο', 'mf.t': 'Επαλήθευση δύο βημάτων', 'mf.p': 'Γράψε τον 6ψήφιο κωδικό από την εφαρμογή επαλήθευσης.', 'mf.go': 'Επαλήθευση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · ως 1 GB', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
     'gr.exp': 'Αυτή η αποστολή έληξε', 'gr.t': 'Μία τελευταία<br><em>λήψη</em>', 'gr.p': 'Κάνε δωρεάν εγγραφή και μπορείς να το κατεβάσεις ακόμα, μία τελευταία φορά.', 'gr.up': 'Δωρεάν εγγραφή', 'gr.in': 'Σύνδεση', 'gr.last': 'Το link έληξε: αυτή είναι η τελευταία σου λήψη για κάθε αρχείο.',
     'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
@@ -54,7 +54,7 @@
       lmOpen: 'Open link',
       left: 'Anyone with the link can download until', copy: 'Copy link', copied: 'Copied', allCopied: 'All links copied', cant: 'Could not copy',
       bad: 'Wrong email or password.', offline: 'Could not reach RoarTransfer. Check the connection and try again.',
-      inSub: 'Sign in to send by email too, up to 5 GB, for up to 7 days.', upSub: 'Make a free account to send files up to 5 GB.',
+      inSub: 'Sign in to send up to 5 GB, by link or email.', upSub: 'Make a free account to send files up to 5 GB.',
       inGo: 'Sign in', upGo: 'Create account', inQ: 'No account yet?', upQ: 'Already have an account?', inSw: 'Sign up', upSw: 'Sign in',
       upMail: 'Almost there: open the email we just sent you and press Confirm my account. It brings you back here, signed in.', upShort: 'The password needs at least 6 characters.', upTaken: 'There is already an account with this email. Sign in instead.',
       off: 'RoarTransfer is not open to this account yet.', stopped: 'Stopped.', leave: 'Files are still uploading.',
@@ -99,7 +99,7 @@
       lmOpen: 'Άνοιγμα',
       left: 'Όποιος έχει τον σύνδεσμο μπορεί να κατεβάσει ως', copy: 'Αντιγραφή', copied: 'Αντιγράφηκε', allCopied: 'Αντιγράφηκαν όλοι', cant: 'Δεν αντιγράφηκε',
       bad: 'Λάθος email ή κωδικός.', offline: 'Δεν βρέθηκε το RoarTransfer. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
-      inSub: 'Συνδέσου για να στέλνεις και με email, ως 5 GB, για ως 7 μέρες.', upSub: 'Φτιάξε δωρεάν λογαριασμό για να στέλνεις αρχεία ως 5 GB.',
+      inSub: 'Συνδέσου για να στέλνεις ως 5 GB, με link ή email.', upSub: 'Φτιάξε δωρεάν λογαριασμό για να στέλνεις αρχεία ως 5 GB.',
       inGo: 'Σύνδεση', upGo: 'Δημιουργία λογαριασμού', inQ: 'Δεν έχεις λογαριασμό;', upQ: 'Έχεις ήδη λογαριασμό;', inSw: 'Εγγραφή', upSw: 'Σύνδεση',
       upMail: 'Σχεδόν έτοιμο: άνοιξε το email που σου στείλαμε και πάτα Confirm my account. Σε φέρνει πίσω εδώ, συνδεδεμένο.', upShort: 'Ο κωδικός θέλει τουλάχιστον 6 χαρακτήρες.', upTaken: 'Υπάρχει ήδη λογαριασμός με αυτό το email. Συνδέσου.',
       off: 'Το RoarTransfer δεν είναι ακόμα ανοιχτό σε αυτόν τον λογαριασμό.', stopped: 'Διακόπηκε.', leave: 'Τα αρχεία ανεβαίνουν ακόμα.',
@@ -208,6 +208,8 @@
     $('in-switch').textContent = w(signUp ? 'upSw' : 'inSw')
     $('pw').autocomplete = signUp ? 'new-password' : 'current-password'
     $('nm-f').hidden = !signUp; $('in-forgot-p').hidden = signUp
+    // the fields say what they are inside (no labels above them)
+    ;['nm', 'em', 'pw'].forEach(function (id) { var l = document.querySelector('label[for="' + id + '"]'); if (l) $(id).placeholder = l.textContent })
   }
   $('in-switch').addEventListener('click', function (e) { e.preventDefault(); signUp = !signUp; $('in-err').hidden = true; $('in-ok').hidden = true; paintIn() })
   $('v-in').addEventListener('submit', function (e) {

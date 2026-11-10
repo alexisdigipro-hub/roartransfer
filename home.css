@@ -554,3 +554,12 @@ html.lm-on { overflow: hidden; }
 .lm-acts .pill { width: 100%; justify-content: center; text-decoration: none; }
 .lm-det .det { margin: 0; padding: 0; }
 .lm-del { justify-self: center; color: #ffb4ad; }
+
+/* sign in, tidied (Alex, 10 Nov) */
+#v-in > .tag, #v-in > .clean { display: none; }
+#v-in .field label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+#v-in .field { position: relative; }
+#v-in .alt { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding-top: 14px; }
+#v-in .alt .pill { height: 38px; padding: 0 16px; font-size: 13px; }
+#v-in .alt span[hidden] { display: none; }
+#v-in .agree { margin-top: -4px; }
