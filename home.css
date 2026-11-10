@@ -685,3 +685,8 @@ html.lm-on { overflow: hidden; }
 
 /* Sign out lives in Settings only (nothing in two places) */
 .top .who #out { display: none; }
+
+/* awaiting payment: shorter, smaller, and the other language under it (Alex, 10 Nov) */
+#get-pay p { font-size: 14px; line-height: 1.55; max-width: 380px; margin-left: auto; margin-right: auto; }
+#get-pay .pay-o { font-size: 12.5px; opacity: .6; margin-top: -4px; }
+#get-pay .gr-h { font-size: clamp(26px, 5vw, 34px); }
