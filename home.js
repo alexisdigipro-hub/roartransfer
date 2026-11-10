@@ -30,7 +30,8 @@
     'in.email': 'Email', 'in.pass': 'Κωδικός', 'in.go': 'Σύνδεση',
     'gt.sub': 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', 'gt.go': 'Λήψη', 'gt.send': 'Στείλε κι εσύ αρχεία', 'gb.t': 'Το πήρες; Σειρά σου.', 'gb.p': 'Στείλε κι εσύ μεγάλα αρχεία δωρεάν, ως 5 GB, με έναν κοντό σύνδεσμο. Ως 1 GB χωρίς λογαριασμό.', 'gb.go': 'Στείλε αρχεία δωρεάν',
     'pk.title': 'Στείλε <b>μεγάλα αρχεία</b>.', 'pk.drop': 'Άφησε τα αρχεία σου εδώ', 'pk.or': 'ή πάτα για να τα διαλέξεις',
-    'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.dls': 'Κάθε αρχείο κατεβαίνει ως 5 φορές.', 'op.d7': '7 μέρες', 'op.d7s': 'ως 1 GB', 'op.eco': 'Η πιο πράσινη επιλογή είναι και η πιο μεγάλη: τα περισσότερα αρχεία παραλαμβάνονται την ίδια μέρα, οπότε ένα link μιας μέρας μένει λιγότερο στους servers μας και χωράει ως 5 GB.', 'op.notify': 'Στείλε μου email όταν κατέβει', 'op.pc': 'Να μείνει μόνο στο pCloud μου',
+    'pk.go': 'Αποστολή', 'op.mail': 'Email', 'op.link': 'Link', 'op.d1': '1 μέρα', 'op.d1s': 'ως 5 GB', 'op.d3': '3 μέρες', 'op.d3s': 'ως 3 GB', 'op.dls': 'Κάθε αρχείο κατεβαίνει ως 5 φορές.', 'op.d7': '7 μέρες', 'op.d7s': 'ως 1 GB', 'op.eco': 'Η πιο πράσινη επιλογή είναι και η πιο μεγάλη: τα περισσότερα αρχεία παραλαμβάνονται την ίδια μέρα, οπότε ένα link μιας μέρας μένει λιγότερο στους servers μας και χωράει ως 5 GB.', 'op.notify': 'Στείλε μου email όταν κατέβει', 'op.pc': 'Να μείνει μόνο στο pCloud μου', 'op.pay': 'Κλειδωμένο ως την πληρωμή',
+    'pay.h': 'Σχεδόν έτοιμα', 'pay.p': 'Τα αρχεία σου είναι έτοιμα και σε περιμένουν. Θα ανοίξουν μόλις τακτοποιηθεί η τελική πληρωμή. Σε ευχαριστούμε πολύ που μας εμπιστεύτηκες, σημαίνει πραγματικά πολλά. Αν η πληρωμή είναι ήδη καθ’ οδόν, ενημέρωσε απλώς τον αποστολέα και τα αρχεία θα ανοίξουν αμέσως.',
     'up.keep': 'Κράτα τη σελίδα ανοιχτή ώσπου να τελειώσει. Αν πέσει η σύνδεση, συνεχίζει από εκεί που σταμάτησε.', 'up.stop': 'Διακοπή',
     'dn.all': 'Αντιγραφή link', 'dn.share': 'Κοινοποίηση', 'dn.mail': 'Email', 'dn.again': 'Στείλε κι άλλα αρχεία',
     'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασες τον κωδικό;', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.price': 'Τιμές', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rc.go': 'Σύνδεση με Roar Account', 'rc.or': 'ή με email', 'rc.wait': 'Επίτρεψε το RoarTransfer στην άλλη καρτέλα', 'rc.waitP': 'Συνδέσου εκεί με τον Roar Account σου και πάτα Allow. Αυτή η σελίδα συνδέεται μόνη της.', 'rc.again': 'Άνοιξε ξανά τη σελίδα', 'rc.x': 'Άκυρο', 'mf.t': 'Επαλήθευση δύο βημάτων', 'mf.p': 'Γράψε τον 6ψήφιο κωδικό από την εφαρμογή επαλήθευσης.', 'mf.go': 'Επαλήθευση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · 1 GB · 24 ώρες · 1 λήψη · 3/μέρα', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
@@ -415,6 +416,8 @@
     $('mode').hidden = g; $('dur').hidden = g; document.querySelectorAll('.eco').forEach(function (x) { x.hidden = g }); $('op-notify').parentNode.hidden = g
     // Pro (Alex, 25 Oct): a fourth length, 30 days, each length with its own size (PRO_GB), downloads without limit
     var P = isProNow(), D = lang === 'el' ? EL : EN
+    // locking when sending waits for roartransfer-r2 to carry it (for now: Details after sending)
+    $('op-pay-row').hidden = true; $('op-pay').checked = false
     $('d30').hidden = !P; $('dur').classList.toggle('four', P)
     if (!P && DAYS === 30) { DAYS = 1; $('dur').querySelectorAll('[data-d]').forEach(function (x) { x.classList.toggle('on', x.dataset.d === '1') }) }
     $('dur').querySelectorAll('small[data-t]').forEach(function (x) { x.textContent = P ? (lang === 'el' ? 'ως ' : 'up to ') + PRO_GB[x.closest('[data-d]').dataset.d] + ' GB' : (D[x.dataset.t] || EN[x.dataset.t]) })
@@ -677,7 +680,7 @@
     if (sent.length) {
       try {
         var bun = await bridge({ action: 'bundle', tokens: sent.map(function (m) { return m.token }), title: $('op-title').value, message: $('op-msg').value,
-          recipients: mode === 'mail' ? emails() : [], password: $('op-pw').value, notify: $('op-notify').checked,
+          recipients: mode === 'mail' ? emails() : [], password: $('op-pw').value, notify: $('op-notify').checked, payLock: isProNow() && $('op-pay').checked,
           cover: await Promise.race([coverP, wait(3000).then(function () { return '' })]) || undefined })
         link = PAGE + bun.token
         mailed = bun.mailed || 0
@@ -860,6 +863,7 @@
       if (inf) { openDet(get()[+inf.dataset.info]); return }
       if (e.target.closest('[data-dsave]')) { saveDet(false); return }
       if (e.target.closest('[data-dpwoff]')) { saveDet(true); return }
+      var pl = e.target.closest('[data-dpay]'); if (pl) { savePay(pl.checked); return }
       if (!s) return
       var m = get()[+s.dataset.stop]
       if (!window.confirm(w('stopAsk')(m.name))) return
@@ -1101,6 +1105,8 @@
       + (on ? '<div class="row2"><label class="pro-lbl" style="margin:0">' + pw('expT') + '</label><input class="in" type="datetime-local" id="det-until" value="' + localIso(d.expires) + '" max="' + localIso(d.max) + '"><small class="pro-lbl" style="margin:0">' + pw('maxT')(dayY(d.max)) + '</small></div>'
         + (d.bundle ? '<div class="row2"><input class="in" type="password" id="det-pw" autocomplete="new-password" maxlength="100" placeholder="' + esc(pw('pwNew')) + '">'
           + (d.locked ? '<button type="button" class="pill sm" data-dpwoff><span>' + pw('pwOff') + '</span></button>' : '') + '</div>' : '')
+        // awaiting payment (Alex, 10 Nov 2026): on or off at once, the same link
+        + (d.payLock != null ? '<div class="row2"><label class="chk"><input type="checkbox" data-dpay' + (d.payLock ? ' checked' : '') + (det.busy ? ' disabled' : '') + '><span>' + pw('payT') + '</span></label>' + (d.payLock ? '<span class="chips"><i class="soon">' + pw('payOn') + '</i></span>' : '') + '</div>' : '')
         + '<div class="row2"><button type="button" class="pill main sm" data-dsave' + (det.busy ? ' disabled' : '') + '><span>' + pw('saveC') + '</span></button>'
         + (d.locked ? '<span class="chips"><i>' + pw('locked') + '</i></span>' : '') + (det.msg ? '<span class="ok">' + esc(det.msg) + '</span>' : '') + '</div>' : '')
       + '<ul class="ev">' + ev + '</ul></div>'
@@ -1124,6 +1130,17 @@
       if (r.until) det.data.expires = r.until
       if (r.locked != null) det.data.locked = r.locked
       loadMine()
+    }).catch(function (e) { det.busy = false; paintMine(); window.alert(e.message) })
+  }
+
+  // Locked until paid (Alex, 10 Nov 2026): roartransfer-pro 'edit' sets it on the upload's link and every file of it
+  function savePay(on) {
+    if (!det.data || det.busy) return
+    det.busy = true; det.msg = ''; paintMine()
+    proCall({ action: 'edit', token: det.token, payLock: on }).then(function (r) {
+      det.busy = false; det.msg = pw('bSaved')
+      if (r.payLock != null) det.data.payLock = r.payLock
+      paintMine()
     }).catch(function (e) { det.busy = false; paintMine(); window.alert(e.message) })
   }
 
@@ -1511,6 +1528,16 @@
     if (d && !d.error) { await one(d); if (d.files) await Promise.all(d.files.map(one)) }
     return d
   }
+  // while it waits for the payment: quietly ask again, and open the page as usual once it is unlocked
+  var payTimer = 0
+  async function payAgain() {
+    var hd = {}
+    try { var s0 = (await sb.auth.getSession()).data.session; if (s0) hd.Authorization = 'Bearer ' + s0.access_token } catch (e) {}
+    fetch(URL_ + '/functions/v1/roar-transfer-get?t=' + encodeURIComponent(getToken) + (getPw ? '&p=' + encodeURIComponent(getPw) : ''), { headers: hd })
+      .then(function (r) { return r.json() })
+      .then(function (d) { if (d.error === 'payment') payTimer = setTimeout(payAgain, 30000); else load() })
+      .catch(function () { payTimer = setTimeout(payAgain, 30000) })
+  }
   async function load() {
     $('get-wait').hidden = false
     // signed in, the page says who asks: an ended link then gives its one last download
@@ -1540,6 +1567,24 @@
       $('get-sub').hidden = !got.from; $('get-sub').textContent = got.from ? w('gFrom')(got.from) : ''
       $('get-pwh').textContent = w('gLocked'); $('get-pw').placeholder = w('gPw'); $('get-pwgo').querySelector('span').textContent = w('gOpen')
       $('get-pwe').hidden = !got.wrong && !got.slow; $('get-pwe').textContent = got.slow ? w('gSlow') : w('gWrong')
+      return
+    }
+    // awaiting payment (Alex, 10 Nov 2026): a kind word, who sent it, the title and the files greyed, nothing to press;
+    // roar-transfer-get gives no address while it is locked. The page asks again every 30 s, so it opens by itself.
+    var pay = got.error === 'payment'
+    $('get-pay').hidden = !pay
+    $('get-list').classList.toggle('paylock', pay)
+    clearTimeout(payTimer)
+    if (pay) {
+      ;['get-ic', 'get-h', 'get-n', 'get-grace', 'get-last', 'get-exp', 'get-go', 'get-vid', 'get-img', 'get-photos'].forEach(function (id) { $(id).hidden = true })
+      var pf = got.files || []
+      $('get-sub').hidden = !got.from
+      $('get-sub').textContent = got.from ? w('gFrom')(got.from) + (pf.length > 1 ? ' ' + pf.length + ' ' + w('files') + ' · ' + size(pf.reduce(function (n, f) { return n + Number(f.size || 0) }, 0)) : '') : ''
+      $('get-list').hidden = !pf.length
+      $('get-list').innerHTML = pf.map(function (f) {
+        return '<li><span class="fi"><svg><use href="#' + icon(f.type || '') + '"/></svg></span><span class="ft"><b>' + esc(f.name || 'file') + '</b><small>' + size(f.size) + '</small></span><span class="lk" aria-hidden="true"><svg><use href="#i-lock"/></svg></span></li>'
+      }).join('')
+      payTimer = setTimeout(payAgain, 30000)
       return
     }
     var bad = !!got.error
@@ -1737,7 +1782,7 @@
       bH: 'Your brand', bN: 'Your name, logo and backgrounds on the pages people open from your links, and on your Receive-files page.',
       bName: 'Your name or company (e.g. The Mad Lions)', bLogo: 'Logo', bBgs: 'Backgrounds (up to 8, one shows at random)', bAdd: 'Add', bSaved: 'Saved.',
       bBig: 'Pictures can be up to 10 MB.', details: 'Details', expT: 'Expires', pwNew: 'New password (empty keeps it as it is)', pwOff: 'Remove password',
-      saveC: 'Save changes', locked: 'Has a password', noEv: 'Not opened yet.', evOpen: 'Opened', evDl: 'Downloaded', maxT: function (d) { return 'At most until ' + d },
+      saveC: 'Save changes', locked: 'Has a password', payT: 'Locked until paid', payOn: 'Awaiting payment', noEv: 'Not opened yet.', evOpen: 'Opened', evDl: 'Downloaded', maxT: function (d) { return 'At most until ' + d },
       bgSub: 'The pictures behind every page; one shows at random on each visit. Pro accounts can use their own on their links.', bgAsk: 'Remove this background?',
       'h.all': 'Every <b>transfer</b>.', 's.all': 'Every file sent, newest first; tap an account under Accounts to see only theirs.',
       'h.acc': 'The <b>accounts</b>.', 's.acc': 'Who signed up or sent from RoarTransfer, and how much each one sent.',
@@ -1770,7 +1815,7 @@
       bH: 'Το brand σου', bN: 'Το όνομα, το λογότυπο και τα φόντα σου στις σελίδες που ανοίγουν από τα links σου και στη σελίδα Λήψης αρχείων.',
       bName: 'Το όνομά σου ή της εταιρείας (π.χ. The Mad Lions)', bLogo: 'Λογότυπο', bBgs: 'Φόντα (ως 8, ένα εμφανίζεται τυχαία)', bAdd: 'Προσθήκη', bSaved: 'Αποθηκεύτηκε.',
       bBig: 'Οι εικόνες μπορούν να είναι ως 10 MB.', details: 'Λεπτομέρειες', expT: 'Λήγει', pwNew: 'Νέος κωδικός (κενό τον αφήνει ως έχει)', pwOff: 'Αφαίρεση κωδικού',
-      saveC: 'Αποθήκευση', locked: 'Έχει κωδικό', noEv: 'Δεν έχει ανοιχτεί ακόμα.', evOpen: 'Άνοιξε', evDl: 'Κατέβηκε', maxT: function (d) { return 'Το πολύ ως ' + d },
+      saveC: 'Αποθήκευση', locked: 'Έχει κωδικό', payT: 'Κλειδωμένο ως την πληρωμή', payOn: 'Αναμονή πληρωμής', noEv: 'Δεν έχει ανοιχτεί ακόμα.', evOpen: 'Άνοιξε', evDl: 'Κατέβηκε', maxT: function (d) { return 'Το πολύ ως ' + d },
       bgSub: 'Οι εικόνες πίσω από κάθε σελίδα· μία εμφανίζεται τυχαία σε κάθε επίσκεψη. Οι Pro βάζουν τις δικές τους στα links τους.', bgAsk: 'Να αφαιρεθεί αυτό το φόντο;',
       'h.all': 'Όλες οι <b>αποστολές</b>.', 's.all': 'Κάθε αρχείο που στάλθηκε, τα νεότερα πρώτα· πάτα έναν λογαριασμό στο Accounts για να δεις μόνο τα δικά του.',
       'h.acc': 'Οι <b>λογαριασμοί</b>.', 's.acc': 'Ποιοι γράφτηκαν ή έστειλαν από το RoarTransfer, και πόσα έστειλε ο καθένας.',

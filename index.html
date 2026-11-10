@@ -35,7 +35,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/home.css?v=13f2f24c">
+<link rel="stylesheet" href="/home.css?v=33673abe">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -118,6 +118,12 @@
       <p data-t="gr.p">Sign up free and you can still download it, one last time.</p>
       <!-- only for a new account (Alex, 26 Oct): one that already existed gets nothing, so there is no Sign in here -->
       <div class="row"><button type="button" class="pill main" data-gup><span data-t="gr.up">Sign up free</span></button></div>
+    </div>
+    <!-- awaiting payment (Alex, 10 Nov 2026): the sender locked the link until paid; a kind word, the files greyed, no buttons -->
+    <div class="grace pay" id="get-pay" hidden>
+      <span class="gr-ic"><svg><use href="#i-lock"/></svg></span>
+      <b class="gr-h" data-t="pay.h">Almost there</b>
+      <p data-t="pay.p">Your files are ready and waiting for you. They will open as soon as the final payment is settled. Thank you so much for trusting us, it truly means a lot. If the payment is already on its way, just let the sender know and the files will open right away.</p>
     </div>
     <p class="note warn" id="get-last" hidden data-t="gr.last">The link has ended: this is your one last download of each file.</p>
     <video class="pv" id="get-vid" controls playsinline preload="metadata" hidden></video>
@@ -221,6 +227,8 @@
       <p class="eco" id="op-eco"><svg><use href="#i-leaf"/></svg><span data-t="op.eco">The greener choice is also the bigger one: most files are picked up the same day, so a 1-day link spends less time on our servers and carries up to 5 GB.</span></p>
       <label class="chk"><input type="checkbox" id="op-notify" checked><span data-t="op.notify">Email me when it is downloaded</span></label>
       <!-- the admin alone (Alex, 22 Oct): the file is kept only in the hub's pCloud, the link stays a roartransfer.com one -->
+      <!-- Pro (Alex, 10 Nov 2026): the link shows what it holds but opens nothing until it is unlocked in Details -->
+      <label class="chk" id="op-pay-row" hidden><input type="checkbox" id="op-pay"><span data-t="op.pay">Locked until paid</span></label>
       <label class="chk" id="op-pc-row" hidden><input type="checkbox" id="op-pc"><span data-t="op.pc">Keep it only in my pCloud</span></label>
       <div class="pwrow"><input class="in" id="op-pw" type="password" autocomplete="new-password" maxlength="100"><button type="button" class="eye" id="op-eye" aria-label="Show"><svg><use href="#i-eye"/></svg></button></div>
       <p class="err" id="op-err" hidden></p>
@@ -433,6 +441,6 @@
 <script src="/supabase-2.45.4.js"></script>
 <script>window.supabase || document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"><\/script>')</script>
 <script src="/zip.js?v=3"></script>
-<script src="/home.js?v=0d020440"></script>
+<script src="/home.js?v=481613f5"></script>
 </body>
 </html>

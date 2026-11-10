@@ -94,6 +94,16 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
   password and the download limit; each file's address carries an admin ticket (&c=, an HMAC of the token and a 6-hour
   slot) so the download is not counted and Download all (.zip) works through the Worker. Never past the link's end.
 
+- Awaiting payment (10 Nov 2026, Alex): a Pro ticks **Locked until paid** when sending (`op-pay`) or in a sent link's
+  Details (roartransfer-pro `edit` with `payLock`, on the upload's link and every file of it; roartransfer-r2 `bundle`
+  with `payLock` when sending). While it is on, roar-transfer-get (in roarme) gives no file address and no preview
+  (status 423, `error: 'payment'`, `locked_payment`, who sent it, the title, the files' names and sizes), `?dl=1` (and so
+  the Worker's /__dl/) goes back to the page, and an ended link gives no last download; admins still open it. The page
+  shows "Almost there" with the files greyed and asks again every 30 s, so unlocking opens it at once. Studio has the
+  same on its share links (Share window: the switch when making a link, the lock icon on each link made; roarstudio
+  `share-create` `payLock`, `link-paylock`; every `share-*` action but `share-open` answers 423). Database:
+  `supabase/transfer-paylock.sql` in roarme (`pay_lock` on roar_transfer_bundles, roar_transfer_links, roarstudio_shares).
+
 ## RoarTransfer Studio (studio.roartransfer.com; called RoarStudio until 7 Nov 2026)
 
 The music cloud, a branch of RoarTransfer (Alex, 7 Nov 2026), in `studio/` (served at roartransfer.com/studio/;
