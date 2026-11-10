@@ -339,7 +339,7 @@
     }
     if (!session) { r.innerHTML = langBtn() + '<a class="btn sm rtlink about" href="https://themadlions.com/lab/roarstudio/" target="_blank" rel="noopener" title="About RoarTransfer Studio">' + ic('people') + '<span>About</span></a>'; return }
     var name = (me && me.name) || (session.user.email || '').split('@')[0]
-    r.innerHTML = langBtn() + '<a class="btn sm rtlink about" href="https://themadlions.com/lab/roarstudio/" target="_blank" rel="noopener" title="About RoarTransfer Studio">' + ic('people') + '<span>About</span></a>' + '<a class="btn sm rtlink" href="../" title="Send files with RoarTransfer">' + ic('out') + '<span>RoarTransfer</span></a><button class="ico srch" id="srch-b" aria-label="Search" title="Search everything (/)">' + ic('loupe') + '</button><button class="ico bell" id="bell" aria-label="Notifications">' + ic('bell') + '<b id="bell-n" hidden></b></button><button class="me" id="me-btn" aria-label="Account" style="' + (me && me.avatar ? "background-image:url('" + esc(me.avatar) + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)') + '">' + (me && me.avatar ? '' : esc(initials(name))) + '</button>'
+    r.innerHTML = langBtn() + '<button class="ico srch" id="srch-b" aria-label="Search" title="Search everything (/)">' + ic('loupe') + '</button><button class="ico bell" id="bell" aria-label="Notifications">' + ic('bell') + '<b id="bell-n" hidden></b></button><button class="me" id="me-btn" aria-label="Account" style="' + (me && me.avatar ? "background-image:url('" + esc(me.avatar) + "')" : 'background:hsl(' + hue(session.user.id) + ',55%,40%)') + '">' + (me && me.avatar ? '' : esc(initials(name))) + '</button>'
     $('#me-btn').onclick = function (e) {
       e.stopPropagation()
       var old = $('.menu'); if (old) { old.remove(); return }
@@ -734,14 +734,14 @@
     var pickedHere = here.filter(function (t) { return kOf(t) === 'image' && pickCount(t.id) })
     if (pickOnly && !pickedHere.length) pickOnly = false
     if (pickOnly) shown = shown.filter(function (t) { return kOf(t) === 'image' && pickCount(t.id) })
-    var pickBar = counts.image && !(share && share.data.kind === 'finals') ? '<div class="pickbar"><button class="chip-b' + (pickOnly ? ' on' : '') + '" id="pk-only"' + (pickedHere.length ? '' : ' disabled') + '>' + ic('heart') + ' Picked <b>' + pickedHere.length + '</b></button>' + (pickedHere.length ? '<button class="chip-b" id="pk-copy" title="The picked file names, ready for Lightroom\'s Library Filter (Text > Filename > Contains)">' + ic('copy') + ' Copy names for Lightroom</button>' : '') + '</div>' : ''
+    var pickBar = counts.image && (pickedHere.length || pickOnly) && !(share && share.data.kind === 'finals') ? '<div class="pickbar"><button class="chip-b' + (pickOnly ? ' on' : '') + '" id="pk-only"' + (pickedHere.length ? '' : ' disabled') + '>' + ic('heart') + ' Picked <b>' + pickedHere.length + '</b></button>' + (pickedHere.length ? '<button class="chip-b" id="pk-copy" title="The picked file names, ready for Lightroom\'s Library Filter (Text > Filename > Contains)">' + ic('copy') + ' Copy names for Lightroom</button>' : '') + '</div>' : ''
     var head = folder
       ? '<button class="ico" id="fback" aria-label="Back to ' + esc(pr.title) + '">' + ic('back') + '</button><span class="fi" style="background:linear-gradient(160deg,#8fb8ff,#5b6cff);color:#0b1640">' + ic('folder') + '</span><div style="min-width:0"><h1>' + esc(folder.name) + '</h1><div class="sub">' + esc(pr.title) + ' · ' + here.length + ' file' + (here.length === 1 ? '' : 's') + '</div></div>'
       : '<button class="pcover' + (edit && !share ? ' edit' : '') + '" id="pcover" style="' + coverAttr(pr) + '" aria-label="' + (edit && !share ? 'Change the cover' : esc(pr.title)) + '">' + (edit && !share ? '<i>' + ic('image') + '</i>' : '') + '</button><div style="min-width:0"><h1>' + esc(pr.title) + '</h1><div class="sub">' + esc(pr.artist || '') + (pr.artist ? ' · ' : '') + c.tracks.length + ' file' + (c.tracks.length === 1 ? '' : 's') + (share ? (share.data.project.owner_name ? ' · shared by ' + esc(share.data.project.owner_name) : '') : '') + '</div></div>'
     var tools = share ? '' : (edit ? '<button class="btn main" id="new-btn">' + ic('plus') + ' New</button>' : '') +
-      (edit && !folder ? '<button class="btn" id="sh-btn">' + ic('share') + ' Share</button>' : '') +
-      (!folder ? '<button class="btn" id="pp-btn">' + ic('people') + ' People</button>' : '') +
-      (edit && !folder ? '<button class="btn" id="st-btn" title="Who opened, played and downloaded (Studio Pro)">' + ic('chart') + ' Stats' + (me && me.pro ? '' : ' <span class="probadge">PRO</span>') + '</button>' : '') +
+      (edit && !folder ? '<button class="btn" id="sh-btn" aria-label="Share">' + ic('share') + ' Share</button>' : '') +
+      (!folder ? '<button class="btn" id="pp-btn" aria-label="People">' + ic('people') + ' People</button>' : '') +
+      (edit && !folder ? '<button class="ico" id="st-btn" aria-label="Stats" title="Stats: who opened, played and downloaded' + (me && me.pro ? '' : ' (Studio Pro)') + '">' + ic('chart') + '</button>' : '') +
       (edit ? '<button class="ico" id="pm-btn" aria-label="More">' + ic('dots') + '</button>' : '')
     var extra = '', extraTop = ''
     if (!share && !folder) {
@@ -1081,9 +1081,10 @@
 
     var firstV = versions[0], byName = share ? share.data.names[firstV.uploaded_by] : ctx.people[firstV.uploaded_by] && ctx.people[firstV.uploaded_by].name
     view.innerHTML = '<div class="head"><button class="ico" id="back" aria-label="Back to the project">' + ic('back') + '</button><span class="pcover sm" style="' + coverAttr(ctx.project) + '"></span><div style="min-width:0"><h1>' + esc(track.title) + '</h1><div class="sub">' + esc(ctx.project.title) + (byName ? ' · by ' + esc(byName) : '') + ' · ' + new Date(firstV.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + '</div></div><div class="tools">' +
-      (kindOf(versions[versions.length - 1]) === 'audio' && versions.some(function (q) { return q.lufs != null }) ? '<button class="btn" id="lvl">' + ic('disk').replace('disk', '') + 'Levels</button>' : '') +
-      '<button class="btn" id="abtn" hidden title="A/B: Space switches between two versions at the same point">A/B</button><button class="btn" id="strm" hidden title="How Spotify, Apple Music and YouTube will play it">' + ic('wave') + ' Streaming</button><button class="btn" id="stems" hidden title="The parts of this version, with mute and solo">' + ic('stems') + ' Stems</button>' +
-      (edit && !share ? '<button class="btn main" id="nv">' + ic('up') + ' New version</button><button class="btn" id="tsh">' + ic('share') + ' Share</button><button class="ico" id="tm" aria-label="More">' + ic('dots') + '</button>' : '') + '</div></div>' +
+      '<span class="tl-src" hidden>' + (kindOf(versions[versions.length - 1]) === 'audio' && versions.some(function (q) { return q.lufs != null }) ? '<button class="btn" id="lvl">Levels</button>' : '') +
+      '<button class="btn" id="strm" hidden>Streaming</button><button class="btn" id="stems" hidden>Stems</button></span>' +
+      '<button class="btn" id="abtn" hidden title="A/B: Space switches between two versions at the same point">A/B</button><button class="btn" id="tools" hidden aria-label="Tools" title="Levels, streaming check, stems and files">' + ic('stems') + ' Tools</button>' +
+      (edit && !share ? '<button class="btn main" id="nv">' + ic('up') + ' New version</button><button class="btn" id="tsh" aria-label="Share">' + ic('share') + ' Share</button><button class="ico" id="tm" aria-label="More">' + ic('dots') + '</button>' : '') + '</div></div>' +
       '<div class="player"><section class="stage glass">' +
       '<div class="vers" id="vers"></div>' +
       '<div class="media" id="media"></div>' +
@@ -1097,7 +1098,7 @@
       '</section><section class="extras glass" id="extras"><div class="ex-h"><b>' + ic('scope') + ' <span id="ex-title">Analyzer</span></b><span class="muted" id="ex-sub"></span><span class="grow"></span><div class="lens-group" id="ex-tabs" hidden><span class="lens"></span><button data-sc="wave" class="on">Waveform</button><button data-sc="parade">RGB parade</button></div><button class="ico sm" id="ex-tg" aria-label="Show or hide the analyzer">' + ic('chev') + '</button></div><div class="ex-b" id="ex-b"></div></section>' + (function () {
         var k = kindOf(versions[versions.length - 1]), out = ''
         if (k === 'audio' && store.get('rs-hint-ab') !== '0') out += '<div class="hint" data-hint="ab">' + ic('wave') + '<span><b>A/B</b> · press A/B at the top, then <kbd>Space</kbd>: you hear the next version (A → B → C) from the same second, without stopping.</span><button class="ico sm" aria-label="Hide this tip">' + ic('x') + '</button></div>'
-        if (k !== 'image' && canDo('commenter') && store.get('rs-hint-rng') !== '0') out += '<div class="hint" data-hint="rng">' + ic('range') + '<span><b>A stretch</b> · hold <kbd>Shift</kbd> and drag on the waveform to pick a part (0:42 to 0:58): the note you write covers all of it.</span><button class="ico sm" aria-label="Hide this tip">' + ic('x') + '</button></div>'
+        if (!out && (k === 'audio' || k === 'video') && canDo('commenter') && store.get('rs-hint-rng') !== '0') out += '<div class="hint" data-hint="rng">' + ic('range') + '<span><b>A stretch</b> · hold <kbd>Shift</kbd> and drag on the waveform to pick a part (0:42 to 0:58): the note you write covers all of it.</span><button class="ico sm" aria-label="Hide this tip">' + ic('x') + '</button></div>'
         return out ? '<div class="hints">' + out + '</div>' : ''
       })() + '<div class="rcol"><aside class="notes glass"><header>' + '<div class="lens-group" id="ntab"><span class="lens"></span><button class="on" data-tab="n">Notes</button>' + (share ? '' : '<button data-tab="p">Notepad</button>') + '<button data-tab="s" hidden>Stills</button>' + (!share && canDo('editor') ? '<button data-tab="w">Views</button>' : '') + '</div>' + '<span class="muted" id="ncount"></span>' + (share ? '' : '<button class="ico sm" id="nexp" hidden aria-label="Notes as markers for the edit" title="Notes as markers for the edit (Resolve, Premiere)">' + ic('mark') + '</button>') + '</header>' +
       '<div class="nfilter" id="nfilter"><label class="nsearch">' + ic('search') + '<input id="nq" placeholder="Search notes" aria-label="Search notes"></label><div class="chips" id="nchips"><button class="on" data-f="all">All</button><button data-f="open">Open</button><button data-f="done">Done</button>' + (share ? '' : '<button data-f="mine">Mine</button>') + '</div></div>' +
@@ -1128,6 +1129,7 @@
       if ($('#strm')) $('#strm').hidden = k !== 'audio' || x.lufs == null
       if ($('#stems')) $('#stems').hidden = k !== 'audio'
       if ($('#abtn')) $('#abtn').hidden = k !== 'audio' || audVersions().length < 2
+      if ($('#tools')) $('#tools').hidden = k !== 'audio'
       if ($('#cmp-rng')) $('#cmp-rng').hidden = still
       if (k !== 'audio' && ab) { ab = null; paintAB() }
       if ($('#stemp') && !$('#stemp').hidden && stemSt.v !== x.id) loadStems()
@@ -1184,6 +1186,13 @@
       var who = last ? (last.actor_name || (ctx.people[last.actor] && ctx.people[last.actor].name) || 'Someone') : ''
       var cell = function (n, l) { return '<div><b>' + n + '</b><span>' + l + '</span></div>' }
       box.hidden = false
+      if (!k.plays && !k.views && !k.people && !k.dl && !last) {
+        box.classList.add('empty')
+        box.innerHTML = '<b class="mh">' + ic('chart') + ' Stats</b><span class="muted">No visits yet</span><span class="grow"></span><button class="btn sm" id="ms-all" type="button">All stats' + (me && me.pro ? '' : ' <span class="probadge">PRO</span>') + '</button>'
+        $('#ms-all', box).onclick = function () { statsBox(ctx) }
+        return
+      }
+      box.classList.remove('empty')
       box.innerHTML = '<div class="spread"><b class="mh">' + ic('chart') + ' Stats</b><small class="muted">last 30 days</small></div>' +
         '<div class="mgrid">' + cell(k.plays, 'Plays') + cell(k.views, 'Views') + cell(k.people, 'People') + cell(k.dl, 'Downloads') + '</div>' +
         (avg != null ? '<div class="mbar"><span>Watched on average</span><b>' + avg + '%</b><i><em style="width:' + avg + '%"></em></i></div>' : '') +
@@ -1901,7 +1910,7 @@
     function stemsStop() { stemSt.wait = false; stemSt.els.forEach(function (el) { try { el.pause(); el.playbackRate = 1 } catch (e) {} }); if ($('#stem-tm')) $('#stem-tm').classList.remove('buf'); clearInterval(stemSt.timer); stemSt.timer = null; var pp = $('#stem-pp'); if (pp) pp.innerHTML = ic('play') }
     function stemsDrop() { stemsStop(); stemSt.els.forEach(function (el) { el.removeAttribute('src'); try { el.load() } catch (e) {} }); stemSt.els = []; stemSt.list = null }
     function stemsToggle() {
-      var pn = $('#stemp'); pn.hidden = !pn.hidden; $('#stems').classList.toggle('on', !pn.hidden)
+      var pn = $('#stemp'); pn.hidden = !pn.hidden; $('#stems').classList.toggle('on', !pn.hidden); if ($('#tools')) $('#tools').classList.toggle('on', !pn.hidden)
       if (!pn.hidden) loadStems(); else stemsStop()
     }
     function loadStems() {
@@ -2091,7 +2100,7 @@
       }
     }
     // ===== the analyzer (Alex, 8 Nov): a spectrum for sound, scopes for pictures and video =====
-    var ex = { on: store.get('rs-extras') !== '0', tab: store.get('rs-scope') || 'wave', kind: null, raf: 0, last: 0, lastT: -1, hold: null, sc: null }
+    var ex = { on: store.get('rs-extras') === '1', tab: store.get('rs-scope') || 'wave', kind: null, raf: 0, last: 0, lastT: -1, hold: null, sc: null }
     function exSize(cv) { var r = cv.getBoundingClientRect(), dp = devicePixelRatio || 1, w = Math.max(10, Math.round(r.width * dp)), h = Math.max(10, Math.round(r.height * dp)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h } return { w: w, h: h, dp: dp } }
     function paintExtras() {
       var box = $('#ex-b'), x = curV(), k = kindOf(x); if (!box) return
@@ -2417,6 +2426,12 @@
     if ($('#cmp-pos-x')) $('#cmp-pos-x').onclick = function () { tview.ppos = null; $('#cmp-pos').hidden = true; paintPPins() }
     if ($('#strm')) $('#strm').onclick = streamCheck
     if ($('#stems')) $('#stems').onclick = stemsToggle
+    if ($('#tools')) $('#tools').onclick = function () {
+      var r = this.getBoundingClientRect(), has = function (id) { var b = $('#' + id); return b && !b.hidden }
+      ctxMenu('Tools', [has('stems') ? ['stems', 'stems', ($('#stemp') && !$('#stemp').hidden ? 'Hide stems and files' : 'Stems and files')] : null,
+        has('lvl') ? ['lvl', 'chart', 'Levels of every version'] : null, has('strm') ? ['strm', 'wave', 'How streaming will play it'] : null].filter(Boolean),
+        r.left, r.bottom + 6, function (k) { $('#' + k).click() })
+    }
     if ($('#cmp-rng')) $('#cmp-rng').onclick = function () {
       var t = audio.currentTime
       if (!tview.range) tview.range = { a: t, b: null }
