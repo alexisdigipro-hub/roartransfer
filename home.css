@@ -563,3 +563,9 @@ html.lm-on { overflow: hidden; }
 #v-in .alt .pill { height: 38px; padding: 0 16px; font-size: 13px; }
 #v-in .alt span[hidden] { display: none; }
 #v-in .agree { margin-top: -4px; }
+
+/* the Studio pill: plain glass like its neighbours, its purple only under the mouse (Alex, 10 Nov) */
+.top .more.studio { background: var(--glass); border-color: var(--glass-edge); transition: background .25s, border-color .25s; }
+.top .more.studio i { background: rgba(255,255,255,.12); transition: background .25s; }
+.top .more.studio:hover, .top .more.studio:focus-visible { background: linear-gradient(135deg, rgba(167,139,250,.65), rgba(109,40,217,.6)); border-color: rgba(196,181,253,.45); }
+.top .more.studio:hover i, .top .more.studio:focus-visible i { background: conic-gradient(from 210deg, #a78bfa, #6d28d9, #3b0764, #7c3aed, #a78bfa); }
