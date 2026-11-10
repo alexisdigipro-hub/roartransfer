@@ -141,6 +141,7 @@ studio.roartransfer.com is sent there by `cloudflare/worker.js`). Plain page, no
   - Inside a project: tabs All / Audio / Video / Pictures; All groups them, each kind with its colour.
   - A file's page: drag on the waveform to scrub, the time under the pointer, zoom, back to the start, speed, loop,
     picture in picture, full screen, the video's size and bitrate on it, Levels (every version's LUFS and peak),
+  - Simpler screens (10 Nov 2026): on a song's page Levels, the streaming check and Stems and files sit under one Tools button; the Spectrum and Scopes open with one press (closed at first, kept as left); one tip at a time, only on sound and video; Stats with no visits yet is one line; on a project Stats is a round icon and Picked shows once something is picked; About and RoarTransfer moved into the avatar menu. On a phone the top actions are one row: the main one with its word, the rest round icons.
     search and filters on the notes, a private Notepad (roarstudio_notepads).
   - **The bar at the foot**: what plays keeps playing (a video keeps its picture) while you go elsewhere.
   - **Settings** (`#settings`): your studio (name, square logo, wide banner, a background for the pages you send),

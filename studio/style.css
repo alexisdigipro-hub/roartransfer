@@ -1227,9 +1227,6 @@ body.has-mini .sfoot { padding-bottom: 96px }
 @media (max-width: 820px) {
 .player > .hints { display: none }
 }
-@media (min-width: 601px) {
-.menu .mn-about { display: none }
-}
 /* compare modes (Alex, 8 Nov, as Frame.io's comparison viewer): Wipe, Fade, Difference */
 .cmpm { position: absolute; z-index: 4; transform: translateX(-50%); display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(14,10,22,.82); border: 1px solid rgba(255,255,255,.14); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px) }
 .cmpm button { height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: rgba(255,255,255,.7); font: 600 12px var(--sans); cursor: pointer }
@@ -1412,3 +1409,14 @@ body.noscroll { overflow: hidden }
 .sunobox.spot iframe { height: 352px; border-radius: 12px 12px 0 0; background: #121212 }
 .sunobox.spot.tall iframe { height: 452px }
 .trk .th.sth.spot { background: linear-gradient(160deg, #4ade80, #15803d) }
+
+/* simpler (Alex, 10 Nov): stats with nothing yet are one line */
+.mstats.empty { display: flex; align-items: center; gap: 10px; flex-wrap: wrap }
+.mstats.empty .mh { margin: 0 }
+/* on a phone the top actions are one row: the main one with its word, the rest round icons (Alex, 10 Nov) */
+@media (max-width: 600px) {
+.head .tools { flex-wrap: nowrap }
+.head .tools .btn:not(.main) { width: 44px; min-width: 44px; padding: 0; font-size: 0; gap: 0; justify-content: center; flex: none }
+.head .tools .btn:not(.main) svg { width: 18px; height: 18px }
+.head .tools #abtn { font-size: 12px; width: auto; padding: 0 12px }
+}
