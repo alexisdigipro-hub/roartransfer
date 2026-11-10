@@ -35,7 +35,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/home.css?v=0e8fd688">
+<link rel="stylesheet" href="/home.css?v=7eef8e40">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -178,7 +178,9 @@
     <div class="grace pay" id="get-pay" hidden>
       <span class="gr-ic"><svg><use href="#i-lock"/></svg></span>
       <b class="gr-h" data-t="pay.h">Almost there</b>
-      <p data-t="pay.p">Your files are ready and waiting for you. They will open as soon as the final payment is settled. Thank you so much for trusting us, it truly means a lot. If the payment is already on its way, just let the sender know and the files will open right away.</p>
+      <p data-t="pay.p">Your files are ready. They will open as soon as the final payment is settled. Thank you for trusting us.</p>
+      <!-- the same in the other language, small, so a Greek or an English client reads it either way (Alex, 10 Nov) -->
+      <p class="pay-o" data-t="pay.o">Τα αρχεία σας είναι έτοιμα. Θα ανοίξουν μόλις ολοκληρωθεί η εξόφληση. Σας ευχαριστούμε για την εμπιστοσύνη.</p>
     </div>
     <p class="note warn" id="get-last" hidden data-t="gr.last">The link has ended: this is your one last download of each file.</p>
     <video class="pv" id="get-vid" controls playsinline preload="metadata" hidden></video>
@@ -466,6 +468,6 @@
 <script src="/supabase-2.45.4.js"></script>
 <script>window.supabase || document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"><\/script>')</script>
 <script src="/zip.js?v=3"></script>
-<script src="/home.js?v=71150a13"></script>
+<script src="/home.js?v=30806159"></script>
 </body>
 </html>
