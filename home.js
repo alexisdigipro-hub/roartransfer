@@ -416,7 +416,8 @@
     $('mode').hidden = g; $('dur').hidden = g; document.querySelectorAll('.eco').forEach(function (x) { x.hidden = g }); $('op-notify').parentNode.hidden = g
     // Pro (Alex, 25 Oct): a fourth length, 30 days, each length with its own size (PRO_GB), downloads without limit
     var P = isProNow(), D = lang === 'el' ? EL : EN
-    $('op-pay-row').hidden = !P; if (!P) $('op-pay').checked = false
+    // locking when sending waits for roartransfer-r2 to carry it (for now: Details after sending)
+    $('op-pay-row').hidden = true; $('op-pay').checked = false
     $('d30').hidden = !P; $('dur').classList.toggle('four', P)
     if (!P && DAYS === 30) { DAYS = 1; $('dur').querySelectorAll('[data-d]').forEach(function (x) { x.classList.toggle('on', x.dataset.d === '1') }) }
     $('dur').querySelectorAll('small[data-t]').forEach(function (x) { x.textContent = P ? (lang === 'el' ? 'ως ' : 'up to ') + PRO_GB[x.closest('[data-d]').dataset.d] + ' GB' : (D[x.dataset.t] || EN[x.dataset.t]) })

@@ -42,7 +42,6 @@
     share: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
     people: '<circle cx="9" cy="8" r="3.2"/><path d="M3 19c.8-3.3 3.2-5 6-5s5.2 1.7 6 5M16 5.5a3 3 0 0 1 0 5.6M18 14c1.6.6 2.6 2.2 3 4.5"/>',
     trash: '<path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/>', pen: '<path d="M4 20l1-4L16 5l3 3L8 19zM14 7l3 3"/>',
-    lock: '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
     x: '<path d="M6 6l12 12M18 6L6 18"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', back: '<path d="M15 5l-7 7 7 7"/>',
     dots: '<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>',
     reply: '<path d="M10 8L5 12l5 4M5 12h9a5 5 0 0 1 5 5v1"/>', out: '<path d="M14 4h6v6M20 4l-9 9M18 14v5H5V6h5"/>', copy: '<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 15V5h10"/>',
@@ -334,7 +333,7 @@
     $('#crumbs').innerHTML = (crumbs || []).map(function (c, i) { return '<span class="sep">/</span><span>' + esc(c) + '</span>' }).join('')
     var r = $('#right')
     if (share) {
-      var st = (share.data || share.pay) && (share.data || share.pay).studio
+      var st = share.data && share.data.studio
       r.innerHTML = langBtn() + (st && (st.logo || st.name) ? '<span class="brand" data-notr>' + (st.logo ? '<img src="' + esc(cssu(st.logo)) + '" alt="">' : '') + (st.name ? '<b>' + esc(st.name) + '</b>' : '') + '</span>' : (session ? '' : '<a class="btn sm" href="./">Sign in</a>'))
       return
     }
@@ -719,7 +718,7 @@
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180"><text x="160" y="96" fill="rgba(255,255,255,0.32)" font-family="Helvetica,Arial,sans-serif" font-size="22" font-weight="700" text-anchor="middle" transform="rotate(-24 160 90)">' + esc(t) + '</text></svg>'
     return '<i class="wmark" aria-hidden="true" style="background-image:url(&quot;data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg).replace(/'/g, '%27') + '&quot;)"></i>' + (viewerWm() ? '<b class="wmtag" aria-hidden="true" style="left:' + Math.round(10 + Math.random() * 60) + '%;top:' + Math.round(10 + Math.random() * 70) + '%">' + esc(viewerTag()) + '</b>' : '')
   }
-  function brandBanner() { var st = share && (share.data || share.pay) && (share.data || share.pay).studio; return st && st.banner ? '<div class="banner" style="background-image:url(' + cssu(st.banner) + ')"></div>' : '' }
+  function brandBanner() { var st = share && share.data && share.data.studio; return st && st.banner ? '<div class="banner" style="background-image:url(' + cssu(st.banner) + ')"></div>' : '' }
   function drawProject(c) {
     var view = $('#view'), pr = c.project, edit = canDo('editor')
     var folder = !share && curFolder ? (c.folders || []).filter(function (f) { return f.id === curFolder })[0] : null
@@ -3068,8 +3067,6 @@
       '<div class="opts"' + (finals ? ' hidden' : '') + '><div class="opt"><span>Comments<small>They can leave notes on the waveform</small></span><button type="button" class="sw" id="s-c" aria-pressed="true" aria-label="Comments"></button></div>' +
       '<div class="opt"><span>Approve<small>They can approve a version</small></span><button type="button" class="sw" id="s-a" aria-pressed="false" aria-label="Approve"></button></div>' +
       '<div class="opt"><span>Download<small>They can download the files</small></span><button type="button" class="sw" id="s-d" aria-pressed="false" aria-label="Download"></button></div></div>' +
-      // Awaiting payment (Alex, 10 Nov 2026): the link shows what it holds but plays and downloads nothing until it is unlocked
-      '<div class="opts"><div class="opt"><span>Locked until paid<small>They see the names of the files; nothing opens until you unlock it</small></span><button type="button" class="sw" id="s-pay" aria-pressed="false" aria-label="Locked until paid"></button></div></div>' +
       '<div class="field"><label>Ends</label><div class="lens-group" id="s-e"><span class="lens"></span><button type="button" class="on" data-d="0">Never</button><button type="button" data-d="1">1 day</button><button type="button" data-d="7">7 days</button><button type="button" data-d="30">30 days</button></div></div>' +
       '<div class="field"><label for="s-p">Password (optional)</label><input class="in" id="s-p" type="text" maxlength="100" autocomplete="off"></div>' +
       '<div id="s-out" hidden style="display:grid;gap:8px"><div class="linkbox"><input id="s-link" readonly><button class="btn sm main" id="s-copy">' + ic('copy') + ' Copy</button></div></div>' +
@@ -3083,7 +3080,7 @@
       var on = function (id) { return $(id, m).getAttribute('aria-pressed') === 'true' }
       $('#s-go', m).onclick = function () {
         this.disabled = true
-        api('share-create', { project: c.project.id, kind: finals ? 'finals' : pl ? 'playlist' : 'review', playlist: pl ? pl.id : null, track: track ? track.id : null, comment: on('#s-c'), approve: on('#s-a'), download: on('#s-d'), days: Number($('button.on', eg).dataset.d), password: $('#s-p', m).value, payLock: on('#s-pay') }).then(function (d) {
+        api('share-create', { project: c.project.id, kind: finals ? 'finals' : pl ? 'playlist' : 'review', playlist: pl ? pl.id : null, track: track ? track.id : null, comment: on('#s-c'), approve: on('#s-a'), download: on('#s-d'), days: Number($('button.on', eg).dataset.d), password: $('#s-p', m).value }).then(function (d) {
           $('#s-go', m).disabled = false
           if (!d.token) { toast(d.error || 'Could not make the link'); return }
           $('#s-out', m).hidden = false; $('#s-link', m).value = base + '?s=' + d.token; $('#s-link', m).select(); oldLinks()
@@ -3095,15 +3092,11 @@
         q.then(function (r) {
           var rows = (r.data || []).filter(function (s) { return pl ? s.kind === 'playlist' && s.playlist_id === pl.id : finals ? s.kind === 'finals' : s.kind === 'review' && (track ? s.track_id === track.id : !s.track_id) })
           $('#s-old', m).innerHTML = rows.length ? '<div class="field"><label>Links made</label><div class="people">' + rows.map(function (s) {
-            var what = [s.pay_lock ? 'awaiting payment' : '', s.can_comment ? 'comments' : '', s.can_approve ? 'approve' : '', s.can_download ? 'download' : '', s.password_hash ? 'password' : ''].filter(Boolean).join(', ') || 'listen only'
+            var what = [s.can_comment ? 'comments' : '', s.can_approve ? 'approve' : '', s.can_download ? 'download' : '', s.password_hash ? 'password' : ''].filter(Boolean).join(', ') || 'listen only'
             var ended = s.expires_at && new Date(s.expires_at) < new Date()
-            return '<div class="person"><div class="nm"><b class="mono" style="font-size:12.5px">?s=' + esc(s.token) + '</b><span>' + esc(what) + ' · ' + (ended ? 'ended' : s.expires_at ? 'ends ' + new Date(s.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'no end') + '</span></div>' + (s.pay_lock !== undefined ? '<button class="ico sm paylock' + (s.pay_lock ? ' on' : '') + '" data-pl="' + s.token + '" aria-pressed="' + !!s.pay_lock + '" aria-label="' + (s.pay_lock ? 'Unlock: payment received' : 'Lock until paid') + '" title="' + (s.pay_lock ? 'Unlock: payment received' : 'Lock until paid') + '">' + ic('lock') + '</button>' : '') + '<button class="ico sm" data-cp="' + s.token + '" aria-label="Copy link">' + ic('copy') + '</button><button class="ico sm danger" data-sd="' + s.token + '" aria-label="Delete link">' + ic('trash') + '</button></div>'
+            return '<div class="person"><div class="nm"><b class="mono" style="font-size:12.5px">?s=' + esc(s.token) + '</b><span>' + esc(what) + ' · ' + (ended ? 'ended' : s.expires_at ? 'ends ' + new Date(s.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'no end') + '</span></div><button class="ico sm" data-cp="' + s.token + '" aria-label="Copy link">' + ic('copy') + '</button><button class="ico sm danger" data-sd="' + s.token + '" aria-label="Delete link">' + ic('trash') + '</button></div>'
           }).join('') + '</div></div>' : ''
           $$('[data-cp]', m).forEach(function (b) { b.onclick = function () { copyText(base + '?s=' + b.dataset.cp, 'Link copied') } })
-          $$('[data-pl]', m).forEach(function (b) { b.onclick = function () {
-            var to = b.getAttribute('aria-pressed') !== 'true'; b.disabled = true
-            api('link-paylock', { token: b.dataset.pl, on: to }).then(function (d) { if (d.error) { b.disabled = false; toast(d.error); return } toast(to ? 'Locked until paid' : 'Unlocked: the link opens again'); oldLinks() })
-          } })
           $$('[data-sd]', m).forEach(function (b) { b.onclick = function () { sb.from('roarstudio_shares').delete().eq('token', b.dataset.sd).then(oldLinks) } })
         })
       }
@@ -3114,32 +3107,12 @@
   // =====================================================================================================
   // a share link, for someone without an account
   // =====================================================================================================
-  // Awaiting payment (Alex, 10 Nov 2026): the studio locked the link until paid; roarstudio gives only the names, so the page
-  // shows a kind word and the files greyed, nothing to play or press, and asks again every 30 s so it opens by itself
-  var payTimer = 0
-  function drawPay(d) {
-    setTop([])
-    var view = $('#view'), files = d.files || [], pr = d.project || {}
-    var total = files.reduce(function (n, f) { return n + Number(f.size || 0) }, 0)
-    var fic = function (f) { var k = kindOf({ mime: f.mime, file_name: f.name }); return ic(k === 'video' ? 'film' : k === 'image' ? 'image' : k === 'audio' ? 'music' : 'file') }
-    view.innerHTML = brandBanner() + '<div class="paywait glass"><span class="pw-ic">' + ic('lock') + '</span>' +
-      '<div class="pw-from"><b data-notr>' + esc(pr.title || '') + '</b>' + (pr.owner_name ? '<span>' + esc(pr.owner_name) + '</span>' : '') + '</div>' +
-      '<h2>Almost there</h2><p>Your files are ready and waiting for you. They will open as soon as the final payment is settled. Thank you so much for trusting us, it truly means a lot. If the payment is already on its way, just let the sender know and the files will open right away.</p>' +
-      (files.length ? '<div class="pw-files">' + files.map(function (f) { return '<div class="pw-file"><span class="fi">' + fic(f) + '</span><span class="nm"><b data-notr>' + esc(f.title || f.name || 'File') + '</b><small data-notr>' + esc(f.name || '') + (f.size ? ' · ' + size(f.size) : '') + '</small></span><span class="lk">' + ic('lock') + '</span></div>' }).join('') + '</div>' +
-        '<div class="pw-sum muted">' + files.length + ' file' + (files.length === 1 ? '' : 's') + (total ? ' · ' + size(total) : '') + '</div>' : '') + '</div>'
-    clearTimeout(payTimer)
-    payTimer = setTimeout(function () {
-      api('share-open').then(function (x) { if (x.locked_payment) { share.pay = x; drawPay(x) } else { share.pay = null; share.data = null; renderShare() } }).catch(function () { drawPay(d) })
-    }, 30000)
-  }
   function renderShare() {
     var view = $('#view')
-    if (share.pay) return drawPay(share.pay)
     if (!share.data) {
       view.innerHTML = '<div class="spin"></div>'
       api('share-open').then(function (d) {
         if (d.locked) { askPassword(d.error !== 'password' ? '' : share.password ? 'That password is not right.' : ''); return }
-        if (d.locked_payment) { share.pay = d; if (d.studio && d.studio.backdrop) { document.body.style.setProperty('--bd', 'url(' + cssu(d.studio.backdrop) + ')'); document.body.classList.add('custom-bd') } drawPay(d); return }
         if (d.error) { setTop([]); view.innerHTML = '<div class="empty glass"><h2>' + esc(d.error) + '</h2><p>Ask the person who sent it for a new link.</p></div>'; return }
         share.data = d
         if (d.studio && d.studio.backdrop) { document.body.style.setProperty('--bd', 'url(' + cssu(d.studio.backdrop) + ')'); document.body.classList.add('custom-bd') }
