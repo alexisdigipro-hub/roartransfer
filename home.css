@@ -697,3 +697,6 @@ html.lm-on { overflow: hidden; }
 .files li.tx.one .ft small { flex: none; white-space: nowrap; }
 .files li.tx.one .soon-dot { margin: 0 6px 0 0; }
 @media (max-width: 560px) { .files li.tx.one .ft { display: grid; gap: 2px; } .files li.tx.one .ft small { overflow: hidden; text-overflow: ellipsis; } }
+
+.ios-tip { margin: -4px 4px 0; font-size: 12px; line-height: 1.45; color: var(--muted); text-align: center; }
+.ios-tip[hidden] { display: none; }
