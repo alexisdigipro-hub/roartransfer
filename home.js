@@ -1462,8 +1462,9 @@
     var total = gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0) || 1, got = 0, out = []
     try {
       for (var i = 0; i < gotFiles.length; i++) {
-        // the download address, not the one the preview already loaded: Safari reuses that one without CORS and refuses it
-        var f = gotFiles[i], r = await fetch(f.url, { mode: 'cors', cache: 'no-store', credentials: 'omit' })
+        // through roartransfer.com itself (the Worker's /__dl/), as Download all does: R2 refuses the page after the
+        // link's redirect ("Load failed" on an iPhone, Alex 10 Nov); the file's own address if that does not answer
+        var f = gotFiles[i], r = await zipOpen({ url: zipSrc(f), alt: f.url })
         if (!r.ok || !r.body) throw new Error('HTTP ' + r.status)
         var rd = r.body.getReader(), parts = []
         for (;;) {
