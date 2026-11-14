@@ -59,7 +59,7 @@
       upMail: 'Almost there: open the email we just sent you and press Confirm my account. It brings you back here, signed in.', upShort: 'The password needs at least 6 characters.', upTaken: 'There is already an account with this email. Sign in instead.',
       off: 'RoarTransfer is not open to this account yet.', stopped: 'Stopped.', leave: 'Files are still uploading.',
       mailSub: 'Files for you (RoarTransfer)', mailBody: 'Download them here, until', remove: 'Remove',
-      phSave: 'Save to Photos', phPrep: function (p) { return 'Preparing… ' + p + '%' }, phReady: 'Tap to save to Photos', phDone: 'Saved? Save again', phFiles: 'Download to Files', phFail: 'Could not prepare it for Photos. Download it to Files instead?',
+     
       gExpires: 'Expires', gGo: 'Download', gAll: 'Download all (.zip)', trialNoMail: 'Pro Trial is on, but the email could not be sent.', zPrep: function (p) { return 'Zipping… ' + p + '%' }, zGo: 'Downloading the zip…', zFail: 'Could not make the zip. Download the files one by one instead?', gOne: 'Download this file', gSubOne: 'Someone sent you a file with RoarTransfer.', gSubMany: function (n, t) { return 'Someone sent you ' + n + ' files with RoarTransfer · ' + t }, gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are kept 1 to 7 days. Ask for it to be sent again.',
       gBad: 'This link does not work', gBadN: 'Check that the whole link was copied.', gOff: 'Could not reach RoarTransfer', gOffN: 'Check the connection and try again.',
       find: 'Search by file or chat', findAdm: 'File, person, email or chat',
@@ -104,7 +104,7 @@
       upMail: 'Σχεδόν έτοιμο: άνοιξε το email που σου στείλαμε και πάτα Confirm my account. Σε φέρνει πίσω εδώ, συνδεδεμένο.', upShort: 'Ο κωδικός θέλει τουλάχιστον 6 χαρακτήρες.', upTaken: 'Υπάρχει ήδη λογαριασμός με αυτό το email. Συνδέσου.',
       off: 'Το RoarTransfer δεν είναι ακόμα ανοιχτό σε αυτόν τον λογαριασμό.', stopped: 'Διακόπηκε.', leave: 'Τα αρχεία ανεβαίνουν ακόμα.',
       mailSub: 'Αρχεία για σένα (RoarTransfer)', mailBody: 'Κατέβασέ τα εδώ, ως', remove: 'Αφαίρεση',
-      phSave: 'Αποθήκευση στις Φωτογραφίες', phPrep: function (p) { return 'Ετοιμάζεται… ' + p + '%' }, phReady: 'Πάτα για αποθήκευση στις Φωτογραφίες', phDone: 'Αποθηκεύτηκε; Ξανά', phFiles: 'Λήψη στα Αρχεία', phFail: 'Δεν ετοιμάστηκε για τις Φωτογραφίες. Να κατέβει στα Αρχεία;',
+     
       gExpires: 'Λήγει', gGo: 'Λήψη', gAll: 'Λήψη όλων (.zip)', trialNoMail: 'Το Pro Trial μπήκε, αλλά το email δεν στάλθηκε.', zPrep: function (p) { return 'Φτιάχνεται το zip… ' + p + '%' }, zGo: 'Κατεβαίνει το zip…', zFail: 'Δεν έγινε το zip. Να κατέβουν τα αρχεία ένα ένα;', gOne: 'Λήψη αυτού του αρχείου', gSubOne: 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', gSubMany: function (n, t) { return 'Κάποιος σου έστειλε ' + n + ' αρχεία με το RoarTransfer · ' + t }, gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer μένουν 1 με 7 μέρες. Ζήτα να σου το ξαναστείλουν.',
       gBad: 'Αυτός ο σύνδεσμος δεν δουλεύει', gBadN: 'Έλεγξε ότι αντιγράφηκε ολόκληρος ο σύνδεσμος.', gOff: 'Δεν βρέθηκε το RoarTransfer', gOffN: 'Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
       find: 'Αναζήτηση σε αρχεία ή συνομιλίες', findAdm: 'Αρχείο, άτομο, email ή συνομιλία',
@@ -1571,63 +1571,8 @@
     document.body.appendChild(a); a.click(); a.remove()
     if (!f.counted) countHit(f.token, true)
   }
-  // ---- Save to Photos on an iPhone (Alex, 22 Oct). A web page cannot write to Photos itself; the share sheet can
-  // ("Save Video" / "Save Image"). The files are first fetched into the page (the tap that starts it), then a second
-  // tap opens the share sheet, since iOS only opens it right after a tap. Pictures and mp4/mov videos, up to 2 GB.
+  // iPhone: no Save to Photos (Alex, 14 Nov: "download it normally, to Files, as everywhere else")
   var IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  // Safari on an iPhone holds the whole file in memory to hand it to Photos; past about 150 MB the tab crashes ("A problem
-  // repeatedly occurred", Alex 14 Nov, a 517 MB video), so bigger ones download to Files instead
-  var PH_MAX = 150 * 1024 * 1024
-  var ph = { state: 'idle', files: null, pct: 0 }
-  var photoable = function (f) { return /^image\/(jpeg|png|heic|heif|gif|webp)$/i.test(f.type || '') || /^video\/(mp4|quicktime|x-m4v)$/i.test(f.type || '') || /\.(jpe?g|png|heic|mp4|mov|m4v)$/i.test(f.name || '') }
-  function canPhotos() {
-    if (!IOS || !navigator.canShare || !window.File || !gotFiles.length) return false
-    var total = gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0)
-    return total <= PH_MAX && gotFiles.every(photoable)
-  }
-  function paintPhotos() {
-    var on = canPhotos()
-    $('get-photos').hidden = !on
-    if (on) $('get-go').hidden = true
-    if (!on) return
-    var b = $('get-photos'), t = b.querySelector('span')
-    b.disabled = ph.state === 'loading'
-    t.textContent = ph.state === 'loading' ? w('phPrep')(ph.pct) : ph.state === 'ready' ? w('phReady') : ph.state === 'done' ? w('phDone') : w('phSave')
-    b.classList.toggle('ok', ph.state === 'ready')
-  }
-  async function prepPhotos() {
-    ph.state = 'loading'; ph.pct = 0; paintPhotos()
-    var total = gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0) || 1, got = 0, out = []
-    try {
-      for (var i = 0; i < gotFiles.length; i++) {
-        // through roartransfer.com itself (the Worker's /__dl/), as Download all does: R2 refuses the page after the
-        // link's redirect ("Load failed" on an iPhone, Alex 10 Nov); the file's own address if that does not answer
-        var f = gotFiles[i], r = await zipOpen({ url: zipSrc(f), alt: f.url })
-        if (!r.ok || !r.body) throw new Error('HTTP ' + r.status)
-        var rd = r.body.getReader(), parts = []
-        for (;;) {
-          var c = await rd.read(); if (c.done) break
-          parts.push(c.value); got += c.value.length
-          var p = Math.min(99, Math.floor(got / total * 100)); if (p !== ph.pct) { ph.pct = p; paintPhotos() }
-        }
-        out.push(new File(parts, f.name || 'file', { type: f.type || r.headers.get('content-type') || 'application/octet-stream' }))
-      }
-      if (!navigator.canShare({ files: out })) throw new Error('canShare')
-      ph.files = out; ph.state = 'ready'
-    } catch (e) {
-      ph.state = 'idle'; ph.files = null; paintPhotos()
-      if (confirm(w('phFail') + '\n(' + ((e && (e.name + ': ' + e.message)) || 'error') + ')')) gotFiles.forEach(function (f) { if (!f.used) fetchFile(f) })
-      return
-    }
-    paintPhotos()
-  }
-  $('get-photos').addEventListener('click', function () {
-    if (ph.state === 'idle' || ph.state === 'done') { prepPhotos(); return }
-    if (ph.state !== 'ready') return
-    navigator.share({ files: ph.files }).then(function () {
-      ph.state = 'done'; gotFiles.forEach(function (f) { if (!f.counted) countHit(f.token, true) }); paintPhotos(); sendBack()
-    }).catch(function (e) { if (e && e.name !== 'AbortError' && confirm(w('phFail') + '\n(' + e.name + ')')) gotFiles.forEach(function (f) { if (!f.used) fetchFile(f) }) })
-  })
   var getPw = '', autoDl = location.hash === '#dl'
   // a file kept only in pCloud (Alex, 22 Oct): pCloud's direct address works only for the browser that asks for it,
   // so the page asks pCloud's public API itself, without a Referer (pCloud refuses a foreign one), for the download
@@ -1670,7 +1615,7 @@
       .then(function (d) {
         got = d; if (!d.error) countHit(getToken, false); paintGet()
         // Download in the email (roartransfer.com/<token>#dl, Alex 21 Oct): the download starts by itself, once
-        if (!d.error && autoDl) { autoDl = false; if (canPhotos()) return; try { history.replaceState(null, '', location.pathname + location.search) } catch (e) {} setTimeout(function () { $('get-go').click() }, 400) }
+        if (!d.error && autoDl) { autoDl = false; try { history.replaceState(null, '', location.pathname + location.search) } catch (e) {} setTimeout(function () { $('get-go').click() }, 400) }
       })
       .catch(function () { got = { error: 'offline' }; paintGet() })
   }
@@ -1684,7 +1629,7 @@
     var locked = got.error === 'password'
     $('get-pwf').hidden = !locked
     if (locked) {
-      ;['get-ic', 'get-h', 'get-n', 'get-list', 'get-exp', 'get-go', 'get-vid', 'get-img', 'get-photos'].forEach(function (id) { $(id).hidden = true })
+      ;['get-ic', 'get-h', 'get-n', 'get-list', 'get-exp', 'get-go', 'get-vid', 'get-img'].forEach(function (id) { $(id).hidden = true })
       $('get-sub').hidden = !got.from; $('get-sub').textContent = got.from ? w('gFrom')(got.from) : ''
       $('get-pwh').textContent = w('gLocked'); $('get-pw').placeholder = w('gPw'); $('get-pwgo').querySelector('span').textContent = w('gOpen')
       $('get-pwe').hidden = !got.wrong && !got.slow; $('get-pwe').textContent = got.slow ? w('gSlow') : w('gWrong')
@@ -1697,7 +1642,7 @@
     $('get-list').classList.toggle('paylock', pay)
     clearTimeout(payTimer)
     if (pay) {
-      ;['get-ic', 'get-h', 'get-n', 'get-grace', 'get-last', 'get-exp', 'get-go', 'get-vid', 'get-img', 'get-photos'].forEach(function (id) { $(id).hidden = true })
+      ;['get-ic', 'get-h', 'get-n', 'get-grace', 'get-last', 'get-exp', 'get-go', 'get-vid', 'get-img'].forEach(function (id) { $(id).hidden = true })
       var pf = got.files || []
       $('get-sub').hidden = !got.from
       $('get-sub').textContent = got.from ? w('gFrom')(got.from) + (pf.length > 1 ? ' ' + pf.length + ' ' + w('files') + ' · ' + size(pf.reduce(function (n, f) { return n + Number(f.size || 0) }, 0)) : '') : ''
@@ -1715,7 +1660,6 @@
     $('get-last').hidden = bad || !got.last
     $('get-sub').hidden = bad
     ;['get-list', 'get-exp', 'get-go'].forEach(function (id) { $(id).hidden = bad })
-    $('get-photos').hidden = true
     if (bad) {
       var k = got.error === 'expired' ? 'gGone' : got.error === 'used' ? 'gUsed' : got.error === 'offline' ? 'gOff' : 'gBad'
       $('get-ic').innerHTML = '<svg><use href="#' + (k === 'gGone' ? 'i-timer' : 'i-x') + '"/></svg>'
@@ -1748,7 +1692,6 @@
     $('get-go').href = one ? one.url : '#'
     if (one) $('get-go').setAttribute('download', one.name || ''); else $('get-go').removeAttribute('download')
     if (zipping) zipLabel(w('zGo')); else zipSoon()
-    paintPhotos()
   }
   // ---- Download all as one .zip (Alex, 1 Nov 2026). zip.js writes it (stored, no compression, zip64 past 4 GB).
   // Where the browser can, zip-sw.js (scope /__zip/ only) streams it straight to the disk, any size, with the browser's
