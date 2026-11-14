@@ -1567,12 +1567,22 @@
   }
   function fetchFile(f) {
     var a = document.createElement('a')
-    a.href = f.url; a.setAttribute('download', f.name || ''); a.rel = 'noopener'
+    a.href = dlUrl(f); a.setAttribute('download', f.name || ''); a.rel = 'noopener'
     document.body.appendChild(a); a.click(); a.remove()
     if (!f.counted) countHit(f.token, true)
   }
   // iPhone: no Save to Photos (Alex, 14 Nov: "download it normally, to Files, as everywhere else")
   var IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  // Safari on an iPhone opens a video in its player even when told to save it (Alex, 14 Nov: "it shows me a player"), so
+  // there the file is asked for as plain bytes (roar-transfer-get &o=1), which Safari can only download, to Files
+  function dlUrl(f) {
+    if (!IOS) return f.url
+    try {
+      var u = new URL(f.url)
+      if (/\/functions\/v1\/roar-transfer-get$/.test(u.pathname) && u.searchParams.get('dl') === '1') { u.searchParams.set('o', '1'); return u.href }
+    } catch (e) {}
+    return f.url
+  }
   var getPw = '', autoDl = location.hash === '#dl'
   // a file kept only in pCloud (Alex, 22 Oct): pCloud's direct address works only for the browser that asks for it,
   // so the page asks pCloud's public API itself, without a Referer (pCloud refuses a foreign one), for the download
@@ -1682,7 +1692,7 @@
       : gotFiles.length > 1 ? w('gSubMany')(gotFiles.length, size(gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0))) : w('gSubOne')
     $('get-list').innerHTML = gotFiles.map(function (f, n) {
       return '<li' + (f.used ? ' class="used"' : '') + '><span class="fi"><svg><use href="#' + icon(f.type || '') + '"/></svg></span><span class="ft"><b>' + esc(f.name || 'file') + '</b><small>' + size(f.size) + (f.used ? ' · ' + w('gUsed') : f.left != null ? ' · ' + w('gLeft')(Number(f.left) || 0) : '') + '</small></span>'
-        + (gotFiles.length > 1 && !f.used ? '<a class="getdl" href="' + esc(f.url) + '" download="' + esc(f.name || '') + '" data-n="' + n + '" title="' + esc(w('gOne')) + '" aria-label="' + esc(w('gOne')) + '"><svg><use href="#i-down"/></svg></a>' : '') + '</li>'
+        + (gotFiles.length > 1 && !f.used ? '<a class="getdl" href="' + esc(dlUrl(f)) + '" download="' + esc(f.name || '') + '" data-n="' + n + '" title="' + esc(w('gOne')) + '" aria-label="' + esc(w('gOne')) + '"><svg><use href="#i-down"/></svg></a>' : '') + '</li>'
     }).join('')
     // the last download says nothing about how long it stays (Alex, 26 Oct: kept 5 days, not shown)
     $('get-exp').hidden = !!got.last
