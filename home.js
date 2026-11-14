@@ -1575,7 +1575,9 @@
   // ("Save Video" / "Save Image"). The files are first fetched into the page (the tap that starts it), then a second
   // tap opens the share sheet, since iOS only opens it right after a tap. Pictures and mp4/mov videos, up to 2 GB.
   var IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  var PH_MAX = 2 * 1024 * 1024 * 1024
+  // Safari on an iPhone holds the whole file in memory to hand it to Photos; past about 150 MB the tab crashes ("A problem
+  // repeatedly occurred", Alex 14 Nov, a 517 MB video), so bigger ones download to Files instead
+  var PH_MAX = 150 * 1024 * 1024
   var ph = { state: 'idle', files: null, pct: 0 }
   var photoable = function (f) { return /^image\/(jpeg|png|heic|heif|gif|webp)$/i.test(f.type || '') || /^video\/(mp4|quicktime|x-m4v)$/i.test(f.type || '') || /\.(jpe?g|png|heic|mp4|mov|m4v)$/i.test(f.name || '') }
   function canPhotos() {
