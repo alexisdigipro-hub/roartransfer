@@ -886,7 +886,7 @@
     q = (q || '').trim().toLowerCase()
     return list.filter(function (m) {
       if (f === 'on' ? !live(m) : f === 'off' ? live(m) : false) return false
-      return !q || [m.name, m.room_title, m.username, m.display_name, m.email].concat((m.files || []).map(function (f) { return f.name })).some(function (x) { return (x || '').toLowerCase().indexOf(q) >= 0 })
+      return !q || [m.name, m.room_title, m.username, m.display_name, m.email].concat((m.files || []).map(function (f) { return f.name })).concat(m.sentTo || []).some(function (x) { return (x || '').toLowerCase().indexOf(q) >= 0 })
     })
   }
   function segs(id, set) {
@@ -961,18 +961,22 @@
   // one row an upload (Alex, 15 Nov: "I sent 10 files: show me one link for the 10, not one by one"): the files of an
   // upload of many (roar_my_bundles) become one row whose link is the upload's own; one file stays one row
   function byUpload(rows, bundles) {
-    var of = {}, made = {}, out = []
-    bundles.forEach(function (b) { (b.tokens || []).forEach(function (t) { of[t] = b }) })
+    var of = {}, made = {}, out = [], to = {}
+    // who each file went to by email: every upload or resend that holds it (Alex, 15 Nov: "show me which email it went to")
+    bundles.forEach(function (b) { (b.tokens || []).forEach(function (t) { (b.recipients || []).forEach(function (e) { (to[t] = to[t] || {})[e] = 1 }) }) })
+    bundles.forEach(function (b) { if ((b.tokens || []).length > 1) (b.tokens || []).forEach(function (t) { of[t] = b }) })
     rows.forEach(function (m) {
       var b = m.token && of[m.token]
+      if (m.token && to[m.token]) m.sentTo = Object.keys(to[m.token])
       if (!b) { out.push(m); return }
       var g = made[b.token]
       if (!g) {
         g = made[b.token] = { bundle: b.token, token: b.token, files: [], title: b.title || '', type: 'bundle', source: 'link', path: 'bundle:' + b.token,
-          created_at: b.created_at || m.created_at, expires: m.expires, size: 0, downloads: 0, opens: 0, stopped: true, deleted: true }
+          created_at: b.created_at || m.created_at, expires: m.expires, size: 0, downloads: 0, opens: 0, stopped: true, deleted: true, sentTo: [] }
         out.push(g)
       }
       g.files.push(m)
+      ;(m.sentTo || []).forEach(function (e) { if (g.sentTo.indexOf(e) < 0) g.sentTo.push(e) })
       g.size += Number(m.size || 0)
       g.downloads = Math.max(g.downloads, Number(m.downloads || 0))
       g.opens = Math.max(g.opens, Number(m.opens || 0))
@@ -1231,7 +1235,21 @@
     }
     $('lm').hidden = false; document.documentElement.classList.add('lm-on'); lmPaint()
   }
-  function lmClose() { lmAct = false; lmN = -1; det = { token: '', data: null, busy: false, msg: '' }; $('lm').hidden = true; document.documentElement.classList.remove('lm-on') }
+  async function lmMail() {
+    var m = lmM(); if (!m) return
+    var to = ($('lm-mail-to').value || '').split(/[\s,;]+/).filter(function (x) { return /@/.test(x) })
+    if (!to.length) { lmMailMsg = { t: w('noTo'), bad: true }; lmPaint(); return }
+    var tokens = m.files ? m.files.map(function (f) { return f.token }) : [m.token]
+    var b = document.querySelector('[data-lmmail]'); if (b) b.disabled = true
+    try {
+      var r = await bridge({ action: 'bundle', tokens: tokens, title: m.title || '', message: '', recipients: to, notify: true })
+      lmMailMsg = r.mailed ? { t: w('mailed')(r.mailed) } : { t: (r.mailErrors || []).join(', ') || 'Error', bad: true }
+      if (r.mailErrors && r.mailErrors.length && r.mailed) lmMailMsg.t += ' ' + r.mailErrors.join(', ')
+      if (r.mailed) loadMine()
+    } catch (x) { lmMailMsg = { t: x.message, bad: true } }
+    lmPaint()
+  }
+  function lmClose() { lmAct = false; lmMailMsg = null; lmN = -1; det = { token: '', data: null, busy: false, msg: '' }; $('lm').hidden = true; document.documentElement.classList.remove('lm-on') }
   function lmPaint() {
     var m = lmM(); if (!m) { if (!$('lm').hidden) lmClose(); return }
     var on = live(m), left = new Date(m.expires).getTime() - Date.now()
@@ -1243,6 +1261,13 @@
       + '<p class="lm-st"><i class="' + (on ? (left < 864e5 ? 'soon' : 'on') : 'off') + '"></i>' + esc(st) + ' · ' + esc(counts) + '</p>'
     if (on && m.token) html += '<div class="lm-acts"><button type="button" class="pill main" data-lmcp><svg><use href="#i-link"/></svg><span>' + w('copy') + '</span></button>'
       + '<a class="pill" href="' + esc(PAGE + m.token) + '" target="_blank" rel="noopener"><svg><use href="#i-eye"/></svg><span>' + w('lmOpen') + '</span></a></div>'
+    // send it again by email, to the same people or anyone (Alex, 15 Nov): a link to all its files (roartransfer-r2 'bundle')
+    if (on && m.token && m.source === 'link') html += '<div class="lm-mail"><input class="in" type="email" id="lm-mail-to" autocomplete="email" inputmode="email" placeholder="'
+      + esc(lang === 'el' ? 'Στείλε με email: διευθύνσεις, με κόμμα' : 'Send by email: addresses, comma separated') + '"><button type="button" class="pill main" data-lmmail><svg><use href="#i-send"/></svg><span>' + (lang === 'el' ? 'Αποστολή' : 'Send') + '</span></button></div>'
+      + (lmMailMsg ? '<p class="lm-ok' + (lmMailMsg.bad ? ' bad' : '') + '">' + esc(lmMailMsg.t) + '</p>' : '')
+    // who it went to by email
+    if (m.sentTo && m.sentTo.length) html += '<div class="lm-to"><span class="k">' + (lang === 'el' ? 'Στάλθηκε σε' : 'Sent to') + '</span><span class="v">'
+      + m.sentTo.map(function (e) { return '<a class="to-chip" href="mailto:' + esc(e) + '">' + esc(e) + '</a>' }).join('') + '</span></div>'
     // an upload of many: its files, under the one link
     if (m.files && m.files.length > 1) html += '<ul class="lm-files">' + m.files.map(function (f) {
       return '<li><svg><use href="#' + icon(f.type) + '"/></svg><b>' + esc(f.name) + '</b><small>' + esc(sz(f.size)) + '</small></li>' }).join('') + '</ul>'
@@ -1251,7 +1276,7 @@
     $('lm-card').innerHTML = html
   }
   // a Pro's settings for the link, in plain rows (Alex, 10 Nov: "too many lines, all mixed up; the opens folded, buttons centred")
-  var lmAct = false
+  var lmAct = false, lmMailMsg = null
   function lmDet(on) {
     var d = det.data
     if (!d) return '<div class="lm-load"><span class="wait" aria-label="Loading"></span></div>'
@@ -1288,6 +1313,7 @@
   $('lm').addEventListener('input', function (e) { if (e.target.id === 'det-pw') { var b = $('lm-save'); if (b) b.hidden = false } })
   $('lm').addEventListener('click', async function (e) {
     if (e.target.closest('[data-lmact]')) { lmAct = !lmAct; lmPaint(); return }
+    if (e.target.closest('[data-lmmail]')) { lmMail(); return }
     var ex = e.target.closest('[data-dexp]'); if (ex && !ex.disabled) { var at = +ex.dataset.dexp; det.pick = det.pick && Math.abs(det.pick - at) < 6e4 ? 0 : at; det.msg = ''; var keepPw = $('det-pw') ? $('det-pw').value : ''; lmPaint(); if (keepPw && $('det-pw')) $('det-pw').value = keepPw; if (keepPw) { var sv = $('lm-save'); if (sv) sv.hidden = false } return }
     if (e.target.closest('[data-lmx]')) { lmClose(); return }
     var m = lmM(); if (!m) return
