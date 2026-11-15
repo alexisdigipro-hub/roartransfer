@@ -181,6 +181,18 @@
   var audEl = new Audio(); audEl.preload = 'auto'; audEl.crossOrigin = 'anonymous'
   var vidEl = document.createElement('video'); vidEl.preload = 'metadata'; vidEl.crossOrigin = 'anonymous'; vidEl.playsInline = true; vidEl.setAttribute('playsinline', ''); vidEl.className = 'vid'
   var audio = audEl // whichever is playing now
+  // iPhone and iPad (Alex, 15 Nov: "on the phone it plays fast, x2, x1.5, then sticks"): Safari's Web Audio route for an
+  // <audio> element is broken there (WebKit bugs 239696, 215314, 221553: sped up for seconds, then distorted), so on them the
+  // song plays straight from the element: no level match and no live spectrum, but clean sound. Every iPhone browser is WebKit.
+  var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  // whatever else makes sound on the page (the stems) stops when the song starts
+  var stopOthers = null
+  ;[audEl, vidEl].forEach(function (el) {
+    el.addEventListener('play', function () { if (stopOthers) stopOthers() })
+    // a slow connection: the play button says it is loading, instead of looking stuck
+    el.addEventListener('waiting', function () { if (el === audio) { var b = document.getElementById('pb'); if (b) b.classList.add('buf') } })
+    ;['playing', 'pause', 'canplay', 'emptied'].forEach(function (ev) { el.addEventListener(ev, function () { var b = document.getElementById('pb'); if (b) b.classList.remove('buf') }) })
+  })
   // the screen redraws 60 times a second only while something plays; paused, 4 times a second is plenty (Alex, 8 Nov: faster)
   function frameLater(fn) { if (audio.paused) setTimeout(fn, 250); else requestAnimationFrame(fn) }
   // a file whose copy in the cloud is gone (Alex, 8 Nov: a cleanup job deleted the Studio's files): say so plainly
@@ -197,7 +209,7 @@
   var actx = null, gainNode = null, matched = store.get('rs-match') !== '0'
   var cur = { version: null, url: '', gain: 1 }
   function ensureGraph() {
-    if (actx || !(window.AudioContext || window.webkitAudioContext)) return
+    if (actx || IOS || !(window.AudioContext || window.webkitAudioContext)) return
     try { actx = new (window.AudioContext || window.webkitAudioContext)(); var src = actx.createMediaElementSource(audEl); gainNode = actx.createGain(); src.connect(gainNode).connect(actx.destination); anNode = actx.createAnalyser(); anNode.fftSize = 8192; anNode.smoothingTimeConstant = 0.72; anNode.minDecibels = -100; anNode.maxDecibels = -10; src.connect(anNode) } catch (e) { actx = null; gainNode = null }
   }
   function applyGain() {
@@ -229,7 +241,7 @@
       if (audio.readyState >= 1) go(); else audio.addEventListener('loadedmetadata', go, { once: true })
     })
   }
-  function play() { if (audio === audEl) { ensureGraph(); if (actx && actx.state === 'suspended') actx.resume() } applyGain(); var p = audio.play(); if (p && p.catch) p.catch(function () {}) }
+  function play() { if (audio.playbackRate !== audio.defaultPlaybackRate) audio.playbackRate = audio.defaultPlaybackRate; if (audio === audEl) { ensureGraph(); if (actx && actx.state === 'suspended') actx.resume() } applyGain(); var p = audio.play(); if (p && p.catch) p.catch(function () {}) }
   function download(v) {
     if (kindOf(v) === 'suno') { window.open(linkOf(v).open, '_blank', 'noopener'); return }
     (share ? api('share-url', { version: v.id, download: true }) : api('url', { version: v.id, download: true })).then(function (d) {
@@ -1122,7 +1134,7 @@
       var still = k === 'image' || k === 'file' || k === 'suno'
       $('#wave').hidden = still || (k === 'video' && !(x.peaks && x.peaks.length))
       $('#ctl').hidden = still
-      $('.lm').hidden = k !== 'audio'
+      $('.lm').hidden = k !== 'audio' || IOS
       if ($('#cmp-at')) $('.attime').hidden = still
       if ($('#fs')) { $('#fs').hidden = k !== 'video'; $('#pip').hidden = k !== 'video' || !document.pictureInPictureEnabled }
       if ($('#grab')) $('#grab').hidden = k !== 'video' || (share && !share.data.can.comment)
@@ -1922,6 +1934,7 @@
       var pn = $('#stemp'); pn.hidden = !pn.hidden; $('#stems').classList.toggle('on', !pn.hidden); if ($('#tools')) $('#tools').classList.toggle('on', !pn.hidden)
       if (!pn.hidden) loadStems(); else stemsStop()
     }
+    stopOthers = function () { if (stemSt.timer) stemsStop() }
     function loadStems() {
       var x = curV(), pn = $('#stemp'); if (!pn) return
       if (stemSt.v !== x.id) { stemsDrop(); stemSt.v = x.id }
@@ -1992,6 +2005,7 @@
           if (!i) return
           var dr = el.currentTime - m.currentTime
           if (Math.abs(dr) > 0.4) { try { el.currentTime = m.currentTime + 0.02 } catch (e) {} el.playbackRate = 1 }
+          else if (IOS) { if (Math.abs(dr) > 0.15) { try { el.currentTime = m.currentTime + 0.02 } catch (e) {} } }
           else if (Math.abs(dr) > 0.012) el.playbackRate = Math.max(0.95, Math.min(1.05, 1 - dr * 1.5))
           else if (el.playbackRate !== 1) el.playbackRate = 1
         })
@@ -2113,8 +2127,9 @@
     function exSize(cv) { var r = cv.getBoundingClientRect(), dp = devicePixelRatio || 1, w = Math.max(10, Math.round(r.width * dp)), h = Math.max(10, Math.round(r.height * dp)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h } return { w: w, h: h, dp: dp } }
     function paintExtras() {
       var box = $('#ex-b'), x = curV(), k = kindOf(x); if (!box) return
-      $('#extras').hidden = k === 'file' || k === 'suno'
-      if (k === 'file' || k === 'suno') return
+      var noEx = k === 'file' || k === 'suno' || (k === 'audio' && IOS)
+      $('#extras').hidden = noEx
+      if (noEx) return
       $('#extras').classList.toggle('closed', !ex.on); $('#ex-tg').classList.toggle('on', ex.on)
       if (ex.kind !== k) {
         ex.kind = k; ex.hold = null
@@ -2424,7 +2439,7 @@
     $('#zr').ondblclick = function () { this.value = 0; setZoom(1) }
     // speed, loop, picture in picture, full screen
     var SPEEDS = [1, 1.25, 1.5, 2, 0.5, 0.75]
-    $('#spd').onclick = function () { var i = (SPEEDS.indexOf(audio.playbackRate) + 1) % SPEEDS.length; audEl.playbackRate = vidEl.playbackRate = SPEEDS[i]; this.querySelector('b').textContent = SPEEDS[i] + '×' }
+    $('#spd').onclick = function () { var i = (SPEEDS.indexOf(audio.playbackRate) + 1) % SPEEDS.length; audEl.playbackRate = vidEl.playbackRate = audEl.defaultPlaybackRate = vidEl.defaultPlaybackRate = SPEEDS[i]; this.querySelector('b').textContent = SPEEDS[i] + '×' }
     $('#spd').querySelector('b').textContent = (audio.playbackRate || 1) + '×'
     $('#lp').onclick = function () { var on = !audEl.loop; audEl.loop = vidEl.loop = on; this.classList.toggle('on', on) }
     $('#lp').classList.toggle('on', audEl.loop)

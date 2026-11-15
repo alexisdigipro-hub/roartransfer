@@ -1436,3 +1436,8 @@ body.noscroll { overflow: hidden }
 /* the notes header never pushes the page wider: the count gives way first (Greek labels are longer) */
 .notes > header { min-width: 0; flex-wrap: wrap; row-gap: 6px; }
 .notes > header #ncount { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* the play button while the file is still loading (Alex, 15 Nov) */
+.play.buf { position: relative }
+.play.buf::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid rgba(196,181,253,.25); border-top-color: #c4b5fd; animation: rsSpin .8s linear infinite; pointer-events: none }
+@keyframes rsSpin { to { transform: rotate(360deg) } }
