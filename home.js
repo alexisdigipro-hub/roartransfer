@@ -1685,7 +1685,7 @@
   async function payAgain() {
     var hd = {}
     try { var s0 = (await sb.auth.getSession()).data.session; if (s0) hd.Authorization = 'Bearer ' + s0.access_token } catch (e) {}
-    fetch(URL_ + '/functions/v1/roar-transfer-get?t=' + encodeURIComponent(getToken) + (getPw ? '&p=' + encodeURIComponent(getPw) : ''), { headers: hd })
+    fetch(URL_ + '/functions/v1/roar-transfer-get?t=' + encodeURIComponent(getToken), { headers: getPw ? Object.assign({ 'x-rt-password': getPw }, hd) : hd })
       .then(function (r) { return r.json() })
       .then(function (d) { if (d.error === 'payment') payTimer = setTimeout(payAgain, 30000); else load() })
       .catch(function () { payTimer = setTimeout(payAgain, 30000) })
@@ -1695,7 +1695,7 @@
     // signed in, the page says who asks: an ended link then gives its one last download
     var hd = {}
     try { var s0 = (await sb.auth.getSession()).data.session; if (s0) hd.Authorization = 'Bearer ' + s0.access_token } catch (e) {}
-    fetch(URL_ + '/functions/v1/roar-transfer-get?t=' + encodeURIComponent(getToken) + (getPw ? '&p=' + encodeURIComponent(getPw) : ''), { headers: hd })
+    fetch(URL_ + '/functions/v1/roar-transfer-get?t=' + encodeURIComponent(getToken), { headers: getPw ? Object.assign({ 'x-rt-password': getPw }, hd) : hd })
       .then(function (r) { return r.json() })
       .then(pcResolve)
       .then(function (d) {

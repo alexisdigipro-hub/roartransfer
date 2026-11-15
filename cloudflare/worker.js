@@ -51,7 +51,7 @@ export default {
     if (url.pathname === '/.well-known/apple-app-site-association' && page.ok) {
       const r = guard(page); r.headers.set('Content-Type', 'application/json'); return r
     }
-    if (!m || page.status !== 404) return guard(page)
+    if (!m || page.status !== 404) return keep(guard(page), url)
     let meta = {}
     try { meta = await (await fetch(`${FN}?meta=1&t=${m[1]}`, { cf: { cacheTtl: 60 } })).json() } catch (e) {}
     // a function, so a `$` in a title is only text (security check, 26 Oct)
@@ -70,6 +70,17 @@ function guard(r) {
   out.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   out.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
   return out
+}
+
+// how long a browser keeps a file (15 Nov 2026: GitHub Pages gives everything 4 hours): what never changes under its own
+// address for a year (the fonts, the versioned supabase file, anything with ?v=), the background pictures 30 days;
+// the pages themselves as GitHub says, so a change shows at once
+function keep(r, url) {
+  if (!r.ok) return r
+  const p = url.pathname
+  if (p.startsWith('/fonts/') || p === '/supabase-2.45.4.js' || (url.searchParams.has('v') && /\.(js|css)$/.test(p))) r.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
+  else if (p.startsWith('/stills/') || p === '/og.jpg') r.headers.set('Cache-Control', 'public, max-age=2592000')
+  return r
 }
 
 function tags(token, d) {
