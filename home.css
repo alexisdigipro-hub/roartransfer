@@ -750,3 +750,17 @@ html[lang="el"] h1.wm { font-size: clamp(22px, 6.2vw, 40px); letter-spacing: 0; 
   .lm-row .pw-in { width: 280px; }
   .lm-acts .pill { height: 50px; }
 }
+
+/* who a transfer went to by email (Alex, 15 Nov) */
+.lm-to { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 16px; border: 1px solid var(--line); background: rgba(255,255,255,.03); }
+.lm-to .k { flex: none; font-size: 13px; font-weight: 600; color: var(--muted); padding-top: 6px; }
+.lm-to .v { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.to-chip { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 999px; background: var(--glass); border: 1px solid var(--glass-edge); color: var(--text); font-size: 13px; text-decoration: none; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.to-chip:hover { background: rgba(255,255,255,.12); }
+
+/* send a transfer again by email from its window (Alex, 15 Nov) */
+.lm-mail { display: flex; gap: 8px; }
+.lm-mail .in { flex: 1; min-width: 0; height: 46px; border-radius: 999px; padding: 0 18px; font-size: 14px; }
+.lm-mail .pill { flex: none; height: 46px; }
+.lm-ok.bad { color: #ffb4ad; }
+@media (max-width: 520px) { .lm-mail .in { font-size: 16px; } }
