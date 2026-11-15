@@ -1,0 +1,25 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["U56B8UZ9SQ.com.themadlions.roartransfer"],
+        "components": [
+          { "/": "/studio*", "exclude": true },
+          { "/": "/pricing*", "exclude": true },
+          { "/": "/about*", "exclude": true },
+          { "/": "/privacy*", "exclude": true },
+          { "/": "/terms*", "exclude": true },
+          { "/": "/el*", "exclude": true },
+          { "/": "/iphone*", "exclude": true },
+          { "/": "/wetransfer-alternative*", "exclude": true },
+          { "/": "/u/*", "exclude": true },
+          { "/": "/og/*", "exclude": true },
+          { "/": "/__*", "exclude": true },
+          { "/": "/*.*", "exclude": true },
+          { "/": "/", "?": { "t": "?*" }, "comment": "roartransfer.com/?t=<token>" },
+          { "/": "/??????*", "comment": "roartransfer.com/<token>" }
+        ]
+      }
+    ]
+  }
+}
