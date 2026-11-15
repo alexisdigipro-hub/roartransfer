@@ -715,3 +715,11 @@ html[lang="el"] h1.wm { font-size: clamp(22px, 6.2vw, 40px); letter-spacing: 0; 
 .lm-row input[type="datetime-local"]::-webkit-date-and-time-value { text-align: left; }
 @media (max-width: 520px) { .lm-row .in { width: 100%; font-size: 16px; height: 44px; } .lm-row { padding: 12px; } }
 @supports (-webkit-touch-callout: none) { .lm-card input, .lm-card textarea, #sm input { font-size: 16px; } }
+
+/* an upload of many files in its window: the files under the one link (Alex, 15 Nov) */
+.lm-files { list-style: none; margin: 10px 0 4px; padding: 6px; max-height: 220px; overflow: auto; border-radius: 16px; background: rgba(0,0,0,.22); border: 1px solid var(--line); }
+.lm-files li { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 10px; }
+.lm-files li + li { border-top: 1px solid var(--line); }
+.lm-files svg { width: 16px; height: 16px; flex: none; color: var(--red-hi); }
+.lm-files b { flex: 1; min-width: 0; font-weight: 500; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lm-files small { flex: none; font: 12px var(--mono); color: var(--dim); }

@@ -161,7 +161,7 @@
   var day = function (ms) { return new Date(ms).toLocaleDateString(lang === 'el' ? 'el-GR' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) }
   var hour = function (ms) { return new Date(ms).toLocaleTimeString(lang === 'el' ? 'el-GR' : 'en-GB', { hour: '2-digit', minute: '2-digit' }) }
   var size = function (n) { return n >= 1e12 ? (n / 1e12).toFixed(n >= 1e13 ? 1 : 2) + ' TB' : n > 1e9 ? (n / 1e9).toFixed(1) + ' GB' : n > 1e6 ? (n / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round((n || 0) / 1e3)) + ' KB' }
-  var icon = function (t) { return /^video\//.test(t) ? 'i-play' : /^image\//.test(t) ? 'i-img' : 'i-file' }
+  var icon = function (t) { return t === 'bundle' ? 'i-box' : /^video\//.test(t) ? 'i-play' : /^image\//.test(t) ? 'i-img' : 'i-file' }
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] }) }
 
   // the same saved sign-in as RoarMe on this site (src/lib.js storageKey)
@@ -880,13 +880,13 @@
     return '<li class="tx' + (on ? '' : ' off') + '"><span class="fi"><svg><use href="#' + icon(m.type) + '"/></svg></span>'
       + '<span class="ft"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b><small>' + sz(m.size) + ' · ' + when(m.created_at) + ' · ' + esc(where(m)) + '</small>'
       + '<span class="chips">' + by + st + counts + '</span></span>' + (acts ? '<span class="acts">' + acts + '</span>' : '')
-      + (mineRow && det.token === m.token ? detHtml(on) : '') + '</li>'
+      + (mineRow && det.token === proTok(m) ? detHtml(on) : '') + '</li>'
   }
   function filt(list, f, q) {
     q = (q || '').trim().toLowerCase()
     return list.filter(function (m) {
       if (f === 'on' ? !live(m) : f === 'off' ? live(m) : false) return false
-      return !q || [m.name, m.room_title, m.username, m.display_name, m.email].some(function (x) { return (x || '').toLowerCase().indexOf(q) >= 0 })
+      return !q || [m.name, m.room_title, m.username, m.display_name, m.email].concat((m.files || []).map(function (f) { return f.name })).some(function (x) { return (x || '').toLowerCase().indexOf(q) >= 0 })
     })
   }
   function segs(id, set) {
@@ -915,6 +915,8 @@
   }
   // one link ended and its file gone: R2 through roartransfer-r2, older Storage files through roar_transfer_stop
   async function stopOne(m) {
+    // an upload of many files (one row in My transfers): every file of it
+    if (m.files) { for (var i = 0; i < m.files.length; i++) await stopOne(m.files[i]); return }
     if (/^(free|week|pro)\//.test(m.path)) { await bridge({ action: 'delete', key: m.path }); return }
     var r = await sb.rpc('roar_transfer_stop', { p: m.path })
     if (r.error) throw new Error(r.error.message)
@@ -949,12 +951,44 @@
   $('em-got').addEventListener('change', function () { setMail('received', this.checked) })
   function loadMine() {
     loadMails()
-    sb.rpc('roar_my_transfers').then(function (r) {
+    Promise.all([sb.rpc('roar_my_transfers'), sb.rpc('roar_my_bundles')]).then(function (rs) {
+      var r = rs[0]
       if (r.error) { $('mine-err').textContent = r.error.message; $('mine-err').hidden = false; return }
-      $('mine-err').hidden = true; mine = r.data || []; paintMine(); if (lmN >= 0) lmPaint()
+      $('mine-err').hidden = true; mine = byUpload(r.data || [], rs[1].error ? [] : rs[1].data || []); paintMine(); if (lmN >= 0) lmPaint()
     })
     loadPro()
   }
+  // one row an upload (Alex, 15 Nov: "I sent 10 files: show me one link for the 10, not one by one"): the files of an
+  // upload of many (roar_my_bundles) become one row whose link is the upload's own; one file stays one row
+  function byUpload(rows, bundles) {
+    var of = {}, made = {}, out = []
+    bundles.forEach(function (b) { (b.tokens || []).forEach(function (t) { of[t] = b }) })
+    rows.forEach(function (m) {
+      var b = m.token && of[m.token]
+      if (!b) { out.push(m); return }
+      var g = made[b.token]
+      if (!g) {
+        g = made[b.token] = { bundle: b.token, token: b.token, files: [], title: b.title || '', type: 'bundle', source: 'link', path: 'bundle:' + b.token,
+          created_at: b.created_at || m.created_at, expires: m.expires, size: 0, downloads: 0, opens: 0, stopped: true, deleted: true }
+        out.push(g)
+      }
+      g.files.push(m)
+      g.size += Number(m.size || 0)
+      g.downloads = Math.max(g.downloads, Number(m.downloads || 0))
+      g.opens = Math.max(g.opens, Number(m.opens || 0))
+      if (new Date(m.expires) > new Date(g.expires)) g.expires = m.expires
+      g.stopped = g.stopped && !!m.stopped; g.deleted = g.deleted && !!m.deleted
+    })
+    out.forEach(function (g) {
+      if (!g.files) return
+      var n = g.files.length
+      g.name = g.title || (n === 1 ? g.files[0].name : (lang === 'el' ? n + ' αρχεία' : n + ' files') + ' · ' + g.files[0].name + (n > 1 ? (lang === 'el' ? ' κ.ά.' : ' and more') : ''))
+      if (n === 1) { var f = g.files[0]; g.type = f.type }
+    })
+    return out
+  }
+  // the file token roartransfer-pro knows a row by (an upload's first file)
+  function proTok(m) { return m && m.files ? m.files[0].token : m && m.token }
   function paintMine() {
     $('mine-q').placeholder = w('find')
     if (!mine) { $('mine-facts').textContent = ''; $('mine-list').innerHTML = loading; return }
@@ -1152,9 +1186,9 @@
       + '<ul class="ev">' + ev + '</ul></div>'
   }
   function openDet(m) {
-    if (det.token === m.token) { det.token = ''; det.data = null; paintMine(); return }
-    det = { token: m.token, data: null, busy: false, msg: '' }; paintMine()
-    proCall({ action: 'link', token: m.token }).then(function (d) { if (det.token === m.token) { det.data = d; paintMine() } })
+    if (det.token === proTok(m)) { det.token = ''; det.data = null; paintMine(); return }
+    det = { token: proTok(m), data: null, busy: false, msg: '' }; paintMine()
+    proCall({ action: 'link', token: proTok(m) }).then(function (d) { if (det.token === proTok(m)) { det.data = d; paintMine() } })
       .catch(function (e) { det.token = ''; window.alert(e.message); paintMine() })
   }
   function saveDet(pwOff) {
@@ -1191,8 +1225,8 @@
     lmN = n; var m = lmM(); if (!m) return
     det = { token: '', data: null, busy: false, msg: '' }
     if (isProNow() && m.token && m.source === 'link') {
-      det.token = m.token
-      proCall({ action: 'link', token: m.token }).then(function (d) { if (det.token === m.token) { det.data = d; lmPaint() } }).catch(function (e) { det.token = ''; lmPaint(); window.alert(e.message) })
+      det.token = proTok(m)
+      proCall({ action: 'link', token: proTok(m) }).then(function (d) { if (det.token === proTok(m)) { det.data = d; lmPaint() } }).catch(function (e) { det.token = ''; lmPaint(); window.alert(e.message) })
     }
     $('lm').hidden = false; document.documentElement.classList.add('lm-on'); lmPaint()
   }
@@ -1208,7 +1242,10 @@
       + '<p class="lm-st"><i class="' + (on ? (left < 864e5 ? 'soon' : 'on') : 'off') + '"></i>' + esc(st) + ' · ' + esc(counts) + '</p>'
     if (on && m.token) html += '<div class="lm-acts"><button type="button" class="pill main" data-lmcp><svg><use href="#i-link"/></svg><span>' + w('copy') + '</span></button>'
       + '<a class="pill" href="' + esc(PAGE + m.token) + '" target="_blank" rel="noopener"><svg><use href="#i-eye"/></svg><span>' + w('lmOpen') + '</span></a></div>'
-    if (det.token === m.token) html += lmDet(on)
+    // an upload of many: its files, under the one link
+    if (m.files && m.files.length > 1) html += '<ul class="lm-files">' + m.files.map(function (f) {
+      return '<li><svg><use href="#' + icon(f.type) + '"/></svg><b>' + esc(f.name) + '</b><small>' + esc(sz(f.size)) + '</small></li>' }).join('') + '</ul>'
+    if (det.token === proTok(m)) html += lmDet(on)
     if (on && m.source === 'link') html += '<button type="button" class="lm-del" data-lmdel><svg><use href="#i-trash"/></svg><span>' + w('stop') + '</span></button>'
     $('lm-card').innerHTML = html
   }
