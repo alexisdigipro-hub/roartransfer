@@ -37,7 +37,7 @@
     'cr': 'Ένα καρέ από', 'in.name': 'Το όνομά σου', 'in.forgot': 'Ξέχασα κωδικό', 'pw.title': 'Νέος <b>κωδικός</b>.', 'pw.label': 'Νέος κωδικός', 'pw.go': 'Αποθήκευση και σύνδεση', 'lg.price': 'Τιμές', 'lg.priv': 'Πολιτική Απορρήτου', 'lg.terms': 'Όροι Χρήσης', 'agree': 'Συνεχίζοντας αποδέχεσαι τους <a href="terms/">Όρους</a> και την <a href="privacy/">Πολιτική Απορρήτου</a>.', 'sgn': 'Σύνδεση', 'rc.go': 'Roar Account', 'set.h': 'Ρυθμίσεις', 'set.acc': 'Λογαριασμός', 'set.plan': 'Πακέτο', 'rc.or': 'ή με email', 'rc.wait': 'Επίτρεψε το RoarTransfer στην άλλη καρτέλα', 'rc.waitP': 'Συνδέσου εκεί με τον Roar Account σου και πάτα Allow. Αυτή η σελίδα συνδέεται μόνη της.', 'rc.again': 'Άνοιξε ξανά τη σελίδα', 'rc.x': 'Άκυρο', 'mf.t': 'Επαλήθευση δύο βημάτων', 'mf.p': 'Γράψε τον 6ψήφιο κωδικό από την εφαρμογή επαλήθευσης.', 'mf.go': 'Επαλήθευση', 'rep': 'Αναφορά κατάχρησης', 'of.line': 'Χωρίς λογαριασμό · ως 1 GB', 'of.go': 'Αποστολή', 'more': 'Σχετικά με εμάς',
     'tb.send': 'Αποστολή', 'tb.mine': 'Οι αποστολές μου', 'tb.admin': 'Διαχείριση',
     'gr.exp': 'Αυτή η αποστολή έληξε', 'gr.t': 'Μία τελευταία<br><em>λήψη</em>', 'gr.p': 'Κάνε δωρεάν εγγραφή και μπορείς να το κατεβάσεις ακόμα, μία τελευταία φορά.', 'gr.up': 'Δωρεάν εγγραφή', 'gr.in': 'Σύνδεση', 'gr.last': 'Το link έληξε: αυτή είναι η τελευταία σου λήψη για κάθε αρχείο.',
-    'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες.',
+    'mn.title': 'Οι <b>αποστολές</b> μου.', 'mn.sub': 'Ό,τι έστειλες, από εδώ, το RoarMail και τις συνομιλίες σου. Τα links ισχύουν 1 με 7 μέρες, ως 30 με Pro.',
     'f.all': 'Όλα', 'f.on': 'Ενεργά', 'f.off': 'Έληξαν',
     'ad.title': 'Όλες οι <b>αποστολές</b>.', 'ad.sub': 'Μόνο εσύ το βλέπεις: ποιος έστειλε τι, πόσο μεγάλο, πότε, πόσες φορές κατέβηκε. Ποτέ τι λένε τα αρχεία.',
     'ad.days': 'Ανά μέρα', 'ad.kinds': 'Είδη αρχείων', 'ad.top': 'Ποιοι στέλνουν τα περισσότερα', 'ad.acc': 'Λογαριασμοί', 'ad.tx': 'Αποστολές', 'ad.ov': 'Επισκόπηση', 'va.free': 'Δες το σαν Free χρήστης', 'va.pro': 'Δες το σαν Pro χρήστης', 'va.back': 'Πίσω στο Admin', 'em.h': 'Email', 'em.dl': 'Όταν κάποιος κατεβάζει ό,τι έστειλα', 'em.got': 'Όταν κάποιος μου στέλνει αρχεία στη σελίδα μου', 'em.note': 'Τα email εγγραφής και κωδικού έρχονται πάντα.', 'mt.sent': 'Στάλθηκαν', 'mt.got': 'Ήρθαν', 'mt.pro': 'Pro', 'ad.web': 'Ιστότοπος', 'wb.d7': '7 μέρες', 'wb.d30': '30 μέρες', 'wb.d90': '90 μέρες', 'wb.all': 'Από την αρχή', 'wb.days': 'Επισκέπτες ανά μέρα', 'wb.co': 'Χώρες', 'wb.ref': 'Από πού ήρθαν', 'wb.pg': 'Σελίδες', 'wb.dev': 'Συσκευές', 'wb.lang': 'Γλώσσες', 'ad.pro': 'Pro', 'pr.m1': '1 μήνας', 'pr.y1': '1 χρόνος', 'pr.ever': 'Lifetime', 'pr.make': 'Κάνε Pro', 'ad.bg': 'Φόντα', 'op.d30': '30 μέρες', 'op.d30s': 'ως 20 GB', 'ad.store': 'Χώρος', 'ad.all': 'Όλες οι αποστολές', 'ad.more': 'Περισσότερα'
@@ -60,7 +60,7 @@
       off: 'RoarTransfer is not open to this account yet.', stopped: 'Stopped.', leave: 'Files are still uploading.',
       mailSub: 'Files for you (RoarTransfer)', mailBody: 'Download them here, until', remove: 'Remove',
      
-      gExpires: 'Expires', gGo: 'Download', gAll: 'Download all (.zip)', trialNoMail: 'Pro Trial is on, but the email could not be sent.', zPrep: function (p) { return 'Zipping… ' + p + '%' }, zGo: 'Downloading the zip…', zFail: 'Could not make the zip. Download the files one by one instead?', gOne: 'Download this file', gSubOne: 'Someone sent you a file with RoarTransfer.', gSubMany: function (n, t) { return 'Someone sent you ' + n + ' files with RoarTransfer · ' + t }, gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are kept 1 to 7 days. Ask for it to be sent again.',
+      gExpires: 'Expires', gGo: 'Download', gAll: 'Download all (.zip)', trialNoMail: 'Pro Trial is on, but the email could not be sent.', zPrep: function (p) { return 'Zipping… ' + p + '%' }, zGo: 'Downloading the zip…', zFail: 'Could not make the zip. Download the files one by one instead?', gOne: 'Download this file', gSubOne: 'Someone sent you a file with RoarTransfer.', gSubMany: function (n, t) { return 'Someone sent you ' + n + ' files with RoarTransfer · ' + t }, gGone: 'This transfer has expired', gGoneN: 'Files on RoarTransfer are deleted when their days are up. Ask for it to be sent again.',
       gBad: 'This link does not work', gBadN: 'Check that the whole link was copied.', gOff: 'Could not reach RoarTransfer', gOffN: 'Check the connection and try again.',
       find: 'Search by file or chat', findAdm: 'File, person, email or chat',
       tTransfers: 'transfers', tSent: 'sent in all', tActive: 'active now', tDownloads: 'downloads', tSenders: 'people sending',
@@ -83,7 +83,7 @@
       repAsk: 'Report this transfer: what is wrong with it? (optional)', repDone: 'Thanks, we will look at it.',
       only: 'Only', everyone: 'Everyone', guestN: 'Guest',
       stOf: 'of 10 GB free', stLeft: function (g) { return g + ' left' }, stOver: function (g) { return g + ' over the free 10 GB' }, stFiles: function (n) { return nf(n) + (n === 1 ? ' file' : ' files') }, stAcc: 'Accounts', stOther: 'Other', stOpen: function (n) { return nf(n) + ' unfinished ' + (n === 1 ? 'upload' : 'uploads') + ' (cleared in 7 days)' },
-      stHint: function (c) { return 'Files delete themselves when their link ends (1 to 7 days), so this is about the last few days of uploads. Above 10 GB Cloudflare charges about $0.015 per GB a month: about $' + c + ' a month at today’s size.' },
+      stHint: function (c) { return 'Files delete themselves when their link ends, so this is about the last few days of uploads. Above 10 GB Cloudflare charges about $0.015 per GB a month: about $' + c + ' a month at today’s size.' },
       accSum: function (w7, sent, unc) { return nf(w7) + ' new this week · ' + nf(sent) + ' have sent · ' + nf(unc) + ' not confirmed yet' }, joined: 'Joined', unconfC: 'Not confirmed', lastSent: 'last sent', lastIn: 'last in', noAcc: 'No accounts yet.',
       rcOld: 'The request expired. Press Roar Account again.', rcBlocked: 'The browser blocked the new tab. Press Open the page again.', mfBad: 'That code is not right. Type the newest one from the app.', mfShort: 'Type the 6 digits.',
       wait: 'Too many tries. Wait a few minutes and try again.', badMail: 'This does not look like an email.', unconf: 'Confirm your email first: open the email we sent you.', forgotMail: 'Write your email above, then press Forgot password.', resetSent: 'If there is an account with this email, a link to choose a new password is on its way.', linkOld: 'This link has expired or was already used. Try again.', k_video: 'Video', k_image: 'Pictures', k_audio: 'Audio', k_other: 'Other'
@@ -105,7 +105,7 @@
       off: 'Το RoarTransfer δεν είναι ακόμα ανοιχτό σε αυτόν τον λογαριασμό.', stopped: 'Διακόπηκε.', leave: 'Τα αρχεία ανεβαίνουν ακόμα.',
       mailSub: 'Αρχεία για σένα (RoarTransfer)', mailBody: 'Κατέβασέ τα εδώ, ως', remove: 'Αφαίρεση',
      
-      gExpires: 'Λήγει', gGo: 'Λήψη', gAll: 'Λήψη όλων (.zip)', trialNoMail: 'Το Pro Trial μπήκε, αλλά το email δεν στάλθηκε.', zPrep: function (p) { return 'Φτιάχνεται το zip… ' + p + '%' }, zGo: 'Κατεβαίνει το zip…', zFail: 'Δεν έγινε το zip. Να κατέβουν τα αρχεία ένα ένα;', gOne: 'Λήψη αυτού του αρχείου', gSubOne: 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', gSubMany: function (n, t) { return 'Κάποιος σου έστειλε ' + n + ' αρχεία με το RoarTransfer · ' + t }, gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer μένουν 1 με 7 μέρες. Ζήτα να σου το ξαναστείλουν.',
+      gExpires: 'Λήγει', gGo: 'Λήψη', gAll: 'Λήψη όλων (.zip)', trialNoMail: 'Το Pro Trial μπήκε, αλλά το email δεν στάλθηκε.', zPrep: function (p) { return 'Φτιάχνεται το zip… ' + p + '%' }, zGo: 'Κατεβαίνει το zip…', zFail: 'Δεν έγινε το zip. Να κατέβουν τα αρχεία ένα ένα;', gOne: 'Λήψη αυτού του αρχείου', gSubOne: 'Κάποιος σου έστειλε ένα αρχείο με το RoarTransfer.', gSubMany: function (n, t) { return 'Κάποιος σου έστειλε ' + n + ' αρχεία με το RoarTransfer · ' + t }, gGone: 'Αυτή η αποστολή έληξε', gGoneN: 'Τα αρχεία στο RoarTransfer σβήνονται όταν περάσουν οι μέρες τους. Ζήτα να σου το ξαναστείλουν.',
       gBad: 'Αυτός ο σύνδεσμος δεν δουλεύει', gBadN: 'Έλεγξε ότι αντιγράφηκε ολόκληρος ο σύνδεσμος.', gOff: 'Δεν βρέθηκε το RoarTransfer', gOffN: 'Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
       find: 'Αναζήτηση σε αρχεία ή συνομιλίες', findAdm: 'Αρχείο, άτομο, email ή συνομιλία',
       tTransfers: 'αποστολές', tSent: 'στάλθηκαν συνολικά', tActive: 'ενεργές τώρα', tDownloads: 'λήψεις', tSenders: 'άτομα που στέλνουν',
@@ -128,7 +128,7 @@
       repAsk: 'Αναφορά αυτής της αποστολής: τι πρόβλημα έχει; (προαιρετικό)', repDone: 'Ευχαριστούμε, θα το δούμε.',
       only: 'Μόνο', everyone: 'Όλοι', guestN: 'Επισκέπτης',
       stOf: 'από τα 10 GB δωρεάν', stLeft: function (g) { return 'μένουν ' + g }, stOver: function (g) { return g + ' πάνω από τα δωρεάν 10 GB' }, stFiles: function (n) { return nf(n) + (n === 1 ? ' αρχείο' : ' αρχεία') }, stAcc: 'Λογαριασμοί', stOther: 'Άλλα', stOpen: function (n) { return nf(n) + ' ημιτελή ανεβάσματα (σβήνονται σε 7 μέρες)' },
-      stHint: function (c) { return 'Τα αρχεία σβήνονται μόνα τους όταν λήξει το link τους (1 με 7 μέρες), οπότε αυτό είναι περίπου τα ανεβάσματα των τελευταίων ημερών. Πάνω από 10 GB το Cloudflare χρεώνει περίπου $0.015 το GB τον μήνα: περίπου $' + c + ' τον μήνα με το σημερινό μέγεθος.' },
+      stHint: function (c) { return 'Τα αρχεία σβήνονται μόνα τους όταν λήξει το link τους, οπότε αυτό είναι περίπου τα ανεβάσματα των τελευταίων ημερών. Πάνω από 10 GB το Cloudflare χρεώνει περίπου $0.015 το GB τον μήνα: περίπου $' + c + ' τον μήνα με το σημερινό μέγεθος.' },
       accSum: function (w7, sent, unc) { return nf(w7) + ' νέοι αυτή την εβδομάδα · ' + nf(sent) + ' έχουν στείλει · ' + nf(unc) + ' δεν επιβεβαίωσαν ακόμα' }, joined: 'Εγγραφή', unconfC: 'Χωρίς επιβεβαίωση', lastSent: 'τελευταία αποστολή', lastIn: 'τελευταία σύνδεση', noAcc: 'Κανένας λογαριασμός ακόμα.',
       rcOld: 'Το αίτημα έληξε. Πάτα ξανά Roar Account.', rcBlocked: 'Ο browser μπλόκαρε τη νέα καρτέλα. Πάτα Άνοιξε ξανά τη σελίδα.', mfBad: 'Ο κωδικός δεν είναι σωστός. Γράψε τον πιο πρόσφατο από την εφαρμογή.', mfShort: 'Γράψε τα 6 ψηφία.',
       wait: 'Πολλές προσπάθειες. Περίμενε λίγα λεπτά και δοκίμασε ξανά.', badMail: 'Αυτό δεν μοιάζει με email.', unconf: 'Επιβεβαίωσε πρώτα το email σου: άνοιξε το email που σου στείλαμε.', forgotMail: 'Γράψε το email σου πάνω και πάτα Ξέχασα κωδικό.', resetSent: 'Αν υπάρχει λογαριασμός με αυτό το email, έρχεται σύνδεσμος για νέο κωδικό.', linkOld: 'Ο σύνδεσμος έληξε ή χρησιμοποιήθηκε ήδη. Δοκίμασε ξανά.', k_video: 'Βίντεο', k_image: 'Εικόνες', k_audio: 'Ήχος', k_other: 'Άλλα'
@@ -162,7 +162,7 @@
   var hour = function (ms) { return new Date(ms).toLocaleTimeString(lang === 'el' ? 'el-GR' : 'en-GB', { hour: '2-digit', minute: '2-digit' }) }
   var size = function (n) { return n >= 1e12 ? (n / 1e12).toFixed(n >= 1e13 ? 1 : 2) + ' TB' : n > 1e9 ? (n / 1e9).toFixed(1) + ' GB' : n > 1e6 ? (n / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round((n || 0) / 1e3)) + ' KB' }
   var icon = function (t) { return t === 'bundle' ? 'i-box' : /^video\//.test(t) ? 'i-play' : /^image\//.test(t) ? 'i-img' : 'i-file' }
-  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] }) }
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] }) }
 
   // the same saved sign-in as RoarMe on this site (src/lib.js storageKey)
   var sb = window.supabase.createClient(URL_, KEY, { auth: { storageKey: 'roarme-auth-2', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } })
@@ -1362,7 +1362,7 @@
     return new Promise(function (ok) {
       var u = URL.createObjectURL(file), im = new Image()
       im.onload = function () {
-        var max = logo ? 1000 : 2560, w0 = im.naturalWidth, h0 = im.naturalHeight, k = Math.min(1, max / Math.max(w0, h0))
+        var max = logo ? 1000 : 1920, w0 = im.naturalWidth, h0 = im.naturalHeight, k = Math.min(1, max / Math.max(w0, h0))
         var c = document.createElement('canvas'); c.width = Math.round(w0 * k); c.height = Math.round(h0 * k)
         c.getContext('2d').drawImage(im, 0, 0, c.width, c.height)
         URL.revokeObjectURL(u)
@@ -1371,7 +1371,7 @@
           if (b && b.type === 'image/webp') return done(b)
           // no WebP writer (older Safari): JPEG for a background, PNG for a logo so it keeps its transparency
           c.toBlob(done, logo ? 'image/png' : 'image/jpeg', 0.86)
-        }, 'image/webp', 0.86)
+        }, 'image/webp', 0.8)
       }
       im.onerror = function () { URL.revokeObjectURL(u); ok(file) }
       im.src = u
@@ -1625,8 +1625,8 @@
   function siteHit() {
     try {
       if (localStorage.getItem('rt-admin')) return
-      var v = localStorage.getItem('rt-vid')
-      if (!v) { v = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem('rt-vid', v) }
+      var v = sessionStorage.getItem('rt-vid')
+      if (!v) { v = Math.random().toString(36).slice(2) + Date.now().toString(36); sessionStorage.setItem('rt-vid', v) }
       var q = new URLSearchParams(location.search), r = q.get('utm_source') || ''
       if (!r && document.referrer) { try { r = new URL(document.referrer).hostname.replace(/^www\./, '') } catch (e) {} }
       if (/(^|\.)roartransfer\.com$/.test(r)) r = ''
@@ -1699,7 +1699,10 @@
       .then(function (r) { return r.json() })
       .then(pcResolve)
       .then(function (d) {
-        got = d; if (!d.error) countHit(getToken, false); paintGet()
+        got = d
+        // an admin's look is never counted as an open (the sender would see it in Details; security check, 15 Nov)
+        var adm = d.admin || (d.files || []).some(function (f) { return f.admin })
+        if (!d.error && !adm) countHit(getToken, false); paintGet()
         // Download in the email (roartransfer.com/<token>#dl, Alex 21 Oct): the download starts by itself, once
         if (!d.error && autoDl) { autoDl = false; try { history.replaceState(null, '', location.pathname + location.search) } catch (e) {} setTimeout(function () { $('get-go').click() }, 400) }
       })

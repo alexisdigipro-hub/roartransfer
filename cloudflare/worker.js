@@ -32,7 +32,10 @@ export default {
       if (hop.status !== 302 || !/^https:\/\/[^/]+\.r2\.cloudflarestorage\.com\//.test(to)) return new Response('gone', { status: 410, headers: { 'Cache-Control': 'no-store' } })
       const file = await fetch(to)
       if (!file.ok) return new Response('gone', { status: 410, headers: { 'Cache-Control': 'no-store' } })
-      const h = new Headers({ 'Content-Type': file.headers.get('content-type') || 'application/octet-stream', 'Cache-Control': 'no-store' })
+      // never shown as a page of this site, whatever the uploader called it (security check, 15 Nov 2026: an .html file
+      // here could read the visitor's sign-in); the zip only needs the bytes
+      const h = new Headers({ 'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment', 'X-Content-Type-Options': 'nosniff',
+        'Content-Security-Policy': "sandbox; default-src 'none'", 'Cache-Control': 'no-store' })
       if (file.headers.get('content-length')) h.set('Content-Length', file.headers.get('content-length'))
       return new Response(file.body, { headers: h })
     }
@@ -44,14 +47,29 @@ export default {
     }
     const m = url.pathname.match(/^\/([A-Za-z0-9]{6,32})\/?$/)
     const page = await fetch(req)
-    // a real page (about, privacy, terms…) or anything that is not a link: as it is
-    if (!m || page.status !== 404) return page
+    // a real page (about, privacy, terms…) or anything that is not a link: as it is, with the safety headers
+    if (url.pathname === '/.well-known/apple-app-site-association' && page.ok) {
+      const r = guard(page); r.headers.set('Content-Type', 'application/json'); return r
+    }
+    if (!m || page.status !== 404) return guard(page)
     let meta = {}
     try { meta = await (await fetch(`${FN}?meta=1&t=${m[1]}`, { cf: { cacheTtl: 60 } })).json() } catch (e) {}
     // a function, so a `$` in a title is only text (security check, 26 Oct)
     const html = (await page.text()).replace(/<title>[^<]*<\/title>/, () => tags(m[1], meta))
-    return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=60' } })
+    return guard(new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=60' } }))
   },
+}
+
+// the safety headers GitHub Pages cannot send (security check, 15 Nov 2026): HTTPS always, no framing by other sites,
+// no guessing of file types, and the full address never leaks to other sites
+function guard(r) {
+  const out = new Response(r.body, r)
+  out.headers.set('Strict-Transport-Security', 'max-age=31536000')
+  out.headers.set('X-Content-Type-Options', 'nosniff')
+  out.headers.set('X-Frame-Options', 'SAMEORIGIN')
+  out.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  out.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+  return out
 }
 
 function tags(token, d) {
@@ -61,7 +79,7 @@ function tags(token, d) {
   let title, desc
   if (d.gone || !d.count) {
     title = 'This transfer has expired'
-    desc = 'Files on RoarTransfer are kept 1 to 7 days. Ask for it to be sent again.'
+    desc = 'Files on RoarTransfer are deleted when their days are up. Ask for it to be sent again.'
   } else if (d.locked) {
     title = `${d.from || 'Someone'} sent you ${kind}`
     desc = [`${d.count} ${d.count === 1 ? 'file' : 'files'}`, size(d.size), until && `until ${until}`, 'protected with a password'].filter(Boolean).join(' · ')

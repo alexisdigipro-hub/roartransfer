@@ -26,7 +26,7 @@
 <meta name="twitter:title" content="RoarTransfer · Send large files free &amp; secure, up to 5 GB">
 <meta name="twitter:description" content="Send large files free and secure with RoarTransfer: up to 5 GB with one short link, by email or link, password optional. No account needed to download.">
 <meta name="twitter:image" content="https://roartransfer.com/og.jpg">
-<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebApplication", "@id": "https://roartransfer.com/#app", "name": "RoarTransfer", "alternateName": "Roar Transfer", "url": "https://roartransfer.com/", "image": "https://roartransfer.com/og.jpg", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any (web browser)", "browserRequirements": "Requires a modern web browser", "inLanguage": ["en", "el"], "description": "Send large files free and secure: up to 5 GB with one short link, by email or as a link, with an optional password and an email when it is downloaded. No account needed to download.", "featureList": ["Up to 5 GB per transfer, free", "One short link for all files", "Send by email or as a link", "Optional password", "Email when it is downloaded", "Files delete themselves after 1 to 7 days", "No account needed to download", "FastTransfer: send without an account, up to 1 GB"], "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "publisher": {"@type": "Organization", "@id": "https://themadlions.com/#org", "name": "The Mad Lions", "url": "https://themadlions.com/", "logo": "https://roartransfer.com/icon-512.png"}}, {"@type": "WebSite", "@id": "https://roartransfer.com/#site", "name": "RoarTransfer", "url": "https://roartransfer.com/", "publisher": {"@id": "https://themadlions.com/#org"}}, {"@type": "Organization", "@id": "https://themadlions.com/#org", "name": "The Mad Lions", "url": "https://themadlions.com/", "logo": "https://roartransfer.com/icon-512.png"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebApplication", "@id": "https://roartransfer.com/#app", "name": "RoarTransfer", "alternateName": "Roar Transfer", "url": "https://roartransfer.com/", "image": "https://roartransfer.com/og.jpg", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any (web browser)", "browserRequirements": "Requires a modern web browser", "inLanguage": ["en", "el"], "description": "Send large files free and secure: up to 5 GB with one short link, by email or as a link, with an optional password and an email when it is downloaded. No account needed to download.", "featureList": ["Up to 5 GB per transfer, free", "One short link for all files", "Send by email or as a link", "Optional password", "Email when it is downloaded", "Files delete themselves when their days are up (up to 30 with Pro)", "No account needed to download", "FastTransfer: send without an account, up to 1 GB"], "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "publisher": {"@type": "Organization", "@id": "https://themadlions.com/#org", "name": "The Mad Lions", "url": "https://themadlions.com/", "logo": "https://roartransfer.com/icon-512.png"}}, {"@type": "WebSite", "@id": "https://roartransfer.com/#site", "name": "RoarTransfer", "url": "https://roartransfer.com/", "publisher": {"@id": "https://themadlions.com/#org"}}, {"@type": "Organization", "@id": "https://themadlions.com/#org", "name": "The Mad Lions", "url": "https://themadlions.com/", "logo": "https://roartransfer.com/icon-512.png"}]}</script>
 <meta name="theme-color" content="#16181c">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="icon" href="icon.svg?v=3" type="image/svg+xml">
@@ -349,7 +349,7 @@
   <!-- My transfers: everything this account sent, its numbers, and each link with how often it was downloaded -->
   <div class="card wide" id="v-mine" hidden>
     <h1 id="mn-title" data-t="mn.title" data-html>My <b>transfers</b>.</h1>
-    <p class="sub" id="mn-sub" data-t="mn.sub">Everything you sent, from here, RoarMail and your chats. Links last 1 to 7 days.</p>
+    <p class="sub" id="mn-sub" data-t="mn.sub">Everything you sent, from here, RoarMail and your chats. Links last 1 to 7 days, up to 30 with Pro.</p>
     <!-- a Pro's page in three (Alex, 26 Oct: "tabs, nice buttons, smoother"): what they sent, what came in, their Pro -->
     <div class="seg adm-tab" id="mine-tab" hidden><button type="button" class="on" data-f="sent" data-t="mt.sent">Sent</button><button type="button" data-f="got"><span data-t="mt.got">Received</span><i class="tc" id="tc-got"></i></button></div>
     <div class="pane" id="mpane-sent">
@@ -458,8 +458,7 @@
   <nav class="legal"><a class="more" href="about/" data-t="more">About Us</a><a href="pricing/" data-t="lg.price">Pricing</a><a href="privacy/" data-t="lg.priv">Privacy Policy</a><a href="terms/" data-t="lg.terms">Terms of Service</a></nav></footer>
 
 <script src="/supabase-2.45.4.js"></script>
-<script>window.supabase || document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"><\/script>')</script>
 <script src="/zip.js?v=3"></script>
-<script src="/home.js?v=21fd9dfa"></script>
+<script src="/home.js?v=cce132c8"></script>
 </body>
 </html>
