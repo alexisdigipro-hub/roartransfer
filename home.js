@@ -1194,14 +1194,15 @@
   function saveDet(pwOff) {
     if (!det.data || det.busy) return
     var body = { action: 'edit', token: det.token }
-    var u = $('det-until') && $('det-until').value, p = $('det-pw') && $('det-pw').value
-    if (u && localIso(det.data.expires) !== u) body.until = new Date(u).toISOString()
+    var p = $('det-pw') && $('det-pw').value
+    if (det.pick) body.until = new Date(det.pick).toISOString()
     if (pwOff) body.password = ''; else if (p) body.password = p
     if (!body.until && body.password == null) return
     det.busy = true; paintMine(); lmPaint()
     proCall(body).then(function (r) {
       det.busy = false; det.msg = pw('bSaved')
       if (r.until) det.data.expires = r.until
+      det.pick = 0
       if (r.locked != null) det.data.locked = r.locked
       loadMine()
     }).catch(function (e) { det.busy = false; paintMine(); lmPaint(); window.alert(e.message) })
@@ -1256,12 +1257,23 @@
     if (!d) return '<div class="lm-load"><span class="wait" aria-label="Loading"></span></div>'
     var h = ''
     if (on) {
-      h += '<div class="lm-set">'
-        + '<label class="lm-row"><span class="k">' + pw('expT') + '<small>' + esc(pw('maxT')(dayY(d.max))) + '</small></span><input class="in" type="datetime-local" id="det-until" value="' + localIso(d.expires) + '" max="' + localIso(d.max) + '"></label>'
-        + (d.bundle ? '<label class="lm-row"><span class="k">' + pw('pwT') + '<small>' + (d.locked ? pw('pwHas') : pw('pwNo')) + '</small></span><input class="in" type="password" id="det-pw" autocomplete="new-password" maxlength="100" placeholder="' + esc(d.locked ? pw('pwChange') : pw('pwSet')) + '"></label>' : '')
+      // fresh (Alex, 15 Nov: the date field was "awful"): the end in plain words and a row of choices, no calendar box
+      var exp = det.pick || new Date(d.expires).getTime(), mx = new Date(d.max).getTime(), now = Date.now()
+      var chips = [1, 3, 7, 30].map(function (n) {
+        var at = now + n * 864e5, ok = at <= mx + 6e4
+        var on = det.pick && Math.abs(det.pick - at) < 6e4
+        return '<button type="button" class="ex-chip' + (on ? ' on' : '') + '" data-dexp="' + at + '"' + (ok ? '' : ' disabled') + '>' + (lang === 'el' ? n + (n === 1 ? ' μέρα' : ' μέρες') : n + (n === 1 ? ' day' : ' days')) + '</button>'
+      }).join('') + '<button type="button" class="ex-chip' + (det.pick && Math.abs(det.pick - mx) < 6e4 ? ' on' : '') + '" data-dexp="' + mx + '">' + (lang === 'el' ? 'Μέγιστο' : 'Longest') + '</button>'
+      h += '<section class="ex-card">'
+        + '<div class="ex-top"><span class="ex-k">' + pw('expT') + '</span><span class="ex-v' + (det.pick ? ' new' : '') + '">' + esc(when(new Date(exp).toISOString())) + '</span></div>'
+        + '<div class="ex-chips">' + chips + '</div>'
+        + '<small class="ex-max">' + esc(pw('maxT')(dayY(d.max))) + (lang === 'el' ? ' · από τώρα' : ' · counted from now') + '</small>'
+        + '</section>'
+        + '<div class="lm-set">'
+        + (d.bundle ? '<label class="lm-row pw-row"><span class="k">' + pw('pwT') + '<small>' + (d.locked ? pw('pwHas') : pw('pwNo')) + '</small></span><input class="in pw-in" type="password" id="det-pw" autocomplete="new-password" maxlength="100" placeholder="' + esc(d.locked ? pw('pwChange') : pw('pwSet')) + '"></label>' : '')
         + (d.payLock != null ? '<label class="lm-row sw-row"><span class="k">' + pw('payT') + '<small>' + (d.payLock ? pw('payOn') : pw('payOff')) + '</small></span><span class="sw' + (d.payLock ? ' on' : '') + '"><input type="checkbox" data-dpay' + (d.payLock ? ' checked' : '') + (det.busy ? ' disabled' : '') + '><i></i></span></label>' : '')
         + '</div>'
-        + '<div class="lm-save" id="lm-save" hidden><button type="button" class="pill main" data-dsave' + (det.busy ? ' disabled' : '') + '><span>' + pw('saveC') + '</span></button></div>'
+        + '<div class="lm-save" id="lm-save"' + (det.pick ? '' : ' hidden') + '><button type="button" class="pill main" data-dsave' + (det.busy ? ' disabled' : '') + '><span>' + pw('saveC') + '</span></button></div>'
         + (d.bundle && d.locked ? '<div class="sm-acts"><button type="button" class="pill sm" data-dpwoff><span>' + pw('pwOff') + '</span></button></div>' : '')
         + (det.msg ? '<p class="lm-ok">' + esc(det.msg) + '</p>' : '')
     }
@@ -1273,9 +1285,10 @@
     return h
   }
   // Save shows only once something was changed
-  $('lm').addEventListener('input', function (e) { if (e.target.id === 'det-until' || e.target.id === 'det-pw') { var b = $('lm-save'); if (b) b.hidden = false } })
+  $('lm').addEventListener('input', function (e) { if (e.target.id === 'det-pw') { var b = $('lm-save'); if (b) b.hidden = false } })
   $('lm').addEventListener('click', async function (e) {
     if (e.target.closest('[data-lmact]')) { lmAct = !lmAct; lmPaint(); return }
+    var ex = e.target.closest('[data-dexp]'); if (ex && !ex.disabled) { var at = +ex.dataset.dexp; det.pick = det.pick && Math.abs(det.pick - at) < 6e4 ? 0 : at; det.msg = ''; var keepPw = $('det-pw') ? $('det-pw').value : ''; lmPaint(); if (keepPw && $('det-pw')) $('det-pw').value = keepPw; if (keepPw) { var sv = $('lm-save'); if (sv) sv.hidden = false } return }
     if (e.target.closest('[data-lmx]')) { lmClose(); return }
     var m = lmM(); if (!m) return
     var c = e.target.closest('[data-lmcp]'); if (c) { copy(PAGE + m.token, c, w('copied')); return }
