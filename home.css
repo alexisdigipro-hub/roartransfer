@@ -742,7 +742,7 @@ html[lang="el"] h1.wm { font-size: clamp(22px, 6.2vw, 40px); letter-spacing: 0; 
 
 /* the windows wider on a computer, room for everything (Alex, 15 Nov: "why so narrow, give it room") */
 @media (min-width: 760px) {
-  .lm-card { width: min(720px, calc(100vw - 48px)); padding: 26px 28px; gap: 18px; }
+  .lm-card { width: min(900px, calc(100vw - 48px)); padding: 26px 28px; gap: 18px; }
   .lm-h .ft b { font-size: 17px; }
   .lm-files { max-height: 300px; }
   .ex-chips { flex-wrap: nowrap; }
