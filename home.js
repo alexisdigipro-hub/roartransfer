@@ -169,7 +169,7 @@
   var sb = window.supabase.createClient(URL_, KEY, { auth: { storageKey: 'roarme-auth-2', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } })
   var user = null
 
-  var views = ['v-wait', 'v-get', 'v-in', 'v-pw', 'v-drop', 'v-pick', 'v-up', 'v-done', 'v-mine', 'v-admin']
+  var views = ['v-wait', 'v-get', 'v-in', 'v-pw', 'v-drop', 'v-pick', 'v-up', 'v-done', 'v-mine', 'v-admin', 'v-brand']
   // a download link (?t=…) shows only the file, signed in or not
   // roartransfer.com/<token> (Alex, 21 Oct: links as short as they can be; 404.html brings it here as ?t=) or ?t=<token>
   var getToken = new URLSearchParams(location.search).get('t') || (location.pathname.match(/^\/([A-Za-z0-9]{6,32})\/?$/) || [])[1] || ''
@@ -380,7 +380,7 @@
     var was = user && user.id
     user = session && session.user || null
     $('who-mail').textContent = user ? user.email || '' : ''
-    if (!user) { pro = proMe = null; if (admPro) admPro.list = null; paintPro(); isAdmin = false; $('as-bar').hidden = true; mine = null; adm.stats = adm.list = adm.who = adm.acc = adm.usage = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) show('v-in'); loadGuest() }
+    if (!user) { wearLook(null); $('own-logo').hidden = true; br = null; wearOwn.bg = false; pro = proMe = null; if (admPro) admPro.list = null; paintPro(); isAdmin = false; $('as-bar').hidden = true; mine = null; adm.stats = adm.list = adm.who = adm.acc = adm.usage = null; $('tab-admin').hidden = true; tab = 'send'; if (!busy) show('v-in'); loadGuest() }
     else if (resetting) { $('who').hidden = true }
     else if (view === 'v-wait' || view === 'v-in' || was !== user.id) { $('pw').value = ''; signedIn() }
     else $('who').hidden = false
@@ -817,6 +817,7 @@
   }
   function go(t) {
     if (t === 'admin' && !isAdmin) t = 'send'
+    if (t === 'brand' && !brandOk()) t = 'send'
     if (t === 'drive' && !driveOk()) t = 'mine'
     tab = t
     try { history.replaceState(null, '', location.pathname + location.search + (t === 'send' ? '' : '#' + t)) } catch (e) {}
@@ -824,6 +825,7 @@
     if (t === 'mine' || t === 'drive') drive = t === 'drive'
     if (t === 'send') { show(sendView); paint() }
     else if (t === 'mine' || t === 'drive') { show('v-mine'); paintMine(); loadMine() }
+    else if (t === 'brand') { show('v-brand'); br = null; paintBrandPage() }
     else { show('v-admin'); paintStats(); paintAdmList(); loadAdmin() }
   }
   $('tabs').addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) go(b.dataset.go) })
@@ -1659,6 +1661,156 @@
     }).catch(function (x) { brandEd.busy = false; paintBrand(); $('pb-err').textContent = x.message; $('pb-err').hidden = false })
   })
 
+  // ---- Brand (Alex, 27 Nov: "a tab after Drive for the company: colours, background, logos, all customizable; their
+  // own RoarTransfer in their brand and what they send in their colours and logos"). A Pro's whole look in one page:
+  // name and logo, a colour, how solid the glass is, the face of the titles, up to 8 backgrounds, and whether their own
+  // RoarTransfer wears it too. A live preview of a link's page stands beside it. Saved through roartransfer-pro 'brand'
+  // (brand_style, supabase/transfer-brand-style.sql); roar-transfer-get gives it to every page their links open. ----
+  var BR_COLS = ['#d40000', '#ff5a1f', '#f5a300', '#2fbf71', '#0fb5a5', '#1e8bff', '#4f5bff', '#9b4dff', '#ff3d8b', '#e8e8e8']
+  var br = null // the page's working copy: { name, logo, bgs, style: { accent, glass, font, self }, busy, msg, err, slot }
+  var BRW = {
+    en: { title: 'Your <b>brand</b>.', sub: 'How your company looks on every page people open from your links, and on your own RoarTransfer if you like.',
+      who: 'Company', name: 'Company name', logo: 'Logo', addLogo: 'Add logo', col: 'Colour', own: 'Your own colour', card: 'Glass', clear: 'Clear', solid: 'Solid',
+      font: 'Titles', bgs: 'Backgrounds', bgsN: 'Up to 8 pictures, one shown at a time.', add: 'Add', mineT: 'My RoarTransfer in my brand', mineN: 'Your own pages wear your colour, logo and backgrounds too.',
+      save: 'Save', saved: 'Saved. Your links show it now.', reset: 'Reset the look', pv: 'What people see', pvFrom: function (n) { return n + ' sent you' }, pvFiles: '3 files · 2.4 GB',
+      pvDl: 'Download all', pvExp: 'Expires in 7 days', big: 'Up to 10 MB a picture.', proOnly: 'Brand is part of Pro.' },
+    el: { title: 'Το <b>brand</b> σου.', sub: 'Πώς φαίνεται η εταιρεία σου σε κάθε σελίδα που ανοίγουν από τα link σου, και στο δικό σου RoarTransfer αν θες.',
+      who: 'Εταιρεία', name: 'Όνομα εταιρείας', logo: 'Λογότυπο', addLogo: 'Βάλε λογότυπο', col: 'Χρώμα', own: 'Δικό σου χρώμα', card: 'Γυαλί', clear: 'Διάφανο', solid: 'Συμπαγές',
+      font: 'Τίτλοι', bgs: 'Φόντα', bgsN: 'Μέχρι 8 εικόνες, μία κάθε φορά.', add: 'Προσθήκη', mineT: 'Το RoarTransfer μου στο brand μου', mineN: 'Και οι δικές σου σελίδες παίρνουν το χρώμα, το λογότυπο και τα φόντα σου.',
+      save: 'Αποθήκευση', saved: 'Αποθηκεύτηκε. Τα link σου το δείχνουν ήδη.', reset: 'Επαναφορά εμφάνισης', pv: 'Τι βλέπουν οι άλλοι', pvFrom: function (n) { return n + ' σου έστειλε' }, pvFiles: '3 αρχεία · 2.4 GB',
+      pvDl: 'Λήψη όλων', pvExp: 'Λήγει σε 7 μέρες', big: 'Μέχρι 10 MB η εικόνα.', proOnly: 'Το brand είναι μέρος του Pro.' }
+  }
+  function bw(k) { return (BRW[lang] || BRW.en)[k] }
+  var FONT_OF = { jost: "'Jost RoarMe', Jost, Futura, var(--sans)", sans: 'var(--sans)', serif: "Georgia, 'Times New Roman', serif" }
+  function hexRgb(h) { var m = /^#?([0-9a-f]{6})$/i.exec(h || ''); if (!m) return null; var n = parseInt(m[1], 16); return [n >> 16 & 255, n >> 8 & 255, n & 255] }
+  function lumOf(rgb) { var f = function (c) { c /= 255; return c <= .03928 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4) }; return .2126 * f(rgb[0]) + .7152 * f(rgb[1]) + .0722 * f(rgb[2]) }
+  // a look on an element: the colour (and a lighter one for words and rings), the words on it, the glass, the titles' face
+  function lookVars(st) {
+    var v = {}, rgb = hexRgb(st && st.accent)
+    if (rgb) {
+      var hi = rgb.map(function (c) { return Math.round(c + (255 - c) * .22) })
+      v['--red'] = st.accent; v['--red-hi'] = 'rgb(' + hi.join(',') + ')'; v['--acc-rgb'] = rgb.join(','); v['--on-acc'] = lumOf(rgb) > .55 ? '#15171b' : '#fff'
+    }
+    if (st && st.glass != null) { var g = Math.max(0, Math.min(100, Number(st.glass))) / 100; v['--card-a1'] = (.12 + g * .78).toFixed(2); v['--card-a2'] = (.2 + g * .76).toFixed(2) }
+    if (st && FONT_OF[st.font]) v['--disp'] = FONT_OF[st.font]
+    return v
+  }
+  var worn = []
+  function wearLook(st) {
+    var root = document.documentElement
+    worn.forEach(function (k) { root.style.removeProperty(k) }); worn = []
+    var v = lookVars(st || {})
+    Object.keys(v).forEach(function (k) { root.style.setProperty(k, v[k]); worn.push(k) })
+    root.classList.toggle('branded', !!(st && st.accent))
+    root.classList.toggle('glassed', !!(st && st.glass != null))
+  }
+  // their own RoarTransfer in their brand: the look, their logo beside the mark, one of their backgrounds
+  function wearOwn() {
+    if (getting || dropping) return
+    var b = proMe && proMe.brand, on = !!(b && b.style && b.style.self && isProNow())
+    wearLook(on ? b.style : null)
+    var lg = $('own-logo')
+    lg.hidden = !(on && b.logo); if (on && b.logo && lg.getAttribute('src') !== b.logo) lg.src = b.logo
+    if (on && b.bgs && b.bgs.length && !wearOwn.bg) { wearOwn.bg = true; setBg(pick(b.bgs)) }
+  }
+  function brandOk() { return isProNow() }
+  function brFrom() {
+    var b = (proMe && proMe.brand) || {}
+    var st = b.style || {}
+    br = { name: b.name || '', logo: b.logo || '', bgs: (b.bgs || []).slice(), style: { accent: st.accent || '', glass: st.glass != null ? st.glass : null, font: st.font || '', self: !!st.self }, busy: false, msg: '', err: '' }
+  }
+  function brPreview() {
+    var st = br.style, v = lookVars(st), css = Object.keys(v).map(function (k) { return k + ':' + v[k] }).join(';')
+    var bg = br.bgs[0] || (siteBgs && siteBgs[0] && siteBgs[0].url) || ''
+    var nm = br.name || (user && user.email ? user.email.split('@')[0] : 'Studio')
+    return '<div class="brp" style="' + esc(css) + '">'
+      + (bg ? '<img class="brp-bg" src="' + esc(bg) + '" alt="">' : '') + '<i class="brp-veil"></i>'
+      + '<div class="brp-card">'
+      + '<div class="brp-top">' + (br.logo ? '<img src="' + esc(br.logo) + '" alt="">' : '<b>' + esc(nm) + '</b>') + '</div>'
+      + '<small class="brp-from">' + esc(bw('pvFrom')(nm)) + '</small>'
+      + '<b class="brp-h">Night Ferry</b>'
+      + '<span class="brp-row"><i></i><span><b>Final grade v2.mov</b><small>' + esc(bw('pvFiles')) + '</small></span></span>'
+      + '<span class="brp-exp">' + esc(bw('pvExp')) + '</span>'
+      + '<span class="brp-go">' + esc(bw('pvDl')) + '</span>'
+      + '</div></div>'
+  }
+  function paintBrandPage() {
+    var ok = brandOk()
+    $('tab-brand').hidden = !ok
+    if (tab !== 'brand') return
+    var box = $('v-brand')
+    if (!ok) { box.innerHTML = '<p class="empty">' + esc(bw('proOnly')) + '</p>'; return }
+    if (!br) { if (!proMe) { box.innerHTML = '<span class="wait" aria-label="Loading"></span>'; return } brFrom() }
+    var st = br.style, cur = (st.accent || '#d40000').toLowerCase()
+    var sw = BR_COLS.map(function (c) { return '<button type="button" class="br-sw' + (c === cur ? ' on' : '') + '" data-col="' + c + '" style="--c:' + c + '" aria-label="' + c + '"></button>' }).join('')
+      + '<label class="br-sw any' + (BR_COLS.indexOf(cur) < 0 ? ' on' : '') + '" title="' + esc(bw('own')) + '" style="--c:' + cur + '"><input type="color" id="br-any" value="' + esc(cur) + '"></label>'
+    var g = st.glass != null ? st.glass : 30
+    var fonts = [['jost', 'Jost'], ['sans', 'Sans'], ['serif', 'Serif']].map(function (f) { return '<button type="button" class="br-font' + ((st.font || 'jost') === f[0] ? ' on' : '') + '" data-font="' + f[0] + '" style="font-family:' + esc(FONT_OF[f[0]]) + '">' + f[1] + '</button>' }).join('')
+    var tiles = br.bgs.map(function (u, n) { return '<div class="br-tile"><img src="' + esc(u) + '" alt="" loading="lazy"><button type="button" class="br-x" data-brx="' + n + '" aria-label="Remove"><svg><use href="#i-x"/></svg></button></div>' }).join('')
+      + (br.bgs.length < 8 ? '<button type="button" class="br-add" data-bradd="bg"' + (br.busy ? ' disabled' : '') + '><svg><use href="#i-up"/></svg><span>' + esc(bw('add')) + '</span></button>' : '')
+    var keepName = document.activeElement && document.activeElement.id === 'br-name'
+    box.innerHTML = '<h1 class="br-h1">' + bw('title') + '</h1><p class="sub br-sub">' + esc(bw('sub')) + '</p>'
+      + '<div class="br">'
+      + '<div class="br-set">'
+      + '<section class="br-box"><h3>' + esc(bw('who')) + '</h3>'
+      + '<input class="in" id="br-name" maxlength="80" autocomplete="off" placeholder="' + esc(bw('name')) + '" value="' + esc(br.name) + '">'
+      + '<div class="br-logo">' + (br.logo ? '<div class="br-tile logo"><img src="' + esc(br.logo) + '" alt=""><button type="button" class="br-x" data-brx="logo" aria-label="Remove"><svg><use href="#i-x"/></svg></button></div>'
+        : '<button type="button" class="br-add wide" data-bradd="logo"' + (br.busy ? ' disabled' : '') + '><svg><use href="#i-up"/></svg><span>' + esc(bw('addLogo')) + '</span></button>') + '<small>' + esc(bw('logo')) + ' · PNG, JPG, WebP · ' + esc(bw('big')) + '</small></div></section>'
+      + '<section class="br-box"><h3>' + esc(bw('col')) + '</h3><div class="br-sws">' + sw + '</div></section>'
+      + '<section class="br-box"><h3>' + esc(bw('card')) + '</h3><div class="br-range"><small>' + esc(bw('clear')) + '</small><input type="range" id="br-glass" min="0" max="100" step="1" value="' + g + '"><small>' + esc(bw('solid')) + '</small></div></section>'
+      + '<section class="br-box"><h3>' + esc(bw('font')) + '</h3><div class="br-fonts">' + fonts + '</div></section>'
+      + '<section class="br-box"><h3>' + esc(bw('bgs')) + ' <em>' + br.bgs.length + '/8</em></h3><small class="br-note">' + esc(bw('bgsN')) + '</small><div class="br-bgs">' + tiles + '</div></section>'
+      + '<label class="br-box br-mine"><span><b>' + esc(bw('mineT')) + '</b><small>' + esc(bw('mineN')) + '</small></span><span class="sw' + (st.self ? ' on' : '') + '"><input type="checkbox" id="br-self"' + (st.self ? ' checked' : '') + '><i></i></span></label>'
+      + '<div class="br-acts"><button type="button" class="pill sm" id="br-reset">' + esc(bw('reset')) + '</button><button type="button" class="pill main" id="br-save"' + (br.busy ? ' disabled' : '') + '><span>' + esc(bw('save')) + '</span></button></div>'
+      + (br.err ? '<p class="err">' + esc(br.err) + '</p>' : '') + (br.msg ? '<p class="note ok">' + esc(br.msg) + '</p>' : '')
+      + '</div>'
+      + '<aside class="br-pv"><span class="br-pvk">' + esc(bw('pv')) + '</span>' + brPreview() + '</aside>'
+      + '</div>'
+    if (keepName) { var f = $('br-name'); f.focus(); f.setSelectionRange(f.value.length, f.value.length) }
+  }
+  // only the preview changes while a slider or the name moves (the page is not drawn again under the finger)
+  function brPv() { var a = document.querySelector('#v-brand .br-pv'); if (a) a.innerHTML = '<span class="br-pvk">' + esc(bw('pv')) + '</span>' + brPreview() }
+  $('v-brand').addEventListener('input', function (e) {
+    if (!br) return
+    if (e.target.id === 'br-name') { br.name = e.target.value; br.msg = ''; brPv() }
+    if (e.target.id === 'br-glass') { br.style.glass = Number(e.target.value); br.msg = ''; brPv() }
+    if (e.target.id === 'br-any') { br.style.accent = e.target.value.toLowerCase(); br.msg = ''; brPv(); var l = e.target.parentNode; l.style.setProperty('--c', e.target.value) }
+  })
+  $('v-brand').addEventListener('change', function (e) {
+    if (!br) return
+    if (e.target.id === 'br-any') paintBrandPage()
+    if (e.target.id === 'br-self') { br.style.self = e.target.checked; br.msg = ''; paintBrandPage() }
+  })
+  $('v-brand').addEventListener('click', function (e) {
+    if (!br) return
+    var c = e.target.closest('[data-col]'); if (c) { br.style.accent = c.dataset.col === '#d40000' ? '' : c.dataset.col; br.msg = ''; paintBrandPage(); return }
+    var f = e.target.closest('[data-font]'); if (f) { br.style.font = f.dataset.font === 'jost' ? '' : f.dataset.font; br.msg = ''; paintBrandPage(); return }
+    var a = e.target.closest('[data-bradd]'); if (a) { br.slot = a.dataset.bradd; $('br-file').click(); return }
+    var x = e.target.closest('[data-brx]'); if (x) { if (x.dataset.brx === 'logo') br.logo = ''; else br.bgs.splice(+x.dataset.brx, 1); br.msg = ''; paintBrandPage(); return }
+    if (e.target.closest('#br-reset')) { br.style = { accent: '', glass: null, font: '', self: br.style.self }; br.msg = ''; paintBrandPage(); return }
+    if (e.target.closest('#br-save')) brSave()
+  })
+  $('br-file').addEventListener('change', async function (e) {
+    var file = e.target.files && e.target.files[0]; e.target.value = ''
+    if (!file || !user || !br) return
+    br.busy = true; br.err = ''; paintBrandPage()
+    try { var u = await upPic(file, user.id, br.slot === 'logo'); if (br.slot === 'logo') br.logo = u; else br.bgs.push(u) } catch (x) { br.err = x.message }
+    br.busy = false; paintBrandPage()
+  })
+  function brSave() {
+    br.busy = true; br.err = ''; br.msg = ''; paintBrandPage()
+    var st = br.style, style = {}
+    if (st.accent) style.accent = st.accent
+    if (st.glass != null) style.glass = st.glass
+    if (st.font) style.font = st.font
+    if (st.self) style.self = true
+    proCall({ action: 'brand', name: br.name, logo: br.logo, bgs: br.bgs, style: style }).then(function (d) {
+      br.busy = false; br.msg = bw('saved')
+      if (proMe) proMe.brand = d.brand
+      brandEd = null; wearOwn.bg = false; wearOwn(); paintBrandPage()
+    }).catch(function (x) { br.busy = false; br.err = x.message; paintBrandPage() })
+  }
+
   // ---- the glass that slides to the chosen tab or option (as in RoarMe's Lens), on every row of choices ----
   function lens(el) {
     el.classList.add('lens')
@@ -1716,6 +1868,8 @@
   try { var kept = JSON.parse(localStorage.getItem('rt-bgs') || 'null'); if (Array.isArray(kept) && kept.length) siteBgs = kept } catch (e) {}
   function useBrand(brand, where) {
     var b = brand || null
+    // the sender's look (Brand, 27 Nov): their colour, glass and titles on the page their link opens
+    wearLook(b && b.style ? b.style : null)
     $(where + '-brand').hidden = !b || !(b.logo || b.name)
     if (b) {
       $(where + '-logo').hidden = !b.logo; if (b.logo) $(where + '-logo').src = b.logo
@@ -2338,8 +2492,8 @@
   }
   var proMe = null
   function loadPro() {
-    bridge({ action: 'pro' }).then(function (d) { pro = d && d.pro && viewAs !== 'free' ? d : null; if (pro && !pro.slug) proEd = true; paintPro(); paintDrive(null); if (drive && mine) paintMine(); if (wantDrive && tab === 'mine' && driveOk()) { wantDrive = false; go('drive') } }).catch(function () { pro = null; paintPro() })
-    proCall({ action: 'me' }).then(function (d) { proMe = viewAs === 'free' ? null : viewAs === 'pro' ? Object.assign({}, d, { admin: false }) : d; paintPro() }).catch(function () {})
+    bridge({ action: 'pro' }).then(function (d) { pro = d && d.pro && viewAs !== 'free' ? d : null; if (pro && !pro.slug) proEd = true; paintPro(); paintDrive(null); paintBrandPage(); wearOwn(); if (drive && mine) paintMine(); if (wantDrive && tab === 'mine' && driveOk()) { wantDrive = false; go('drive') } }).catch(function () { pro = null; paintPro() })
+    proCall({ action: 'me' }).then(function (d) { proMe = viewAs === 'free' ? null : viewAs === 'pro' ? Object.assign({}, d, { admin: false }) : d; paintPro(); wearOwn(); paintBrandPage() }).catch(function () {})
   }
   function paintPro() {
     // a Pro's tab and title say Pro (Alex, 25 Oct)
@@ -2352,7 +2506,8 @@
     if (!isPro) $('mn-sub').textContent = (lang === 'el' ? EL : EN)['mn.sub'] || EN['mn.sub']
     // a Pro sees Sent and Received; everyone else only what they sent. A Pro's own things live in Settings.
     $('mine-tab').hidden = !isPro
-    ;['set-rx', 'set-brand', 'set-perks'].forEach(function (id) { $(id).hidden = !isPro })
+    // the brand has its own tab since 27 Nov (Brand), so it is no longer folded away in Settings
+    ;['set-rx', 'set-perks'].forEach(function (id) { $(id).hidden = !isPro }); $('set-brand').hidden = true
     paintSet()
     if (!isPro && mineT.tab !== 'sent') { mineT.tab = 'sent'; $('mine-tab').querySelectorAll('[data-f]').forEach(function (x) { x.classList.toggle('on', x.dataset.f === 'sent') }) }
     showPane(MINE, mineT.tab)
