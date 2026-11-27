@@ -12,6 +12,7 @@
   // Pro (Alex, 26 Oct): the shorter, the bigger: 1 day 50 GB, 3 days 40, 7 days 30, 30 days 20 (roartransfer-r2 PRO_GB)
   var PRO_GB = { 1: 50, 3: 40, 7: 30, 30: 20 }
   var isProNow = function () { return !!user && !!pro }
+  var wantDrive = false // the page was opened on #drive: go there once Pro or admin is known
   var lim = function () { return limG() * GB }
   var limG = function () { return !user ? 1 : isProNow() ? PRO_GB[DAYS] || 20 : DAYS === 1 ? 5 : DAYS === 7 ? 1 : 3 }
   var guestLeft = null
@@ -796,6 +797,7 @@
     if (graceBack()) return
     var h = (location.hash || '').slice(1)
     tab = 'send'; sendView = busy ? 'v-up' : 'v-pick'
+    wantDrive = h === 'drive'
     go(h === 'mine' || h === 'drive' ? 'mine' : 'send')
     loadPro()
     loadMails()
@@ -810,7 +812,7 @@
       $('op-pc-row').hidden = !isAdmin
       try { $('op-pc').checked = isAdmin && localStorage.getItem('rt-pcloud') === '1' } catch (e) {}
       if (isAdmin && h === 'admin') go('admin')
-      if (isAdmin && h === 'drive') go('drive')
+      if (wantDrive && tab === 'mine' && driveOk()) { wantDrive = false; go('drive') }
     })
   }
   function go(t) {
@@ -929,7 +931,7 @@
   }
 
   // ---- Drive (Alex, 27 Nov: "a button that turns the whole page into something like Google Drive, close to our own
-  // style: your files, what you sent, send it again"). For now only the admin sees it (driveOk); later every Pro.
+  // style: your files, what you sent, send it again"). Every Pro sees it (driveOk).
   // The card becomes a wide two-part page: at the left New transfer, the places (My files, Recent, Active, Ending soon,
   // Expired, Sent by email, Large files) and what is kept; at the right the search, the filters as chips that open
   // small menus (Type, People, Sent, Source), List or Grid, and the files: a list with columns that sort, or tiles with
@@ -945,7 +947,8 @@
   // the small menus hang on the page itself (inside the card's glass a fixed menu would be placed by the card)
   document.body.appendChild($('dv-pop'))
   function dvKeep() { try { localStorage.setItem('rt-drive-v', JSON.stringify({ view: dvs.view, sort: dvs.sort, dir: dvs.dir })) } catch (e) {} }
-  function driveOk() { return isAdmin && !viewAs }
+  // every Pro (Alex, 27 Nov: "open Drive to the Pros"); the admin too, unless looking as Free
+  function driveOk() { return isProNow() || (isAdmin && !viewAs) }
   var DVW = {
     en: { got: 'Received', gotN: function (n) { return n + ' file' + (n === 1 ? '' : 's') }, files: 'My files', recent: 'Recent', active: 'Active', soon: 'Ending soon', expired: 'Expired', mailed: 'Sent by email', big: 'Large files',
       newT: 'New transfer', search: 'Search in your files', type: 'Type', people: 'People', when: 'Sent', src: 'Source', clear: 'Clear',
@@ -2335,7 +2338,7 @@
   }
   var proMe = null
   function loadPro() {
-    bridge({ action: 'pro' }).then(function (d) { pro = d && d.pro && viewAs !== 'free' ? d : null; if (pro && !pro.slug) proEd = true; paintPro(); if (drive && mine) paintMine() }).catch(function () { pro = null; paintPro() })
+    bridge({ action: 'pro' }).then(function (d) { pro = d && d.pro && viewAs !== 'free' ? d : null; if (pro && !pro.slug) proEd = true; paintPro(); paintDrive(null); if (drive && mine) paintMine(); if (wantDrive && tab === 'mine' && driveOk()) { wantDrive = false; go('drive') } }).catch(function () { pro = null; paintPro() })
     proCall({ action: 'me' }).then(function (d) { proMe = viewAs === 'free' ? null : viewAs === 'pro' ? Object.assign({}, d, { admin: false }) : d; paintPro() }).catch(function () {})
   }
   function paintPro() {
