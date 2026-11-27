@@ -1,0 +1,37 @@
+# RoarPhotos for the Mac: builds the app on a Mac at GitHub and keeps the .dmg as a download on the run's page.
+name: RoarPhotos (Mac)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'roarphotos-mac/**'
+      - '.github/workflows/roarphotos-mac.yml'
+
+jobs:
+  build:
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: roarphotos-mac
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Rust for Apple silicon and Intel
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: roarphotos-mac/src-tauri
+      - name: Tests
+        working-directory: roarphotos-mac/src-tauri
+        run: cargo test
+      - run: npm ci || npm install
+      - name: Build (one app for every Mac)
+        run: npx tauri build --target universal-apple-darwin
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RoarPhotos-mac
+          path: roarphotos-mac/src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+          if-no-files-found: error

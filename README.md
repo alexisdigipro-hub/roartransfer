@@ -4,6 +4,7 @@ roartransfer.com: send files up to 5 GB free with one short link anyone can down
 
 - `llms.txt` describes the service in plain text for AI assistants; `robots.txt` names the AI crawlers as welcome.
 
+- `roarphotos-mac/`: RoarPhotos, a photo and video library for the Mac that works offline (Tauri; its own README). Built at GitHub by `.github/workflows/roarphotos-mac.yml`.
 - One plain page (`index.html`), served by GitHub Pages at roartransfer.com (`CNAME`). No build step.
 - Sign in with a RoarMe account (Supabase project RoarMe).
   Sign in with Roar Account (3 Nov 2026, Alex: one sign-in for every Roar app) is the main button above the email
