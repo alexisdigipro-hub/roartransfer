@@ -33,7 +33,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://bzmjhbnwhdwmncxkqkdl.supabase.co" crossorigin>
 <link rel="preload" href="/fonts/jost-latin-var.woff2" as="font" type="font/woff2" crossorigin><style>@font-face{font-family:Jost;font-style:normal;font-display:swap;font-weight:100 900;src:url(/fonts/jost-latin-var.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:Jost;font-style:normal;font-display:swap;font-weight:100 900;src:url(/fonts/jost-latin-ext-var.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}</style>
-<link rel="stylesheet" href="/home.css?v=4932545e">
+<link rel="stylesheet" href="/home.css?v=c4f6eb9d">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -365,6 +365,7 @@
     <div class="seg adm-tab" id="mine-tab" hidden><button type="button" class="on" data-f="sent" data-t="mt.sent">Sent</button><button type="button" data-f="got"><span data-t="mt.got">Received</span><i class="tc" id="tc-got"></i></button></div>
     <!-- Drive (Alex, 27 Nov: "the whole page like Google Drive, close to our own style"); the Drive tab, admin only for now -->
     <div class="dv" id="dv" hidden>
+      <i class="dv-veil" id="dv-veil"></i>
       <aside class="dv-side">
         <button type="button" class="dv-new" id="dv-new"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>New transfer</span></button>
         <nav class="dv-nav" id="dv-nav"></nav>
@@ -372,11 +373,11 @@
       </aside>
       <section class="dv-main">
         <div class="dv-top">
-          <label class="dv-search"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></g></svg><input id="dv-q" type="search" autocomplete="off"></label>
+          <button type="button" class="dv-menu-btn" id="dv-menu" aria-label="Places"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></button><label class="dv-search"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></g></svg><input id="dv-q" type="search" autocomplete="off"></label>
           <div class="dv-views" id="dv-views"><button type="button" data-v="list"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></button><button type="button" data-v="grid"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></g></svg></button></div>
           <button type="button" class="dv-exit" id="dv-exit"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
         </div>
-        <h2 class="dv-title" id="dv-title"></h2>
+        <div class="dv-trow"><h2 class="dv-title" id="dv-title"></h2><button type="button" class="dv-sortbtn" id="dv-sortbtn"></button></div>
         <div class="dv-chips" id="dv-chips"></div>
         <div class="dv-body" id="dv-body"></div>
       </section>
@@ -493,6 +494,6 @@
 
 <script src="/supabase-2.45.4.js"></script>
 <script src="/zip.js?v=3"></script>
-<script src="/home.js?v=214dd8d7"></script>
+<script src="/home.js?v=cf4a2dc9"></script>
 </body>
 </html>

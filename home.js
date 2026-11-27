@@ -1044,6 +1044,7 @@
     $('v-mine').classList.toggle('is-drive', on)
     $('dv').hidden = !on
     document.documentElement.classList.toggle('dv-on', on)
+    if (!on) dvDrawer(false)
     if (!on || !shown) return on
     if (picks) picks = null
     var all = dvAll()
@@ -1067,6 +1068,9 @@
     $('dv-new').querySelector('span').textContent = dv('newT')
     $('dv-exit').title = $('dv-exit').ariaLabel = dv('classic')
     Array.prototype.forEach.call($('dv-views').children, function (b) { b.classList.toggle('on', b.dataset.v === dvs.view); b.title = dv(b.dataset.v) })
+    var SORT_L = { name: dv('name'), date: dv('sent'), exp: dv('exp'), size: dv('size'), dl: dv('dls') }
+    $('dv-sortbtn').innerHTML = '<span>' + esc(SORT_L[dvs.sort]) + '</span>' + sv(dvs.dir > 0 ? '<path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"/>' : '<path d="M12 5v14M6.5 13.5 12 19l5.5-5.5"/>')
+    $('dv-sortbtn').hidden = dvs.nav === 'got'
     var whenL = { today: dv('today'), d7: dv('d7'), d30: dv('d30'), year: dv('year') }
     $('dv-chips').innerHTML = dvChip('type', dv('type'), dvs.type ? KIND_LABEL(dvs.type) : '')
       + dvChip('who', dv('people'), dvs.who === '-' ? dv('linkOnly') : dvs.who)
@@ -1085,7 +1089,7 @@
           var to = m.sentTo && m.sentTo.length ? '<span class="dv-to"><b>' + esc(m.sentTo[0]) + '</b>' + (m.sentTo.length > 1 ? '<em>+' + (m.sentTo.length - 1) + '</em>' : '') + '</span>' : '<span class="dv-to dim">' + esc(where(m)) + '</span>'
           var ex = m.deleted ? w('deleted') : on2 ? leftText(left) : w('expired')
           return '<div class="dv-tr' + (on2 ? '' : ' off') + '" data-dn="' + n + '" role="button" tabindex="0">'
-            + '<span class="c-name">' + icon2(m, k) + '<span class="dv-nm"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b>' + (m.files && m.files.length > 1 ? '<small>' + esc(dv('nFiles')(m.files.length)) + '</small>' : '') + '<small class="dv-mob">' + esc(sz(m.size)) + ' · ' + esc(ex) + '</small></span></span>'
+            + '<span class="c-name">' + icon2(m, k) + '<span class="dv-nm"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b>' + (m.files && m.files.length > 1 ? '<small>' + esc(dv('nFiles')(m.files.length)) + '</small>' : '') + '<small class="dv-mob">' + esc(dv('sent')) + ' ' + esc(dvShort(new Date(m.created_at).getTime())) + ' · ' + esc(sz(m.size)) + '</small></span></span>'
             + '<span class="c-to">' + to + '</span>'
             + '<span class="c-d col-s">' + esc(dvShort(new Date(m.created_at).getTime())) + '</span>'
             + '<span class="c-d' + (on2 && left < 864e5 ? ' soon' : '') + '">' + esc(ex) + '</span>'
@@ -1141,6 +1145,22 @@
     dvPop(b, '<div class="dv-menu">' + h + '</div>', 'more-' + n)
   }
   $('dv-exit').addEventListener('click', function () { dvPopClose(); go('mine') })
+  // on a phone, as Google Drive's app (Alex, 27 Nov): the places slide in from the left behind the menu sign in the
+  // search, the sort is a small button beside the title, New transfer a round + at the foot
+  var dvFab = document.createElement('button')
+  dvFab.type = 'button'; dvFab.className = 'dv-fab'; dvFab.setAttribute('aria-label', 'New transfer')
+  dvFab.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>'
+  dvFab.addEventListener('click', function () { go('send') })
+  document.body.appendChild(dvFab)
+  function dvDrawer(on) { document.documentElement.classList.toggle('dv-drawer', !!on) }
+  $('dv-menu').addEventListener('click', function () { dvDrawer(!document.documentElement.classList.contains('dv-drawer')) })
+  $('dv-veil').addEventListener('click', function () { dvDrawer(false) })
+  $('dv-nav').addEventListener('click', function () { dvDrawer(false) })
+  $('dv-sortbtn').addEventListener('click', function () {
+    var ar = dvs.dir > 0 ? '<path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"/>' : '<path d="M12 5v14M6.5 13.5 12 19l5.5-5.5"/>'
+    var opts = [['date', dv('sent')], ['name', dv('name')], ['size', dv('size')], ['exp', dv('exp')], ['dl', dv('dls')]]
+    dvPop($('dv-sortbtn'), '<div class="dv-menu">' + opts.map(function (o) { return '<button type="button" data-srt="' + o[0] + '"' + (dvs.sort === o[0] ? ' class="on"' : '') + '><span>' + esc(o[1]) + '</span>' + (dvs.sort === o[0] ? sv(ar, 'dv-tick') : '') + '</button>' }).join('') + '</div>', 'sort')
+  })
   $('dv-new').addEventListener('click', function () { go('send') })
   $('dv-q').addEventListener('input', paintMine)
   $('dv-nav').addEventListener('click', function (e) { var b = e.target.closest('[data-nav]'); if (!b) return; dvs.nav = b.dataset.nav; paintMine() })
@@ -1153,6 +1173,8 @@
   })
   $('dv-body').addEventListener('keydown', function (e) { if (e.key !== 'Enter' && e.key !== ' ') return; var t = e.target.closest('[data-dn]'); if (t && e.target === t) { e.preventDefault(); lmOpen(+t.dataset.dn) } })
   $('dv-pop').addEventListener('click', async function (e) {
+    var so = e.target.closest('[data-srt]')
+    if (so) { var k2 = so.dataset.srt; if (dvs.sort === k2) dvs.dir = -dvs.dir; else { dvs.sort = k2; dvs.dir = k2 === 'name' ? 1 : -1 } dvKeep(); dvPopClose(); paintMine(); return }
     var o = e.target.closest('[data-opt]')
     if (o) { var k = o.parentNode.dataset.for; dvs[k] = o.dataset.opt; dvPopClose(); paintMine(); return }
     var a = e.target.closest('[data-act]'); if (!a) return
@@ -1167,7 +1189,7 @@
       loadMine()
     }
   })
-  document.addEventListener('click', function (e) { if (!$('dv-pop').hidden && !e.target.closest('#dv-pop, [data-chip], [data-more]')) dvPopClose() })
+  document.addEventListener('click', function (e) { if (!$('dv-pop').hidden && !e.target.closest('#dv-pop, [data-chip], [data-more], #dv-sortbtn')) dvPopClose() })
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') dvPopClose() })
   window.addEventListener('resize', dvPopClose)
   $('dv').addEventListener('scroll', dvPopClose, true)

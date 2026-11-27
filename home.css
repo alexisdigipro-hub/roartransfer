@@ -1008,3 +1008,67 @@ html.glassed .card { background: linear-gradient(170deg, rgba(43,48,56,var(--car
 }
 @media (max-width: 560px) { .br-bgs { grid-template-columns: repeat(3, minmax(0, 1fr)); } .own-logo { max-height: 30px; max-width: 100px; margin-left: 10px; padding-left: 10px; } }
 html.branded .sw.on i { background: var(--red); box-shadow: 0 0 12px rgba(var(--acc-rgb), .45); }
+
+/* Drive on a phone as Google Drive's app (Alex, 27 Nov, its screenshot): the search pill with the menu sign at its
+   left opens the places from the left, the title with a small sort button, the rows plain with "Sent date · size · left"
+   and ⋯, New transfer a round + over the foot. The computer is unchanged. */
+.dv-menu-btn, .dv-veil, .dv-sortbtn { display: none; }
+.dv-trow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.dv-trow .dv-title { margin: 6px 4px 0; }
+@media (max-width: 900px) {
+  .dv-side .dv-nav { margin: 0; }
+}
+@media (max-width: 560px) {
+  .dv-top { flex-wrap: nowrap; }
+  .dv-search { order: 0; flex: 1 1 auto; padding-left: 6px; height: 50px; }
+  .dv-menu-btn { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: none; color: var(--text); cursor: pointer; padding: 0; flex: none; }
+  .dv-menu-btn svg { width: 22px; height: 22px; }
+  .dv-views { margin-right: 0; }
+  .dv-views button[data-v="list"] { display: none; }
+  .dv-views:has(button[data-v="grid"].on) button[data-v="list"] { display: grid; }
+  .dv-views:has(button[data-v="grid"].on) button[data-v="grid"] { display: none; }
+  .dv-views { padding: 0; border: 0; background: none; }
+  .dv-views button { width: 40px; height: 40px; background: none !important; }
+  .dv-exit { display: none; }
+  .dv-trow { margin-top: 2px; }
+  .dv-trow .dv-title { margin: 0; font-size: 24px; }
+  .dv-sortbtn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 6px 0 12px; border: 0; border-radius: 999px; background: none; color: var(--text); font: 500 14px var(--sans); cursor: pointer; }
+  .dv-sortbtn[hidden] { display: none; }
+  .dv-sortbtn svg { width: 26px; height: 26px; padding: 5px; border-radius: 50%; background: rgba(var(--acc-rgb, 212,0,0), .22); color: var(--red-hi); }
+  .dv-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -12px; padding: 0 12px; }
+  .dv-chips::-webkit-scrollbar { display: none; }
+  .dv-chip { flex: none; }
+  /* the places as a drawer from the left */
+  .dv-side { position: fixed; z-index: 160; top: 0; bottom: 0; left: 0; width: min(300px, 82vw); padding: calc(18px + env(safe-area-inset-top)) 14px 18px; gap: 14px; background: rgba(24,26,31,.97); border-right: 1px solid var(--line-2); box-shadow: 24px 0 60px rgba(0,0,0,.5); transform: translateX(-105%); transition: transform .32s var(--ease); overflow-y: auto; }
+  html.dv-drawer .dv-side { transform: none; }
+  .dv-side .dv-nav { display: grid; overflow: visible; margin: 0; padding: 0; }
+  .dv-side .dv-nav button { height: 46px; background: none; }
+  .dv-side .dv-nav button.on { background: rgba(var(--acc-rgb, 212,0,0), .2); }
+  .dv-side .dv-store { display: grid; margin-top: auto; }
+  .dv-veil { display: block; position: fixed; inset: 0; z-index: 150; background: rgba(0,0,0,.45); opacity: 0; pointer-events: none; transition: opacity .25s; }
+  html.dv-drawer .dv-veil { opacity: 1; pointer-events: auto; }
+  /* fixed layers must be placed by the screen: the card's glass (backdrop-filter) would hold them */
+  .card.wide.is-drive { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(20,22,26,.82); animation: none; transform: none; filter: none; }
+  .card.wide.is-drive > .dv { animation: none; transform: none; filter: none; }
+  .dv-side .dv-new { align-self: stretch; justify-content: center; }
+  /* rows: plain, roomy, the second line as Drive's */
+  .dv-tr { min-height: 72px; border-bottom: 0; padding: 0 2px; }
+  .dv-ic { width: 40px; height: 40px; border-radius: 12px; }
+  .dv-nm b { font-size: 15.5px; font-weight: 500; }
+  .dv-nm small:not(.dv-mob) { display: none; }
+  .dv-nm .dv-mob { font: 12.5px var(--sans); color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+.dv-fab { display: none; }
+@media (max-width: 560px) {
+  html.dv-on .dv-fab { display: grid; place-items: center; position: fixed; z-index: 140; right: 18px; bottom: calc(22px + env(safe-area-inset-bottom)); width: 60px; height: 60px; border: 0; border-radius: 22px; background: var(--red); color: var(--on-acc, #fff); box-shadow: 0 14px 34px rgba(var(--acc-rgb, 212,0,0), .4); cursor: pointer; transition: transform .2s var(--spring); }
+  html.dv-on .dv-fab:active { transform: scale(.92); }
+  html.dv-drawer .dv-fab { opacity: 0; pointer-events: none; }
+  .dv-fab svg { width: 26px; height: 26px; }
+}
+@media (max-width: 560px) {
+  /* one pill as Drive's: the menu sign, the search and the view sign inside it */
+  .dv-top { height: 54px; padding: 0 6px; gap: 2px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid var(--line); }
+  .dv-top:focus-within { background: rgba(255,255,255,.11); border-color: var(--line-2); }
+  .dv-top .dv-search { height: 100%; padding: 0 4px; background: none !important; border: 0; }
+  .dv-top .dv-search > svg { display: none; }
+}
