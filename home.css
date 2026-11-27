@@ -781,3 +781,41 @@ html[lang="el"] h1.wm { font-size: clamp(22px, 6.2vw, 40px); letter-spacing: 0; 
 .files li .getpl:hover { background: rgba(255,255,255,.12); }
 .files li .getpl.on { background: var(--red); border-color: transparent; color: #fff; }
 .files li .getpl svg { width: 15px; height: 15px; }
+
+/* Drive (Alex, 27 Nov): My transfers as a grid of tiles; for now the admin alone */
+.dv-tg { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; padding: 0; border: 1px solid var(--glass-edge); background: var(--glass); color: var(--text); cursor: pointer; transition: background .2s, transform .2s var(--spring); }
+.dv-tg[hidden] { display: none; }
+.dv-tg:hover { background: rgba(255,255,255,.12); }
+.dv-tg:active { transform: scale(.92); }
+.dv-tg.on { background: var(--red); border-color: transparent; color: #fff; }
+.dv-tg svg { width: 18px; height: 18px; }
+.dv-bar { display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+.dv-bar[hidden], .dv-grid[hidden] { display: none; }
+.dv-kinds { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.dv-kinds button { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 13px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.04); color: var(--muted); font: 500 13px var(--sans); cursor: pointer; }
+.dv-kinds button i { width: 7px; height: 7px; border-radius: 50%; }
+.dv-kinds button em { font-style: normal; opacity: .6; font-size: 12px; }
+.dv-kinds button.on { background: rgba(255,255,255,.14); border-color: var(--line-2); color: var(--text); }
+.dv-sort { height: 32px; padding: 0 30px 0 13px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.04) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='%23d6dce4' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center / 14px; color: var(--text); font: 500 13px var(--sans); appearance: none; -webkit-appearance: none; cursor: pointer; }
+.dv-sort option { background: #1e2126; }
+.dv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 14px; margin-top: 14px; }
+.dv-tile { display: grid; gap: 6px; min-width: 0; cursor: pointer; border-radius: 18px; outline: none; animation: item-in .35s var(--ease) both; }
+.dv-tile:focus-visible .dv-pic { outline: 2px solid var(--red-hi); outline-offset: 2px; }
+.dv-pic { position: relative; aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; display: grid; place-items: center; background: radial-gradient(120% 90% at 20% 10%, color-mix(in srgb, var(--kc) 30%, transparent), rgba(255,255,255,.04) 70%); border: 1px solid var(--line); color: var(--kc); transition: transform .25s var(--ease), border-color .2s; }
+.dv-pic > svg { width: 38px; height: 38px; opacity: .9; }
+.dv-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.dv-tile:hover .dv-pic { transform: translateY(-2px); border-color: var(--line-2); }
+.dv-tile.off .dv-pic { filter: grayscale(.8); opacity: .55; }
+.dv-n { position: absolute; left: 8px; bottom: 8px; padding: 3px 8px; border-radius: 999px; background: rgba(0,0,0,.55); color: #fff; font: 600 11px var(--sans); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.dv-soon { position: absolute; left: 9px; top: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 0 3px rgba(0,0,0,.35); }
+.dv-acts { position: absolute; right: 7px; top: 7px; display: flex; gap: 5px; opacity: 0; transform: translateY(-4px); transition: opacity .2s, transform .2s var(--ease); }
+.dv-tile:hover .dv-acts, .dv-tile:focus-within .dv-acts { opacity: 1; transform: none; }
+@media (hover: none) { .dv-acts { opacity: 1; transform: none; } }
+.dv-acts button, .dv-acts a { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; padding: 0; border: 1px solid rgba(255,255,255,.18); background: rgba(16,18,22,.62); color: #fff; cursor: pointer; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.dv-acts button:hover, .dv-acts a:hover { background: rgba(212,0,0,.85); }
+.dv-acts svg { width: 15px; height: 15px; }
+.dv-acts .ok { background: var(--ok); }
+.dv-name { font: 600 14px var(--sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 3px; text-align: left; }
+.dv-meta { font: 11.5px var(--mono); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 3px; text-align: left; }
+.dv-empty { grid-column: 1 / -1; text-align: center; }
+@media (max-width: 560px) { .dv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }

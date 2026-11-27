@@ -806,6 +806,7 @@
       if (viewAs) isAdmin = false
       try { if (isAdmin) localStorage.setItem('rt-admin', '1') } catch (e) {}
       $('tab-admin').hidden = !isAdmin
+      if (mine) paintMine(); else paintDrive(null)
       $('op-pc-row').hidden = !isAdmin
       try { $('op-pc').checked = isAdmin && localStorage.getItem('rt-pcloud') === '1' } catch (e) {}
       if (isAdmin && h === 'admin') go('admin')
@@ -923,6 +924,93 @@
     try { await sb.storage.from(BUCKET).remove([m.path]) } catch (x) {}
   }
 
+  // ---- Drive (Alex, 27 Nov: "a button that turns it into something like Google Drive: your files, what you sent, send
+  // it again"). For now only the admin sees it (driveOk); later every Pro. My transfers as a grid of tiles with each
+  // upload's picture (the one made when it was sent, og/<upload>.jpg), kinds, sorting, and on each tile Copy link,
+  // Send again (the link's window with its email box) and Open; a tap opens the link's window as the list does. ----
+  var drive = false, dvKind = 'all', dvSort = 'new'
+  try { drive = localStorage.getItem('rt-drive') === '1'; dvSort = localStorage.getItem('rt-drive-sort') || 'new' } catch (e) {}
+  function driveOk() { return isAdmin && !viewAs }
+  var DV = {
+    en: { all: 'All', new: 'Newest', old: 'Oldest', big: 'Largest', name: 'Name', copy: 'Copy link', again: 'Send again', open: 'Open', files: 'files', none: 'Nothing here.', list: 'List view', grid: 'Drive view' },
+    el: { all: 'Όλα', new: 'Νεότερα', old: 'Παλαιότερα', big: 'Μεγαλύτερα', name: 'Όνομα', copy: 'Αντιγραφή link', again: 'Στείλε ξανά', open: 'Άνοιγμα', files: 'αρχεία', none: 'Τίποτα εδώ.', list: 'Λίστα', grid: 'Προβολή Drive' }
+  }
+  function dv(k) { return (DV[lang] || DV.en)[k] }
+  function kindOfType(t) { return /^video\//.test(t || '') ? 'video' : /^image\//.test(t || '') ? 'image' : /^audio\//.test(t || '') ? 'audio' : 'other' }
+  function kindOfName(f) { var k = kindOfType(f.type); return k === 'other' && AUD_EXT.test(f.name || '') ? 'audio' : k }
+  // a transfer's kind: its own, or the kind most of its files are
+  function dvKindOf(m) {
+    if (!m.files) return kindOfName(m)
+    var n = {}; m.files.forEach(function (f) { var k = kindOfName(f); n[k] = (n[k] || 0) + 1 })
+    return Object.keys(n).sort(function (a, b) { return n[b] - n[a] })[0] || 'other'
+  }
+  var DV_IC = {
+    video: '<path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5z"/><path d="m10 9 5 3-5 3z" fill="currentColor"/>',
+    image: '<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m20.5 16-5-5-9.5 9"/>',
+    audio: '<path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
+    other: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>'
+  }
+  function dvIc(k) { return '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + DV_IC[k] + '</g></svg>' }
+  function paintDrive(shown) {
+    var ok = driveOk(), on = ok && drive
+    $('mine-drive').hidden = !ok
+    $('mine-drive').classList.toggle('on', on)
+    $('mine-drive').title = $('mine-drive').ariaLabel = on ? dv('list') : dv('grid')
+    $('dv-bar').hidden = !on; $('dv-grid').hidden = !on; $('mine-list').hidden = on
+    if (!on || !shown) return on
+    if (picks) { picks = null }
+    $('mine-sel').hidden = true
+    // kinds: All, then only the kinds there are, each with how many
+    var cnt = { video: 0, image: 0, audio: 0, other: 0 }
+    shown.forEach(function (m) { cnt[dvKindOf(m)]++ })
+    if (dvKind !== 'all' && !cnt[dvKind]) dvKind = 'all'
+    $('dv-kinds').innerHTML = '<button type="button" data-dk="all"' + (dvKind === 'all' ? ' class="on"' : '') + '>' + esc(dv('all')) + '</button>'
+      + ['video', 'image', 'audio', 'other'].filter(function (k) { return cnt[k] }).map(function (k) {
+        return '<button type="button" data-dk="' + k + '"' + (dvKind === k ? ' class="on"' : '') + '><i style="background:' + KC[k] + '"></i>' + esc(w('k_' + k)) + ' <em>' + cnt[k] + '</em></button>'
+      }).join('')
+    $('dv-sort').innerHTML = ['new', 'old', 'big', 'name'].map(function (k) { return '<option value="' + k + '"' + (dvSort === k ? ' selected' : '') + '>' + esc(dv(k)) + '</option>' }).join('')
+    var list = shown.filter(function (m) { return dvKind === 'all' || dvKindOf(m) === dvKind })
+    list.sort(function (a, b) {
+      if (dvSort === 'old') return new Date(a.created_at) - new Date(b.created_at)
+      if (dvSort === 'big') return Number(b.size || 0) - Number(a.size || 0)
+      if (dvSort === 'name') return String(a.name || '').localeCompare(String(b.name || ''), loc())
+      return new Date(b.created_at) - new Date(a.created_at)
+    })
+    $('dv-grid').innerHTML = list.length ? list.map(function (m) {
+      var n = mine.indexOf(m), k = dvKindOf(m), on2 = live(m), left = new Date(m.expires).getTime() - Date.now()
+      var pic = on2 && m.cover ? '<img src="/og/' + esc(m.cover) + '.jpg" alt="" loading="lazy" onerror="this.remove()">' : ''
+      var st = m.deleted ? w('deleted') : m.stopped ? w('stoppedT') : on2 ? leftText(left) : w('expired')
+      var acts = on2 && m.token ? '<span class="dv-acts">'
+        + '<button type="button" data-dcp="' + n + '" title="' + esc(dv('copy')) + '" aria-label="' + esc(dv('copy')) + '"><svg><use href="#i-link"/></svg><span hidden></span></button>'
+        + (m.source === 'link' ? '<button type="button" data-dagain="' + n + '" title="' + esc(dv('again')) + '" aria-label="' + esc(dv('again')) + '"><svg><use href="#i-send"/></svg></button>' : '')
+        + '<a href="' + esc(PAGE + m.token) + '" target="_blank" rel="noopener" title="' + esc(dv('open')) + '" aria-label="' + esc(dv('open')) + '"><svg><use href="#i-eye"/></svg></a></span>' : ''
+      return '<div class="dv-tile' + (on2 ? '' : ' off') + '" data-dn="' + n + '" role="button" tabindex="0">'
+        + '<span class="dv-pic k-' + k + '" style="--kc:' + KC[k] + '">' + dvIc(k) + pic
+        + (m.files && m.files.length > 1 ? '<b class="dv-n">' + m.files.length + ' ' + esc(dv('files')) + '</b>' : '')
+        + (on2 && left < 864e5 ? '<em class="dv-soon"></em>' : '') + acts + '</span>'
+        + '<span class="dv-name" title="' + esc(m.name) + '">' + esc(m.name) + '</span>'
+        + '<small class="dv-meta">' + esc(sz(m.size)) + ' · ' + esc(st) + '</small></div>'
+    }).join('') : '<p class="empty dv-empty">' + esc(mine.length ? dv('none') : w('noneYet')) + '</p>'
+    return true
+  }
+  $('mine-drive').addEventListener('click', function () {
+    drive = !drive
+    try { localStorage.setItem('rt-drive', drive ? '1' : '0') } catch (e) {}
+    paintMine()
+  })
+  $('dv-kinds').addEventListener('click', function (e) { var b = e.target.closest('[data-dk]'); if (!b) return; dvKind = b.dataset.dk; paintMine() })
+  $('dv-sort').addEventListener('change', function () { dvSort = this.value; try { localStorage.setItem('rt-drive-sort', dvSort) } catch (e) {} paintMine() })
+  $('dv-grid').addEventListener('click', function (e) {
+    if (e.target.closest('a')) return
+    var c = e.target.closest('[data-dcp]'); if (c) { copy(PAGE + mine[+c.dataset.dcp].token, c, w('copied')); return }
+    var a = e.target.closest('[data-dagain]')
+    if (a) { lmOpen(+a.dataset.dagain); setTimeout(function () { var f = $('lm-mail-to'); if (f) { f.focus(); f.scrollIntoView({ block: 'center', behavior: 'smooth' }) } }, 60); return }
+    var t = e.target.closest('[data-dn]'); if (t) lmOpen(+t.dataset.dn)
+  })
+  $('dv-grid').addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return
+    var t = e.target.closest('[data-dn]'); if (t && e.target === t) { e.preventDefault(); lmOpen(+t.dataset.dn) }
+  })
   // ---- My transfers ----
   // Emails from RoarTransfer (Alex, 3 Nov): "downloaded" and "someone sent you files" can be turned off, both on until
   // then (roar_transfer_mail_prefs, supabase/transfer-mail-prefs.sql in roarme; the Edge Functions skip who turned one off)
@@ -965,13 +1053,16 @@
     // who each file went to by email: every upload or resend that holds it (Alex, 15 Nov: "show me which email it went to")
     bundles.forEach(function (b) { (b.tokens || []).forEach(function (t) { (b.recipients || []).forEach(function (e) { (to[t] = to[t] || {})[e] = 1 }) }) })
     bundles.forEach(function (b) { if ((b.tokens || []).length > 1) (b.tokens || []).forEach(function (t) { of[t] = b }) })
+    // the upload a file came in, for its picture (og/<upload>.jpg, made when it was sent)
+    var up = {}; bundles.forEach(function (b) { (b.tokens || []).forEach(function (t) { if (!up[t]) up[t] = b.token }) })
+    rows.forEach(function (m) { if (m.token && up[m.token]) m.cover = up[m.token] })
     rows.forEach(function (m) {
       var b = m.token && of[m.token]
       if (m.token && to[m.token]) m.sentTo = Object.keys(to[m.token])
       if (!b) { out.push(m); return }
       var g = made[b.token]
       if (!g) {
-        g = made[b.token] = { bundle: b.token, token: b.token, files: [], title: b.title || '', type: 'bundle', source: 'link', path: 'bundle:' + b.token,
+        g = made[b.token] = { bundle: b.token, token: b.token, cover: b.token, files: [], title: b.title || '', type: 'bundle', source: 'link', path: 'bundle:' + b.token,
           created_at: b.created_at || m.created_at, expires: m.expires, size: 0, downloads: 0, opens: 0, stopped: true, deleted: true, sentTo: [] }
         out.push(g)
       }
@@ -1000,6 +1091,7 @@
     var act = mine.filter(live)
     $('mine-facts').textContent = mine.length ? [w('nTransfers')(mine.length), sz(sum(mine, 'size')), fmtN(act.length) + ' ' + w('tActive'), w('dls')(sum(mine, 'downloads'))].join(' · ') : ''
     var shown = filt(mine.filter(function (m) { return !m.stopped }), mineF, $('mine-q').value)
+    if (paintDrive(shown)) return
     $('mine-list').innerHTML = shown.length ? shown.map(function (m) { return row(m, mine.indexOf(m), false) }).join('') : note(mine.length ? w('noneFound') : w('noneYet'))
     paintPick(shown)
   }
