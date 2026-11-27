@@ -796,7 +796,7 @@
     if (graceBack()) return
     var h = (location.hash || '').slice(1)
     tab = 'send'; sendView = busy ? 'v-up' : 'v-pick'
-    go(h === 'mine' ? 'mine' : 'send')
+    go(h === 'mine' || h === 'drive' ? 'mine' : 'send')
     loadPro()
     loadMails()
     sb.rpc('roar_is_admin').then(function (r) {
@@ -810,14 +810,18 @@
       $('op-pc-row').hidden = !isAdmin
       try { $('op-pc').checked = isAdmin && localStorage.getItem('rt-pcloud') === '1' } catch (e) {}
       if (isAdmin && h === 'admin') go('admin')
+      if (isAdmin && h === 'drive') go('drive')
     })
   }
   function go(t) {
     if (t === 'admin' && !isAdmin) t = 'send'
+    if (t === 'drive' && !driveOk()) t = 'mine'
     tab = t
     try { history.replaceState(null, '', location.pathname + location.search + (t === 'send' ? '' : '#' + t)) } catch (e) {}
+    // Drive (Alex, 27 Nov: "put it on the home page"): its own tab, the same page as My transfers in the Drive look
+    if (t === 'mine' || t === 'drive') drive = t === 'drive'
     if (t === 'send') { show(sendView); paint() }
-    else if (t === 'mine') { show('v-mine'); paintMine(); loadMine() }
+    else if (t === 'mine' || t === 'drive') { show('v-mine'); paintMine(); loadMine() }
     else { show('v-admin'); paintStats(); paintAdmList(); loadAdmin() }
   }
   $('tabs').addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) go(b.dataset.go) })
@@ -924,93 +928,224 @@
     try { await sb.storage.from(BUCKET).remove([m.path]) } catch (x) {}
   }
 
-  // ---- Drive (Alex, 27 Nov: "a button that turns it into something like Google Drive: your files, what you sent, send
-  // it again"). For now only the admin sees it (driveOk); later every Pro. My transfers as a grid of tiles with each
-  // upload's picture (the one made when it was sent, og/<upload>.jpg), kinds, sorting, and on each tile Copy link,
-  // Send again (the link's window with its email box) and Open; a tap opens the link's window as the list does. ----
-  var drive = false, dvKind = 'all', dvSort = 'new'
-  try { drive = localStorage.getItem('rt-drive') === '1'; dvSort = localStorage.getItem('rt-drive-sort') || 'new' } catch (e) {}
+  // ---- Drive (Alex, 27 Nov: "a button that turns the whole page into something like Google Drive, close to our own
+  // style: your files, what you sent, send it again"). For now only the admin sees it (driveOk); later every Pro.
+  // The card becomes a wide two-part page: at the left New transfer, the places (My files, Recent, Active, Ending soon,
+  // Expired, Sent by email, Large files) and what is kept; at the right the search, the filters as chips that open
+  // small menus (Type, People, Sent, Source), List or Grid, and the files: a list with columns that sort, or tiles with
+  // each upload's picture (og/<upload>.jpg). Each file has ⋯ (Open, Copy link, Send again, Details, Delete); a tap
+  // opens the link's window as the list does. ----
+  var drive = false // on while the Drive tab is chosen
+  var dvs = { nav: 'all', type: '', who: '', when: '', src: '', view: 'list', sort: 'date', dir: -1 }
+  try {
+    var kept = JSON.parse(localStorage.getItem('rt-drive-v') || '{}')
+    if (kept.view === 'grid' || kept.view === 'list') dvs.view = kept.view
+    if (/^(name|date|exp|size|dl)$/.test(kept.sort || '')) { dvs.sort = kept.sort; dvs.dir = kept.dir === 1 ? 1 : -1 }
+  } catch (e) {}
+  // the small menus hang on the page itself (inside the card's glass a fixed menu would be placed by the card)
+  document.body.appendChild($('dv-pop'))
+  function dvKeep() { try { localStorage.setItem('rt-drive-v', JSON.stringify({ view: dvs.view, sort: dvs.sort, dir: dvs.dir })) } catch (e) {} }
   function driveOk() { return isAdmin && !viewAs }
-  var DV = {
-    en: { all: 'All', new: 'Newest', old: 'Oldest', big: 'Largest', name: 'Name', copy: 'Copy link', again: 'Send again', open: 'Open', files: 'files', none: 'Nothing here.', list: 'List view', grid: 'Drive view' },
-    el: { all: 'Όλα', new: 'Νεότερα', old: 'Παλαιότερα', big: 'Μεγαλύτερα', name: 'Όνομα', copy: 'Αντιγραφή link', again: 'Στείλε ξανά', open: 'Άνοιγμα', files: 'αρχεία', none: 'Τίποτα εδώ.', list: 'Λίστα', grid: 'Προβολή Drive' }
+  var DVW = {
+    en: { files: 'My files', recent: 'Recent', active: 'Active', soon: 'Ending soon', expired: 'Expired', mailed: 'Sent by email', big: 'Large files',
+      newT: 'New transfer', search: 'Search in your files', type: 'Type', people: 'People', when: 'Sent', src: 'Source', clear: 'Clear',
+      any: 'Any time', today: 'Today', d7: 'Last 7 days', d30: 'Last 30 days', year: 'This year', linkOnly: 'Link only, no email',
+      name: 'Name', to: 'Sent to', sent: 'Sent', exp: 'Expires', size: 'Size', dls: 'Downloads', open: 'Open the page', copy: 'Copy link',
+      again: 'Send again', det: 'Details', del: 'Delete', list: 'List', grid: 'Grid', classic: 'Classic view', none: 'Nothing here.',
+      keptT: 'Kept now', allT: 'All time', inN: function (n) { return 'in ' + n + ' transfer' + (n === 1 ? '' : 's') }, nFiles: function (n) { return n + ' files' } },
+    el: { files: 'Τα αρχεία μου', recent: 'Πρόσφατα', active: 'Ενεργά', soon: 'Λήγουν σύντομα', expired: 'Έληξαν', mailed: 'Με email', big: 'Μεγάλα αρχεία',
+      newT: 'Νέα αποστολή', search: 'Αναζήτηση στα αρχεία σου', type: 'Είδος', people: 'Άτομα', when: 'Στάλθηκε', src: 'Πηγή', clear: 'Καθαρισμός',
+      any: 'Οποτεδήποτε', today: 'Σήμερα', d7: 'Τελευταίες 7 μέρες', d30: 'Τελευταίες 30 μέρες', year: 'Φέτος', linkOnly: 'Μόνο link, χωρίς email',
+      name: 'Όνομα', to: 'Σε ποιον', sent: 'Στάλθηκε', exp: 'Λήγει', size: 'Μέγεθος', dls: 'Λήψεις', open: 'Άνοιγμα σελίδας', copy: 'Αντιγραφή link',
+      again: 'Στείλε ξανά', det: 'Λεπτομέρειες', del: 'Διαγραφή', list: 'Λίστα', grid: 'Πλέγμα', classic: 'Κανονική προβολή', none: 'Τίποτα εδώ.',
+      keptT: 'Ενεργά τώρα', allT: 'Συνολικά', inN: function (n) { return 'σε ' + n + (n === 1 ? ' αποστολή' : ' αποστολές') }, nFiles: function (n) { return n + ' αρχεία' } }
   }
-  function dv(k) { return (DV[lang] || DV.en)[k] }
-  function kindOfType(t) { return /^video\//.test(t || '') ? 'video' : /^image\//.test(t || '') ? 'image' : /^audio\//.test(t || '') ? 'audio' : 'other' }
-  function kindOfName(f) { var k = kindOfType(f.type); return k === 'other' && AUD_EXT.test(f.name || '') ? 'audio' : k }
-  // a transfer's kind: its own, or the kind most of its files are
+  function dv(k) { return (DVW[lang] || DVW.en)[k] }
+  var DV_NAV = [
+    ['all', '<path d="M3.5 7.5A2.5 2.5 0 0 1 6 5h3.6l2 2H18a2.5 2.5 0 0 1 2.5 2.5V17A2.5 2.5 0 0 1 18 19.5H6A2.5 2.5 0 0 1 3.5 17z"/>', 'files'],
+    ['recent', '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/>', 'recent'],
+    ['active', '<circle cx="12" cy="12" r="8"/><path d="m8.5 12.3 2.4 2.4 4.6-4.9"/>', 'active'],
+    ['soon', '<path d="M7 3.5h10M7 20.5h10M8 3.5c0 4 8 4.5 8 8.5s-8 4.5-8 8.5M16 3.5c0 4-8 4.5-8 8.5"/>', 'soon'],
+    ['expired', '<circle cx="12" cy="12" r="8"/><path d="m9 9 6 6M15 9l-6 6"/>', 'expired'],
+    ['mailed', '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/>', 'mailed'],
+    ['big', '<path d="M12 3v12M7.5 10.5 12 15l4.5-4.5M5 20h14"/>', 'big']
+  ]
+  function sv(p, cls) { return '<svg class="' + (cls || '') + '" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + p + '</g></svg>' }
+  var DV_IC = {
+    video: '<rect x="3.5" y="5" width="17" height="14" rx="3"/><path d="m10 9.2 5 2.8-5 2.8z" fill="currentColor"/>',
+    image: '<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m20.5 16-5-5-9.5 9"/>',
+    audio: '<path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
+    other: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
+    many: '<path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h9A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H17"/><rect x="4" y="8" width="12" height="12" rx="2"/>'
+  }
+  var DV_EXT = /\.(mp3|wav|wave|aif|aiff|flac|m4a|aac|ogg|opus)$/i
+  function kindOfName(f) { var t = f.type || ''; return /^video\//.test(t) ? 'video' : /^image\//.test(t) ? 'image' : /^audio\//.test(t) || DV_EXT.test(f.name || '') ? 'audio' : 'other' }
   function dvKindOf(m) {
     if (!m.files) return kindOfName(m)
     var n = {}; m.files.forEach(function (f) { var k = kindOfName(f); n[k] = (n[k] || 0) + 1 })
     return Object.keys(n).sort(function (a, b) { return n[b] - n[a] })[0] || 'other'
   }
-  var DV_IC = {
-    video: '<path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5z"/><path d="m10 9 5 3-5 3z" fill="currentColor"/>',
-    image: '<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m20.5 16-5-5-9.5 9"/>',
-    audio: '<path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
-    other: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>'
+  function dvAll() { return (mine || []).filter(function (m) { return !m.stopped }) }
+  function inNav(m, k) {
+    var age = Date.now() - new Date(m.created_at).getTime(), left = new Date(m.expires).getTime() - Date.now()
+    return k === 'all' ? true : k === 'recent' ? age < 7 * 864e5 : k === 'active' ? live(m) : k === 'soon' ? live(m) && left < 864e5
+      : k === 'expired' ? !live(m) : k === 'mailed' ? !!(m.sentTo && m.sentTo.length) : k === 'big' ? Number(m.size || 0) >= 1024 * 1024 * 1024 : true
   }
-  function dvIc(k) { return '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + DV_IC[k] + '</g></svg>' }
-  function paintDrive(shown) {
-    var ok = driveOk(), on = ok && drive
-    $('mine-drive').hidden = !ok
-    $('mine-drive').classList.toggle('on', on)
-    $('mine-drive').title = $('mine-drive').ariaLabel = on ? dv('list') : dv('grid')
-    $('dv-bar').hidden = !on; $('dv-grid').hidden = !on; $('mine-list').hidden = on
-    if (!on || !shown) return on
-    if (picks) { picks = null }
-    $('mine-sel').hidden = true
-    // kinds: All, then only the kinds there are, each with how many
-    var cnt = { video: 0, image: 0, audio: 0, other: 0 }
-    shown.forEach(function (m) { cnt[dvKindOf(m)]++ })
-    if (dvKind !== 'all' && !cnt[dvKind]) dvKind = 'all'
-    $('dv-kinds').innerHTML = '<button type="button" data-dk="all"' + (dvKind === 'all' ? ' class="on"' : '') + '>' + esc(dv('all')) + '</button>'
-      + ['video', 'image', 'audio', 'other'].filter(function (k) { return cnt[k] }).map(function (k) {
-        return '<button type="button" data-dk="' + k + '"' + (dvKind === k ? ' class="on"' : '') + '><i style="background:' + KC[k] + '"></i>' + esc(w('k_' + k)) + ' <em>' + cnt[k] + '</em></button>'
-      }).join('')
-    $('dv-sort').innerHTML = ['new', 'old', 'big', 'name'].map(function (k) { return '<option value="' + k + '"' + (dvSort === k ? ' selected' : '') + '>' + esc(dv(k)) + '</option>' }).join('')
-    var list = shown.filter(function (m) { return dvKind === 'all' || dvKindOf(m) === dvKind })
-    list.sort(function (a, b) {
-      if (dvSort === 'old') return new Date(a.created_at) - new Date(b.created_at)
-      if (dvSort === 'big') return Number(b.size || 0) - Number(a.size || 0)
-      if (dvSort === 'name') return String(a.name || '').localeCompare(String(b.name || ''), loc())
-      return new Date(b.created_at) - new Date(a.created_at)
-    })
-    $('dv-grid').innerHTML = list.length ? list.map(function (m) {
-      var n = mine.indexOf(m), k = dvKindOf(m), on2 = live(m), left = new Date(m.expires).getTime() - Date.now()
-      var pic = on2 && m.cover ? '<img src="/og/' + esc(m.cover) + '.jpg" alt="" loading="lazy" onerror="this.remove()">' : ''
-      var st = m.deleted ? w('deleted') : m.stopped ? w('stoppedT') : on2 ? leftText(left) : w('expired')
-      var acts = on2 && m.token ? '<span class="dv-acts">'
-        + '<button type="button" data-dcp="' + n + '" title="' + esc(dv('copy')) + '" aria-label="' + esc(dv('copy')) + '"><svg><use href="#i-link"/></svg><span hidden></span></button>'
-        + (m.source === 'link' ? '<button type="button" data-dagain="' + n + '" title="' + esc(dv('again')) + '" aria-label="' + esc(dv('again')) + '"><svg><use href="#i-send"/></svg></button>' : '')
-        + '<a href="' + esc(PAGE + m.token) + '" target="_blank" rel="noopener" title="' + esc(dv('open')) + '" aria-label="' + esc(dv('open')) + '"><svg><use href="#i-eye"/></svg></a></span>' : ''
-      return '<div class="dv-tile' + (on2 ? '' : ' off') + '" data-dn="' + n + '" role="button" tabindex="0">'
-        + '<span class="dv-pic k-' + k + '" style="--kc:' + KC[k] + '">' + dvIc(k) + pic
-        + (m.files && m.files.length > 1 ? '<b class="dv-n">' + m.files.length + ' ' + esc(dv('files')) + '</b>' : '')
-        + (on2 && left < 864e5 ? '<em class="dv-soon"></em>' : '') + acts + '</span>'
-        + '<span class="dv-name" title="' + esc(m.name) + '">' + esc(m.name) + '</span>'
-        + '<small class="dv-meta">' + esc(sz(m.size)) + ' · ' + esc(st) + '</small></div>'
-    }).join('') : '<p class="empty dv-empty">' + esc(mine.length ? dv('none') : w('noneYet')) + '</p>'
+  function inWhen(m) {
+    if (!dvs.when) return true
+    var t = new Date(m.created_at), now = new Date()
+    if (dvs.when === 'today') return t.toDateString() === now.toDateString()
+    if (dvs.when === 'd7') return now - t < 7 * 864e5
+    if (dvs.when === 'd30') return now - t < 30 * 864e5
+    if (dvs.when === 'year') return t.getFullYear() === now.getFullYear()
     return true
   }
-  $('mine-drive').addEventListener('click', function () {
-    drive = !drive
-    try { localStorage.setItem('rt-drive', drive ? '1' : '0') } catch (e) {}
-    paintMine()
-  })
-  $('dv-kinds').addEventListener('click', function (e) { var b = e.target.closest('[data-dk]'); if (!b) return; dvKind = b.dataset.dk; paintMine() })
-  $('dv-sort').addEventListener('change', function () { dvSort = this.value; try { localStorage.setItem('rt-drive-sort', dvSort) } catch (e) {} paintMine() })
-  $('dv-grid').addEventListener('click', function (e) {
-    if (e.target.closest('a')) return
-    var c = e.target.closest('[data-dcp]'); if (c) { copy(PAGE + mine[+c.dataset.dcp].token, c, w('copied')); return }
-    var a = e.target.closest('[data-dagain]')
-    if (a) { lmOpen(+a.dataset.dagain); setTimeout(function () { var f = $('lm-mail-to'); if (f) { f.focus(); f.scrollIntoView({ block: 'center', behavior: 'smooth' }) } }, 60); return }
+  function dvList() {
+    var q = ($('dv-q').value || '').trim().toLowerCase()
+    var list = dvAll().filter(function (m) {
+      if (!inNav(m, dvs.nav) || !inWhen(m)) return false
+      if (dvs.type && dvKindOf(m) !== dvs.type) return false
+      if (dvs.who === '-' ? m.sentTo && m.sentTo.length : dvs.who && (m.sentTo || []).indexOf(dvs.who) < 0) return false
+      if (dvs.src && where(m) !== dvs.src) return false
+      return !q || [m.name, m.title].concat((m.files || []).map(function (f) { return f.name })).concat(m.sentTo || []).some(function (x) { return (x || '').toLowerCase().indexOf(q) >= 0 })
+    })
+    var key = { name: function (m) { return String(m.name || '').toLowerCase() }, date: function (m) { return new Date(m.created_at).getTime() }, exp: function (m) { return new Date(m.expires).getTime() }, size: function (m) { return Number(m.size || 0) }, dl: function (m) { return Number(m.downloads || 0) } }[dvs.sort]
+    list.sort(function (a, b) { var x = key(a), y = key(b); return (x < y ? -1 : x > y ? 1 : 0) * dvs.dir })
+    return list
+  }
+  function dvShort(ms) { return new Date(ms).toLocaleDateString(loc(), { day: 'numeric', month: 'short', year: new Date(ms).getFullYear() === new Date().getFullYear() ? undefined : 'numeric' }) }
+  function dvChip(k, label, val) {
+    return '<button type="button" class="dv-chip' + (val ? ' on' : '') + '" data-chip="' + k + '"><span>' + esc(val || label) + '</span>' + sv('<path d="m7 10 5 5 5-5"/>', 'dv-car') + '</button>'
+  }
+  var KIND_LABEL = function (k) { return w('k_' + k) }
+  function paintDrive(shown) {
+    var ok = driveOk(), on = ok && drive
+    $('tab-drive').hidden = !ok
+    $('v-mine').classList.toggle('is-drive', on)
+    $('dv').hidden = !on
+    document.documentElement.classList.toggle('dv-on', on)
+    if (!on || !shown) return on
+    if (picks) picks = null
+    var all = dvAll()
+    // the places, each with how many
+    $('dv-nav').innerHTML = DV_NAV.map(function (n) {
+      var c = all.filter(function (m) { return inNav(m, n[0]) }).length
+      return '<button type="button" data-nav="' + n[0] + '"' + (dvs.nav === n[0] ? ' class="on"' : '') + '>' + sv(n[1]) + '<span>' + esc(dv(n[2])) + '</span><em>' + c + '</em></button>'
+    }).join('')
+    // what is kept
+    var act = all.filter(live), actSz = sum(act, 'size'), allSz = sum(all, 'size')
+    $('dv-store').innerHTML = '<span class="dv-st-k">' + esc(dv('keptT')) + '</span><b>' + esc(sz(actSz)) + '</b><small>' + esc(dv('inN')(act.length)) + '</small>'
+      + '<i class="dv-bar"><i style="width:' + (allSz ? Math.max(2, Math.round(actSz / allSz * 100)) : 0) + '%"></i></i>'
+      + '<small>' + esc(dv('allT')) + ' · ' + esc(sz(allSz)) + ' · ' + esc(w('dls')(sum(all, 'downloads'))) + '</small>'
+    $('dv-q').placeholder = dv('search')
+    $('dv-title').textContent = dv((DV_NAV.filter(function (n) { return n[0] === dvs.nav })[0] || DV_NAV[0])[2])
+    $('dv-new').querySelector('span').textContent = dv('newT')
+    $('dv-exit').title = $('dv-exit').ariaLabel = dv('classic')
+    Array.prototype.forEach.call($('dv-views').children, function (b) { b.classList.toggle('on', b.dataset.v === dvs.view); b.title = dv(b.dataset.v) })
+    var whenL = { today: dv('today'), d7: dv('d7'), d30: dv('d30'), year: dv('year') }
+    $('dv-chips').innerHTML = dvChip('type', dv('type'), dvs.type ? KIND_LABEL(dvs.type) : '')
+      + dvChip('who', dv('people'), dvs.who === '-' ? dv('linkOnly') : dvs.who)
+      + dvChip('when', dv('when'), whenL[dvs.when] || '')
+      + dvChip('src', dv('src'), dvs.src)
+      + (dvs.type || dvs.who || dvs.when || dvs.src ? '<button type="button" class="dv-chip clr" data-chip="clear">' + esc(dv('clear')) + '</button>' : '')
+    var list = dvList()
+    if (!list.length) { $('dv-body').innerHTML = '<p class="dv-empty">' + sv(DV_IC.many) + '<span>' + esc(all.length ? dv('none') : w('noneYet')) + '</span></p>'; return true }
+    var icon2 = function (m, k) { return '<span class="dv-ic" style="--kc:' + KC[k] + '">' + sv(m.files && m.files.length > 1 ? DV_IC.many : DV_IC[k]) + '</span>' }
+    var more = function (n) { return '<button type="button" class="dv-more" data-more="' + n + '" aria-label="More">' + sv('<circle cx="12" cy="5.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="18.5" r="1.3" fill="currentColor"/>') + '</button>' }
+    if (dvs.view === 'list') {
+      var th = function (k, label) { return '<button type="button" class="dv-th' + (k === 'date' ? ' col-s' : k === 'dl' ? ' col-dl' : '') + (dvs.sort === k ? ' on' : '') + '" data-sort="' + k + '">' + esc(label) + (dvs.sort === k ? sv(dvs.dir > 0 ? '<path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"/>' : '<path d="M12 5v14M6.5 13.5 12 19l5.5-5.5"/>', 'dv-ar') : '') + '</button>' }
+      $('dv-body').innerHTML = '<div class="dv-table"><div class="dv-tr dv-thead">' + th('name', dv('name')) + '<span class="c-to">' + esc(dv('to')) + '</span>' + th('date', dv('sent')) + th('exp', dv('exp')) + th('size', dv('size')) + th('dl', dv('dls')) + '<span></span></div>'
+        + list.map(function (m) {
+          var n = mine.indexOf(m), k = dvKindOf(m), on2 = live(m), left = new Date(m.expires).getTime() - Date.now()
+          var to = m.sentTo && m.sentTo.length ? '<span class="dv-to"><b>' + esc(m.sentTo[0]) + '</b>' + (m.sentTo.length > 1 ? '<em>+' + (m.sentTo.length - 1) + '</em>' : '') + '</span>' : '<span class="dv-to dim">' + esc(where(m)) + '</span>'
+          var ex = m.deleted ? w('deleted') : on2 ? leftText(left) : w('expired')
+          return '<div class="dv-tr' + (on2 ? '' : ' off') + '" data-dn="' + n + '" role="button" tabindex="0">'
+            + '<span class="c-name">' + icon2(m, k) + '<span class="dv-nm"><b title="' + esc(m.name) + '">' + esc(m.name) + '</b>' + (m.files && m.files.length > 1 ? '<small>' + esc(dv('nFiles')(m.files.length)) + '</small>' : '') + '<small class="dv-mob">' + esc(sz(m.size)) + ' · ' + esc(ex) + '</small></span></span>'
+            + '<span class="c-to">' + to + '</span>'
+            + '<span class="c-d col-s">' + esc(dvShort(new Date(m.created_at).getTime())) + '</span>'
+            + '<span class="c-d' + (on2 && left < 864e5 ? ' soon' : '') + '">' + esc(ex) + '</span>'
+            + '<span class="c-d">' + esc(sz(m.size)) + '</span>'
+            + '<span class="c-d col-dl">' + Number(m.downloads || 0) + '</span>'
+            + '<span class="c-m">' + more(n) + '</span></div>'
+        }).join('') + '</div>'
+    } else {
+      $('dv-body').innerHTML = '<div class="dv-grid">' + list.map(function (m) {
+        var n = mine.indexOf(m), k = dvKindOf(m), on2 = live(m), left = new Date(m.expires).getTime() - Date.now()
+        var pic = on2 && m.cover ? '<img src="/og/' + esc(m.cover) + '.jpg" alt="" loading="lazy" onerror="this.remove()">' : ''
+        return '<div class="dv-tile' + (on2 ? '' : ' off') + '" data-dn="' + n + '" role="button" tabindex="0">'
+          + '<span class="dv-tn">' + icon2(m, k) + '<b title="' + esc(m.name) + '">' + esc(m.name) + '</b>' + more(n) + '</span>'
+          + '<span class="dv-pic" style="--kc:' + KC[k] + '">' + sv(DV_IC[k]) + pic + (m.files && m.files.length > 1 ? '<b class="dv-n">' + esc(dv('nFiles')(m.files.length)) + '</b>' : '') + '</span>'
+          + '<small class="dv-meta">' + esc(sz(m.size)) + ' · ' + esc(m.deleted ? w('deleted') : on2 ? leftText(left) : w('expired')) + '</small></div>'
+      }).join('') + '</div>'
+    }
+    return true
+  }
+  // small menus: a filter's choices, or a file's actions
+  var dvPopFor = null
+  function dvPop(anchor, html, key) {
+    var p = $('dv-pop')
+    if (!p.hidden && dvPopFor === key) { dvPopClose(); return }
+    dvPopFor = key; p.innerHTML = html; p.hidden = false
+    var r = anchor.getBoundingClientRect(), pw2 = p.offsetWidth, ph = p.offsetHeight
+    var x = Math.min(Math.max(8, r.right - pw2 > 8 && key.indexOf('more') === 0 ? r.right - pw2 : r.left), innerWidth - pw2 - 8)
+    var y = r.bottom + 6 + ph > innerHeight - 8 ? Math.max(8, r.top - ph - 6) : r.bottom + 6
+    p.style.left = x + 'px'; p.style.top = y + 'px'
+  }
+  function dvPopClose() { $('dv-pop').hidden = true; dvPopFor = null }
+  function dvOpt(v, label, cur, dot) { return '<button type="button" data-opt="' + esc(v) + '"' + (v === cur ? ' class="on"' : '') + '>' + (dot ? '<i style="background:' + dot + '"></i>' : '') + '<span>' + esc(label) + '</span>' + (v === cur ? sv('<path d="m5 12.5 4.5 4.5L19 7.5"/>', 'dv-tick') : '') + '</button>' }
+  function chipMenu(b) {
+    var k = b.dataset.chip, all = dvAll(), h = ''
+    if (k === 'clear') { dvs.type = dvs.who = dvs.when = dvs.src = ''; paintMine(); return }
+    if (k === 'type') h = dvOpt('', dv('any') === dv('any') ? (lang === 'el' ? 'Όλα' : 'All') : '', dvs.type) + ['video', 'image', 'audio', 'other'].filter(function (t) { return all.some(function (m) { return dvKindOf(m) === t }) }).map(function (t) { return dvOpt(t, KIND_LABEL(t), dvs.type, KC[t]) }).join('')
+    if (k === 'who') {
+      var ppl = {}; all.forEach(function (m) { (m.sentTo || []).forEach(function (e) { ppl[e] = (ppl[e] || 0) + 1 }) })
+      h = dvOpt('', lang === 'el' ? 'Όλοι' : 'Everyone', dvs.who) + dvOpt('-', dv('linkOnly'), dvs.who) + Object.keys(ppl).sort(function (a, z) { return ppl[z] - ppl[a] }).map(function (e) { return dvOpt(e, e, dvs.who) }).join('')
+    }
+    if (k === 'when') h = ['', 'today', 'd7', 'd30', 'year'].map(function (v) { return dvOpt(v, v ? dv(v) : dv('any'), dvs.when) }).join('')
+    if (k === 'src') { var ss = {}; all.forEach(function (m) { ss[where(m)] = 1 }); h = dvOpt('', lang === 'el' ? 'Όλες' : 'All', dvs.src) + Object.keys(ss).map(function (s) { return dvOpt(s, s, dvs.src) }).join('') }
+    dvPop(b, '<div class="dv-menu" data-for="' + k + '">' + h + '</div>', 'chip-' + k)
+  }
+  function moreMenu(b) {
+    var n = +b.dataset.more, m = mine[n]; if (!m) return
+    var on2 = live(m) && m.token, row = function (a, ic, label, red) { return '<button type="button" data-act="' + a + '" data-n="' + n + '"' + (red ? ' class="red"' : '') + '>' + sv(ic) + '<span>' + esc(label) + '</span></button>' }
+    var h = (on2 ? row('open', '<path d="M14 4h6v6M20 4l-9 9M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>', dv('open'))
+      + row('copy', '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>', dv('copy'))
+      + (m.source === 'link' ? row('again', '<path d="m4 12 16-8-6 16-2.5-6.5z"/>', dv('again')) : '') : '')
+      + row('det', '<circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8h.01"/>', dv('det'))
+      + (on2 && m.source === 'link' ? '<hr>' + row('del', '<path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>', dv('del'), true) : '')
+    dvPop(b, '<div class="dv-menu">' + h + '</div>', 'more-' + n)
+  }
+  $('dv-exit').addEventListener('click', function () { dvPopClose(); go('mine') })
+  $('dv-new').addEventListener('click', function () { go('send') })
+  $('dv-q').addEventListener('input', paintMine)
+  $('dv-nav').addEventListener('click', function (e) { var b = e.target.closest('[data-nav]'); if (!b) return; dvs.nav = b.dataset.nav; paintMine() })
+  $('dv-views').addEventListener('click', function (e) { var b = e.target.closest('[data-v]'); if (!b) return; dvs.view = b.dataset.v; dvKeep(); paintMine() })
+  $('dv-chips').addEventListener('click', function (e) { var b = e.target.closest('[data-chip]'); if (b) chipMenu(b) })
+  $('dv-body').addEventListener('click', function (e) {
+    var s = e.target.closest('[data-sort]'); if (s) { var k = s.dataset.sort; if (dvs.sort === k) dvs.dir = -dvs.dir; else { dvs.sort = k; dvs.dir = k === 'name' ? 1 : -1 } dvKeep(); paintMine(); return }
+    var mo = e.target.closest('[data-more]'); if (mo) { moreMenu(mo); return }
     var t = e.target.closest('[data-dn]'); if (t) lmOpen(+t.dataset.dn)
   })
-  $('dv-grid').addEventListener('keydown', function (e) {
-    if (e.key !== 'Enter' && e.key !== ' ') return
-    var t = e.target.closest('[data-dn]'); if (t && e.target === t) { e.preventDefault(); lmOpen(+t.dataset.dn) }
+  $('dv-body').addEventListener('keydown', function (e) { if (e.key !== 'Enter' && e.key !== ' ') return; var t = e.target.closest('[data-dn]'); if (t && e.target === t) { e.preventDefault(); lmOpen(+t.dataset.dn) } })
+  $('dv-pop').addEventListener('click', async function (e) {
+    var o = e.target.closest('[data-opt]')
+    if (o) { var k = o.parentNode.dataset.for; dvs[k] = o.dataset.opt; dvPopClose(); paintMine(); return }
+    var a = e.target.closest('[data-act]'); if (!a) return
+    var m = mine[+a.dataset.n]; dvPopClose(); if (!m) return
+    if (a.dataset.act === 'open') window.open(PAGE + m.token, '_blank', 'noopener')
+    if (a.dataset.act === 'copy') { try { await navigator.clipboard.writeText(PAGE + m.token) } catch (x) {} }
+    if (a.dataset.act === 'det') lmOpen(+a.dataset.n)
+    if (a.dataset.act === 'again') { lmOpen(+a.dataset.n); setTimeout(function () { var f = $('lm-mail-to'); if (f) { f.focus(); f.scrollIntoView({ block: 'center', behavior: 'smooth' }) } }, 60) }
+    if (a.dataset.act === 'del') {
+      if (!window.confirm(w('stopAsk')(m.name))) return
+      try { await stopOne(m) } catch (x) { window.alert(x.message); return }
+      loadMine()
+    }
   })
+  document.addEventListener('click', function (e) { if (!$('dv-pop').hidden && !e.target.closest('#dv-pop, [data-chip], [data-more]')) dvPopClose() })
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') dvPopClose() })
+  window.addEventListener('resize', dvPopClose)
+  $('dv').addEventListener('scroll', dvPopClose, true)
   // ---- My transfers ----
   // Emails from RoarTransfer (Alex, 3 Nov): "downloaded" and "someone sent you files" can be turned off, both on until
   // then (roar_transfer_mail_prefs, supabase/transfer-mail-prefs.sql in roarme; the Edge Functions skip who turned one off)

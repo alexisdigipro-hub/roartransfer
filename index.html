@@ -33,7 +33,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://bzmjhbnwhdwmncxkqkdl.supabase.co" crossorigin>
 <link rel="preload" href="/fonts/jost-latin-var.woff2" as="font" type="font/woff2" crossorigin><style>@font-face{font-family:Jost;font-style:normal;font-display:swap;font-weight:100 900;src:url(/fonts/jost-latin-var.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:Jost;font-style:normal;font-display:swap;font-weight:100 900;src:url(/fonts/jost-latin-ext-var.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}</style>
-<link rel="stylesheet" href="/home.css?v=5b1d96eb">
+<link rel="stylesheet" href="/home.css?v=54449c08">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -138,6 +138,7 @@
 <nav class="tabs" id="tabs" hidden aria-label="RoarTransfer">
   <button type="button" data-go="send" data-t="tb.send">Send</button>
   <button type="button" data-go="mine" id="tab-mine" data-t="tb.mine">My transfers</button>
+  <button type="button" data-go="drive" id="tab-drive" hidden>Drive</button>
   <button type="button" data-go="admin" id="tab-admin" data-t="tb.admin" hidden>Admin</button>
 </nav>
 
@@ -360,20 +361,32 @@
     <p class="sub" id="mn-sub" data-t="mn.sub">Everything you sent, from here, RoarMail and your chats. Links last 1 to 7 days, up to 30 with Pro.</p>
     <!-- a Pro's page in three (Alex, 26 Oct: "tabs, nice buttons, smoother"): what they sent, what came in, their Pro -->
     <div class="seg adm-tab" id="mine-tab" hidden><button type="button" class="on" data-f="sent" data-t="mt.sent">Sent</button><button type="button" data-f="got"><span data-t="mt.got">Received</span><i class="tc" id="tc-got"></i></button></div>
+    <!-- Drive (Alex, 27 Nov: "the whole page like Google Drive, close to our own style"); the Drive tab, admin only for now -->
+    <div class="dv" id="dv" hidden>
+      <aside class="dv-side">
+        <button type="button" class="dv-new" id="dv-new"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>New transfer</span></button>
+        <nav class="dv-nav" id="dv-nav"></nav>
+        <div class="dv-store" id="dv-store"></div>
+      </aside>
+      <section class="dv-main">
+        <div class="dv-top">
+          <label class="dv-search"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></g></svg><input id="dv-q" type="search" autocomplete="off"></label>
+          <div class="dv-views" id="dv-views"><button type="button" data-v="list"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></button><button type="button" data-v="grid"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></g></svg></button></div>
+          <button type="button" class="dv-exit" id="dv-exit"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        </div>
+        <h2 class="dv-title" id="dv-title"></h2>
+        <div class="dv-chips" id="dv-chips"></div>
+        <div class="dv-body" id="dv-body"></div>
+      </section>
+    </div>
+    <div class="dv-pop" id="dv-pop" hidden></div>
     <div class="pane" id="mpane-sent">
     <p class="mine-tot" id="mine-facts"></p>
     <div class="bar2">
       <div class="seg" id="mine-seg"><button type="button" class="on" data-f="all" data-t="f.all">All</button><button type="button" data-f="on" data-t="f.on">Active</button><button type="button" data-f="off" data-t="f.off">Expired</button></div>
       <input class="find" id="mine-q" type="search" autocomplete="off">
       <button type="button" class="pill sm" id="mine-sel"><svg><use href="#i-check"/></svg><span>Select</span></button>
-      <!-- Drive (Alex, 27 Nov: "like Google Drive: your files, what you sent, send it again"); for now the admin alone, later Pro -->
-      <button type="button" class="dv-tg" id="mine-drive" hidden aria-label="Drive view" title="Drive view"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></g></svg></button>
     </div>
-    <div class="dv-bar" id="dv-bar" hidden>
-      <div class="dv-kinds" id="dv-kinds"></div>
-      <select class="dv-sort" id="dv-sort" aria-label="Sort"></select>
-    </div>
-    <div class="dv-grid" id="dv-grid" hidden></div>
     <!-- several links deleted at once (Alex, 2 Nov): Select, tap the rows, Delete -->
     <div class="selbar" id="mine-selbar" hidden><b id="mine-seln"></b><button type="button" class="pill sm" id="mine-selall"></button><span class="sp"></span><button type="button" class="pill sm" id="mine-selx"></button><button type="button" class="pill sm main" id="mine-seldel" disabled><svg><use href="#i-trash"/></svg><span></span></button></div>
     <p class="err" id="mine-err" hidden></p>
@@ -474,6 +487,6 @@
 
 <script src="/supabase-2.45.4.js"></script>
 <script src="/zip.js?v=3"></script>
-<script src="/home.js?v=fe538a9d"></script>
+<script src="/home.js?v=48b9813f"></script>
 </body>
 </html>
