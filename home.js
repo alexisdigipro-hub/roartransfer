@@ -1718,7 +1718,7 @@
     var locked = got.error === 'password'
     $('get-pwf').hidden = !locked
     if (locked) {
-      ;['get-ic', 'get-h', 'get-n', 'get-list', 'get-exp', 'get-go', 'get-vid', 'get-img'].forEach(function (id) { $(id).hidden = true })
+      ;['get-ic', 'get-h', 'get-n', 'get-list', 'get-exp', 'get-go', 'get-vid', 'get-img', 'get-aud'].forEach(function (id) { $(id).hidden = true })
       $('get-sub').hidden = !got.from; $('get-sub').textContent = got.from ? w('gFrom')(got.from) : ''
       $('get-pwh').textContent = w('gLocked'); $('get-pw').placeholder = w('gPw'); $('get-pwgo').querySelector('span').textContent = w('gOpen')
       $('get-pwe').hidden = !got.wrong && !got.slow; $('get-pwe').textContent = got.slow ? w('gSlow') : w('gWrong')
@@ -1731,7 +1731,7 @@
     $('get-list').classList.toggle('paylock', pay)
     clearTimeout(payTimer)
     if (pay) {
-      ;['get-ic', 'get-h', 'get-n', 'get-grace', 'get-last', 'get-exp', 'get-go', 'get-vid', 'get-img'].forEach(function (id) { $(id).hidden = true })
+      ;['get-ic', 'get-h', 'get-n', 'get-grace', 'get-last', 'get-exp', 'get-go', 'get-vid', 'get-img', 'get-aud'].forEach(function (id) { $(id).hidden = true })
       var pf = got.files || []
       $('get-sub').hidden = !got.from
       $('get-sub').textContent = got.from ? w('gFrom')(got.from) + (pf.length > 1 ? ' ' + pf.length + ' ' + w('files') + ' · ' + size(pf.reduce(function (n, f) { return n + Number(f.size || 0) }, 0)) : '') : ''
@@ -1754,7 +1754,7 @@
       $('get-ic').innerHTML = '<svg><use href="#' + (k === 'gGone' ? 'i-timer' : 'i-x') + '"/></svg>'
       $('get-h').textContent = w(k); $('get-n').textContent = w(k + 'N')
       if (got.grace && !user) $('get-n').hidden = true
-      $('get-vid').hidden = true; $('get-img').hidden = true
+      $('get-vid').hidden = true; $('get-img').hidden = true; audStop()
       return
     }
     // one file (an older link) or the whole upload (one link for many)
@@ -1766,11 +1766,16 @@
     if (vid && one.view && !$('get-vid').src) $('get-vid').src = one.view
     if (img && one.view && !$('get-img').src) $('get-img').src = one.view
     $('get-vid').hidden = !(vid && one.view); $('get-img').hidden = !(img && one.view)
+    // a sound: its player with the waveform; with many files, the first sound waits in it and each sound has a play
+    var firstAud = gotFiles.filter(function (f) { return isAud(f) && f.view && !f.used })[0]
+    if (firstAud && !gotFiles.some(isCur)) audLoad(firstAud, false)
+    if (!firstAud) audStop()
     $('get-sub').textContent = got.from
       ? w('gFrom')(got.from) + (gotFiles.length > 1 ? ' ' + gotFiles.length + ' ' + w('files') + ' · ' + size(gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0)) : '')
       : gotFiles.length > 1 ? w('gSubMany')(gotFiles.length, size(gotFiles.reduce(function (n, f) { return n + Number(f.size || 0) }, 0))) : w('gSubOne')
     $('get-list').innerHTML = gotFiles.map(function (f, n) {
       return '<li' + (f.used ? ' class="used"' : '') + '><span class="fi"><svg><use href="#' + icon(f.type || '') + '"/></svg></span><span class="ft"><b>' + esc(f.name || 'file') + '</b><small>' + size(f.size) + (f.used ? ' · ' + w('gUsed') : f.left != null ? ' · ' + w('gLeft')(Number(f.left) || 0) : '') + '</small></span>'
+        + (gotFiles.length > 1 && isAud(f) && f.view && !f.used ? '<button type="button" class="getpl' + (isCur(f) ? ' on' : '') + '" data-n="' + n + '" aria-label="Play"><svg viewBox="0 0 24 24"><path d="' + (isCur(f) && !$('aud-el').paused ? AUD_PAUSE : AUD_PLAY) + '" fill="currentColor"/></svg></button>' : '')
         + (gotFiles.length > 1 && !f.used ? '<a class="getdl" href="' + esc(dlUrl(f)) + '" download="' + esc(f.name || '') + '" data-n="' + n + '" title="' + esc(w('gOne')) + '" aria-label="' + esc(w('gOne')) + '"><svg><use href="#i-down"/></svg></a>' : '') + '</li>'
     }).join('')
     // the last download says nothing about how long it stays (Alex, 26 Oct: kept 5 days, not shown)
@@ -1781,6 +1786,93 @@
     $('get-go').href = one ? one.url : '#'
     if (one) $('get-go').setAttribute('download', one.name || ''); else $('get-go').removeAttribute('download')
     if (zipping) zipLabel(w('zGo')); else zipSoon()
+  }
+  // ---- a sound's player (Alex, 27 Nov), RoarStudio's way: the waveform drawn as bars from the sound itself (decoded in
+  // the browser, up to a size a phone can hold; past that a thin line), the played part in red, a white line where it
+  // is, tap or drag anywhere on it to go there. Listening is not counted as a download. ----
+  var AUD_PLAY = 'M8 5.5v13l11-6.5z', AUD_PAUSE = 'M7 5h3.6v14H7zM13.4 5H17v14h-3.6z'
+  var AUD_EXT = /\.(mp3|wav|wave|aif|aiff|aifc|flac|m4a|aac|ogg|oga|opus|caf|weba)$/i
+  var audFile = null, audPeaks = null, audHover = -1, audDrag = false, audJob = 0
+  function isCur(f) { return !!(audFile && f && (f.token || f.view) === (audFile.token || audFile.view)) }
+  function isAud(f) { return /^audio\//.test(f.type || '') || AUD_EXT.test(f.name || '') }
+  function audMmss(t) { t = Math.max(0, Math.floor(t || 0)); return Math.floor(t / 60) + ':' + ('0' + t % 60).slice(-2) }
+  function audStop() {
+    var el = $('aud-el'); if (!el) return
+    try { el.pause() } catch (e) {}
+    if (el.getAttribute('src')) { el.src = ''; el.removeAttribute('src') }
+    audFile = null; audPeaks = null; audJob++; $('get-aud').hidden = true
+  }
+  function audIcons() {
+    var on = !$('aud-el').paused
+    $('aud-ic').setAttribute('d', on ? AUD_PAUSE : AUD_PLAY)
+    $('aud-pp').setAttribute('aria-label', on ? 'Pause' : 'Play')
+    Array.prototype.forEach.call(document.querySelectorAll('#get-list .getpl'), function (b) { var me = isCur(gotFiles[+b.dataset.n]); b.classList.toggle('on', me); b.querySelector('path').setAttribute('d', me && on ? AUD_PAUSE : AUD_PLAY) })
+  }
+  function audLoad(f, play) {
+    var el = $('aud-el')
+    audFile = f; audPeaks = null
+    $('get-aud').hidden = false
+    $('aud-name').textContent = f.name || 'Sound'
+    $('aud-cur').textContent = '0:00'; $('aud-dur').textContent = ''
+    el.src = f.view
+    if (play) { var p = el.play(); if (p && p.catch) p.catch(function () {}) }
+    try { if ('mediaSession' in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: f.name || 'Sound', artist: (got && got.from) || 'RoarTransfer' }) } catch (e) {}
+    audIcons(); requestAnimationFrame(audDraw)
+    // the waveform: the file itself, decoded here, when it is small enough (a long WAV would not fit a phone's memory)
+    var job = ++audJob, cap = (IOS ? 40 : 120) * 1024 * 1024, AC = window.AudioContext || window.webkitAudioContext
+    if (!AC || Number(f.size || 0) > cap) return
+    fetch(f.view, { mode: 'cors', credentials: 'omit' }).then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer() }).then(function (buf) {
+      if (job !== audJob) return
+      var ctx = new AC()
+      return new Promise(function (ok, no) { ctx.decodeAudioData(buf, ok, no) }).then(function (ab) {
+        try { ctx.close() } catch (e) {}
+        if (job !== audJob) return
+        var BINS = 600, n = ab.length, per = n / BINS, out = new Array(BINS), chans = []
+        for (var c = 0; c < ab.numberOfChannels; c++) chans.push(ab.getChannelData(c))
+        for (var b = 0; b < BINS; b++) {
+          var s0 = Math.floor(b * per), e0 = Math.max(s0 + 1, Math.floor((b + 1) * per)), step = Math.max(1, Math.floor((e0 - s0) / 1500)), m = 0
+          for (var k = 0; k < chans.length; k++) { var ch = chans[k]; for (var i = s0; i < e0; i += step) { var v = ch[i] < 0 ? -ch[i] : ch[i]; if (v > m) m = v } }
+          out[b] = Math.min(1, Math.pow(m, 0.8))
+        }
+        audPeaks = out; audDraw()
+      }, function () { try { ctx.close() } catch (e) {} })
+    }).catch(function () {})
+  }
+  function audToggle() { var el = $('aud-el'); if (el.paused) { var p = el.play(); if (p && p.catch) p.catch(function () {}) } else el.pause() }
+  function audDraw() {
+    var cv = $('aud-cv'); if (!cv || $('get-aud').hidden) return
+    var r = cv.getBoundingClientRect(), d = window.devicePixelRatio || 1
+    if (!r.width) return
+    if (cv.width !== Math.round(r.width * d)) { cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d) }
+    var g = cv.getContext('2d'), wd = cv.width, h = cv.height, el = $('aud-el'), dur = el.duration || 0
+    var pos = dur && isFinite(dur) ? el.currentTime / dur * wd : 0
+    g.clearRect(0, 0, wd, h)
+    var bars = Math.floor(wd / (3 * d)), pk = audPeaks
+    for (var i = 0; i < bars; i++) {
+      var m = .05
+      if (pk) { var a = Math.floor(i / bars * pk.length), b = Math.max(a + 1, Math.floor((i + 1) / bars * pk.length)); m = 0; for (var j = a; j < b; j++) m = Math.max(m, pk[j] || 0) }
+      var bh = Math.max(2 * d, m * h * .9), bx = i * 3 * d
+      g.fillStyle = bx < pos ? '#ff3b2f' : audHover >= 0 && bx < audHover ? 'rgba(255,255,255,.55)' : 'rgba(214,220,228,.36)'
+      g.fillRect(bx, (h - bh) / 2, 2 * d, bh)
+    }
+    if (pos) { g.fillStyle = '#fff'; g.fillRect(pos - d, 0, 2 * d, h) }
+  }
+  if ($('aud-el')) {
+    var audEl = $('aud-el'), audWave = $('aud-wave'), audRaf = 0
+    var audTick = function () { audRaf = 0; $('aud-cur').textContent = audMmss(audEl.currentTime); audDraw(); if (!audEl.paused) audRaf = requestAnimationFrame(audTick) }
+    var audSeek = function (x) { var r = audWave.getBoundingClientRect(); if (!audEl.duration || !isFinite(audEl.duration)) return; audEl.currentTime = Math.max(0, Math.min(1, (x - r.left) / r.width)) * audEl.duration; audTick() }
+    audEl.addEventListener('loadedmetadata', function () { $('aud-dur').textContent = isFinite(audEl.duration) ? audMmss(audEl.duration) : ''; audDraw() })
+    audEl.addEventListener('play', function () { audIcons(); if (!audRaf) audRaf = requestAnimationFrame(audTick) })
+    audEl.addEventListener('pause', audIcons)
+    audEl.addEventListener('ended', function () { audIcons(); audTick() })
+    audEl.addEventListener('timeupdate', function () { if (audEl.paused) audTick() })
+    $('aud-pp').addEventListener('click', audToggle)
+    audWave.addEventListener('pointerdown', function (e) { audDrag = true; try { audWave.setPointerCapture(e.pointerId) } catch (er) {} audSeek(e.clientX) })
+    audWave.addEventListener('pointermove', function (e) { var r = audWave.getBoundingClientRect(); if (e.pointerType === 'mouse') audHover = (e.clientX - r.left) * (window.devicePixelRatio || 1); if (audDrag) audSeek(e.clientX); else audDraw() })
+    var audEnd = function () { audDrag = false }
+    audWave.addEventListener('pointerup', audEnd); audWave.addEventListener('pointercancel', audEnd)
+    audWave.addEventListener('pointerleave', function () { audHover = -1; audDraw() })
+    window.addEventListener('resize', audDraw)
   }
   // ---- Download all as one .zip (Alex, 1 Nov 2026). zip.js writes it (stored, no compression, zip64 past 4 GB).
   // Where the browser can, zip-sw.js (scope /__zip/ only) streams it straight to the disk, any size, with the browser's
@@ -1899,7 +1991,7 @@
       e.preventDefault()
       zipAll()
     })
-    $('get-list').addEventListener('click', function (e) { var a = e.target.closest('.getdl'); if (a) { countHit(gotFiles[+a.dataset.n].token, true); sendBack() } })
+    $('get-list').addEventListener('click', function (e) { var p = e.target.closest('.getpl'); if (p) { var f = gotFiles[+p.dataset.n]; if (isCur(f)) audToggle(); else audLoad(f, true); return } var a = e.target.closest('.getdl'); if (a) { countHit(gotFiles[+a.dataset.n].token, true); sendBack() } })
     $('get-pwf').addEventListener('submit', function (e) { e.preventDefault(); getPw = $('get-pw').value; if (getPw) { $('get-pwf').hidden = true; load() } })
     // Report abuse (Alex, 21 Oct): anyone can flag a transfer; the admins get an email (roartransfer-r2 'report')
     $('get-rep').addEventListener('click', function () {
