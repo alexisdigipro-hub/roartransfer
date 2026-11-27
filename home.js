@@ -947,13 +947,13 @@
   function dvKeep() { try { localStorage.setItem('rt-drive-v', JSON.stringify({ view: dvs.view, sort: dvs.sort, dir: dvs.dir })) } catch (e) {} }
   function driveOk() { return isAdmin && !viewAs }
   var DVW = {
-    en: { files: 'My files', recent: 'Recent', active: 'Active', soon: 'Ending soon', expired: 'Expired', mailed: 'Sent by email', big: 'Large files',
+    en: { got: 'Received', gotN: function (n) { return n + ' file' + (n === 1 ? '' : 's') }, files: 'My files', recent: 'Recent', active: 'Active', soon: 'Ending soon', expired: 'Expired', mailed: 'Sent by email', big: 'Large files',
       newT: 'New transfer', search: 'Search in your files', type: 'Type', people: 'People', when: 'Sent', src: 'Source', clear: 'Clear',
       any: 'Any time', today: 'Today', d7: 'Last 7 days', d30: 'Last 30 days', year: 'This year', linkOnly: 'Link only, no email',
       name: 'Name', to: 'Sent to', sent: 'Sent', exp: 'Expires', size: 'Size', dls: 'Downloads', open: 'Open the page', copy: 'Copy link',
       again: 'Send again', det: 'Details', del: 'Delete', list: 'List', grid: 'Grid', classic: 'Classic view', none: 'Nothing here.',
       keptT: 'Kept now', allT: 'All time', inN: function (n) { return 'in ' + n + ' transfer' + (n === 1 ? '' : 's') }, nFiles: function (n) { return n + ' files' } },
-    el: { files: 'Τα αρχεία μου', recent: 'Πρόσφατα', active: 'Ενεργά', soon: 'Λήγουν σύντομα', expired: 'Έληξαν', mailed: 'Με email', big: 'Μεγάλα αρχεία',
+    el: { got: 'Εισερχόμενα', gotN: function (n) { return n + (n === 1 ? ' αρχείο' : ' αρχεία') }, files: 'Τα αρχεία μου', recent: 'Πρόσφατα', active: 'Ενεργά', soon: 'Λήγουν σύντομα', expired: 'Έληξαν', mailed: 'Με email', big: 'Μεγάλα αρχεία',
       newT: 'Νέα αποστολή', search: 'Αναζήτηση στα αρχεία σου', type: 'Είδος', people: 'Άτομα', when: 'Στάλθηκε', src: 'Πηγή', clear: 'Καθαρισμός',
       any: 'Οποτεδήποτε', today: 'Σήμερα', d7: 'Τελευταίες 7 μέρες', d30: 'Τελευταίες 30 μέρες', year: 'Φέτος', linkOnly: 'Μόνο link, χωρίς email',
       name: 'Όνομα', to: 'Σε ποιον', sent: 'Στάλθηκε', exp: 'Λήγει', size: 'Μέγεθος', dls: 'Λήψεις', open: 'Άνοιγμα σελίδας', copy: 'Αντιγραφή link',
@@ -1017,6 +1017,21 @@
   function dvChip(k, label, val) {
     return '<button type="button" class="dv-chip' + (val ? ' on' : '') + '" data-chip="' + k + '"><span>' + esc(val || label) + '</span>' + sv('<path d="m7 10 5 5 5-5"/>', 'dv-car') + '</button>'
   }
+  function paintGot(got) {
+    var q = ($('dv-q').value || '').trim().toLowerCase()
+    var list = got.filter(function (g) { return !q || [g.sender_name, g.sender_email, g.message].some(function (x) { return (x || '').toLowerCase().indexOf(q) >= 0 }) })
+    if (!list.length) { $('dv-body').innerHTML = '<p class="dv-empty">' + sv(DV_IC.many) + '<span>' + esc(got.length ? dv('none') : pw('noneGot')) + '</span></p>'; return }
+    $('dv-body').innerHTML = '<div class="dv-table got"><div class="dv-tr dv-thead"><span>' + esc(lang === 'el' ? 'Από' : 'From') + '</span><span class="c-to">Email</span><span class="col-s">' + esc(dv('sent')) + '</span><span>' + esc(dv('size')) + '</span><span></span></div>'
+      + list.map(function (g) {
+        var u = PAGE + g.bundle
+        return '<a class="dv-tr" href="' + esc(u) + '" target="_blank" rel="noopener">'
+          + '<span class="c-name"><span class="dv-ic" style="--kc:#2fd36b">' + sv('<path d="M12 4v10M8 10.5l4 4 4-4"/><path d="M4 13.5V17a2.5 2.5 0 0 0 2.5 2.5h11A2.5 2.5 0 0 0 20 17v-3.5"/>') + '</span><span class="dv-nm"><b>' + esc(g.sender_name || g.sender_email || '?') + '</b><small>' + esc(dv('gotN')(Number(g.files) || 0)) + (g.message ? ' · ' + esc(g.message) : '') + '</small><small class="dv-mob">' + esc(size(Number(g.bytes || 0))) + ' · ' + esc(dvShort(new Date(g.created_at).getTime())) + '</small></span></span>'
+          + '<span class="c-to"><span class="dv-to' + (g.sender_email ? '' : ' dim') + '"><b>' + esc(g.sender_email || '') + '</b></span></span>'
+          + '<span class="c-d col-s">' + esc(dvShort(new Date(g.created_at).getTime())) + '</span>'
+          + '<span class="c-d">' + esc(size(Number(g.bytes || 0))) + '</span>'
+          + '<span class="c-m"><span class="dv-more">' + sv('<path d="M14 4h6v6M20 4l-9 9M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>') + '</span></span></a>'
+      }).join('') + '</div>'
+  }
   var KIND_LABEL = function (k) { return w('k_' + k) }
   function paintDrive(shown) {
     var ok = driveOk(), on = ok && drive
@@ -1028,9 +1043,13 @@
     if (picks) picks = null
     var all = dvAll()
     // the places, each with how many
-    $('dv-nav').innerHTML = DV_NAV.map(function (n) {
+    // Received (Alex, 27 Nov: "a folder with what they send me"): what came in through the Pro page roartransfer.com/u/<name>
+    var got = pro && pro.received ? pro.received : null
+    if (dvs.nav === 'got' && !got) dvs.nav = 'all'
+    var navBtn = function (key, ic, label, c) { return '<button type="button" data-nav="' + key + '"' + (dvs.nav === key ? ' class="on"' : '') + '>' + sv(ic) + '<span>' + esc(label) + '</span><em>' + c + '</em></button>' }
+    $('dv-nav').innerHTML = DV_NAV.map(function (n, i) {
       var c = all.filter(function (m) { return inNav(m, n[0]) }).length
-      return '<button type="button" data-nav="' + n[0] + '"' + (dvs.nav === n[0] ? ' class="on"' : '') + '>' + sv(n[1]) + '<span>' + esc(dv(n[2])) + '</span><em>' + c + '</em></button>'
+      return navBtn(n[0], n[1], dv(n[2]), c) + (i === 0 && got ? navBtn('got', '<path d="M4 13.5V17a2.5 2.5 0 0 0 2.5 2.5h11A2.5 2.5 0 0 0 20 17v-3.5"/><path d="M12 4v10M8 10.5l4 4 4-4"/>', dv('got'), got.length) : '')
     }).join('')
     // what is kept
     var act = all.filter(live), actSz = sum(act, 'size'), allSz = sum(all, 'size')
@@ -1038,7 +1057,8 @@
       + '<i class="dv-bar"><i style="width:' + (allSz ? Math.max(2, Math.round(actSz / allSz * 100)) : 0) + '%"></i></i>'
       + '<small>' + esc(dv('allT')) + ' · ' + esc(sz(allSz)) + ' · ' + esc(w('dls')(sum(all, 'downloads'))) + '</small>'
     $('dv-q').placeholder = dv('search')
-    $('dv-title').textContent = dv((DV_NAV.filter(function (n) { return n[0] === dvs.nav })[0] || DV_NAV[0])[2])
+    $('dv-title').textContent = dvs.nav === 'got' ? dv('got') : dv((DV_NAV.filter(function (n) { return n[0] === dvs.nav })[0] || DV_NAV[0])[2])
+    if (dvs.nav === 'got') { $('dv-chips').innerHTML = ''; paintGot(got); return true }
     $('dv-new').querySelector('span').textContent = dv('newT')
     $('dv-exit').title = $('dv-exit').ariaLabel = dv('classic')
     Array.prototype.forEach.call($('dv-views').children, function (b) { b.classList.toggle('on', b.dataset.v === dvs.view); b.title = dv(b.dataset.v) })
@@ -2315,7 +2335,7 @@
   }
   var proMe = null
   function loadPro() {
-    bridge({ action: 'pro' }).then(function (d) { pro = d && d.pro && viewAs !== 'free' ? d : null; if (pro && !pro.slug) proEd = true; paintPro() }).catch(function () { pro = null; paintPro() })
+    bridge({ action: 'pro' }).then(function (d) { pro = d && d.pro && viewAs !== 'free' ? d : null; if (pro && !pro.slug) proEd = true; paintPro(); if (drive && mine) paintMine() }).catch(function () { pro = null; paintPro() })
     proCall({ action: 'me' }).then(function (d) { proMe = viewAs === 'free' ? null : viewAs === 'pro' ? Object.assign({}, d, { admin: false }) : d; paintPro() }).catch(function () {})
   }
   function paintPro() {

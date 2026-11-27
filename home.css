@@ -935,3 +935,7 @@ main:has(> .card.is-drive:not([hidden])) { padding-left: 18px; padding-right: 18
   .dv-ic { width: 38px; height: 38px; }
   .dv-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
 }
+/* Drive > Received: who sent, their email, when, how big, open their page */
+.dv-table.got .dv-tr { grid-template-columns: minmax(0, 2.4fr) minmax(0, 1.6fr) 110px 100px 48px; color: inherit; text-decoration: none; }
+@media (max-width: 900px) { .dv-table.got .dv-tr { grid-template-columns: minmax(0, 1fr) 90px 80px 44px; } }
+@media (max-width: 560px) { .dv-table.got .dv-tr { grid-template-columns: minmax(0, 1fr) 40px; } }
