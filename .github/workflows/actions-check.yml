@@ -1,0 +1,12 @@
+# A one-second check: do GitHub Actions run at all on this account (Linux, the cheapest runner)?
+name: Actions check
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/actions-check.yml'
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Actions run on Linux"
